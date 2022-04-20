@@ -1,0 +1,38 @@
+.main{
+    width: 100vw;
+    height : 100vh;
+    background-image: url('../../../assets/background.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.glass{
+    width: inherit;
+    height: inherit;
+    background-color: rgba(0,0,0, 0.56);
+    font-family: 'neodgm';
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+}
+.button{
+    width: 200px;
+    height: 34px;
+    border: none;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    font-family: 'neodgm';
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+    &:hover{
+        transform: translateY(-4px);
+    }
+}
+.title{
+    color : white;
+    font-size: 5rem;
+    margin-bottom: 30px;
+    margin-top: 0px;
+}
