@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './style/Main.module.scss';
-
+import RoomCreate from './Modal/RoomCreate';
 
 function Main() {
     const [open, setOpen] = useState<boolean>(false);
@@ -19,6 +19,7 @@ function Main() {
                 <p className={styles.glitch} data-text="Arcade">Arcade</p>
                 <button className={styles.button} onClick={handleOpenCreateRoom}>방 만들기</button>
                 <button className={styles.button}>입장하기</button>
+                {open ? (<RoomCreate open={open} onClose={handleCloseCreateRoom}/>) : null}
             </div>
         </div>
     );
