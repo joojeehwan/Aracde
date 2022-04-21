@@ -22,6 +22,7 @@ const mainLogin = () => {
                 <a href={NAVER_AUTH_URL}>
                   <img className={styles.loginButton} src={NaverLogin} alt="네이버 로그인" />
                 </a>
+
                 <a href={GOOGLE_AUTH_URL}>
                   <img className={styles.loginButton} src={GoogleLogin} alt="구글 로그인" />
                 </a>

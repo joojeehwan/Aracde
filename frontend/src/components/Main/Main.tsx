@@ -1,14 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styles from './style/Main.module.scss';
 import RoomCreate from './Modal/RoomCreate';
 import ContentFirst from './ContentFirst';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import { useNavigate } from 'react-router-dom';
+import Alarms from '../Modal/Alarms';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
+
+  //지환 코드
+  const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
+  const handleOpenAlarms = useCallback(() => {
+    setAlarmsIsOpen(true);
+  }, [alarmsIsOpen]);
+
+  const handleCloseAlarms = useCallback(() => {
+    setAlarmsIsOpen(false);
+  }, [alarmsIsOpen]);
+
   const navigate = useNavigate();
 
   const handleOpenCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -48,12 +60,19 @@ function Main() {
   return (
     <>
       <div className={styles.main}>
-        <div className={styles.nav}>
+        <div
+          className={styles.nav}
+          onClick={() => {
+            console.log('여기');
+          }}
+        >
           {isLogin ? (
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
               <Bell
+                className={styles.button}
+                onClick={handleOpenAlarms}
                 style={{
                   width: 28,
                   height: 28,
@@ -89,6 +108,7 @@ function Main() {
             입장하기
           </button>
           {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
+          {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
         </div>
       </div>
       <div className={styles.contentbox}>
