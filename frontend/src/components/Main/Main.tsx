@@ -81,6 +81,7 @@ function Main() {
         </div>
         <div className={styles.contentbox}>
             <ContentFirst/>
+            <ContentFirst/>
         </div>
         </>
     );
