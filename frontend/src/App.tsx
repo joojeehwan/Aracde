@@ -24,7 +24,7 @@ function App() {
           <Route path="/oauth/callback/google" element={<GoogleRedirectHandler />} />
         </Routes>
       </BrowserRouter>
-      <ToastContainer autoClose={1500} style={{ width: '100%', display: 'inline' }} theme="colored" />
+      <ToastContainer autoClose={1500} style={{ display: 'inline' }} theme="colored" />
     </>
   );
 }
