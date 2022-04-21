@@ -5,6 +5,31 @@
     background-repeat: no-repeat;
     background-size: cover;
 }
+.contentbox{
+    width: 100%;
+    height: 1000px;
+    background-color: #231557;
+}
+@media (max-width : 800px) {
+    .contentbox{
+        height: 2000px;
+    }
+}
+.nav{
+    position: absolute;
+    width: 100%;
+    color : white
+}
+.nav button{
+    font-size: 28px;
+    background: none;
+    border: none;
+    color : white;
+    cursor: pointer;
+    float: right;
+    margin-top: 2%;
+    margin-right: 2%;
+}
 .glass{
     width: inherit;
     height: inherit;

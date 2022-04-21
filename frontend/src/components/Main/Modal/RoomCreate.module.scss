@@ -10,26 +10,29 @@
 }
 
 .modalForm {
+    font-family: 'neodgm';
     padding: 20px 10px;
     height: 200px;
 }
 
 .modalForm .title {
-    /* margin : 0 auto; */
-    font-family: 'NotoSansKR';
-    margin-bottom: 53px;
-    font-size: 16px;
-    text-align: center;
-    
+    display: inline;
+    font-size: 30px;
+    margin-left: 10px;
 }
 .modal button {
-    outline: none;
+    font-family: 'neodgm';
     cursor: pointer;
-    border: 0;
+    border: none;
+    border-radius: 5px;
+    width: 100px;
+    height: 32px;
+    font-size: 14px;
+    margin: auto 10px;
 }
 .modal > section {
     width: 340px;
-    height: 250px;
+    height: 200px;
     border-radius: 10px;
     background-color: #ffff;
     /* 팝업이 열릴때 스르륵 열리는 효과 */
@@ -38,30 +41,34 @@
 }
 .configForm {
     width: 100%;
+    margin : 40px auto;
     text-align: center;
-    font-size: 11px;
+    // font-size: 1px;
     position: relative;
 }
-label {
-    font-weight: 700;
-    margin-bottom: 8px;
+.nickname {
+    font-size: 20px;
+    margin-left: 20px;
+    font-family: 'neodgm';
+    border-style: none none solid none;
 }
-.modal > section > footer {
-    text-align: right;
+.btnbox {
+    text-align: center;
 }
-.modal > section > footer button {
-    width: 100px;
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-size: 13px;
+.confirm{
+    background-color: #9900F0;
+    color : white;
+    &:hover{
+        background-color: rgba($color: #9900F0, $alpha: 0.7);
+    }
 }
-
-
-.modal > section > footer .closeBtn {
-    background-color: #ff5722;
-    color: #fff;
+.cancel{
+    background-color: #858585;
+    color : white;
+    &:hover{
+        background-color: rgba($color: #858585, $alpha: 0.7);
+    }
 }
-
 .modal.openModal {
     display: flex;
     align-items: center;
