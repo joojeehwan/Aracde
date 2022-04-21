@@ -25,13 +25,14 @@ public class UserController {
 
     // 카카오 로그인
     // 인가코드를 받아온 후 부터 진행
-    @GetMapping("/kakao")
-    public ResponseEntity<Map<String, Object>> kakaoLogin(@RequestParam String code, @RequestParam(value = "provider") String provider) {
+    @GetMapping("/login")
+    public ResponseEntity<Map<String, Object>> kakaoLogin(@RequestParam String code, @RequestParam String provider
+    , @RequestParam String state) {
         User user = null;
         String email = null;
         String image = null;
         String name = null;
-        if("카카오".equals(provider)){
+        if("KAKAO".equals(provider)){
             // 1. 인가 코드로 액세스 토큰을 받아온다.
             String accessToken = userService.getAccessToken(code);
             // 2. 액세스 토큰으로 카카오 정보를 가져온다.
@@ -42,6 +43,15 @@ public class UserController {
             email = kakaoProfile.getKakao_account().getEmail();
             image = kakaoProfile.getKakao_account().getProfile().getProfile_image_url();
             name = kakaoProfile.getKakao_account().getProfile().getNickname();
+        }
+        else if("NAVER".equals(provider)){
+            String accessToken = naverLoginService.getAccessToken(code, state).getAccess_token();
+            NaverProfile naverProfile = naverLoginService.getProfileByToken(accessToken);
+            user = userRepository.findByEmail(naverProfile.getEmail()).orElseGet(User::new);
+
+            email = naverProfile.getEmail();
+            image = naverProfile.getProfile_image();
+            name = naverProfile.getNickname();
         }
         else{
 
@@ -63,31 +73,31 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @GetMapping("/naver")
-    public ResponseEntity<Map<String, Object>> naverLogin(@RequestParam String code, @RequestParam String state) {
-        User user = null;
-        String email = null;
-        String image = null;
-        String name = null;
-
-        String accessToken = naverLoginService.getAccessToken(code, state).getAccess_token();
-        NaverProfile naverProfile = naverLoginService.getProfileByToken(accessToken);
-        user = userRepository.findByEmail(naverProfile.getEmail()).orElseGet(User::new);
-
-        email = naverProfile.getEmail();
-        image = naverProfile.getProfile_image();
-        name = naverProfile.getNickname();
-
-        Map<String, Object> map = new HashMap<>();
-        if (user.getUserSeq() == null) {
-            user = userService.signUp(email, image, name);
-        }
-        map.put("token", "Bearer " + JwtTokenUtil.getToken(user.getEmail()));
-        map.put("name", user.getName());
-        map.put("email", user.getEmail());
-        map.put("image", user.getImage());
-        return new ResponseEntity<>(map, HttpStatus.OK);
-    }
+//    @GetMapping("/naver")
+//    public ResponseEntity<Map<String, Object>> naverLogin(@RequestParam String code, @RequestParam String state) {
+//        User user = null;
+//        String email = null;
+//        String image = null;
+//        String name = null;
+//
+//        String accessToken = naverLoginService.getAccessToken(code, state).getAccess_token();
+//        NaverProfile naverProfile = naverLoginService.getProfileByToken(accessToken);
+//        user = userRepository.findByEmail(naverProfile.getEmail()).orElseGet(User::new);
+//
+//        email = naverProfile.getEmail();
+//        image = naverProfile.getProfile_image();
+//        name = naverProfile.getNickname();
+//
+//        Map<String, Object> map = new HashMap<>();
+//        if (user.getUserSeq() == null) {
+//            user = userService.signUp(email, image, name);
+//        }
+//        map.put("token", "Bearer " + JwtTokenUtil.getToken(user.getEmail()));
+//        map.put("name", user.getName());
+//        map.put("email", user.getEmail());
+//        map.put("image", user.getImage());
+//        return new ResponseEntity<>(map, HttpStatus.OK);
+//    }
 
 
 }
