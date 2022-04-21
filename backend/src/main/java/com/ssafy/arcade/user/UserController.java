@@ -73,6 +73,19 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
+    @PostMapping(value= "/friend", params = "userName")
+    public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String token, @RequestParam("userName") String userName) {
+        userService.requestFriend(token, userName);
+        return new ResponseEntity<>("친구 요청 성공", HttpStatus.OK);
+    }
+
+    @PatchMapping(value= "/friend", params = "userName")
+    public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token, @RequestParam("userName") String userName) {
+
+
+        return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
+    }
+
 //    @GetMapping("/naver")
 //    public ResponseEntity<Map<String, Object>> naverLogin(@RequestParam String code, @RequestParam String state) {
 //        User user = null;

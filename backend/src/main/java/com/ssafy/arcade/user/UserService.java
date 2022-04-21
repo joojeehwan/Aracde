@@ -1,10 +1,17 @@
 package com.ssafy.arcade.user;
 
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.arcade.common.exception.CustomException;
+import com.ssafy.arcade.common.exception.ErrorCode;
+import com.ssafy.arcade.common.util.JwtTokenUtil;
+import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;
+import com.ssafy.arcade.user.repository.FriendRepository;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.KakaoProfile;
 import com.ssafy.arcade.user.request.KakaoToken;
@@ -27,6 +34,7 @@ public class UserService {
     @Value("${kakao.redirect_uri}")
     private String kakaoRedirectUri;
     private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -100,5 +108,48 @@ public class UserService {
                 .email(email).image(image).name(name).build();
         userRepository.save(user);
         return user;
+    }
+
+    // JWT 토큰으로 유저 조회
+    public String getEmailByToken(String token) {
+        JWTVerifier verifier = JwtTokenUtil.getVerifier();
+        if ("".equals(token)) {
+            throw new CustomException(ErrorCode.NOT_OUR_USER);
+        }
+        JwtTokenUtil.handleError(token);
+        DecodedJWT decodedJWT = verifier.verify(token.replace(JwtTokenUtil.TOKEN_PREFIX, ""));
+        return decodedJWT.getSubject();
+    }
+
+    // 친구 요청
+    public void requestFriend(String token, String targetName) {
+        User reqUser = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+        User targetUser = userRepository.findByName(targetName).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Friend friend = new Friend();
+        friend.setRequest(reqUser);
+        friend.setTarget(targetUser);
+        friend.setApproved(false);
+
+        friendRepository.save(friend);
+    }
+
+    public void approveFriend(String token, String reqName) {
+        User targetUser = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        User reqUser = userRepository.findByName(reqName).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Friend friend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElseThrow(() ->
+                new CustomException(ErrorCode.DATA_NOT_FOUND));
+
+        if (friend.isApproved()) {
+            new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+        }
+        friend.setApproved(true);
+
+        friendRepository.save(friend);
     }
 }
