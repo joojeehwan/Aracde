@@ -1,6 +1,3 @@
-*{
-    font-family: 'neodgm';
-}
 .modal {
     display: none;
     position: fixed;
@@ -13,6 +10,7 @@
 }
 
 .modalForm {
+    font-family: 'neodgm';
     padding: 20px 10px;
     height: 200px;
 }
@@ -23,6 +21,7 @@
     margin-left: 10px;
 }
 .modal button {
+    font-family: 'neodgm';
     cursor: pointer;
     border: none;
     border-radius: 5px;
@@ -50,6 +49,7 @@
 .nickname {
     font-size: 20px;
     margin-left: 20px;
+    font-family: 'neodgm';
     border-style: none none solid none;
 }
 .btnbox {
