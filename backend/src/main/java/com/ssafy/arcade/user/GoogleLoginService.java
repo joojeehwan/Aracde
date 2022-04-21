@@ -67,7 +67,6 @@ public class GoogleLoginService {
         GoogleToken googleToken = null;
         try {
             googleToken = objectMapper.readValue(response.getBody(), GoogleToken.class);
-            System.out.println(googleToken);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
