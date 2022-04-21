@@ -35,6 +35,8 @@ public class NaverLoginService {
 
     /**
      * @description Naver 로그인을 위하여 Access_tokin을 발급받음
+     *
+     * state는, 프론트에서 API 인증 요청 때 생성한 문자열
      */
     public NaverToken getAccessToken(String code, String state){
         String accessToken = "";
@@ -45,7 +47,7 @@ public class NaverLoginService {
         // 헤더 추가
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/xml");
-        // 바디 추가
+
         // 바디 추가
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
