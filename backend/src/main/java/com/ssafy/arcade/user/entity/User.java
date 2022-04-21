@@ -31,10 +31,10 @@ public class User extends BaseTimeEntity {
 
     // 친구를 맺은 순간, 친구 신청건 쪽 - 친구요청 받은쪽이 Friend에 저장.
     // 나중에 조회할 때는 friendList || targetList 가 내 전체 친구리스트가 되는것!
-    @OneToMany(mappedBy = "request")
+    @OneToMany(mappedBy = "request", orphanRemoval = true)
     private List<Friend> requestList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "target")
+    @OneToMany(mappedBy = "target", orphanRemoval = true)
     private List<Friend> targetList = new ArrayList<>();
 
     public void addFriend(Friend friend) {
