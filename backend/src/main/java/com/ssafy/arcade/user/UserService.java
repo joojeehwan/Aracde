@@ -128,7 +128,10 @@ public class UserService {
         User targetUser = userRepository.findByName(targetName).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Friend friend = new Friend();
+        Friend friend = friendRepository.findByRequestAndTarget(reqUser, targetUser).get();
+        if (friend != null) {
+            new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+        }
         friend.setRequest(reqUser);
         friend.setTarget(targetUser);
         friend.setApproved(false);
