@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './style/Main.module.scss';
 import RoomCreate from './Modal/RoomCreate';
+import ContentFirst from './ContentFirst';
 import {ReactComponent as Users} from '../../assets/users.svg';
 import {ReactComponent as Bell} from '../../assets/bell-ring.svg';
 import { useNavigate } from 'react-router-dom';
@@ -45,6 +46,7 @@ function Main() {
         }
     },[])
     return (
+        <>
         <div className={styles.main}>
             <div className={styles.nav}>
                 {isLogin ? (
@@ -77,6 +79,10 @@ function Main() {
                 {open ? (<RoomCreate open={open} onClose={handleCloseCreateRoom}/>) : null}
             </div>
         </div>
+        <div className={styles.contentbox}>
+            <ContentFirst/>
+        </div>
+        </>
     );
 }
 
