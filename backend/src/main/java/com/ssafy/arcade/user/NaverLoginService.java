@@ -44,7 +44,7 @@ public class NaverLoginService {
         RestTemplate restTemplate = new RestTemplate();
         // 헤더 추가
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+        headers.add("Content-type", "application/xml");
         // 바디 추가
         // 바디 추가
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -83,7 +83,7 @@ public class NaverLoginService {
         // HttpHeader 오브젝트 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+        headers.add("Content-type", "application/xml");
 
         HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(headers);
 
