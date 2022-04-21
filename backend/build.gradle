@@ -19,8 +19,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-tomcat'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'mysql:mysql-connector-java'
+	implementation group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.3.5.RELEASE'
 	// naver login
-	implementation('com.github.scribejava:scribejava-apis:5.6.0')
+	implementation 'com.github.scribejava:scribejava-core:8.3.1'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
 	// file upload
 	implementation 'commons-io:commons-io:2.6'

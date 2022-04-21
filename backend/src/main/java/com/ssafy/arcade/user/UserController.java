@@ -4,6 +4,8 @@ import com.ssafy.arcade.common.util.JwtTokenUtil;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.KakaoProfile;
+import com.ssafy.arcade.user.request.NaverProfile;
+import com.ssafy.arcade.user.request.NaverToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
+    private final NaverLoginService naverLoginService;
 
     // 카카오 로그인
     // 인가코드를 받아온 후 부터 진행
@@ -40,9 +43,7 @@ public class UserController {
             image = kakaoProfile.getKakao_account().getProfile().getProfile_image_url();
             name = kakaoProfile.getKakao_account().getProfile().getNickname();
         }
-        else if("네이버".equals(provider)){
-
-        }else{
+        else{
 
         }
 
@@ -61,5 +62,32 @@ public class UserController {
         map.put("image", user.getImage());
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
+
+    @GetMapping("/naver")
+    public ResponseEntity<Map<String, Object>> naverLogin(@RequestParam String code, @RequestParam String state) {
+        User user = null;
+        String email = null;
+        String image = null;
+        String name = null;
+
+        String accessToken = naverLoginService.getAccessToken(code, state).getAccess_token();
+        NaverProfile naverProfile = naverLoginService.getProfileByToken(accessToken);
+        user = userRepository.findByEmail(naverProfile.getEmail()).orElseGet(User::new);
+
+        email = naverProfile.getEmail();
+        image = naverProfile.getProfile_image();
+        name = naverProfile.getNickname();
+
+        Map<String, Object> map = new HashMap<>();
+        if (user.getUserSeq() == null) {
+            user = userService.signUp(email, image, name);
+        }
+        map.put("token", "Bearer " + JwtTokenUtil.getToken(user.getEmail()));
+        map.put("name", user.getName());
+        map.put("email", user.getEmail());
+        map.put("image", user.getImage());
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
 
 }
