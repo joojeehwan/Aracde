@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './style/Main.module.scss';
 import RoomCreate from './Modal/RoomCreate';
-import ContentFirst from './ContentFirst';
+import Content from './Content';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import { useNavigate } from 'react-router-dom';
@@ -92,7 +92,13 @@ function Main() {
         </div>
       </div>
       <div className={styles.contentbox}>
-        <ContentFirst />
+        <Content type={0}/>
+        <Content type={1}/>
+        <div className={styles.desc}>
+          다같이&nbsp; <p style={{color : "#FFF800"}}>Arcade</p>의 세계로
+          <br/>
+          <p>빠져볼까요?</p>
+        </div>
       </div>
     </>
   );

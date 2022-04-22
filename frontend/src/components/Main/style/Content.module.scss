@@ -1,5 +1,5 @@
-
 .content{
+    position: relative;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-auto-rows: 500px;
@@ -8,13 +8,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    margin-top : 100px;
 }
 .card{
     display: flex;
     flex-direction: column;
     justify-content: center;
     margin: 50px auto;
-    width: 70%;
+    width: 60%;
     height : 60%;
     border-radius: 5px;
     background: rgba($color: #ffffff, $alpha: 0.2);
