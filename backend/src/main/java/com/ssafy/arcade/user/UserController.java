@@ -3,8 +3,8 @@ package com.ssafy.arcade.user;
 import com.ssafy.arcade.common.util.JwtTokenUtil;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
-import com.ssafy.arcade.user.request.KakaoProfile;
-import com.ssafy.arcade.user.request.NaverProfile;
+import com.ssafy.arcade.user.request.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +21,12 @@ public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final NaverLoginService naverLoginService;
+    private final GoogleLoginService googleLoginService;
 
     // 카카오 로그인
     // 인가코드를 받아온 후 부터 진행
     @GetMapping("/login")
-    public ResponseEntity<Map<String, Object>> kakaoLogin(@RequestParam String code, @RequestParam String provider
+    public ResponseEntity<Map<String, Object>> socialLogin(@RequestParam String code, @RequestParam String provider
     , @RequestParam String state) {
         User user = null;
         String email = null;
@@ -53,7 +54,13 @@ public class UserController {
             name = naverProfile.getNickname();
         }
         else{
+            GoogleToken googleToken = googleLoginService.getGoogleToken(code);
+            GoogleProfile googleProfile = googleLoginService.getProfileByToken(googleToken);
+            user = userRepository.findByEmail(googleProfile.getEmail()).orElseGet(User::new);
 
+            email = googleProfile.getEmail();
+            image = googleProfile.getPicture();
+            name = googleProfile.getName();
         }
 
         // 3-1. 회원이 아니라면 회원가입 절차 진행
