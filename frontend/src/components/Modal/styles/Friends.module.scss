@@ -1,0 +1,123 @@
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.friendList {
+  /* margin-top: 10px; */
+  /* display: flex; */
+  width: 390px;
+  height: 460px;
+  border-radius: 15px;
+  margin: 0 auto;
+  /* margin-bottom: 7px; */
+  background-image: linear-gradient(-225deg, #ff057c 0%, #7c64d5 48%, #4cc3ff 100%);
+  border-width: 0.1rem;
+}
+
+.button {
+  width: 100px;
+  height: 34px;
+  box-shadow: 0rem 1.5rem 2rem rgba($color: #f3c522, $alpha: 0.2);
+  border: none;
+  border-radius: 15px;
+  margin-top: 3px;
+  margin-left: 40px;
+  font-family: 'neodgm';
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+  &:hover {
+    transform: translateY(-4px);
+    background-color: #e4405f;
+  }
+}
+
+.numberOf {
+  /* display: inline; */
+  margin-top: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  /* margin-left: 100px; */
+}
+.tabs {
+  /* margin: 0 auto; */
+  /* margin-left: 15px; */
+  /* background-color: black; */
+
+  text-align: left;
+  padding: 0;
+  height: 45px;
+  margin-bottom: 0;
+  /* display: table-cell; */
+  /* display: flex; */
+}
+
+.tabs li {
+  display: inline-block;
+  /* margin: 0 auto; */
+  text-align: center;
+  line-height: 30px;
+  margin-top: 28px;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-size: 18px;
+  width: 100px;
+  height: 25px;
+  transition: all 0.3s ease 0s;
+  &:hover {
+    transform: translateY(-4px);
+  }
+  &:after {
+    position: absolute;
+    content: '';
+    width: 0%;
+    height: 4px;
+    background-color: rgb(107, 13, 13);
+    left: 50%;
+    bottom: 0px;
+    transition: all 0.4s ease-in-out;
+  }
+  border-radius: 15px;
+  background-image: linear-gradient(to right, #8e2de2, #e000e0); /* border-style: solid solid solid solid; */
+  cursor: pointer;
+}
+
+.tabs li.active {
+  color: #fff800;
+}
+
+.modal.openModal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 팝업이 열릴때 스르륵 열리는 효과 */
+  animation: modal-bg-show 0.3s;
+}
+
+@keyframes modal-show {
+  from {
+    opacity: 0;
+    margin-top: -50px;
+  }
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
+}
+
+@keyframes modal-bg-show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,10 +1,14 @@
 import React from 'react';
 import ReactModal from 'react-modal';
-import { Value } from 'sass';
+
+//styles
 import styles from './styles/Alarms.module.scss';
 import './styles/styles.css';
+
+//png
 import pos from '../../assets/Modal/positive.png';
 import neg from '../../assets/Modal/negative.png';
+
 interface MyProps {
   open: boolean;
   onClose: (e: any) => void;
@@ -14,7 +18,7 @@ const dummydata = [
   { key: '1', message: '박현우님이 친구 요청을 보냈습니다.' },
   { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
 ];
-const Alarms = ({ open, onClose }: MyProps) => {
+function Alarms({ open, onClose }: MyProps) {
   return (
     <>
       <ReactModal
@@ -52,6 +56,6 @@ const Alarms = ({ open, onClose }: MyProps) => {
       </ReactModal>
     </>
   );
-};
+}
 
 export default Alarms;

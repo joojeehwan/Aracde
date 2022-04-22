@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { saveToken } from '../../../common/api/jWT-Token';
 import LoginApi from '../../../common/api/LoginApi';
 
-const OAuth2RedirectHandler = () => {
+function OAuth2RedirectHandler() {
   //이렇게 가져오는 걸 햇는데!
   // 콘솔에 안찍혀서!
   const code = new URL(window.location.href).searchParams.get('code');
@@ -22,6 +22,6 @@ const OAuth2RedirectHandler = () => {
     return result;
   };
   return <>{code}</>;
-};
+}
 
 export default OAuth2RedirectHandler;

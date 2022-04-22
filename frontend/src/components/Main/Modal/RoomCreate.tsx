@@ -7,6 +7,7 @@ type MyProps = {
   open: boolean;
   onClose: (e: any) => void;
 };
+
 function RoomCreate({ open, onClose }: MyProps) {
   const [nick, setNick] = useState<string>('');
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {

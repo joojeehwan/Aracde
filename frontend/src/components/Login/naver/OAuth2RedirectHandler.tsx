@@ -1,9 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { saveToken } from '../../../common/api/jWT-Token';
 import LoginApi from '../../../common/api/LoginApi';
-import { useNavigate } from 'react-router-dom';
 
-const OAuth2RedirectHandler = () => {
+function OAuth2RedirectHandler() {
   const code = new URL(window.location.href).searchParams.get('code');
   const { getNaverLoginResult } = LoginApi;
   const navigate = useNavigate();
@@ -17,6 +17,6 @@ const OAuth2RedirectHandler = () => {
     return result;
   };
   return <>{code}</>;
-};
+}
 
 export default OAuth2RedirectHandler;
