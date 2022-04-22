@@ -1,105 +1,115 @@
-.main{
-    width: 100vw;
-    height : 100vh;
-    background-image: url('../../../assets/background.jpg');
-    background-repeat: no-repeat;
-    background-size: cover;
+.main {
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../../../assets/background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
 }
-.contentbox{
-    width: 100%;
-    height: 1000px;
-    background-color: #231557;
+.contentbox {
+  width: 100%;
+  height: 1000px;
+  background-color: #231557;
 }
-@media (max-width : 800px) {
-    .contentbox{
-        height: 2000px;
+@media (max-width: 800px) {
+  .contentbox {
+    height: 2000px;
+  }
+}
+.nav {
+  position: absolute;
+  width: 100%;
+  color: white;
+}
+.nav button {
+  font-size: 28px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  float: right;
+  margin-top: 2%;
+  margin-right: 2%;
+}
+.glass {
+  width: inherit;
+  height: inherit;
+  background-color: rgba(0, 0, 0, 0.56);
+  font-family: 'neodgm';
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.button {
+  width: 200px;
+  height: 34px;
+  box-shadow: 0rem 1.5rem 2rem rgba($color: #f3c522, $alpha: 0.2);
+  border: none;
+  border-radius: 15px;
+  margin-bottom: 35px;
+  font-family: 'neodgm';
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+  &:hover {
+    box-shadow: 0rem 1.5rem 2rem rgba($color: #f3c522, $alpha: 0.4);
+    transform: translateY(-4px);
+  }
+}
+.glitch {
+  position: relative;
+  color: white;
+  font-size: 5rem;
+  margin-bottom: 30px;
+  margin-top: 0px;
+}
+@keyframes noise-anim {
+  $steps: 20;
+  @for $i from 0 through $steps {
+    #{percentage($i*(calc(1/$steps)))} {
+      clip: rect(random(100) + px, 9999px, random(100) + px, 0);
     }
+  }
 }
-.nav{
-    position: absolute;
-    width: 100%;
-    color : white
+.glitch:after {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  text-shadow: -2px 0 red;
+  top: 0;
+  color: white;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: noise-anim 2s infinite linear alternate-reverse;
 }
-.nav button{
-    font-size: 28px;
-    background: none;
-    border: none;
-    color : white;
-    cursor: pointer;
-    float: right;
-    margin-top: 2%;
-    margin-right: 2%;
-}
-.glass{
-    width: inherit;
-    height: inherit;
-    background-color: rgba(0,0,0, 0.56);
-    font-family: 'neodgm';
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
 
-}
-.button{
-    width: 200px;
-    height: 34px;
-    box-shadow: 0rem 1.5rem 2rem rgba($color: #F3C522, $alpha: 0.2);
-    border: none;
-    border-radius: 15px;
-    margin-bottom: 35px;
-    font-family: 'neodgm';
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease 0s;
-    &:hover{
-        box-shadow: 0rem 1.5rem 2rem rgba($color: #F3C522, $alpha: 0.4);
-        transform: translateY(-4px);
+@keyframes noise-anim-2 {
+  $steps: 20;
+  @for $i from 0 through $steps {
+    #{percentage($i*(calc(1/$steps)))} {
+      clip: rect(random(100) + px, 9999px, random(100) + px, 0);
     }
+  }
 }
-.glitch{
-    position: relative;
-    color : white;
-    font-size: 5rem;
-    margin-bottom: 30px;
-    margin-top: 0px;
+.glitch:before {
+  content: attr(data-text);
+  position: absolute;
+  left: -2px;
+  text-shadow: 2px 0 blue;
+  top: 0;
+  color: #d7d7d7;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: noise-anim-2 3s infinite linear alternate-reverse;
 }
-@keyframes noise-anim{
-    $steps:20;
-    @for $i from 0 through $steps{
-        #{percentage($i*(calc(1/$steps)))}{
-        clip:rect(random(100)+px,9999px,random(100)+px,0);
-        }
-    }
-}
-.glitch:after{
-    content:attr(data-text);
-    position:absolute;
-    left:2px;
-    text-shadow:-2px 0 red;
-    top:0;
-    color:white;
-    overflow:hidden;
-    clip:rect(0,900px,0,0); 
-    animation:noise-anim 2s infinite linear alternate-reverse;
-}
-
-@keyframes noise-anim-2{
-    $steps:20;
-    @for $i from 0 through $steps{
-        #{percentage($i*(calc(1/$steps)))}{
-        clip:rect(random(100)+px,9999px,random(100)+px,0);
-        }
-    }
-}
-.glitch:before{
-    content:attr(data-text);
-    position:absolute;
-    left:-2px;
-    text-shadow:2px 0 blue; 
-    top:0;
-    color:#d7d7d7;
-    overflow:hidden;
-    clip:rect(0,900px,0,0); 
-    animation:noise-anim-2 3s infinite linear alternate-reverse;
+.glitch:before {
+  content: attr(data-text);
+  position: absolute;
+  left: -2px;
+  text-shadow: 2px 0 blue;
+  top: 0;
+  color: #d7d7d7;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: noise-anim-2 3s infinite linear alternate-reverse;
 }
