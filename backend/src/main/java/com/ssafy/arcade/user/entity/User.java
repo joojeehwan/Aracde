@@ -56,5 +56,4 @@ public class User extends BaseTimeEntity {
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 //    private List<Feed> feeds = new ArrayList<>();
 
-
 }

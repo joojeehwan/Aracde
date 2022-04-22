@@ -23,11 +23,11 @@ public class Friend extends BaseTimeEntity {
     private boolean isApproved;
 
     @ManyToOne
-    @JoinColumn(name="REQUEST_ID")
+    @JoinColumn(name="REQUEST_SEQ")
     private User request;
 
     @ManyToOne
-    @JoinColumn(name="TARGET_ID")
+    @JoinColumn(name="TARGET_SEQ")
     private User target;
 
     public void setRequest(User user) {

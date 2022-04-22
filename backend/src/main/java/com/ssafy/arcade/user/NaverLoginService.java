@@ -9,10 +9,7 @@ import com.ssafy.arcade.user.request.NaverProfile;
 import com.ssafy.arcade.user.request.NaverToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -46,14 +43,13 @@ public class NaverLoginService {
         RestTemplate restTemplate = new RestTemplate();
         // 헤더 추가
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/xml");
+        headers.setContentType(MediaType.APPLICATION_XML);
 
         // 바디 추가
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", naverClientId);
         params.add("client_secret", naverClientSecret);
-        params.add("redirect_uri", naverRedirectUri);
         params.add("code", code);
         params.add("state", state);
 
@@ -85,12 +81,12 @@ public class NaverLoginService {
         // HttpHeader 오브젝트 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-type", "application/xml");
+        headers.setContentType(MediaType.APPLICATION_XML);
 
         HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                reqURL, HttpMethod.POST, naverTokenRequest, String.class);
+                reqURL, HttpMethod.GET, naverTokenRequest, String.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
         // 내가 필드로 선언한 데이터들만 파싱.

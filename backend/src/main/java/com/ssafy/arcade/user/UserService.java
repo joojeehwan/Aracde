@@ -138,7 +138,8 @@ public class UserService {
 
         friendRepository.save(friend);
     }
-
+        
+    // 친구 수락
     public void approveFriend(String token, String reqName) {
         User targetUser = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
@@ -148,6 +149,9 @@ public class UserService {
         Friend friend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElseThrow(() ->
                 new CustomException(ErrorCode.DATA_NOT_FOUND));
 
+
+        Friend friend2 = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElseThrow(() ->
+                new CustomException(ErrorCode.DATA_NOT_FOUND));
         if (friend.isApproved()) {
             new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }

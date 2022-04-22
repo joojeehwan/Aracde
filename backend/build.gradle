@@ -24,6 +24,8 @@ dependencies {
 	implementation 'com.github.scribejava:scribejava-core:8.3.1'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
+	// xml 변환
+	implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.13.2'
 
 	// file upload
 	implementation 'commons-io:commons-io:2.6'
