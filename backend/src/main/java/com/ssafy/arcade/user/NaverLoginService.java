@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -43,22 +45,22 @@ public class NaverLoginService {
         RestTemplate restTemplate = new RestTemplate();
         // 헤더 추가
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_XML);
+        headers.add("Content-Type", "application/xml");
 
-        // 바디 추가
-        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", naverClientId);
-        params.add("client_secret", naverClientSecret);
-        params.add("code", code);
-        params.add("state", state);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(reqURL)
+                .queryParam("grant_type", "authorization_code")
+                .queryParam("client_id", naverClientId)
+                .queryParam("client_secret", naverClientSecret)
+                .queryParam("code", code)
+                .queryParam("state", state);
 
         // HttpHeader와 HttpBody를 하나의 오브젝트에 담기
-        HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(params, headers);
+        HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(headers);
+
 
         // Http 요청하기 - Post방식으로 - 그리고 response 변수의 응답 받음.
         ResponseEntity<String> response = restTemplate.exchange(
-                    reqURL, HttpMethod.POST, naverTokenRequest, String.class);
+                    builder.toUriString(), HttpMethod.POST, naverTokenRequest, String.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
         NaverToken naverToken = null;
@@ -69,7 +71,6 @@ public class NaverLoginService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-
         return naverToken;
     }
 
@@ -81,12 +82,13 @@ public class NaverLoginService {
         // HttpHeader 오브젝트 생성
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
-        headers.setContentType(MediaType.APPLICATION_XML);
+        headers.add("Content-Type", "application/xml");
+
 
         HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                reqURL, HttpMethod.GET, naverTokenRequest, String.class);
+                reqURL, HttpMethod.POST, naverTokenRequest, String.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
         // 내가 필드로 선언한 데이터들만 파싱.
@@ -100,6 +102,8 @@ public class NaverLoginService {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+
+        System.out.println("naverProfile: " + naverProfile);
         return naverProfile;
     }
 

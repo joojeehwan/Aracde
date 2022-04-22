@@ -46,12 +46,16 @@ public class UserController {
         }
         else if("NAVER".equals(provider)){
             String accessToken = naverLoginService.getAccessToken(code, state).getAccess_token();
+//            System.out.println(accessToken);
+//            System.out.println("================================================");
             NaverProfile naverProfile = naverLoginService.getProfileByToken(accessToken);
-            user = userRepository.findByEmail(naverProfile.getEmail()).orElseGet(User::new);
+            user = userRepository.findByEmail(naverProfile.getResponse().getEmail()).orElseGet(User::new);
 
-            email = naverProfile.getEmail();
-            image = naverProfile.getProfile_image();
-            name = naverProfile.getNickname();
+            email = naverProfile.getResponse().getEmail();
+            image = naverProfile.getResponse().getProfile_image();
+            name = naverProfile.getResponse().getName();
+
+            System.out.printf("email: %s, image: %s, name: %s", email, image, name);
         }
         else{
             GoogleToken googleToken = googleLoginService.getGoogleToken(code);
