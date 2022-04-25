@@ -2,12 +2,12 @@ import React from 'react';
 import ReactModal from 'react-modal';
 
 //styles
-import styles from './styles/Alarms.module.scss';
-import './styles/styles.css';
+import styles from '../styles/Alarms.module.scss';
+import '../styles/styles.css';
 
 //png
-import pos from '../../assets/Modal/positive.png';
-import neg from '../../assets/Modal/negative.png';
+import pos from '../../../assets/Modal/positive.png';
+import neg from '../../../assets/Modal/negative.png';
 
 interface MyProps {
   open: boolean;

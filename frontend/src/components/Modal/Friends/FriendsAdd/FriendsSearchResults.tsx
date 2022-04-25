@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 
-import styles from '../styles/Friends.module.scss';
+import styles from '../../styles/Friends.module.scss';
 
 //mui
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
@@ -43,9 +43,13 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsItem({ name, imgUrl }: any) {
+function FriendsSearchResults({ name, imgUrl }: any) {
   const [isOnline, setIsOnline] = useState(true);
+  const [isClicked, setIsClicked] = useState(false);
 
+  const onClickAddFriends = useCallback(() => {
+    setIsClicked(true);
+  }, [isClicked]);
   return (
     <div style={{ display: 'flex', padding: '20px', marginLeft: '20px', marginTop: '-10px' }}>
       <div>
@@ -69,10 +73,16 @@ function FriendsItem({ name, imgUrl }: any) {
       </div>
       <div style={{ marginTop: '10px', paddingLeft: '50px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
       <div>
-        <button className={styles.button}>친구 삭제</button>
+        {isClicked ? (
+          <button className={styles.buttonYocheong}>요청됨</button>
+        ) : (
+          <button className={styles.button} onClick={onClickAddFriends}>
+            친구 추가
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
-export default FriendsItem;
+export default FriendsSearchResults;
