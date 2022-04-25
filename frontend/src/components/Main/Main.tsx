@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './style/Main.module.scss';
 import RoomCreate from './Modal/RoomCreate';
 import Content from './Content';
@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
+  const divRef = useRef<HTMLDivElement>(null);
+
   const navigate = useNavigate();
 
   const handleOpenCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -40,6 +42,7 @@ function Main() {
     console.log('hererererererere');
   };
 
+
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
@@ -47,6 +50,7 @@ function Main() {
   }, []);
   return (
     <>
+    <div ref={divRef} className={styles.scroll}>
       <div className={styles.main}>
         <div className={styles.nav}>
           {isLogin ? (
@@ -99,6 +103,7 @@ function Main() {
           <br/>
           <p>빠져볼까요?</p>
         </div>
+      </div>
       </div>
     </>
   );

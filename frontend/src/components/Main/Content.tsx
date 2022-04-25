@@ -59,7 +59,7 @@ function ContentFirst({type} : MyProps) {
                 <div
                     className={styles.content}>
                     <div data-aos="fade-right"
-                    //  data-aos-offset="500"
+                     data-aos-offset="700"
                     // {...window.innerWidth}
                         data-aos-duration="500" className={styles.container}>
                         <div className={styles.card}>
@@ -68,7 +68,7 @@ function ContentFirst({type} : MyProps) {
                         </div>
                     </div>
                     <div data-aos="fade-right"
-                    //  data-aos-offset="500"
+                    data-aos-offset="700"
                     // {...window.innerWidth}
                         data-aos-duration="500" className={styles.container}>
                         <div className={styles.card}>
@@ -91,7 +91,7 @@ function ContentFirst({type} : MyProps) {
                         <div data-aos="fade-right" data-aos-duration="500" className={styles.container}>
                             <div className={styles.card}>
                                 <p>이용방법</p>
-                                <span>회원가입 없이 닉네임을 설정하고 방을 만들 수 있어요! 다른친구가 만든 방에 입장코드만 입력하고 같이 놀수 있습니다 </span>
+                                <span>회원가입 없이 닉네임을 설정하고 방을 만들 수 있어요! 입장코드를 통해 방에 참여 해보세요</span>
                             </div>
                         </div>
                     </div>
@@ -114,9 +114,9 @@ function ContentFirst({type} : MyProps) {
                     // {...window.innerWidth}
                         data-aos-duration="500" className={styles.container}>
                         <div className={styles.card}>
-                            <p>이용방법</p>
-                            <span>회원가입 없이 닉네임을 설정하고 방을 만들 수 있어요! 다른친구가 만든 방에 입장코드만 입력하고 같이 놀수 있습니다 </span>
-                        </div>
+                                <p>이용방법</p>
+                                <span>회원가입 없이 닉네임을 설정하고 방을 만들 수 있어요! 입장코드를 통해 방에 참여 해보세요</span>
+                            </div>
                     </div>
                 </div>
             );
