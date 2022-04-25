@@ -26,6 +26,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -129,16 +131,21 @@ public class UserService {
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
 
-        System.out.println(reqUser + "-----" + targetUser);
-        Friend friend = friendRepository.findByRequestAndTarget(reqUser, targetUser).get();
-//        if (friend != null) {
-//            new CustomException(ErrorCode.DUPLICATE_RESOURCE);
-//        }
-        friend.setRequest(reqUser);
-        friend.setTarget(targetUser);
-        friend.setApproved(false);
+        Friend targetfriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqfriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
-        friendRepository.save(friend);
+        // 둘다 null이어야만 입력 가능
+        if (targetfriend == null && reqfriend == null) {
+            Friend friend = new Friend();
+
+            friend.setRequest(reqUser);
+            friend.setTarget(targetUser);
+            friend.setApproved(false);
+            friendRepository.save(friend);
+        }
+        else {
+            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+        }
     }
         
     // 친구 수락
@@ -148,17 +155,66 @@ public class UserService {
         User reqUser = userRepository.findByEmail(reqEmail).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Friend friend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElseThrow(() ->
-                new CustomException(ErrorCode.DATA_NOT_FOUND));
+        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
-
-        Friend friend2 = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElseThrow(() ->
-                new CustomException(ErrorCode.DATA_NOT_FOUND));
-        if (friend.isApproved()) {
-            new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+        // 요청한 친구관계가 없을떄
+        if (targetFriend == null && reqFriend == null) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         }
-        friend.setApproved(true);
+        else {
+            Friend friend = targetFriend == null ? reqFriend : targetFriend;
 
-        friendRepository.save(friend);
+            if (friend.isApproved()) {
+                throw new CustomException(ErrorCode.ALREADY_ACCEPT);
+            }
+            friend.setApproved(true);
+            friendRepository.save(friend);
+        }
+    }
+
+    // 테스트용
+    public void requestFriendTest(String fromEmail, String toEmail) {
+        User reqUser = userRepository.findByEmail(fromEmail).get();
+        User targetUser = userRepository.findByEmail(toEmail).get();
+
+        Friend targetfriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqfriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+
+        // 둘다 null이어야만 입력 가능
+        if (targetfriend == null && reqfriend == null) {
+            Friend friend = new Friend();
+
+            friend.setRequest(reqUser);
+            friend.setTarget(targetUser);
+            friend.setApproved(false);
+            friendRepository.save(friend);
+        }
+        else {
+            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+        }
+    }
+    public void approveFriendTest(String toEmail, String fromEmail) {
+        User targetUser = userRepository.findByEmail(toEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        User reqUser = userRepository.findByEmail(fromEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+
+        // 요청한 친구관계가 없을떄
+        if (targetFriend == null && reqFriend == null) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+        else {
+            Friend friend = targetFriend == null ? reqFriend : targetFriend;
+
+            if (friend.isApproved()) {
+                throw new CustomException(ErrorCode.ALREADY_ACCEPT);
+            }
+            friend.setApproved(true);
+            friendRepository.save(friend);
+        }
     }
 }

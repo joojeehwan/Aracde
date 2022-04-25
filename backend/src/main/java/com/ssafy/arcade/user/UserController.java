@@ -96,6 +96,21 @@ public class UserController {
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
     }
 
+    // 테스트용,
+    @PostMapping("/friend/test")
+    public ResponseEntity<String> requestFriendTest(@RequestParam("fromEmail") String fromEmail, @RequestParam("toEmail") String toEmail) {
+        userService.requestFriendTest(fromEmail, toEmail);
+        return new ResponseEntity<>("친구 요청 성공", HttpStatus.OK);
+    }
+
+    @PatchMapping("/friend/test")
+    public ResponseEntity<String> approveFriendTest(@RequestParam("toEmail") String toEmail, @RequestParam("fromEmail") String fromEmail) {
+
+        userService.approveFriendTest(toEmail, fromEmail);
+        return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
+    }
+
+
 //    @GetMapping("/naver")
 //    public ResponseEntity<Map<String, Object>> naverLogin(@RequestParam String code, @RequestParam String state) {
 //        User user = null;
