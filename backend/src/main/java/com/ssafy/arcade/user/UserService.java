@@ -15,6 +15,7 @@ import com.ssafy.arcade.user.repository.FriendRepository;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.KakaoProfile;
 import com.ssafy.arcade.user.request.KakaoToken;
+import com.ssafy.arcade.user.response.UserResDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -26,6 +27,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -173,7 +176,34 @@ public class UserService {
         }
     }
 
-    // 테스트용
+    // 친구리스트 조회
+    public List<UserResDto> getFriendList(String token) {
+        User user = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+
+        List<UserResDto> userResDtoList = new ArrayList<>();
+
+        List<Friend> friendList = friendRepository.findAllByRequestOrTarget(user, user).orElse(null);
+        if (friendList == null) {
+            throw new CustomException(ErrorCode.NOT_OUR_USER);
+        }
+
+        for (Friend friend : friendList) {
+            User friend_user = (friend.getRequest() == user) ? friend.getTarget() : friend.getRequest();
+            UserResDto userResDto = new UserResDto();
+            userResDto.setEmail(friend_user.getEmail());
+            userResDto.setName(friend_user.getName());
+            userResDto.setImage(friend_user.getImage());
+
+            userResDtoList.add(userResDto);
+        }
+        return userResDtoList;
+    }
+
+
+    /**
+     * 테스트용 Service
+     */
     public void requestFriendTest(String fromEmail, String toEmail) {
         User reqUser = userRepository.findByEmail(fromEmail).get();
         User targetUser = userRepository.findByEmail(toEmail).get();
@@ -216,5 +246,28 @@ public class UserService {
             friend.setApproved(true);
             friendRepository.save(friend);
         }
+    }
+
+    // 친구리스트 조회
+    public List<UserResDto> getFriendListTest(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        List<UserResDto> userResDtoList = new ArrayList<>();
+
+        List<Friend> friendList = friendRepository.findAllByRequestOrTarget(user, user).orElse(null);
+        if (friendList == null) {
+            throw new CustomException(ErrorCode.NOT_OUR_USER);
+        }
+
+        for (Friend friend : friendList) {
+            User friend_user = (friend.getRequest() == user) ? friend.getTarget() : friend.getRequest();
+            UserResDto userResDto = new UserResDto();
+            userResDto.setEmail(friend_user.getEmail());
+            userResDto.setName(friend_user.getName());
+            userResDto.setImage(friend_user.getImage());
+
+            userResDtoList.add(userResDto);
+        }
+        return userResDtoList;
     }
 }

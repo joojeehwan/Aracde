@@ -5,12 +5,14 @@ import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.*;
 
+import com.ssafy.arcade.user.response.UserResDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin("*")
@@ -58,8 +60,10 @@ public class UserController {
             System.out.printf("email: %s, image: %s, name: %s", email, image, name);
         }
         else{
+
             GoogleToken googleToken = googleLoginService.getGoogleToken(code);
             GoogleProfile googleProfile = googleLoginService.getProfileByToken(googleToken);
+            System.out.println("googleProfile: " + googleProfile);
             user = userRepository.findByEmail(googleProfile.getEmail()).orElseGet(User::new);
 
             email = googleProfile.getEmail();
@@ -83,6 +87,7 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
+    // 실제 친구관계는 REST 요청 보내는 사람은 토큰을 통해 유저를 조회하는 방식으로 사용
     @PostMapping(value= "/friend", params = "userEmail")
     public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
         userService.requestFriend(token, userEmail);
@@ -96,18 +101,31 @@ public class UserController {
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
     }
 
-    // 테스트용,
+    @GetMapping(value="/friend")
+    public ResponseEntity<List<UserResDto>> friendList(@RequestHeader("Authorization") String token) {
+        List<UserResDto> userResDtoList = userService.getFriendList(token);
+
+        return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
+    }
+
+
+    // 친구 테스트용,
     @PostMapping("/friend/test")
     public ResponseEntity<String> requestFriendTest(@RequestParam("fromEmail") String fromEmail, @RequestParam("toEmail") String toEmail) {
         userService.requestFriendTest(fromEmail, toEmail);
         return new ResponseEntity<>("친구 요청 성공", HttpStatus.OK);
     }
-
     @PatchMapping("/friend/test")
     public ResponseEntity<String> approveFriendTest(@RequestParam("toEmail") String toEmail, @RequestParam("fromEmail") String fromEmail) {
 
         userService.approveFriendTest(toEmail, fromEmail);
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
+    }
+
+    @GetMapping("/friend/test")
+    public ResponseEntity<List<UserResDto>> UserFriendList(@RequestParam("Email") String email) {
+        List<UserResDto> userResDtoList = userService.getFriendListTest(email);
+        return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
     }
 
 
