@@ -1,6 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import styles from '../styles/Friends.module.scss';
-import FriendsItem from './FriendsItem';
+import FriendsList from './FriendsList';
+import FriendsSeachBar from './FriendsAdd/FriendsSearhBar';
+import FriendsSearchResults from './FriendsAdd/FriendsSearchResults';
 
 interface MyProps {
   open: boolean;
@@ -33,16 +35,17 @@ function Friends({ open, onClose }: MyProps) {
       return (
         <div className={styles.friendList}>
           {value === 0 ? (
-            <div className={styles.numberOf}>
+            <div className={styles.friendListContainer}>
               {friend.map((value) => {
-                return <FriendsItem key={value.name} imgUrl={value.imageUrl} name={value.name} />;
+                return <FriendsList key={value.name} imgUrl={value.imageUrl} name={value.name} />;
               })}
             </div>
           ) : (
-            <div className={styles.numberOf}>
+            <div className={styles.friendAddContainer}>
+              <FriendsSeachBar />
               {friend.map((value) => {
-                return <FriendsItem key={value.name} imgUrl={value.imageUrl} name={value.name} />;
-              })}{' '}
+                return <FriendsSearchResults key={value.name} imgUrl={value.imageUrl} name={value.name} />;
+              })}
             </div>
           )}
         </div>

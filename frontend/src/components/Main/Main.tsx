@@ -5,8 +5,9 @@ import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import RoomCreate from './Modal/RoomCreate';
 import ContentFirst from './ContentFirst';
-import Alarms from '../Modal/Alarms';
+import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
+import Invite from '../Modal/Invite/Invite';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -17,6 +18,7 @@ function Main() {
   //지환 코드
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
+  const [test, setTest] = useState<boolean>(false);
 
   const handleOpenAlarms = useCallback(() => {
     setAlarmsIsOpen(true);
@@ -28,11 +30,19 @@ function Main() {
 
   const handleOpensFriends = useCallback(() => {
     setFriendsIsOpen(true);
-  }, []);
+  }, [friendsIsOpen]);
 
   const handleCloseFriends = useCallback(() => {
     setFriendsIsOpen(false);
-  }, []);
+  }, [friendsIsOpen]);
+
+  const handleOpenTest = useCallback(() => {
+    setTest(true);
+  }, [test]);
+
+  const handleCloseTest = useCallback(() => {
+    setTest(false);
+  }, [test]);
 
   const handleOpenCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -81,6 +91,7 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
+              <button onClick={handleOpenTest}>test</button>
               <Bell
                 className={styles.button}
                 onClick={handleOpenAlarms}
