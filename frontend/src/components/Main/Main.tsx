@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from './style/Main.module.scss';
 import RoomCreate from './Modal/RoomCreate';
 import Content from './Content';
+import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import { useNavigate } from 'react-router-dom';
@@ -41,7 +42,11 @@ function Main() {
     // navigate mypage here
     console.log('hererererererere');
   };
-
+  const handleClickTop = (e : React.MouseEvent) => {
+    if(divRef.current !== null){
+      window.scrollBy({top : divRef.current.getBoundingClientRect().top, behavior : 'smooth'});
+    }
+  }
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
@@ -102,6 +107,19 @@ function Main() {
             <br/>
             <p>빠져볼까요?</p>
           </div>
+        </div>
+        <div style={{
+          width : "inherit",
+          height : "fit-content",
+          display : "flex",
+          justifyContent : "center"
+        }}>
+          <button className={styles.btn} onClick={handleClickTop}>
+            <img style={{
+              width : 60,
+              height : 60
+            }} src={Arrow}></img>
+          </button>
         </div>
       </div>
       </div>
