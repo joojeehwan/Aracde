@@ -122,16 +122,18 @@ public class UserService {
     }
 
     // 친구 요청
-    public void requestFriend(String token, String targetName) {
+    public void requestFriend(String token, String targetEmail) {
         User reqUser = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
-        User targetUser = userRepository.findByName(targetName).orElseThrow(() ->
+        User targetUser = userRepository.findByEmail(targetEmail).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
+
+        System.out.println(reqUser + "-----" + targetUser);
         Friend friend = friendRepository.findByRequestAndTarget(reqUser, targetUser).get();
-        if (friend != null) {
-            new CustomException(ErrorCode.DUPLICATE_RESOURCE);
-        }
+//        if (friend != null) {
+//            new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+//        }
         friend.setRequest(reqUser);
         friend.setTarget(targetUser);
         friend.setApproved(false);
@@ -140,10 +142,10 @@ public class UserService {
     }
         
     // 친구 수락
-    public void approveFriend(String token, String reqName) {
+    public void approveFriend(String token, String reqEmail) {
         User targetUser = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
-        User reqUser = userRepository.findByName(reqName).orElseThrow(() ->
+        User reqUser = userRepository.findByEmail(reqEmail).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Friend friend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElseThrow(() ->

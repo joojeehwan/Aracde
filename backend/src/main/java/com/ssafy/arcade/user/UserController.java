@@ -83,16 +83,16 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PostMapping(value= "/friend", params = "userName")
-    public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String token, @RequestParam("userName") String userName) {
-        userService.requestFriend(token, userName);
+    @PostMapping(value= "/friend", params = "userEmail")
+    public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+        userService.requestFriend(token, userEmail);
         return new ResponseEntity<>("친구 요청 성공", HttpStatus.OK);
     }
 
-    @PatchMapping(value= "/friend", params = "userName")
-    public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token, @RequestParam("userName") String userName) {
+    @PatchMapping(value= "/friend", params = "userEmail")
+    public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
 
-
+        userService.approveFriend(token, userEmail);
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
     }
 
