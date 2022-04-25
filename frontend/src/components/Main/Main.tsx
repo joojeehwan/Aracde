@@ -51,8 +51,7 @@ function Main() {
   return (
     <>
     <div ref={divRef} className={styles.scroll}>
-      <div className={styles.main}>
-        <div className={styles.nav}>
+      <div className={styles.nav}>
           {isLogin ? (
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
@@ -82,26 +81,27 @@ function Main() {
             <button onClick={handleClickLogin}>LOGIN</button>
           )}
         </div>
-        <div className={styles.glass}>
-          <p className={styles.glitch} data-text="Arcade">
-            Arcade
-          </p>
-          <button className={styles.button} onClick={handleOpenCreateRoom}>
-            방 만들기
-          </button>
-          <button className={styles.button} onClick={handleEnterRoom}>
-            입장하기
-          </button>
-          {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
+      <div className={styles.glass}>
+        <div className={styles.main}>    
+            <p className={styles.glitch} data-text="Arcade">
+              Arcade
+            </p>
+            <button className={styles.button} onClick={handleOpenCreateRoom}>
+              방 만들기
+            </button>
+            <button className={styles.button} onClick={handleEnterRoom}>
+              입장하기
+            </button>
+            {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         </div>
-      </div>
-      <div className={styles.contentbox}>
-        <Content type={0}/>
-        <Content type={1}/>
-        <div className={styles.desc}>
-          다같이&nbsp; <p style={{color : "#FFF800"}}>Arcade</p>의 세계로
-          <br/>
-          <p>빠져볼까요?</p>
+        <div className={styles.contentbox}>
+          <Content type={0}/>
+          <Content type={1}/>
+          <div className={styles.desc}>
+            다같이&nbsp; <p style={{color : "#FFF800"}}>Arcade</p>의 세계로
+            <br/>
+            <p>빠져볼까요?</p>
+          </div>
         </div>
       </div>
       </div>

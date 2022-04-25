@@ -1,20 +1,25 @@
 .scroll{
   width: 100vw;
   height: fit-content;
+  background-image: url('../../../assets/background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
   overflow-y: auto;
 }
 .main {
   width: 100vw;
   height: 100vh;
-  background-image: url('../../../assets/background.jpg');
-  background-repeat: no-repeat;
-  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   // overflow-y: auto;
 }
 .contentbox {
   width: 100%;
-  height: 220vh;
-  background-color: #111111;
+  height: 120vh;
+  // background-color: #111111;
 }
 @media (max-width: 800px) {
   .contentbox {
@@ -22,7 +27,7 @@
   }
 }
 .desc{
-  margin: 20px auto;
+  margin: 10px auto;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -35,6 +40,7 @@
   margin: 5px 0px;
 }
 .nav {
+  z-index: 1;
   position: absolute;
   width: 100%;
   color: white;
@@ -50,14 +56,12 @@
   margin-right: 2%;
 }
 .glass {
-  width: inherit;
-  height: inherit;
+  width: 100vw;
+  height: fit-content;
+  position: relative;
   background-color: rgba(0, 0, 0, 0.56);
-  font-family: 'neodgm';
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+
+  background-attachment: fixed;
 }
 .button {
   width: 200px;

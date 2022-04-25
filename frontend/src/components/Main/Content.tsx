@@ -59,7 +59,7 @@ function ContentFirst({type} : MyProps) {
                 <div
                     className={styles.content}>
                     <div data-aos="fade-right"
-                     data-aos-offset="700"
+                     data-aos-offset="400"
                     // {...window.innerWidth}
                         data-aos-duration="500" className={styles.container}>
                         <div className={styles.card}>
@@ -68,7 +68,7 @@ function ContentFirst({type} : MyProps) {
                         </div>
                     </div>
                     <div data-aos="fade-right"
-                    data-aos-offset="700"
+                    data-aos-offset="400"
                     // {...window.innerWidth}
                         data-aos-duration="500" className={styles.container}>
                         <div className={styles.card}>
@@ -101,7 +101,7 @@ function ContentFirst({type} : MyProps) {
                 <div
                     className={styles.content}>
                     <div data-aos="fade-left"
-                    //  data-aos-offset="500"
+                     data-aos-offset="500"
                     // {...window.innerWidth}
                         data-aos-duration="500" className={styles.container}>
                         <div className={styles.card}>
@@ -110,7 +110,7 @@ function ContentFirst({type} : MyProps) {
                         </div>
                     </div>
                     <div data-aos="fade-left"
-                    //  data-aos-offset="500"
+                     data-aos-offset="500"
                     // {...window.innerWidth}
                         data-aos-duration="500" className={styles.container}>
                         <div className={styles.card}>
