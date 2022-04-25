@@ -189,6 +189,10 @@ public class UserService {
         }
 
         for (Friend friend : friendList) {
+            // 친구 수락 상태인 애들만
+            if (!friend.isApproved()) {
+                continue;
+            }
             User friend_user = (friend.getRequest() == user) ? friend.getTarget() : friend.getRequest();
             UserResDto userResDto = new UserResDto();
             userResDto.setEmail(friend_user.getEmail());
@@ -260,6 +264,9 @@ public class UserService {
         }
 
         for (Friend friend : friendList) {
+            if (!friend.isApproved()) {
+                continue;
+            }
             User friend_user = (friend.getRequest() == user) ? friend.getTarget() : friend.getRequest();
             UserResDto userResDto = new UserResDto();
             userResDto.setEmail(friend_user.getEmail());
