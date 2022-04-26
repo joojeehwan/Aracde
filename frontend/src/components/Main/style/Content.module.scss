@@ -23,17 +23,17 @@
     color : white;
 }
 .card p {
-    width: 75%;
-    color : #FFF800;
-    font-size: 2rem;
-    margin: 0px auto 20px;
+  width: 75%;
+  color: #fff800;
+  font-size: 2rem;
+  margin: 0px auto 20px;
 }
-.card span{
-    display: inline-block;
-    font-size: 1.3rem;
-    width: 75%;
-    margin: 0px auto;
-    line-height: 35px;
+.card span {
+  display: inline-block;
+  font-size: 1.3rem;
+  width: 75%;
+  margin: 0px auto;
+  line-height: 35px;
 }
 @media (max-width : 800px) {
     .content{
