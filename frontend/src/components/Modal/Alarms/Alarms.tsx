@@ -18,6 +18,7 @@ const dummydata = [
   { key: '1', message: '박현우님이 친구 요청을 보냈습니다.' },
   { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
 ];
+
 function Alarms({ open, onClose }: MyProps) {
   return (
     <>

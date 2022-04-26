@@ -74,11 +74,11 @@ function Main() {
     // navigate mypage here
     console.log('hererererererere');
   };
-  const handleClickTop = (e : React.MouseEvent) => {
-    if(divRef.current !== null){
-      window.scrollBy({top : divRef.current.getBoundingClientRect().top, behavior : 'smooth'});
+  const handleClickTop = (e: React.MouseEvent) => {
+    if (divRef.current !== null) {
+      window.scrollBy({ top: divRef.current.getBoundingClientRect().top, behavior: 'smooth' });
     }
-  }
+  };
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
@@ -87,7 +87,7 @@ function Main() {
   }, []);
   return (
     <>
-    <div ref={divRef} className={styles.scroll}>
+      <div ref={divRef} className={styles.scroll}>
         <div className={styles.nav}>
           {isLogin ? (
             <>
@@ -123,8 +123,8 @@ function Main() {
             <button onClick={handleClickLogin}>LOGIN</button>
           )}
         </div>
-      <div className={styles.glass}>
-        <div className={styles.main}>    
+        <div className={styles.glass}>
+          <div className={styles.main}>
             <p className={styles.glitch} data-text="Arcade">
               Arcade
             </p>
@@ -135,32 +135,38 @@ function Main() {
               입장하기
             </button>
             {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
-        </div>
-        <div className={styles.contentbox}>
-          <Content type={0}/>
-          <Content type={1}/>
-          <div className={styles.desc}>
-            다같이&nbsp; <p style={{color : "#FFF800"}}>Arcade</p>의 세계로
-            <br/>
-            <p>빠져볼까요?</p>
+          </div>
+          <div className={styles.contentbox}>
+            <Content type={0} />
+            <Content type={1} />
+            <div className={styles.desc}>
+              다같이&nbsp; <p style={{ color: '#FFF800' }}>Arcade</p>의 세계로
+              <br />
+              <p>빠져볼까요?</p>
+            </div>
+          </div>
+          <div className={styles.dockbar}>
+            <div
+              className={styles.dock}
+              style={{
+                width: 'fit-content',
+                height: 'fit-content',
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <button className={styles.btn} onClick={handleClickTop}>
+                <img
+                  style={{
+                    width: 60,
+                    height: 60,
+                  }}
+                  src={Arrow}
+                ></img>
+              </button>
+            </div>
           </div>
         </div>
-        <div className={styles.dockbar}>
-          <div className={styles.dock} style={{
-            width : "fit-content",
-            height : "fit-content",
-            display : "flex",
-            justifyContent : "center"
-          }}>
-            <button className={styles.btn} onClick={handleClickTop}>
-              <img style={{
-                width : 60,
-                height : 60
-              }} src={Arrow}></img>
-            </button>
-          </div>
-        </div>
-      </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import style from '../style/Invite.module.scss';
+import style from '../../styles/Invite.module.scss';
 import Char from '../../../../assets/character.png';
 import magnifyingGlassInvite from '../../../../assets/Modal/magnifyingGlassInvite.png';
 

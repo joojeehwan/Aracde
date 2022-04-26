@@ -32,6 +32,20 @@
   margin: auto 10px;
   background-color: #9900f0;
 }
+
+.modal .buttonClicked {
+  font-family: 'neodgm';
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  width: 100px;
+  height: 32px;
+  color: #ffffff;
+  font-size: 14px;
+  margin: auto 10px;
+  background-color: #858585;
+}
+
 .modal > section {
   width: 340px;
   height: 410px;
@@ -57,17 +71,12 @@
     outline: none;
   }
 }
-.btnbox {
-  text-align: center;
-}
-.confirm {
-  background-color: #9900f0;
-  color: white;
-  &:hover {
-    background-color: rgba($color: #9900f0, $alpha: 0.7);
-  }
-}
-.cancel {
+.modal .cancel {
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  transform: translateY(-50%);
+  transform: translate(-50%);
   background-color: #858585;
   color: white;
   &:hover {
