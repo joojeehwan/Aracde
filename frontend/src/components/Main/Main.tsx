@@ -15,7 +15,7 @@ function Main() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
 
-  const navigate = useNavigate;
+  const navigate = useNavigate();
 
   //지환 코드
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
@@ -68,6 +68,7 @@ function Main() {
   const handleClickLogin = (e: React.MouseEvent) => {
     console.log('here');
     // navigate login page here
+    navigate(`/login`);
     setIsLogin(true);
   };
   const handleClickMyPage = (e: React.MouseEvent) => {
