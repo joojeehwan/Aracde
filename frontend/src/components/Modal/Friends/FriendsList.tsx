@@ -47,7 +47,12 @@ function FriendsList({ name, imgUrl }: any) {
   const [isOnline, setIsOnline] = useState(true);
 
   return (
-    <div style={{ display: 'flex', padding: '20px', marginLeft: '20px', marginTop: '-10px' }}>
+    <div style={{ 
+      display: 'flex',
+      justifyContent : 'space-evenly',
+      alignItems : 'center',
+      marginBottom : '15px',
+    }}>
       <div>
         {isOnline ? (
           <StyledBadgeOnline
@@ -67,7 +72,7 @@ function FriendsList({ name, imgUrl }: any) {
           </StyledBadgeOffline>
         )}
       </div>
-      <div style={{ marginTop: '10px', paddingLeft: '50px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
+      <div>{name}</div>
       <div>
         <button className={styles.button}>친구 삭제</button>
       </div>

@@ -80,11 +80,25 @@ function Main() {
     }
   }
 
+  useEffect(()=> {
+    if(friendsIsOpen === true || alarmsIsOpen === true || open === true){
+      document.body.style.overflow = "hidden";
+    }
+    else{
+      document.body.style.overflow = "unset";
+    }
+  }, [friendsIsOpen, alarmsIsOpen, open])
+
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
     }
   }, []);
+
+
+
+
+
   return (
     <>
     <div ref={divRef} className={styles.scroll}>
