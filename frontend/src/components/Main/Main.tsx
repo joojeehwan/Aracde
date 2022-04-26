@@ -108,8 +108,9 @@ function Main() {
             <p>빠져볼까요?</p>
           </div>
         </div>
-        <div style={{
-          width : "inherit",
+        <div className={styles.dockbar}>
+        <div className={styles.dock} style={{
+          width : "fit-content",
           height : "fit-content",
           display : "flex",
           justifyContent : "center"
@@ -120,6 +121,7 @@ function Main() {
               height : 60
             }} src={Arrow}></img>
           </button>
+        </div>
         </div>
       </div>
       </div>

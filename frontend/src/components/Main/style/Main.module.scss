@@ -1,11 +1,11 @@
 .scroll{
   width: 100vw;
-  height: fit-content;
+  height: 220vh;
   background-image: url('../../../assets/background.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 .main {
   width: 100vw;
@@ -15,6 +15,21 @@
   align-items: center;
   justify-content: center;
   // overflow-y: auto;
+}
+.dockbar {
+  height: 100px;
+  width: inherit;
+  display: flex;
+  justify-content: center;
+}
+.dock {
+  position: relative;
+  bottom: 30px;
+  transition: all ease 0.5s 0s;
+}
+.dock:hover{
+  transition: all ease 0.5s 0s;
+  bottom: 80px;
 }
 .btn {
   background-color: #f3c522;
@@ -63,8 +78,8 @@
 }
 .glass {
   width: 100vw;
-  height: fit-content;
-  position: relative;
+  height: 220vh;
+  // position: relative;
   background-color: rgba(0, 0, 0, 0.56);
   background-attachment: fixed;
 }
