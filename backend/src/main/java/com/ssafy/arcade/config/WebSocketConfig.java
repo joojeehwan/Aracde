@@ -16,7 +16,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // /arcade : WebSocket 또는 SockJS Client가 웹소켓 핸드셰이크 커넥션을 생성할 경로이다.
         System.out.println("endpoint : /ws-stomp");
-        registry.addEndpoint("/ws-stomp").setAllowedOrigins("http://localhost:8080").withSockJS();
+        registry.addEndpoint("/ws-stomp").setAllowedOriginPatterns("*").withSockJS();
     }
 
     @Override
@@ -27,9 +27,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 또한 /topic, /queue로 시작하는 "destination" 헤더를 가진 메세지를 브로커로 라우팅한다.
 //        registry.enableSimpleBroker("/topic","/queue");
 
-//        /app은 메세지를 보내는 prefix로 작동하며 클라이언트->서버로 메세지를 보낼때는 다음과 같은 방식을 통하게 된다.
+//        /pub은 메세지를 보내는 prefix로 작동하며 클라이언트->서버로 메세지를 보낼때는 다음과 같은 방식을 통하게 된다.
 //        client.send(`/app/chat/보낼주소`,{},JSON.stringify(보낼데이터))
-        // /app 경로로 시작하는 STOMP 메세지의 "destination" 헤더는 @Controller 객체의 @MessageMapping 메서드로 라우팅된다.
+        // /pub 경로로 시작하는 STOMP 메세지의 "destination" 헤더는 @Controller 객체의 @MessageMapping 메서드로 라우팅된다.
         registry.setApplicationDestinationPrefixes("/pub");
         // 해당 경로로 SimpleBroker를 등록. SimpleBroker는 해당하는 경로를 SUBSCRIBE하는 Client에게 메세지를 전달하는 간단한 작업을 수행
         registry.enableSimpleBroker("/sub");

@@ -28,7 +28,8 @@ public class ChatRoomRepository {
     public ChatRoomDTO findRoomById(String id){
         return chatRoomDTOMap.get(id);
     }
-    // 채팅방 만들기. HashSet에 k-v로 저장된다.
+
+    // 채팅방 만들기. LinkedHashMap에 k-v로 저장된다.
     public ChatRoomDTO createChatRoomDTO(String name){
         ChatRoomDTO room = ChatRoomDTO.create(name);
         chatRoomDTOMap.put(room.getRoomId(), room);
