@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './style/Main.module.scss';
+import RoomCreate from './Modal/RoomCreate';
+import Content from './Content';
+import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
-import RoomCreate from './Modal/RoomCreate';
-import ContentFirst from './ContentFirst';
+import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
@@ -12,8 +13,9 @@ import Invite from '../Modal/Invite/Invite';
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
+  const divRef = useRef<HTMLDivElement>(null);
 
-  const navigate = useNavigate();
+  const navigate = useNavigate;
 
   //지환 코드
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
@@ -72,6 +74,11 @@ function Main() {
     // navigate mypage here
     console.log('hererererererere');
   };
+  const handleClickTop = (e : React.MouseEvent) => {
+    if(divRef.current !== null){
+      window.scrollBy({top : divRef.current.getBoundingClientRect().top, behavior : 'smooth'});
+    }
+  }
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
@@ -80,7 +87,7 @@ function Main() {
   }, []);
   return (
     <>
-      <div className={styles.main}>
+    <div ref={divRef} className={styles.scroll}>
         <div className={styles.nav}>
           {isLogin ? (
             <>
@@ -116,24 +123,48 @@ function Main() {
             <button onClick={handleClickLogin}>LOGIN</button>
           )}
         </div>
-        <div className={styles.glass}>
-          <p className={styles.glitch} data-text="Arcade">
-            Arcade
-          </p>
-          <button className={styles.button} onClick={handleOpenCreateRoom}>
-            방 만들기
-          </button>
-          <button className={styles.button} onClick={handleEnterRoom}>
-            입장하기
-          </button>
-          {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
-          {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
-          {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
-          {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
+      <div className={styles.glass}>
+        <div className={styles.main}>    
+            <p className={styles.glitch} data-text="Arcade">
+              Arcade
+            </p>
+            <button className={styles.button} onClick={handleOpenCreateRoom}>
+              방 만들기
+            </button>
+            <button className={styles.button} onClick={handleEnterRoom}>
+              입장하기
+            </button>
+            {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
+        </div>
+        <div className={styles.contentbox}>
+          <Content type={0}/>
+          <Content type={1}/>
+          <div className={styles.desc}>
+            다같이&nbsp; <p style={{color : "#FFF800"}}>Arcade</p>의 세계로
+            <br/>
+            <p>빠져볼까요?</p>
+          </div>
+        </div>
+        <div className={styles.dockbar}>
+          <div className={styles.dock} style={{
+            width : "fit-content",
+            height : "fit-content",
+            display : "flex",
+            justifyContent : "center"
+          }}>
+            <button className={styles.btn} onClick={handleClickTop}>
+              <img style={{
+                width : 60,
+                height : 60
+              }} src={Arrow}></img>
+            </button>
+          </div>
         </div>
       </div>
-      <div className={styles.contentbox}>
-        <ContentFirst />
+        {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
+        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
+        {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
+        {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
       </div>
     </>
   );
