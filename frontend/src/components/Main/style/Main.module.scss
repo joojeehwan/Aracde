@@ -16,9 +16,10 @@
   }
 }
 .nav {
-  position: absolute;
+  position: fixed;
   width: 100%;
   color: white;
+  z-index: 1;
 }
 .nav button {
   font-size: 28px;
