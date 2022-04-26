@@ -11,6 +11,8 @@ public class UserResDto {
     String email;
     String name;
     String image;
+    // -1이면 아무관계도 아닌것, 0이면 친구요청만 된 상태,  1이면 친구
+    Integer status;
 
     @Builder
     public UserResDto(User user) {

@@ -87,27 +87,47 @@ public class UserController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    // 실제 친구관계는 REST 요청 보내는 사람은 토큰을 통해 유저를 조회하는 방식으로 사용
+    // 유저 검색
+    @GetMapping(value="/search")
+    public ResponseEntity<UserResDto> searchUser(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+
+
+        UserResDto userResDto = userService.getUserByEmail(token, userEmail);
+
+        return new ResponseEntity<>(userResDto, HttpStatus.OK);
+    }
+
+
+    // 친구 요청
     @PostMapping(value= "/friend", params = "userEmail")
     public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
         userService.requestFriend(token, userEmail);
         return new ResponseEntity<>("친구 요청 성공", HttpStatus.OK);
     }
 
+    // 친구 수락
     @PatchMapping(value= "/friend", params = "userEmail")
     public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
 
         userService.approveFriend(token, userEmail);
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
     }
-
-    @GetMapping(value="/friend")
+    
+    // 친구 목록 불러오기
+    @GetMapping(value="/friendList")
     public ResponseEntity<List<UserResDto>> friendList(@RequestHeader("Authorization") String token) {
         List<UserResDto> userResDtoList = userService.getFriendList(token);
 
         return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
     }
 
+    // 친구 검색
+    @GetMapping(value = "/friend/search", params = "userEmail")
+    public ResponseEntity<UserResDto> friendSearch(@RequestHeader("Authorization") String token, @RequestParam String userEmail) {
+        UserResDto userResDto = userService.searchFriend(token, userEmail);
+
+        return new ResponseEntity<>(userResDto, HttpStatus.OK);
+    }
 
     // 친구 테스트용,
     @PostMapping("/friend/test")
