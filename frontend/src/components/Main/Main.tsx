@@ -81,12 +81,7 @@ function Main() {
   return (
     <>
       <div className={styles.main}>
-        <div
-          className={styles.nav}
-          onClick={() => {
-            console.log('여기');
-          }}
-        >
+        <div className={styles.nav}>
           {isLogin ? (
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
@@ -134,6 +129,7 @@ function Main() {
           {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
           {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
           {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
+          {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         </div>
       </div>
       <div className={styles.contentbox}>
