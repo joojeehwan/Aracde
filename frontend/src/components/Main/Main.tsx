@@ -26,7 +26,7 @@ function Main() {
     setAlarmsIsOpen(true);
   }, [alarmsIsOpen]);
 
-  const handleCloseAlarms = useCallback(() => {
+  const handleCloseAlarms = useCallback((e : React.MouseEvent<HTMLDivElement>) => {
     setAlarmsIsOpen(false);
   }, [alarmsIsOpen]);
 
@@ -108,7 +108,7 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
-              <button onClick={handleOpenTest}>test</button>
+              {/* <button onClick={handleOpenTest}>test</button> */}
               <Bell
                 className={styles.button}
                 onClick={handleOpenAlarms}
