@@ -148,7 +148,6 @@ public class UserService {
         else {
             status = 1;
         }
-
         UserResDto userResDto = new UserResDto();
         userResDto.setEmail(user.getEmail());
         userResDto.setName(user.getName());
@@ -164,7 +163,6 @@ public class UserService {
                 new CustomException(ErrorCode.USER_NOT_FOUND));
         User targetUser = userRepository.findByEmail(targetEmail).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
-
 
         Friend targetfriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
         Friend reqfriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
@@ -246,7 +244,7 @@ public class UserService {
 
         Friend friend = targetFriend == null ? requestFriend : targetFriend;
         if (friend == null || !friend.isApproved()) {
-            throw new CustomException(ErrorCode.WRONG_DATA);
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         }
         UserResDto userResDto = new UserResDto();
         userResDto.setEmail(user.getEmail());
