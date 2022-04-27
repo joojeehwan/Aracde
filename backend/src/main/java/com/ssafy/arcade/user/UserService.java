@@ -166,11 +166,15 @@ public class UserService {
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
 
-        Friend targetfriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqfriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqFriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
+        // 본인 친구추가 불가
+        if (targetFriend == reqFriend) {
+            throw new CustomException(ErrorCode.CANNOT_FOLLOW_MYSELF);
+        }
         // 둘다 null이어야만 입력 가능
-        if (targetfriend == null && reqfriend == null) {
+        if (targetFriend == null && reqFriend == null) {
             Friend friend = new Friend();
 
             friend.setRequest(reqUser);
@@ -204,6 +208,24 @@ public class UserService {
             }
             friend.setApproved(true);
             friendRepository.save(friend);
+        }
+    }
+    // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
+    public void deleteFriend(String token, String userEmail) {
+        User reqUser = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        User targetUser = userRepository.findByEmail(userEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+
+        Friend friend = targetFriend == null ? reqFriend : targetFriend;
+        if (friend == null) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+        else {
+            friendRepository.delete(friend);
         }
     }
 
@@ -327,6 +349,25 @@ public class UserService {
             userResDtoList.add(userResDto);
         }
         return userResDtoList;
+    }
+
+    // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
+    public void deleteFriendTest(String myEmail, String userEmail) {
+        User reqUser = userRepository.findByEmail(myEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        User targetUser = userRepository.findByEmail(userEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+
+        Friend friend = targetFriend == null ? reqFriend : targetFriend;
+        if (friend == null) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+        else {
+            friendRepository.delete(friend);
+        }
     }
 
 }

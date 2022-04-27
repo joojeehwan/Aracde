@@ -106,13 +106,21 @@ public class UserController {
     }
 
     // 친구 수락
-    @PatchMapping(value= "/friend", params = "userEmail")
+    @PatchMapping(value = "/friend", params = "userEmail")
     public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
 
         userService.approveFriend(token, userEmail);
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
     }
-    
+
+    // 친구 삭제
+    @DeleteMapping(value = "/friend", params = "userEmail")
+    public ResponseEntity<String> deleteFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+
+        userService.deleteFriend(token, userEmail);
+        return new ResponseEntity<>("친구 삭제 성공", HttpStatus.OK);
+    }
+
     // 친구 목록 불러오기
     @GetMapping(value="/friendList")
     public ResponseEntity<List<UserResDto>> friendList(@RequestHeader("Authorization") String token) {
@@ -128,6 +136,9 @@ public class UserController {
 
         return new ResponseEntity<>(userResDto, HttpStatus.OK);
     }
+
+
+
 
     // 친구 테스트용,
     @PostMapping("/friend/test")
@@ -148,6 +159,11 @@ public class UserController {
         return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
     }
 
+    @DeleteMapping(value = "/friend/test")
+    public ResponseEntity<String> deleteFriendTest(@RequestParam("myEmail") String myEmail, @RequestParam("userEmail") String userEmail) {
+        userService.deleteFriendTest(myEmail, userEmail);
+        return new ResponseEntity<>("친구 삭제 성공", HttpStatus.OK);
+    }
 
 //    @GetMapping("/naver")
 //    public ResponseEntity<Map<String, Object>> naverLogin(@RequestParam String code, @RequestParam String state) {
