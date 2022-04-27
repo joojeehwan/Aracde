@@ -48,6 +48,7 @@
 	<properties>
 		<!-- Main class -->
 		<start-class>io.openvidu.server.OpenViduServer</start-class>
+		<java.version>11</java.version>
 	</properties>
 
 	<profiles>
