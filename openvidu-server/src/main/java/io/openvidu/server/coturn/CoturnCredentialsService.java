@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,32 @@
 
 package io.openvidu.server.coturn;
 
-import io.openvidu.java.client.IceServerProperties;
-import io.openvidu.server.config.OpenviduConfig;
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * This class implements the proposed standard https://datatracker.ietf.org/doc/html/draft-uberti-rtcweb-turn-rest-00
- * for obtaining access to TURN services via ephemeral (i.e. time-limited) credentials.
- */
-public class CoturnCredentialsService {
+import io.openvidu.server.config.OpenviduConfig;
 
-    protected static final Logger log = LoggerFactory.getLogger(CoturnCredentialsService.class);
+public abstract class CoturnCredentialsService {
 
-    @Autowired
-    protected OpenviduConfig openviduConfig;
+	protected static final Logger log = LoggerFactory.getLogger(CoturnCredentialsService.class);
 
-    public TurnCredentials createUser() {
-        IceServerProperties iceServerProperties = new IceServerProperties.Builder()
-//                .ignoreEmptyUrl(true)
-                .staticAuthSecret(openviduConfig.getCoturnSharedSecretKey())
-                .build();
-        return new TurnCredentials(iceServerProperties.getUsername(), iceServerProperties.getCredential());
-    }
+	@Autowired
+	protected OpenviduConfig openviduConfig;
+
+	protected String coturnDatabaseString;
+	protected String trimmedCoturnDatabaseString;
+
+	public abstract TurnCredentials createUser() throws Exception;
+
+	public abstract boolean deleteUser(String user);
+
+	@PostConstruct
+	protected void initDatabse() {
+		this.coturnDatabaseString = this.openviduConfig.getCoturnDatabaseString();
+		this.trimmedCoturnDatabaseString = this.coturnDatabaseString.replaceAll("^\"|\"$", "");
+	}
 
 }

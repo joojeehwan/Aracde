@@ -12,8 +12,8 @@
 	<packaging>jar</packaging>
 
 	<name>OpenVidu Server</name>
-	<version>Arcade</version>
-	<description>Customize OpenVidu Server</description>
+	<version>2.20.0</version>
+	<description>OpenVidu Server</description>
 	<url>https://openvidu.io</url>
 
 	<licenses>
@@ -156,7 +156,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>${version.exec.plugin}</version>
+						<version>{version.exec.plugin}</version>
 						<configuration>
 							<mainClass>${start-class}</mainClass>
 						</configuration>
@@ -211,7 +211,7 @@
 		<dependency>
 			<groupId>org.kurento</groupId>
 			<artifactId>kurento-client</artifactId>
-			<version>6.16.5</version>
+			<version>${version.kurento}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
@@ -270,8 +270,7 @@
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
-<!--			<version>${version.commons-validator}</version>-->
-			<version>1.7</version>
+			<version>${version.commons-validator}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.docker-java</groupId>
@@ -326,19 +325,17 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.8.6</version>
-<!--			<version>${version.gson}</version>-->
+			<version>${version.gson}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.openvidu</groupId>
 			<artifactId>openvidu-java-client</artifactId>
-			<version>2.21.1</version>
+			<version>${version.openvidu.java.client}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-artifact</artifactId>
-			<version>3.8.3</version>
-<!--			<version>${version.maven.artifact}</version>-->
+			<version>${version.maven.artifact}</version>
 		</dependency>
 
 		<!-- Test dependencies -->
@@ -364,15 +361,13 @@
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-core</artifactId>
-			<version>2.2</version>
-<!--			<version>${version.hamcrest}</version>-->
+			<version>${version.hamcrest}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-library</artifactId>
-			<version>2.2</version>
-<!--			<version>${version.hamcrest}</version>-->
+			<version>${version.hamcrest}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

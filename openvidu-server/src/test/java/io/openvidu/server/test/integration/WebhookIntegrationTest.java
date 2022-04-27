@@ -89,12 +89,7 @@ public class WebhookIntegrationTest {
 	private void mockWebhookHttpClient(int millisecondsDelayOnResponse) throws ClientProtocolException, IOException {
 		CDRLoggerWebhook cdrLoggerWebhook = (CDRLoggerWebhook) cdr.getLoggers().stream()
 				.filter(logger -> logger instanceof CDRLoggerWebhook).findFirst().get();
-
-		try {
-			this.webhook = Whitebox.getInternalState(cdrLoggerWebhook, "webhookSender");
-		} catch (Exception e) {
-			Assert.fail("Error getting private property from stubbed object: " + e.getMessage());
-		}
+		this.webhook = Whitebox.getInternalState(cdrLoggerWebhook, "webhookSender");
 
 		CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
 		StatusLine statusLine = mock(StatusLine.class);
@@ -105,13 +100,7 @@ public class WebhookIntegrationTest {
 	}
 
 	private void setHttpClientDelay(int millisecondsDelayOnResponse) throws ClientProtocolException, IOException {
-		HttpClient httpClient = null;
-		try {
-			httpClient = Whitebox.getInternalState(webhook, "httpClient");
-		} catch (Exception e) {
-			Assert.fail("Error getting private property from stubbed object: " + e.getMessage());
-		}
-		httpClient = PowerMockito.spy(httpClient);
+		HttpClient httpClient = PowerMockito.spy((HttpClient) Whitebox.getInternalState(webhook, "httpClient"));
 		doAnswer(invocationOnMock -> {
 			Thread.sleep(millisecondsDelayOnResponse);
 			return invocationOnMock.callRealMethod();
@@ -148,7 +137,7 @@ public class WebhookIntegrationTest {
 				CustomWebhook.waitForEvent("sessionCreated", 250, TimeUnit.MILLISECONDS);
 			});
 			// Now webhook response for event "sessionCreated" should be received
-			CustomWebhook.waitForEvent("sessionCreated", 1000, TimeUnit.MILLISECONDS);
+			CustomWebhook.waitForEvent("sessionCreated", 750, TimeUnit.MILLISECONDS);
 
 			this.sessionRestController.initializeConnection(sessionId, Map.of());
 
@@ -171,7 +160,7 @@ public class WebhookIntegrationTest {
 					anyInt(), refEq(null));
 
 			// Now webhook response for event "participantJoined" should be received
-			CustomWebhook.waitForEvent("participantJoined", 1000, TimeUnit.MILLISECONDS);
+			CustomWebhook.waitForEvent("participantJoined", 750, TimeUnit.MILLISECONDS);
 
 			setHttpClientDelay(1);
 			// These events will be received immediately
@@ -201,7 +190,7 @@ public class WebhookIntegrationTest {
 				CustomWebhook.waitForEvent("signalSent", 25, TimeUnit.MILLISECONDS);
 			});
 			// Events now received after timeout
-			JsonObject signal3 = CustomWebhook.waitForEvent("signalSent", 1000, TimeUnit.MILLISECONDS);
+			JsonObject signal3 = CustomWebhook.waitForEvent("signalSent", 500, TimeUnit.MILLISECONDS);
 			JsonObject signal4 = CustomWebhook.waitForEvent("signalSent", 25, TimeUnit.MILLISECONDS);
 			JsonObject signal5 = CustomWebhook.waitForEvent("signalSent", 25, TimeUnit.MILLISECONDS);
 
@@ -219,7 +208,7 @@ public class WebhookIntegrationTest {
 
 			// Webhook is NOT configured to receive "sessionDestroyed" event
 			assertThrows(TimeoutException.class, () -> {
-				CustomWebhook.waitForEvent("sessionDestroyed", 1000, TimeUnit.MILLISECONDS);
+				CustomWebhook.waitForEvent("sessionDestroyed", 500, TimeUnit.MILLISECONDS);
 			});
 
 		} finally {

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+
+import io.openvidu.server.core.TokenRegister;
 import org.bouncycastle.util.Arrays;
 import org.kurento.jsonrpc.internal.server.config.JsonRpcConfiguration;
 import org.kurento.jsonrpc.server.JsonRpcConfigurer;
@@ -52,8 +54,8 @@ import io.openvidu.server.config.OpenviduConfig.Error;
 import io.openvidu.server.core.SessionEventsHandler;
 import io.openvidu.server.core.SessionManager;
 import io.openvidu.server.core.TokenGenerator;
-import io.openvidu.server.core.TokenRegister;
 import io.openvidu.server.coturn.CoturnCredentialsService;
+import io.openvidu.server.coturn.CoturnCredentialsServiceFactory;
 import io.openvidu.server.kurento.core.KurentoParticipantEndpointConfig;
 import io.openvidu.server.kurento.core.KurentoSessionEventsHandler;
 import io.openvidu.server.kurento.core.KurentoSessionManager;
@@ -77,10 +79,17 @@ import io.openvidu.server.utils.GeoLocationByIp;
 import io.openvidu.server.utils.GeoLocationByIpDummy;
 import io.openvidu.server.utils.LocalCustomFileManager;
 import io.openvidu.server.utils.LocalDockerManager;
-import io.openvidu.server.utils.MediaNodeManager;
-import io.openvidu.server.utils.MediaNodeManagerDummy;
+import io.openvidu.server.utils.MediaNodeStatusManager;
+import io.openvidu.server.utils.MediaNodeStatusManagerDummy;
+import io.openvidu.server.utils.QuarantineKiller;
+import io.openvidu.server.utils.QuarantineKillerDummy;
 import io.openvidu.server.utils.SDPMunging;
 import io.openvidu.server.webhook.CDRLoggerWebhook;
+
+import io.openvidu.server.contents.MusicService;
+import io.openvidu.server.contents.GameService;
+import io.openvidu.server.contents.PhotoService;
+import io.openvidu.server.contents.SingService;
 
 /**
  * OpenVidu Server application
@@ -120,11 +129,38 @@ public class OpenViduServer implements JsonRpcConfigurer {
 		return new CallDetailRecord(loggers);
 	}
 
+	// JJANHAE 짠해 서비스 추가 부분
+	@Bean
+	@ConditionalOnMissingBean
+	public MusicService musicService() {
+		return new MusicService();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public GameService gameService() {
+		return new GameService();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public PhotoService photoService() {
+		return new PhotoService();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public SingService singService() {
+		return new SingService();
+	}
+
+	// JJANHAE
+
 	@Bean
 	@ConditionalOnMissingBean
 	@DependsOn("openviduConfig")
 	public CoturnCredentialsService coturnCredentialsService(OpenviduConfig openviduConfig) {
-		return new CoturnCredentialsService();
+		return new CoturnCredentialsServiceFactory().getCoturnCredentialsService(openviduConfig.getSpringProfile());
 	}
 
 	@Bean
@@ -136,15 +172,14 @@ public class OpenViduServer implements JsonRpcConfigurer {
 
 	@Bean
 	@ConditionalOnMissingBean
-	@DependsOn({ "openviduConfig", "sessionManager", "loadManager" })
-	public KmsManager kmsManager(OpenviduConfig openviduConfig, SessionManager sessionManager,
-			LoadManager loadManager) {
+	@DependsOn({ "openviduConfig", "sessionManager", "mediaNodeStatusManager" })
+	public KmsManager kmsManager(OpenviduConfig openviduConfig, SessionManager sessionManager) {
 		if (openviduConfig.getKmsUris().isEmpty()) {
 			throw new IllegalArgumentException("'KMS_URIS' should contain at least one KMS url");
 		}
 		String firstKmsWsUri = openviduConfig.getKmsUris().get(0);
 		log.info("OpenVidu Server using one KMS: {}", firstKmsWsUri);
-		return new FixedOneKmsManager(sessionManager, loadManager);
+		return new FixedOneKmsManager(sessionManager);
 	}
 
 	@Bean
@@ -234,8 +269,14 @@ public class OpenViduServer implements JsonRpcConfigurer {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public MediaNodeManager mediaNodeManager() {
-		return new MediaNodeManagerDummy();
+	public QuarantineKiller quarantineKiller() {
+		return new QuarantineKillerDummy();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public MediaNodeStatusManager mediaNodeStatusManager() {
+		return new MediaNodeStatusManagerDummy();
 	}
 
 	@Bean
