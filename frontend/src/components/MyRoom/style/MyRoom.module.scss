@@ -1,0 +1,64 @@
+.body{
+  background-color: #231557;
+}
+.wrapper {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0px;
+  padding: 0px;
+}
+
+.tab{
+
+}
+
+.content {
+  padding: 30px;
+  background-color: #7c64d5;
+  width: 80%;
+  height: 80vh;
+  border-radius: 35px;
+  font-family: 'neodgm';
+}
+
+.profileImg {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.profile{
+  padding: 30px;
+  font-size: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.table{
+  border-spacing: 30px;
+}
+
+.profileGameInfo{
+  margin: 30px;
+}
+
+.count{
+  padding: 30px;
+  float: left;
+  text-align: center;
+}
+
+.answer{
+  padding: 30px;
+  float: right;
+  text-align: center;
+}
+
+.mvp{
+  padding: 30px;
+  clear: both;
+}

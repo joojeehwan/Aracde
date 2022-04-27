@@ -1,0 +1,208 @@
+import React, { useRef, useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../../common/navbar/Navbar';
+import create from 'zustand';
+import styles from './style/EntranceRoom.module.scss';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
+import VideocamIcon from '@mui/icons-material/Videocam';
+import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+
+const useStore = create((set) => ({
+  nickname: '', // 닉네임
+  code: '', // 초대 코드
+  setNickname: (input: string | null) => set({ nickname: input }),
+  setCode: (input: string | null) => set({ code: input }),
+}));
+
+interface RTCVideoProps {
+  mediaStream: MediaStream | undefined;
+}
+
+const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
+  const navigate = useNavigate();
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [localStream, setLocalStream] = useState<MediaStream>();
+  const [isMic, setMic] = useState(true);
+  const [isVideo, setVideo] = useState(true);
+
+  const handleMic = () => {
+    setMic((prev) => !prev);
+  };
+  const handleVideo = () => {
+    if (isVideo) {
+      videoRef.current.pause();
+      videoRef.current.src = "";
+      localStream.getTracks()[0].stop();
+    } else {
+      videoRef.current.play();
+    }
+    setVideo((prev) => !prev);
+  };
+  const handleEnter = async () => {
+    const params = {
+      audio: isMic,
+      video: isVideo
+    }
+    const { response } = await EnterRoom(params);
+    if (response.statusCode === 200) {
+      navigate(`/`);
+    }
+  };
+  const handleCancel = () => {
+    navigate(`/`);
+  };
+
+  useEffect(() => {
+    videoRef.current.srcObject = mediaStream ? mediaStream : null;
+    navigator.mediaDevices.getUserMedia({ video: isVideo, audio: isMic }).then((stream) => {
+      setLocalStream(stream);
+      videoRef.current.srcObject = stream;
+    });
+  }, [mediaStream]);
+
+  return (
+    <>
+      <div className={styles.body}>
+        <Navbar />
+        <div className={styles.wrapper}>
+          <h1 className={styles.header}>
+            <img src="../src/assets/character.png" alt="" /> 방 입장
+          </h1>
+          <div className={styles.content}>
+            <div className={styles.preferences}>
+              <div className={styles.camera}>
+                <video ref={videoRef} autoPlay={isVideo} mediaStream={localStream} muted={isMic}></video>
+                {/* <img src="../src/assets/character.png" alt="" /> */}
+              </div>
+              <div className={styles.cameraBtn}>
+                {isMic ? (
+                  <Button
+                    variant="contained"
+                    sx={{
+                      width: 200,
+                      height: 50,
+                      m: 2,
+                      backgroundColor: 'white',
+                      color: 'black',
+                      fontFamily: 'neodgm',
+                      fontSize: '16px',
+                    }}
+                    onClick={handleMic}
+                  >
+                    <MicIcon />
+                    &nbsp;음소거
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    sx={{
+                      width: 200,
+                      height: 50,
+                      m: 2,
+                      backgroundColor: 'white',
+                      color: 'black',
+                      fontFamily: 'neodgm',
+                      fontSize: '16px',
+                    }}
+                    onClick={handleMic}
+                  >
+                    <MicOffIcon />
+                    &nbsp;음소거 해제
+                  </Button>
+                )}
+
+                {isVideo ? (
+                  <Button
+                    variant="contained"
+                    sx={{
+                      width: 200,
+                      height: 50,
+                      backgroundColor: 'white',
+                      color: 'black',
+                      m: 2,
+                      fontFamily: 'neodgm',
+                      fontSize: '16px',
+                    }}
+                    onClick={handleVideo}
+                  >
+                    <VideocamIcon />
+                    &nbsp;비디오 중지
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    sx={{
+                      width: 200,
+                      height: 50,
+                      backgroundColor: 'white',
+                      color: 'black',
+                      m: 2,
+                      fontFamily: 'neodgm',
+                      fontSize: '16px',
+                    }}
+                    onClick={handleVideo}
+                  >
+                    <VideocamOffIcon />
+                    &nbsp;비디오 시작
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div>
+              <div className={styles.form}>
+                <div className={styles.nickname}>
+                  <label htmlFor="nickname">닉네임</label>
+                  <input type="text" id="nickname" autoFocus className={styles.gray}></input>
+                </div>
+
+                <div className={styles.code}>
+                  <label htmlFor="inviteCode">초대코드</label>
+                  <input disabled id="inviteCode" className={styles.gray}></input>
+                </div>
+              </div>
+
+              <div className={styles.button}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  sx={{
+                    width: 250,
+                    height: 80,
+                    fontSize: '32px',
+                    m: 2,
+                    p: 1,
+                    fontFamily: 'neodgm',
+                  }}
+                  onClick={handleEnter}
+                >
+                  입장!
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  sx={{
+                    width: 250,
+                    height: 80,
+                    fontSize: '32px',
+                    m: 2,
+                    p: 1,
+                    fontFamily: 'neodgm',
+                  }}
+                  onClick={handleCancel}
+                >
+                  취소
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default CreateRoom;
