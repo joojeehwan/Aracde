@@ -12,8 +12,8 @@
 	<packaging>jar</packaging>
 
 	<name>OpenVidu Server</name>
-	<version>2.21.0</version>
-	<description>OpenVidu Server</description>
+	<version>Arcade</version>
+	<description>Customize OpenVidu Server</description>
 	<url>https://openvidu.io</url>
 
 	<licenses>
@@ -156,7 +156,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
-						<version>{version.exec.plugin}</version>
+						<version>${version.exec.plugin}</version>
 						<configuration>
 							<mainClass>${start-class}</mainClass>
 						</configuration>
@@ -211,7 +211,7 @@
 		<dependency>
 			<groupId>org.kurento</groupId>
 			<artifactId>kurento-client</artifactId>
-			<version>${version.kurento}</version>
+			<version>6.16.5</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.springframework.boot</groupId>
@@ -330,7 +330,7 @@
 		<dependency>
 			<groupId>io.openvidu</groupId>
 			<artifactId>openvidu-java-client</artifactId>
-			<version>${version.openvidu.java.client}</version>
+			<version>2.21.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>

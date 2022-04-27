@@ -36,7 +36,7 @@ public class CoturnCredentialsService {
 
     public TurnCredentials createUser() {
         IceServerProperties iceServerProperties = new IceServerProperties.Builder()
-                .ignoreEmptyUrl(true)
+//                .ignoreEmptyUrl(true)
                 .staticAuthSecret(openviduConfig.getCoturnSharedSecretKey())
                 .build();
         return new TurnCredentials(iceServerProperties.getUsername(), iceServerProperties.getCredential());
