@@ -1,0 +1,48 @@
+.main {
+  height: 100vh;
+  background-image: url('../../../assets/background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.glass {
+  width: inherit;
+  height: inherit;
+  background-color: rgba(0, 0, 0, 0.56);
+}
+
+.squareContainer {
+  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+}
+
+.square {
+  padding: 30px;
+  height: 500px;
+  width: 50%;
+  position: relative;
+  max-width: 100%;
+  background-color: rgba(255, 255, 255, 0.205);
+}
+
+.content {
+  margin-top: 0%;
+  color: #ffffff;
+  text-align: center;
+  font-weight: bold;
+  font-size: 60px;
+  font-family: 'neodgm';
+}
+
+.loginButton {
+  width: 300px;
+  padding: 10px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  &:hover {
+    box-shadow: 0rem 1.5rem 2rem rgba($color: #f7f7f7, $alpha: 0.4);
+    transform: translateY(-4px);
+  }
+}
