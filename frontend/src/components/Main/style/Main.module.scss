@@ -24,7 +24,7 @@
 }
 .dock {
   position: relative;
-  bottom: 30px;
+  bottom: 4vh;
   transition: all ease 0.5s 0s;
 }
 .dock:hover{
@@ -42,13 +42,9 @@
   height: 120vh;
   // background-color: #111111;
 }
-@media (max-width: 800px) {
-  .contentbox {
-    height: 220vh;
-  }
-}
 .desc{
-  margin: 10px auto;
+  // position: relative;
+  margin: -10px auto;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -58,7 +54,7 @@
   width: 500px;
 }
 .desc p{
-  margin: 5px 0px;
+  margin: 0px 0px;
 }
 .nav {
   z-index: 1;
@@ -83,6 +79,17 @@
   // position: relative;
   background-color: rgba(0, 0, 0, 0.56);
   background-attachment: fixed;
+}
+@media (max-width: 800px) {
+  .glass{
+    height: 320vh;
+  }
+  .scroll {
+    height: 320vh;
+  }
+  .contentbox {
+    height: 220vh;
+  }
 }
 .button {
   width: 200px;
