@@ -27,30 +27,35 @@
   border-radius: 5px;
   width: 100px;
   height: 32px;
+  color: #ffffff;
   font-size: 14px;
   margin: auto 10px;
+  background-color: #9900f0;
 }
 .modal > section {
   width: 340px;
-  height: 200px;
+  height: 410px;
   border-radius: 10px;
   background-color: #ffff;
   /* 팝업이 열릴때 스르륵 열리는 효과 */
   animation: modal-show 0.3s;
   overflow: hidden;
 }
-.configForm {
+.serachBar {
   width: 100%;
   margin: 40px auto;
   text-align: center;
   // font-size: 1px;
   position: relative;
 }
-.nickname {
+.input {
   font-size: 20px;
   margin-left: 20px;
   font-family: 'neodgm';
   border-style: none none solid none;
+  &:focus {
+    outline: none;
+  }
 }
 .btnbox {
   text-align: center;

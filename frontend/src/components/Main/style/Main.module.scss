@@ -1,24 +1,71 @@
-.main {
+.scroll{
   width: 100vw;
-  height: 100vh;
+  height: 220vh;
   background-image: url('../../../assets/background.jpg');
   background-repeat: no-repeat;
   background-size: cover;
+  background-attachment: fixed;
+  overflow-y: hidden;
+}
+.main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  // overflow-y: auto;
+}
+.dockbar {
+  height: 100px;
+  width: inherit;
+  display: flex;
+  justify-content: center;
+}
+.dock {
+  position: relative;
+  bottom: 30px;
+  transition: all ease 0.5s 0s;
+}
+.dock:hover{
+  transition: all ease 0.5s 0s;
+  bottom: 80px;
+}
+.btn {
+  background-color: #f3c522;
+  margin: 0px auto 25px;
+  border: none;
+  border-radius: 99999px;
 }
 .contentbox {
   width: 100%;
-  height: 1000px;
-  background-color: #231557;
+  height: 120vh;
+  // background-color: #111111;
 }
 @media (max-width: 800px) {
   .contentbox {
-    height: 2000px;
+    height: 220vh;
   }
 }
+.desc{
+  margin: 10px auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 35px;
+  color : white;
+  width: 500px;
+}
+.desc p{
+  margin: 5px 0px;
+}
 .nav {
+  z-index: 1;
   position: absolute;
   width: 100%;
   color: white;
+  z-index: 1;
 }
 .nav button {
   font-size: 28px;
@@ -31,14 +78,11 @@
   margin-right: 2%;
 }
 .glass {
-  width: inherit;
-  height: inherit;
+  width: 100vw;
+  height: 220vh;
+  // position: relative;
   background-color: rgba(0, 0, 0, 0.56);
-  font-family: 'neodgm';
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  background-attachment: fixed;
 }
 .button {
   width: 200px;
