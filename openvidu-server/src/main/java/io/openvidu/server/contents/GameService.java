@@ -9,6 +9,7 @@ import org.springframework.security.core.parameters.P;
 
 import javax.servlet.http.Part;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameService {
 
@@ -41,8 +42,8 @@ public class GameService {
     static RpcNotificationService rpcNotificationService;
 
     // 순서
-    protected HashMap<String, Map<Integer, String>> sOrderMap = new HashMap<>();
-    protected HashMap<String, Map<String, String>> sNickMap = new HashMap<>();
+    protected ConcurrentHashMap<String, Map<Integer, String>> sOrderMap = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, Map<String, String>> sNickMap = new ConcurrentHashMap<>();
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -155,7 +156,8 @@ public class GameService {
             // 섞어서 0번쨰에 오는 사람의 streamId가 술래
             Participant target = (Participant) participantList.get(0);
 
-            data.addProperty("streamId", target.getPublisherStreamId());
+            // 술래 지정
+            data.addProperty("tagStreamId", target.getPublisherStreamId());
             data.addProperty("gameStatus", 2);
         } 
 
@@ -173,10 +175,20 @@ public class GameService {
     public void selectGame(Participant participant, Set<Participant> participants,
                            JsonObject message, JsonObject params, JsonObject data) {
 
+        int index = data.get("index").getAsInt();
         int number = participants.size();
         int gameId = data.get("gameId").getAsInt();
 
         if (gameId == RELAY) {
+            String sessionId = message.get("sessionId").getAsString();
+
+            // order 확인
+            Map<Integer, String > orderMap = sOrderMap.get(sessionId);
+            String curStreamId = orderMap.get(index);
+
+            data.addProperty("streamId", curStreamId);
+            data.addProperty("index", index++);
+            data.addProperty("gameStatus", 2);
 
         }else if (gameId == TAG) {
 

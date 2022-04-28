@@ -8,6 +8,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 public class UserResDto {
+    Long userSeq;
     String email;
     String name;
     String image;
