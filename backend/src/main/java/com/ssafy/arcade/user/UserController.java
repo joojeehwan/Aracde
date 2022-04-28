@@ -84,6 +84,7 @@ public class UserController {
         map.put("name", user.getName());
         map.put("email", user.getEmail());
         map.put("image", user.getImage());
+        map.put("userSeq", user.getUserSeq());
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
