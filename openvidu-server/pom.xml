@@ -12,8 +12,8 @@
 	<packaging>jar</packaging>
 
 	<name>OpenVidu Server</name>
-	<version>2.20.0</version>
-	<description>OpenVidu Server</description>
+	<version>arcade</version>
+	<description>Customized OpenVidu Server</description>
 	<url>https://openvidu.io</url>
 
 	<licenses>
