@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
 import com.ssafy.arcade.common.util.JwtTokenUtil;
+import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.FriendRepository;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -40,6 +42,7 @@ public class UserService {
     private String kakaoRedirectUri;
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
+    private final SimpMessagingTemplate template;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -212,6 +215,10 @@ public class UserService {
         else {
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
+        NotiDTO notiDTO = NotiDTO.builder()
+                .userSeq(reqUser.getUserSeq()).name(reqUser.getName())
+                .type("friend").build();
+        template.convertAndSend("/sub/noti" + targetUser.getUserSeq(), notiDTO);
     }
         
     // 친구 수락
