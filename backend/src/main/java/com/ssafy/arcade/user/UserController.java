@@ -107,24 +107,25 @@ public class UserController {
     }
 
     // 친구 요청
-    @PostMapping(value= "/friend", params = "userEmail")
-    public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+    @PostMapping(value= "/friend")
+    public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String token, @RequestBody UserReqDto userReqDto) {
+        String userEmail = userReqDto.getEmail();
         userService.requestFriend(token, userEmail);
         return new ResponseEntity<>("친구 요청 성공", HttpStatus.OK);
     }
 
     // 친구 수락
-    @PatchMapping(value = "/friend", params = "userEmail")
-    public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
-
+    @PatchMapping(value = "/friend")
+    public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token, @RequestBody UserReqDto userReqDto) {
+        String userEmail = userReqDto.getEmail();
         userService.approveFriend(token, userEmail);
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
     }
 
     // 친구 삭제
-    @DeleteMapping(value = "/friend", params = "userEmail")
-    public ResponseEntity<String> deleteFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
-
+    @DeleteMapping(value = "/friend")
+    public ResponseEntity<String> deleteFriend(@RequestHeader("Authorization") String token, @RequestBody UserReqDto userReqDto) {
+        String userEmail = userReqDto.getEmail();
         userService.deleteFriend(token, userEmail);
         return new ResponseEntity<>("친구 삭제 성공", HttpStatus.OK);
     }
