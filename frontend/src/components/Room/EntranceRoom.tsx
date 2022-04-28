@@ -9,6 +9,7 @@ import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
+import Room from '../../common/api/Room'
 
 const useStore = create((set) => ({
   nickname: '', // 닉네임
@@ -29,13 +30,18 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
   const [isMic, setMic] = useState(true);
   const [isVideo, setVideo] = useState(true);
 
+  const [nickname, setNickname] = useState(""); // 닉네임
+  const [code, setCode] = useState(""); // 초대 코드
+
+  const { enterRoom } = Room;
+
   const handleMic = () => {
     setMic((prev) => !prev);
   };
   const handleVideo = () => {
     if (isVideo) {
       videoRef.current.pause();
-      videoRef.current.src = "";
+      videoRef.current.src = '';
       localStream.getTracks()[0].stop();
     } else {
       videoRef.current.play();
@@ -43,11 +49,8 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
     setVideo((prev) => !prev);
   };
   const handleEnter = async () => {
-    const params = {
-      audio: isMic,
-      video: isVideo
-    }
-    const { response } = await EnterRoom(params);
+    const response = await enterRoom(code as string);
+    console.log(response);
     if (response.statusCode === 200) {
       navigate(`/`);
     }
@@ -55,6 +58,13 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
   const handleCancel = () => {
     navigate(`/`);
   };
+
+  const handleNickname = (e : any) => {
+    setNickname(e.target.value);
+  }
+  const handleCode = (e : any) => {
+    setCode(e.target.value);
+  }
 
   useEffect(() => {
     videoRef.current.srcObject = mediaStream ? mediaStream : null;
@@ -156,12 +166,12 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
               <div className={styles.form}>
                 <div className={styles.nickname}>
                   <label htmlFor="nickname">닉네임</label>
-                  <input type="text" id="nickname" autoFocus className={styles.gray}></input>
+                  <input type="text" id="nickname" autoFocus value={nickname} onChange={handleNickname} className={styles.gray}></input>
                 </div>
 
                 <div className={styles.code}>
                   <label htmlFor="inviteCode">초대코드</label>
-                  <input disabled id="inviteCode" className={styles.gray}></input>
+                  <input type="text" id="inviteCode" value={code} onChange={handleCode} className={styles.gray}></input>
                 </div>
               </div>
 
