@@ -11,7 +11,6 @@ const Login = loadable(() => import('./components/Login/mainLogin'));
 const KakaoRedirectHandler = loadable(() => import('./components/Login/kakao/OAuth2RedirectHandler'));
 const NaverRedirectHandler = loadable(() => import('./components/Login/naver/OAuth2RedirectHandler'));
 const GoogleRedirectHandler = loadable(() => import('./components/Login/google/OAuth2RedirectHandler'));
-
 function App() {
   return (
     <>

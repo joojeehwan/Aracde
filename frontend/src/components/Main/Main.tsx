@@ -5,10 +5,12 @@ import Content from './Content';
 import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
+import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
+import Chatting from '../Modal/Chatting/ChattingList/index';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -21,6 +23,7 @@ function Main() {
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
+  const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
 
   const handleOpenAlarms = useCallback(() => {
     setAlarmsIsOpen(true);
@@ -44,6 +47,14 @@ function Main() {
 
   const handleCloseTest = useCallback(() => {
     setTest(false);
+  }, [test]);
+
+  const handleOpenChatting = useCallback(() => {
+    setChattingIsOpen(true);
+  }, [test]);
+
+  const handleCloseChatting = useCallback(() => {
+    setChattingIsOpen(false);
   }, [test]);
 
   const handleOpenCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -70,10 +81,12 @@ function Main() {
     // navigate login page here
     setIsLogin(true);
   };
+
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
     console.log('hererererererere');
   };
+
   const handleClickTop = (e: React.MouseEvent) => {
     if (divRef.current !== null) {
       window.scrollBy({ top: divRef.current.getBoundingClientRect().top, behavior: 'smooth' });
@@ -109,6 +122,18 @@ function Main() {
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}
+                style={{
+                  width: 28,
+                  height: 28,
+                  float: 'right',
+                  marginTop: '2%',
+                  marginRight: '2%',
+                }}
+                filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+              />
+              <Chatt
+                className={styles.button}
+                onClick={handleOpenChatting}
                 style={{
                   width: 28,
                   height: 28,
@@ -171,6 +196,7 @@ function Main() {
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
+        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
       </div>
     </>
   );
