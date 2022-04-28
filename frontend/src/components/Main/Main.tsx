@@ -15,7 +15,7 @@ function Main() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
 
-  const navigate = useNavigate;
+  const navigate = useNavigate();
 
   //지환 코드
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
@@ -26,7 +26,7 @@ function Main() {
     setAlarmsIsOpen(true);
   }, [alarmsIsOpen]);
 
-  const handleCloseAlarms = useCallback(() => {
+  const handleCloseAlarms = useCallback((e : React.MouseEvent<HTMLDivElement>) => {
     setAlarmsIsOpen(false);
   }, [alarmsIsOpen]);
 
@@ -68,6 +68,7 @@ function Main() {
   const handleClickLogin = (e: React.MouseEvent) => {
     console.log('here');
     // navigate login page here
+    navigate(`/login`);
     setIsLogin(true);
   };
   const handleClickMyPage = (e: React.MouseEvent) => {
@@ -80,11 +81,25 @@ function Main() {
     }
   }
 
+  useEffect(()=> {
+    if(friendsIsOpen === true || alarmsIsOpen === true || open === true){
+      document.body.style.overflow = "hidden";
+    }
+    else{
+      document.body.style.overflow = "unset";
+    }
+  }, [friendsIsOpen, alarmsIsOpen, open])
+
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
     }
   }, []);
+
+
+
+
+
   return (
     <>
     <div ref={divRef} className={styles.scroll}>
@@ -93,7 +108,7 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
-              <button onClick={handleOpenTest}>test</button>
+              {/* <button onClick={handleOpenTest}>test</button> */}
               <Bell
                 className={styles.button}
                 onClick={handleOpenAlarms}

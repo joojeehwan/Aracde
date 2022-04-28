@@ -12,6 +12,15 @@ interface MyProps {
 const friend = [
   { name: '주지환', imageUrl: 'https://picsum.photos/200' },
   { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
+  { name: '홍승기', imageUrl: 'https://picsum.photos/200' },
 ];
 
 function Friends({ open, onClose }: MyProps) {
@@ -32,21 +41,26 @@ function Friends({ open, onClose }: MyProps) {
 
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5 && friend[value]) {
+      console.log(value);
       return (
         <div className={styles.friendList}>
           {value === 0 ? (
             <div className={styles.friendListContainer}>
-              {friend.map((value) => {
-                return <FriendsList key={value.name} imgUrl={value.imageUrl} name={value.name} />;
+              {friend.map((value, i) => {
+                const idx = i;
+                return <FriendsList key={idx} imgUrl={value.imageUrl} name={value.name} />;
               })}
             </div>
           ) : (
+            <>
+            <FriendsSeachBar />
             <div className={styles.friendAddContainer}>
-              <FriendsSeachBar />
-              {friend.map((value) => {
-                return <FriendsSearchResults key={value.name} imgUrl={value.imageUrl} name={value.name} />;
+              {friend.map((value, i) => {
+                const idx = i;
+                return <FriendsSearchResults key={idx} imgUrl={value.imageUrl} name={value.name} />;
               })}
             </div>
+            </>
           )}
         </div>
       );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../../common/navbar/Navbar';
 import styles from '../Login/styles/mainLogin.module.scss';
 
@@ -13,6 +13,9 @@ import { NAVER_AUTH_URL } from './naver/OAuth';
 import { GOOGLE_AUTH_URL } from './google/OAuth';
 
 function mainLogin() {
+  useEffect(()=>{
+    console.log(KAKAO_AUTH_URL, NAVER_AUTH_URL, GOOGLE_AUTH_URL)
+  }, []);
   return (
     <>
       <div className={styles.main}>
@@ -25,7 +28,6 @@ function mainLogin() {
                 <a href={NAVER_AUTH_URL}>
                   <img className={styles.loginButton} src={NaverLogin} alt="네이버 로그인" />
                 </a>
-
                 <a href={GOOGLE_AUTH_URL}>
                   <img className={styles.loginButton} src={GoogleLogin} alt="구글 로그인" />
                 </a>
