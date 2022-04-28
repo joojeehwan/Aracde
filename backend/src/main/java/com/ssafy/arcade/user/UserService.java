@@ -178,7 +178,8 @@ public class UserService {
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<UserResDto> userResDtoList = new ArrayList<>();
-        Integer status = -1;
+
+        Integer status = 0;
         for (User user : userList) {
             // 본인 제외
             if (user == me) {
@@ -189,9 +190,13 @@ public class UserService {
 
             Friend friend = targetfriend == null ? reqfriend : targetfriend;
 
-            // 친구관계면 pass
-            if (friend != null) {
-                continue;
+            // 친구관계이나, 아직 상대가 수락 안한 상태
+            if (friend != null && !friend.isApproved()) {
+                status = 0;
+            }
+
+           if (friend == null) {
+                status = -1;
             }
             UserResDto userResDto = new UserResDto();
             userResDto.setUserSeq(user.getUserSeq());
