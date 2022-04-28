@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {getToken} from './jWT-Token';
 
 const BASE_URL = 'http://k6a203.p.ssafy.io:8080/api/users';
 
@@ -23,10 +24,35 @@ const getGoogleLoginResult = async (code: string) => {
   return result;
 };
 
-const LoginApi = {
+const getUserSearchResult = async (name : string ) => {
+  const token = getToken();
+  if(token !== null){
+    const result = await axios.get(`${BASE_URL}/search/norelate?name=${name}`,{headers : {Authorization : token}})
+    console.log(result);
+    return result;
+  }
+  return null;
+}
+
+const getAddFriendRequestResult = async (email : string) => {
+  const token = getToken();
+  const body = {
+    userEmail : email
+  }
+  if(token !== null){
+    const result = await axios.post(`${BASE_URL}/friend`, body, {headers : {Authorization : token}});
+    console.log(result);
+    return result;
+  }
+  return null;
+}
+
+const UserApi = {
   getKakaoLoginResult,
   getNaverLoginResult,
   getGoogleLoginResult,
+  getUserSearchResult,
+  getAddFriendRequestResult
 };
 
-export default LoginApi;
+export default UserApi;
