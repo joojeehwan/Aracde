@@ -12,7 +12,7 @@
 	<packaging>jar</packaging>
 
 	<name>OpenVidu Server</name>
-	<version>arcade</version>
+	<version>2.21.0</version>
 	<description>Customized OpenVidu Server</description>
 	<url>https://openvidu.io</url>
 
