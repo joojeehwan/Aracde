@@ -45,13 +45,23 @@ dependencies {
 //    implementation("org.mariadb.jdbc:mariadb-java-client")
 //	https://mvnrepository.com/artifact/org.mariadb.jdbc/mariadb-java-client
 	implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version: '2.7.4'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
 
+//	developmentOnly("org.springframework.boot:spring-boot-devtools")
+	// Websocket
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: '2.6.6'
+	// STOMP
+	implementation group: 'org.webjars', name: 'stomp-websocket', version: '2.3.3-1'
+	// sockjs
+	implementation group: 'org.webjars', name: 'sockjs-client', version: '1.1.2'
+	// 스프링 코드 실시간 반영
+	implementation group: 'org.springframework.boot', name: 'spring-boot-devtools', version: '2.6.6'
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {
