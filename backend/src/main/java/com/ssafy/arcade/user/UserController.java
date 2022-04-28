@@ -90,20 +90,20 @@ public class UserController {
 
     // 유저 검색
     @GetMapping(value="/search")
-    public ResponseEntity<UserResDto> searchUser(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+    public ResponseEntity<List<UserResDto>> searchUser(@RequestHeader("Authorization") String token, @RequestParam("name") String name) {
 
 
-        UserResDto userResDto = userService.getUserByEmail(token, userEmail);
+        List<UserResDto> userResDtoList = userService.getUserByName(token, name);
 
-        return new ResponseEntity<>(userResDto, HttpStatus.OK);
+        return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
     }
 
     // 친구 제외 유저 검색
     @GetMapping(value="/search/norelate")
-    public ResponseEntity<UserResDto> searchUserNoRelate(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+    public ResponseEntity<List<UserResDto>> searchUserNoRelate(@RequestHeader("Authorization") String token, @RequestParam("name") String name) {
 
-        UserResDto userResDto = userService.getUserByEmailNoRelate(token, userEmail);
-        return new ResponseEntity<>(userResDto, HttpStatus.OK);
+        List<UserResDto> userResDtoList = userService.getUserByNameNoRelate(token, name);
+        return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
     }
 
     // 친구 요청
@@ -139,10 +139,10 @@ public class UserController {
 
     // 친구 검색
     @GetMapping(value = "/friend/search", params = "userEmail")
-    public ResponseEntity<UserResDto> friendSearch(@RequestHeader("Authorization") String token, @RequestParam String userEmail) {
-        UserResDto userResDto = userService.searchFriend(token, userEmail);
+    public ResponseEntity<List<UserResDto>> friendSearch(@RequestHeader("Authorization") String token, @RequestParam String userEmail) {
+        List<UserResDto> userResDtoList = userService.searchFriend(token, userEmail);
 
-        return new ResponseEntity<>(userResDto, HttpStatus.OK);
+        return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
     }
 
 
