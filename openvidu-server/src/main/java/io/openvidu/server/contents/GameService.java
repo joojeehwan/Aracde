@@ -8,9 +8,7 @@ import io.openvidu.server.rpc.RpcNotificationService;
 import org.springframework.security.core.parameters.P;
 
 import javax.servlet.http.Part;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class GameService {
 
@@ -119,39 +117,47 @@ public class GameService {
         int number = participants.size();
         int gameId = data.get("gameId").getAsInt();
 
-        // 이어그리기 준비 (순서 짜주어야 함)
-        if (gameId == RELAY) {
-            // 순서 매핑
-            Map<Integer, String> orderMap = new HashMap<>();
-            Map<String, String> nickMap = new HashMap<>();
+        // 순서 매핑
+        Map<Integer, String> orderMap = new HashMap<>();
+        Map<String, String> nickMap = new HashMap<>();
 
-            // idx 순서 섞기
-            int[] idxArr = new int[number];
-            for (int i = 0; i < number; i++) {
-                idxArr[i] = i+1;
-            }
-            System.out.println("idxArr: " + idxArr);
-            int idx1, idx2;
-            for (int i = 0; i < number; i++) {
-                idx1 = (int) (Math.random()*number);
-                idx2 = (int) (Math.random()*number);
-                swap(idxArr, idx1, idx2);
-            }
-            // 순서 섞였는지 체크
-            System.out.println("idxArr: " + idxArr);
-
-            int idx = 0;
-            for (Participant p : participants) {
-                orderMap.put(idxArr[idx], p.getPublisherStreamId());
-                nickMap.put(p.getPublisherStreamId(), "");
-                idx++;
-            }
-            
-            // 1번순서 => 키워드 입력하고 첫 그림 시작, 마지막 순서 => 문제를 맞춰야 함
-            String sessionId = message.get("sessionId").getAsString();
-            sNickMap.put(sessionId, nickMap);
-            sOrderMap.put(sessionId, orderMap);
+        // idx 순서 섞기
+        int[] idxArr = new int[number];
+        for (int i = 0; i < number; i++) {
+            idxArr[i] = i+1;
         }
+        System.out.println("idxArr: " + idxArr);
+        int idx1, idx2;
+        for (int i = 0; i < number; i++) {
+            idx1 = (int) (Math.random()*number);
+            idx2 = (int) (Math.random()*number);
+            swap(idxArr, idx1, idx2);
+        }
+        // 순서 섞였는지 체크
+        System.out.println("idxArr: " + idxArr);
+
+        int idx = 0;
+        for (Participant p : participants) {
+            orderMap.put(idxArr[idx], p.getPublisherStreamId());
+            nickMap.put(p.getPublisherStreamId(), "");
+            idx++;
+        }
+
+        // 1번순서 => 키워드 입력하고 첫 그림 시작, 마지막 순서 => 문제를 맞춰야 함
+        String sessionId = message.get("sessionId").getAsString();
+        sNickMap.put(sessionId, nickMap);
+        sOrderMap.put(sessionId, orderMap);
+        
+        // 나머지 게임은 '술래'가 따로 없음
+        if(gameId == TAG) {
+            List<Object> participantList = Arrays.asList(participants.toArray());
+            Collections.shuffle(participantList);
+            // 섞어서 0번쨰에 오는 사람의 streamId가 술래
+            Participant target = (Participant) participantList.get(0);
+
+            data.addProperty("streamId", target.getPublisherStreamId());
+            data.addProperty("gameStatus", 2);
+        } 
 
         params.add("data", data);
         for (Participant p : participants) {
@@ -171,6 +177,10 @@ public class GameService {
         int gameId = data.get("gameId").getAsInt();
 
         if (gameId == RELAY) {
+
+        }else if (gameId == TAG) {
+
+        }else if (gameId == BODY) {
 
         }
 
