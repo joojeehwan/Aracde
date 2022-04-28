@@ -84,6 +84,7 @@ public class UserController {
         map.put("name", user.getName());
         map.put("email", user.getEmail());
         map.put("image", user.getImage());
+        map.put("userSeq", user.getUserSeq());
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -97,6 +98,13 @@ public class UserController {
         return new ResponseEntity<>(userResDto, HttpStatus.OK);
     }
 
+    // 친구 제외 유저 검색
+    @GetMapping(value="/search/norelate")
+    public ResponseEntity<UserResDto> searchUserNoRelate(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+
+        UserResDto userResDto = userService.getUserByEmailNoRelate(token, userEmail);
+        return new ResponseEntity<>(userResDto, HttpStatus.OK);
+    }
 
     // 친구 요청
     @PostMapping(value= "/friend", params = "userEmail")
@@ -106,13 +114,21 @@ public class UserController {
     }
 
     // 친구 수락
-    @PatchMapping(value= "/friend", params = "userEmail")
+    @PatchMapping(value = "/friend", params = "userEmail")
     public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
 
         userService.approveFriend(token, userEmail);
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
     }
-    
+
+    // 친구 삭제
+    @DeleteMapping(value = "/friend", params = "userEmail")
+    public ResponseEntity<String> deleteFriend(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+
+        userService.deleteFriend(token, userEmail);
+        return new ResponseEntity<>("친구 삭제 성공", HttpStatus.OK);
+    }
+
     // 친구 목록 불러오기
     @GetMapping(value="/friendList")
     public ResponseEntity<List<UserResDto>> friendList(@RequestHeader("Authorization") String token) {
@@ -128,6 +144,9 @@ public class UserController {
 
         return new ResponseEntity<>(userResDto, HttpStatus.OK);
     }
+
+
+
 
     // 친구 테스트용,
     @PostMapping("/friend/test")
@@ -148,32 +167,11 @@ public class UserController {
         return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
     }
 
-
-//    @GetMapping("/naver")
-//    public ResponseEntity<Map<String, Object>> naverLogin(@RequestParam String code, @RequestParam String state) {
-//        User user = null;
-//        String email = null;
-//        String image = null;
-//        String name = null;
-//
-//        String accessToken = naverLoginService.getAccessToken(code, state).getAccess_token();
-//        NaverProfile naverProfile = naverLoginService.getProfileByToken(accessToken);
-//        user = userRepository.findByEmail(naverProfile.getEmail()).orElseGet(User::new);
-//
-//        email = naverProfile.getEmail();
-//        image = naverProfile.getProfile_image();
-//        name = naverProfile.getNickname();
-//
-//        Map<String, Object> map = new HashMap<>();
-//        if (user.getUserSeq() == null) {
-//            user = userService.signUp(email, image, name);
-//        }
-//        map.put("token", "Bearer " + JwtTokenUtil.getToken(user.getEmail()));
-//        map.put("name", user.getName());
-//        map.put("email", user.getEmail());
-//        map.put("image", user.getImage());
-//        return new ResponseEntity<>(map, HttpStatus.OK);
-//    }
+    @DeleteMapping(value = "/friend/test")
+    public ResponseEntity<String> deleteFriendTest(@RequestParam("myEmail") String myEmail, @RequestParam("userEmail") String userEmail) {
+        userService.deleteFriendTest(myEmail, userEmail);
+        return new ResponseEntity<>("친구 삭제 성공", HttpStatus.OK);
+    }
 
 
 }

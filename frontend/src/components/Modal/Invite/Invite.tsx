@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import style from './style/Invite.module.scss';
+import React, { useCallback, useState } from 'react';
+import style from '../styles/Invite.module.scss';
 import { toast } from 'react-toastify';
 
 //components
@@ -41,6 +41,11 @@ function Invite({ open, onClose }: MyProps) {
           {dummydata.map((value) => {
             return <InviteSearhResults key={value.name} name={value.name} isInvite={value.isInvite} />;
           })}
+          <div className={style.CancelContainer}>
+            <button onClick={onClose} className={style.cancel}>
+              취소
+            </button>
+          </div>
         </section>
       ) : null}
     </div>
