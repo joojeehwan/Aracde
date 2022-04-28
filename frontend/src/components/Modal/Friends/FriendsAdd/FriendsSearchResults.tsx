@@ -51,7 +51,12 @@ function FriendsSearchResults({ name, imgUrl }: any) {
     setIsClicked(true);
   }, [isClicked]);
   return (
-    <div style={{ display: 'flex', padding: '20px', marginLeft: '20px', marginTop: '-10px' }}>
+    <div style={{ 
+      display: 'flex',
+      justifyContent : 'space-evenly',
+      alignItems : 'center',
+      marginTop : 15  
+    }}>
       <div>
         {isOnline ? (
           <StyledBadgeOnline
@@ -71,7 +76,7 @@ function FriendsSearchResults({ name, imgUrl }: any) {
           </StyledBadgeOffline>
         )}
       </div>
-      <div style={{ marginTop: '10px', paddingLeft: '50px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
+      <div>{name}</div>
       <div>
         {isClicked ? (
           <button className={styles.buttonYocheong}>요청됨</button>
