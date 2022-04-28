@@ -15,7 +15,8 @@ public enum ErrorCode {
     /* 400 BAD_REQUEST : 잘못된 요청 */
     INVALID_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰이 유효하지 않습니다"),
     MISMATCH_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰의 유저 정보가 일치하지 않습니다"),
-    CANNOT_FOLLOW_MYSELF(BAD_REQUEST, "자기 자신은 팔로우 할 수 없습니다"),
+    CANNOT_FOLLOW_MYSELF(BAD_REQUEST, "본인을 친구등록 할 수 없습니다."),
+    CANNOT_ACCEPT_MYSELF(BAD_REQUEST, "요청자가 수락할 수 없습니다."),
     WRONG_DATA(BAD_REQUEST, "유효하지 않은 정보를 입력했습니다."),
     ALREADY_ACCEPT(BAD_REQUEST, "요청 수락이 이미 완료된 상태입니다."),
 

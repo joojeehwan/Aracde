@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
 import com.ssafy.arcade.common.util.JwtTokenUtil;
+import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.FriendRepository;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -40,6 +42,7 @@ public class UserService {
     private String kakaoRedirectUri;
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
+    private final SimpMessagingTemplate template;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -127,35 +130,81 @@ public class UserService {
     }
 
     // 유저 검색
-    public UserResDto getUserByEmail(String token, String userEmail) {
+    public List<UserResDto> getUserByName(String token, String name) {
         User me = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
 
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() ->
+        List<User> userList = userRepository.findByNameContains(name).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Friend targetfriend = friendRepository.findByRequestAndTarget(me, user).orElse(null);
-        Friend reqfriend =  friendRepository.findByRequestAndTarget(user, me).orElse(null);
+        List<UserResDto> userResDtoList = new ArrayList<>();
+        for (User user : userList) {
+            // 본인 제외
+            if (user == me) {
+                continue;
+            }
+            Friend targetfriend = friendRepository.findByRequestAndTarget(me, user).orElse(null);
+            Friend reqfriend =  friendRepository.findByRequestAndTarget(user, me).orElse(null);
 
-        Friend friend = targetfriend == null ? reqfriend : targetfriend;
-        Integer status;
-        if (friend == null) {
-            status = -1;
-        }
-        else if (!friend.isApproved()) {
-            status = 0;
-        }
-        else {
-            status = 1;
-        }
-        UserResDto userResDto = new UserResDto();
-        userResDto.setEmail(user.getEmail());
-        userResDto.setName(user.getName());
-        userResDto.setImage(user.getImage());
-        userResDto.setStatus(status);
+            Friend friend = targetfriend == null ? reqfriend : targetfriend;
+            Integer status;
+            if (friend == null) {
+                status = -1;
+            }
+            else if (!friend.isApproved()) {
+                status = 0;
+            }
+            else {
+                status = 1;
+            }
 
-        return userResDto;
+            UserResDto userResDto = new UserResDto();
+            userResDto.setUserSeq(user.getUserSeq());
+            userResDto.setEmail(user.getEmail());
+            userResDto.setName(user.getName());
+            userResDto.setImage(user.getImage());
+            userResDto.setStatus(status);
+
+            userResDtoList.add(userResDto);
+        }
+        return userResDtoList;
     }
+    // 친구 제외 유저 검색
+    public List<UserResDto> getUserByNameNoRelate(String token, String name) {
+        User me = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+
+        List<User> userList = userRepository.findByNameContains(name).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<UserResDto> userResDtoList = new ArrayList<>();
+        Integer status = -1;
+        for (User user : userList) {
+            // 본인 제외
+            if (user == me) {
+                continue;
+            }
+            Friend targetfriend = friendRepository.findByRequestAndTarget(me, user).orElse(null);
+            Friend reqfriend =  friendRepository.findByRequestAndTarget(user, me).orElse(null);
+
+            Friend friend = targetfriend == null ? reqfriend : targetfriend;
+
+            // 친구관계면 pass
+            if (friend != null) {
+                continue;
+            }
+            UserResDto userResDto = new UserResDto();
+            userResDto.setUserSeq(user.getUserSeq());
+            userResDto.setEmail(user.getEmail());
+            userResDto.setName(user.getName());
+            userResDto.setImage(user.getImage());
+            userResDto.setStatus(status);
+
+            userResDtoList.add(userResDto);
+        }
+        return userResDtoList;
+    }
+
 
     // 친구 요청
     public void requestFriend(String token, String targetEmail) {
@@ -164,11 +213,16 @@ public class UserService {
         User targetUser = userRepository.findByEmail(targetEmail).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Friend targetfriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqfriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
+        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqFriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+
+        // 본인 친구추가 불가
+        if (targetUser == reqUser) {
+            throw new CustomException(ErrorCode.CANNOT_FOLLOW_MYSELF);
+        }
         // 둘다 null이어야만 입력 가능
-        if (targetfriend == null && reqfriend == null) {
+        if (targetFriend == null && reqFriend == null) {
             Friend friend = new Friend();
 
             friend.setRequest(reqUser);
@@ -179,8 +233,12 @@ public class UserService {
         else {
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
+        NotiDTO notiDTO = NotiDTO.builder()
+                .userSeq(reqUser.getUserSeq()).name(reqUser.getName())
+                .type("friend").build();
+        template.convertAndSend("/sub/noti" + targetUser.getUserSeq(), notiDTO);
     }
-        
+
     // 친구 수락
     public void approveFriend(String token, String reqEmail) {
         User targetUser = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
@@ -188,20 +246,46 @@ public class UserService {
         User reqUser = userRepository.findByEmail(reqEmail).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        System.out.println("reqUser: " + reqUser +  "targetUser: " + targetUser);
+        if (targetUser == reqUser) {
+            throw new CustomException(ErrorCode.CANNOT_FOLLOW_MYSELF);
+        }
+        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+
+        // 수락할 때는 수락하는 user는 target에 저장된 경우여야만 한다.
+        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+        if (reqFriend != null) {
+            throw new CustomException(ErrorCode.CANNOT_ACCEPT_MYSELF);
+        }
+
+        // 요청한 친구관계가 없을떄
+        if (targetFriend == null) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+        else {
+            if (targetFriend.isApproved()) {
+                throw new CustomException(ErrorCode.ALREADY_ACCEPT);
+            }
+            targetFriend.setApproved(true);
+            friendRepository.save(targetFriend);
+        }
+    }
+    // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
+    public void deleteFriend(String token, String userEmail) {
+        User reqUser = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        User targetUser = userRepository.findByEmail(userEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
         Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
         Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
         Friend friend = targetFriend == null ? reqFriend : targetFriend;
-        // 요청한 친구관계가 없을떄
         if (friend == null) {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         }
         else {
-            if (friend.isApproved()) {
-                throw new CustomException(ErrorCode.ALREADY_ACCEPT);
-            }
-            friend.setApproved(true);
-            friendRepository.save(friend);
+            friendRepository.delete(friend);
         }
     }
 
@@ -224,6 +308,7 @@ public class UserService {
             }
             User friend_user = (friend.getRequest() == user) ? friend.getTarget() : friend.getRequest();
             UserResDto userResDto = new UserResDto();
+            userResDto.setUserSeq(friend_user.getUserSeq());
             userResDto.setEmail(friend_user.getEmail());
             userResDto.setName(friend_user.getName());
             userResDto.setImage(friend_user.getImage());
@@ -233,29 +318,36 @@ public class UserService {
         return userResDtoList;
     }
     // 친구 검색
-    public UserResDto searchFriend(String token, String userEmail) {
+    public List<UserResDto> searchFriend(String token, String name) {
         User me = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() ->
+        List<User> userList = userRepository.findByNameContains(name).orElseThrow(() ->
                 new CustomException(ErrorCode.DATA_NOT_FOUND));
 
-        Friend targetFriend = friendRepository.findByRequestAndTarget(me, user).orElse(null);
-        Friend requestFriend = friendRepository.findByRequestAndTarget(user, me).orElse(null);
+        List<UserResDto> userResDtoList = new ArrayList<>();
+        for (User user : userList) {
+            Friend targetFriend = friendRepository.findByRequestAndTarget(me, user).orElse(null);
+            Friend requestFriend = friendRepository.findByRequestAndTarget(user, me).orElse(null);
 
-        Friend friend = targetFriend == null ? requestFriend : targetFriend;
-        if (friend == null || !friend.isApproved()) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            Friend friend = targetFriend == null ? requestFriend : targetFriend;
+            // 친구가 아니거나, 아직 수락전이면 제외
+            if (friend == null || !friend.isApproved()) {
+                continue;
+            }
+            UserResDto userResDto = new UserResDto();
+            userResDto.setUserSeq(user.getUserSeq());
+            userResDto.setEmail(user.getEmail());
+            userResDto.setName(user.getName());
+            userResDto.setImage(user.getImage());
+            userResDto.setStatus(1);
+
+            userResDtoList.add(userResDto);
         }
-        UserResDto userResDto = new UserResDto();
-        userResDto.setEmail(user.getEmail());
-        userResDto.setName(user.getName());
-        userResDto.setImage(user.getImage());
-        userResDto.setStatus(1);
-        return userResDto;
+        return userResDtoList;
     }
 
     /**
-     * 테스트용 Service
+     * 테스트용 Service (토큰 쓰기 번거로워서 이메일로만 소통)
      */
     public void requestFriendTest(String fromEmail, String toEmail) {
         User reqUser = userRepository.findByEmail(fromEmail).get();
@@ -325,6 +417,25 @@ public class UserService {
             userResDtoList.add(userResDto);
         }
         return userResDtoList;
+    }
+
+    // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
+    public void deleteFriendTest(String myEmail, String userEmail) {
+        User reqUser = userRepository.findByEmail(myEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        User targetUser = userRepository.findByEmail(userEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
+        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+
+        Friend friend = targetFriend == null ? reqFriend : targetFriend;
+        if (friend == null) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+        else {
+            friendRepository.delete(friend);
+        }
     }
 
 }
