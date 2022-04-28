@@ -1,4 +1,12 @@
 services:
+  frontend:
+    build: frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    image: arcade_frontend
   backend:
     build: backend
+    ports: 
+      - "8080:8080"
     image: arcade_backend
