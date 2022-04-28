@@ -97,6 +97,13 @@ public class UserController {
         return new ResponseEntity<>(userResDto, HttpStatus.OK);
     }
 
+    // 친구 제외 유저 검색
+    @GetMapping(value="/search/norelate")
+    public ResponseEntity<UserResDto> searchUserNoRelate(@RequestHeader("Authorization") String token, @RequestParam("userEmail") String userEmail) {
+
+        UserResDto userResDto = userService.getUserByEmailNoRelate(token, userEmail);
+        return new ResponseEntity<>(userResDto, HttpStatus.OK);
+    }
 
     // 친구 요청
     @PostMapping(value= "/friend", params = "userEmail")
@@ -164,32 +171,6 @@ public class UserController {
         userService.deleteFriendTest(myEmail, userEmail);
         return new ResponseEntity<>("친구 삭제 성공", HttpStatus.OK);
     }
-
-//    @GetMapping("/naver")
-//    public ResponseEntity<Map<String, Object>> naverLogin(@RequestParam String code, @RequestParam String state) {
-//        User user = null;
-//        String email = null;
-//        String image = null;
-//        String name = null;
-//
-//        String accessToken = naverLoginService.getAccessToken(code, state).getAccess_token();
-//        NaverProfile naverProfile = naverLoginService.getProfileByToken(accessToken);
-//        user = userRepository.findByEmail(naverProfile.getEmail()).orElseGet(User::new);
-//
-//        email = naverProfile.getEmail();
-//        image = naverProfile.getProfile_image();
-//        name = naverProfile.getNickname();
-//
-//        Map<String, Object> map = new HashMap<>();
-//        if (user.getUserSeq() == null) {
-//            user = userService.signUp(email, image, name);
-//        }
-//        map.put("token", "Bearer " + JwtTokenUtil.getToken(user.getEmail()));
-//        map.put("name", user.getName());
-//        map.put("email", user.getEmail());
-//        map.put("image", user.getImage());
-//        return new ResponseEntity<>(map, HttpStatus.OK);
-//    }
 
 
 }

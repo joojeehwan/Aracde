@@ -157,6 +157,33 @@ public class UserService {
 
         return userResDto;
     }
+    // 친구 제외 유저 검색
+    public UserResDto getUserByEmailNoRelate(String token, String userEmail) {
+        User me = userRepository.findByEmail(getEmailByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() ->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Friend targetfriend = friendRepository.findByRequestAndTarget(me, user).orElse(null);
+        Friend reqfriend =  friendRepository.findByRequestAndTarget(user, me).orElse(null);
+
+        Friend friend = targetfriend == null ? reqfriend : targetfriend;
+        
+        // 이 API는 친구를 제외한 유저만 return해줌
+        if (friend != null) {
+            throw new CustomException(ErrorCode.WRONG_DATA);
+        }
+        // 친구관계 아닌 경우만
+        Integer status = -1;
+        UserResDto userResDto = new UserResDto();
+        userResDto.setEmail(user.getEmail());
+        userResDto.setName(user.getName());
+        userResDto.setImage(user.getImage());
+        userResDto.setStatus(status);
+
+        return userResDto;
+    }
+
 
     // 친구 요청
     public void requestFriend(String token, String targetEmail) {
@@ -170,7 +197,7 @@ public class UserService {
         Friend reqFriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
         // 본인 친구추가 불가
-        if (targetFriend == reqFriend) {
+        if (targetUser == reqUser) {
             throw new CustomException(ErrorCode.CANNOT_FOLLOW_MYSELF);
         }
         // 둘다 null이어야만 입력 가능
@@ -194,20 +221,28 @@ public class UserService {
         User reqUser = userRepository.findByEmail(reqEmail).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        System.out.println("reqUser: " + reqUser +  "targetUser: " + targetUser);
+        if (targetUser == reqUser) {
+            throw new CustomException(ErrorCode.CANNOT_FOLLOW_MYSELF);
+        }
         Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
-        Friend friend = targetFriend == null ? reqFriend : targetFriend;
+        // 수락할 때는 수락하는 user는 target에 저장된 경우여야만 한다.
+        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+        if (reqFriend != null) {
+            throw new CustomException(ErrorCode.CANNOT_ACCEPT_MYSELF);
+        }
+
         // 요청한 친구관계가 없을떄
-        if (friend == null) {
+        if (targetFriend == null) {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         }
         else {
-            if (friend.isApproved()) {
+            if (targetFriend.isApproved()) {
                 throw new CustomException(ErrorCode.ALREADY_ACCEPT);
             }
-            friend.setApproved(true);
-            friendRepository.save(friend);
+            targetFriend.setApproved(true);
+            friendRepository.save(targetFriend);
         }
     }
     // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
@@ -279,7 +314,7 @@ public class UserService {
     }
 
     /**
-     * 테스트용 Service
+     * 테스트용 Service (토큰 쓰기 번거로워서 이메일로만 소통)
      */
     public void requestFriendTest(String fromEmail, String toEmail) {
         User reqUser = userRepository.findByEmail(fromEmail).get();
