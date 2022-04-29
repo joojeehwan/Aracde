@@ -347,6 +347,7 @@ public class UserService {
             userResDto.setStatus(1);
 
             userResDtoList.add(userResDto);
+
         }
         return userResDtoList;
     }
