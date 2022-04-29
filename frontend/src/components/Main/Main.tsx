@@ -10,12 +10,19 @@ import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
+
 import Chatting from '../Modal/Chatting/ChattingList/index';
+
+import { Stomp } from '@stomp/stompjs';
+import { deleteToken } from '../../common/api/jWT-Token';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
+
+  const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
+  const client = Stomp.over(sock);
 
   const navigate = useNavigate();
 
@@ -29,11 +36,24 @@ function Main() {
     setAlarmsIsOpen(true);
   }, [alarmsIsOpen]);
 
-  const handleCloseAlarms = useCallback((e : React.MouseEvent<HTMLDivElement>) => {
-    setAlarmsIsOpen(false);
-  }, [alarmsIsOpen]);
+  const handleCloseAlarms = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      setAlarmsIsOpen(false);
+    },
+    [alarmsIsOpen],
+  );
 
   const handleOpensFriends = useCallback(() => {
+    client.send(
+      '/pub/noti/2',
+      {},
+      JSON.stringify({
+        userSeq: window.localStorage.getItem('userSeq'),
+        name: '홍승기',
+        inviteCode: 'asdfasf',
+        type: 'friend',
+      }),
+    );
     setFriendsIsOpen(true);
   }, [friendsIsOpen]);
 
@@ -72,7 +92,7 @@ function Main() {
   };
 
   const handleClickLogout = (e: React.MouseEvent) => {
-    // here localstorage clean
+    deleteToken();
     setIsLogin(false);
   };
   // 임시 메서드
@@ -94,24 +114,27 @@ function Main() {
     }
   };
 
-  useEffect(()=> {
-    if(friendsIsOpen === true || alarmsIsOpen === true || open === true){
-      document.body.style.overflow = "hidden";
+  useEffect(() => {
+    if (friendsIsOpen === true || alarmsIsOpen === true || open === true) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
     }
-    else{
-      document.body.style.overflow = "unset";
-    }
-  }, [friendsIsOpen, alarmsIsOpen, open])
+  }, [friendsIsOpen, alarmsIsOpen, open]);
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
+      client.connect({}, () => {
+        console.log('connection');
+        client.subscribe('/sub/noti/' + window.localStorage.getItem('userSeq'), function (notiDTO) {
+          console.log('TLqkfjwlSWk whwRkxsp wlsWkfh');
+          const content = JSON.parse(notiDTO.body);
+          console.log(content.name);
+        });
+      });
     }
   }, []);
-
-
-
-
 
   return (
     <>
@@ -209,7 +232,7 @@ function Main() {
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
-        {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
+        {friendsIsOpen ? <Friends client={client} open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
       </div>
