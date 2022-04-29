@@ -1,11 +1,16 @@
 package com.ssafy.arcade.notification.dtos;
 
 import com.ssafy.arcade.notification.entity.Notification;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 @Data
-public class NotiDTO {
+@NoArgsConstructor
+public class NotiDTO implements Serializable{
     private Long userSeq;
     private String name;
     private String inviteCode;
