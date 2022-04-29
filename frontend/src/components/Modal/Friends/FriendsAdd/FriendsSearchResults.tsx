@@ -44,7 +44,7 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsSearchResults({ name, email, imgUrl, status }: any) {
+function FriendsSearchResults({ client, seq, name, email, imgUrl, status }: any) {
   const [isOnline, setIsOnline] = useState(true);
   const [isClicked, setIsClicked] = useState(false);
   const [curStatus, setCurStatus] = useState<number>(status);
@@ -58,6 +58,8 @@ function FriendsSearchResults({ name, email, imgUrl, status }: any) {
   const onClickAddFriends = async (email : string) => {
     const result = await getAddFriendRequestResult(email);
     if(result?.status === 200){
+      console.log(result, client);
+      // 
       setCurStatus(0);
     }
   }

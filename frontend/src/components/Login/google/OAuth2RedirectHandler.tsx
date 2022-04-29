@@ -19,6 +19,7 @@ function OAuth2RedirectHandler() {
     //넘기고 나는 토큰 저장,, 끝! 헤헷,,,
     // 프론트는 딱히.. 어렵지가 않앙,,항항,,,
     saveToken(result.data.token);
+    window.localStorage.setItem('userSeq', result.data.userSeq);
     navigate('/');
     return result;
   };

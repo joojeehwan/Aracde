@@ -37,7 +37,7 @@ const getUserSearchResult = async (name : string ) => {
 const getAddFriendRequestResult = async (email : string) => {
   const token = getToken();
   const body = {
-    userEmail : email
+    email
   }
   if(token !== null){
     const result = await axios.post(`${BASE_URL}/friend`, body, {headers : {Authorization : token}});

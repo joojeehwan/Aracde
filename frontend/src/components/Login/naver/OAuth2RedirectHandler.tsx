@@ -13,6 +13,7 @@ function OAuth2RedirectHandler() {
     const result = await getNaverLoginResult(code as string);
     console.log(result);
     saveToken(result.data.token);
+    window.localStorage.setItem('userSeq', result.data.userSeq);
     navigate('/');
     return result;
   };

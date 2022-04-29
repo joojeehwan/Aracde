@@ -17,6 +17,8 @@ function OAuth2RedirectHandler() {
     const result = await getKakaoLoginResult(code as string);
 
     saveToken(result.data.token);
+    window.localStorage.setItem('userSeq', result.data.userSeq);
+    
     navigate('/');
     return result;
   };
