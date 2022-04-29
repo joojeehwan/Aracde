@@ -17,7 +17,7 @@ public class notiController {
     // A -> B 알람 보낼때
     @MessageMapping("/noti/{userSeq}")
     public void message(@DestinationVariable("userSeq") Long userSeq, NotiDTO notiDTO) {
-        template.convertAndSend("/sub/noti" + userSeq, notiDTO);
+        template.convertAndSend("/sub/noti/" + userSeq, notiDTO);
     }
 
 

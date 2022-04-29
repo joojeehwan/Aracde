@@ -167,7 +167,6 @@ public class UserService {
 
             userResDtoList.add(userResDto);
         }
-<<<<<<< HEAD
         return userResDtoList;
     }
     // 친구 제외 유저 검색
@@ -195,15 +194,8 @@ public class UserService {
             if (friend != null && !friend.isApproved()) {
                 status = 0;
             }
-=======
-        UserResDto userResDto = new UserResDto();
-        userResDto.setEmail(user.getEmail());
-        userResDto.setName(user.getName());
-        userResDto.setImage(user.getImage());
-        userResDto.setStatus(status);
->>>>>>> feat/#S06P31A203-98/ec2_docker
 
-           if (friend == null) {
+            if (friend == null) {
                 status = -1;
             }
             UserResDto userResDto = new UserResDto();
@@ -353,14 +345,11 @@ public class UserService {
             userResDto.setName(user.getName());
             userResDto.setImage(user.getImage());
             userResDto.setStatus(1);
-
-<<<<<<< HEAD
             userResDtoList.add(userResDto);
-=======
         Friend friend = targetFriend == null ? requestFriend : targetFriend;
         if (friend == null || !friend.isApproved()) {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
->>>>>>> feat/#S06P31A203-98/ec2_docker
+            userResDtoList.add(userResDto);
         }
         return userResDtoList;
     }
