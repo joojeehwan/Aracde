@@ -22,8 +22,8 @@ function App() {
 
           <Route path='/' element={<Main />} />
           <Route path="/login" element={<Login />} />
-          <Route path='/myroom' element={<MyRoom />} />
-          <Route path='/entrance' element={<EntranceRoom />} />
+          {/* <Route path='/myroom' element={<MyRoom />} /> */}
+          {/* <Route path='/entrance' element={<EntranceRoom />} /> */}
           <Route path="/oauth/callback/kakao" element={<KakaoRedirectHandler />} />
           <Route path="/oauth/callback/naver" element={<NaverRedirectHandler />} />
           <Route path="/oauth/callback/google" element={<GoogleRedirectHandler />} />
