@@ -1,7 +1,7 @@
 import React from 'react';
 
-function ChatBox() {
-  return <>ChatBox</>;
+function ChatInput() {
+  return <>ChatInput</>;
 }
 
-export default ChatBox;
+export default ChatInput;

@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import styles from '../../styles/Chatting.module.scss';
+import autosize from 'autosize';
+import ChatEach from '../ChattingComponents/ChatEach';
 
 interface MyProps {
   open: boolean;
   onClose: (e: any) => void;
 }
 
-const dummydata = { 'name:': '주지환', content: '' };
+const dummydata = { name: '주지환', content: 'chat sample', time: '오후 5:46' };
 
 //mui
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
@@ -51,10 +53,30 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
 
 function Chatting({ open, onClose }: MyProps) {
   const [isOnline, setIsOnline] = useState(true);
+  const [tab, setTab] = useState('CHATROOM');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // useEffect(() => {
+  //   if (textareaRef.current) {
+  //     autosize(textareaRef.current);
+  //   }
+  // }, []);
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
   };
+
+  // const onKeydownChat = useCallback(
+  //   (e) => {
+  //     if (e.key === 'Enter') {
+  //       if (!e.shiftKey) {
+  //         e.preventDefault();
+  //         onSubmitForm(e);
+  //       }
+  //     }
+  //   },
+  //   [onSubmitForm],
+  // );
 
   return (
     <div
@@ -72,38 +94,82 @@ function Chatting({ open, onClose }: MyProps) {
           role="button"
           tabIndex={0}
         >
-          <div style={{ display: 'flex', padding: '20px', marginLeft: '20px', marginTop: '-10px' }}>
-            <div style={{ marginLeft: '-35px' }}>
-              {isOnline ? (
-                <StyledBadgeOnline
-                  overlap="circular"
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                  variant="dot"
-                >
-                  <Avatar alt="사진" sx={{ width: 56, height: 56 }} />
-                </StyledBadgeOnline>
-              ) : (
-                <StyledBadgeOffline
-                  overlap="circular"
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                  variant="dot"
-                >
-                  <Avatar alt="사진" />
-                </StyledBadgeOffline>
-              )}
-            </div>
-            <div>
-              <div style={{ marginTop: '10px', paddingRight: '30px', marginLeft: '10px' }}>주지환</div>
-              <div style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', maxWidth: '170px' }}>
-                캐치마인드 한판 고?!
+          <div className={styles.chatBox}>
+            <div
+              style={{
+                display: 'flex',
+                padding: '20px',
+                marginLeft: '20px',
+                marginTop: '-10px',
+                flexDirection: 'column',
+              }}
+              className={styles.chatList}
+            >
+              <div style={{ display: 'flex', cursor: 'pointer' }}>
+                <div style={{ marginLeft: '-35px' }}>
+                  {isOnline ? (
+                    <StyledBadgeOnline
+                      overlap="circular"
+                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                      variant="dot"
+                    >
+                      <Avatar alt="사진" sx={{ width: 56, height: 56 }} />
+                    </StyledBadgeOnline>
+                  ) : (
+                    <StyledBadgeOffline
+                      overlap="circular"
+                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                      variant="dot"
+                    >
+                      <Avatar alt="사진" />
+                    </StyledBadgeOffline>
+                  )}
+                </div>
+                <div>
+                  <div style={{ marginTop: '10px', paddingRight: '30px', marginLeft: '10px' }}>배하은</div>
+                  <div style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', maxWidth: '170px' }}>
+                    캐치마인드 한판 고?!
+                  </div>
+                </div>
+                <div>
+                  <div style={{ position: 'absolute', marginLeft: '-1px' }}>
+                    <div style={{ fontSize: '11px', color: '#B6A7A7' }}>오후 5:46</div>
+                    <div className={styles.count}>5</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div>
-              <div style={{ position: 'absolute', marginLeft: '40px' }}>
-                <div style={{ fontSize: '11px', color: '#B6A7A7' }}>오후 5:46</div>
-                <div className={styles.count}>5</div>
+            {tab === 'CHATROOM' && (
+              <div className={styles.chatContent}>
+                <header className={styles.chatHeader}>
+                  {isOnline ? <Avatar alt="사진" sx={{ width: 56, height: 56 }} /> : <Avatar alt="사진" />}
+                </header>
+                <ul className={styles.chatMessages}>
+                  {/* {dummydata.map((chat: string, index: string) => (
+                    <li key={index}>
+                      {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
+                      <div className="message-data">{chat.message}</div>
+                      {chat.senderName === userData.username && <div className="avatar self">{chat.senderName}</div>}
+                    </li>
+                  ))} */}
+                  <ChatEach />
+                </ul>
+                <div className={styles.sendMessage}>
+                  <form className={styles.form}>
+                    <input
+                      type="text"
+                      className={styles.inputMessage}
+                      placeholder="enter the message"
+                      // value={userData.message}
+                      // onChange={handleMessage}
+                    />
+                    <button type="button" className={styles.sendButton}>
+                      전송
+                    </button>
+                  </form>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </section>
       ) : null}
