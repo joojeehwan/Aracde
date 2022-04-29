@@ -345,105 +345,10 @@ public class UserService {
             userResDto.setName(user.getName());
             userResDto.setImage(user.getImage());
             userResDto.setStatus(1);
+
             userResDtoList.add(userResDto);
-        Friend friend = targetFriend == null ? requestFriend : targetFriend;
-        if (friend == null || !friend.isApproved()) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-            userResDtoList.add(userResDto);
+
         }
         return userResDtoList;
     }
-
-    /**
-     * 테스트용 Service (토큰 쓰기 번거로워서 이메일로만 소통)
-     */
-    public void requestFriendTest(String fromEmail, String toEmail) {
-        User reqUser = userRepository.findByEmail(fromEmail).get();
-        User targetUser = userRepository.findByEmail(toEmail).get();
-
-        Friend targetfriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqfriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
-
-        // 둘다 null이어야만 입력 가능
-        if (targetfriend == null && reqfriend == null) {
-            Friend friend = new Friend();
-
-            friend.setRequest(reqUser);
-            friend.setTarget(targetUser);
-            friend.setApproved(false);
-            friendRepository.save(friend);
-        }
-        else {
-            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
-        }
-    }
-    public void approveFriendTest(String toEmail, String fromEmail) {
-        User targetUser = userRepository.findByEmail(toEmail).orElseThrow(() ->
-                new CustomException(ErrorCode.NOT_OUR_USER));
-        User reqUser = userRepository.findByEmail(fromEmail).orElseThrow(() ->
-                new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
-
-        // 요청한 친구관계가 없을떄
-        if (targetFriend == null && reqFriend == null) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        }
-        else {
-            Friend friend = targetFriend == null ? reqFriend : targetFriend;
-
-            if (friend.isApproved()) {
-                throw new CustomException(ErrorCode.ALREADY_ACCEPT);
-            }
-            friend.setApproved(true);
-            friendRepository.save(friend);
-        }
-    }
-
-    // 친구리스트 조회
-    public List<UserResDto> getFriendListTest(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
-                new CustomException(ErrorCode.NOT_OUR_USER));
-        List<UserResDto> userResDtoList = new ArrayList<>();
-
-        List<Friend> friendList = friendRepository.findAllByRequestOrTarget(user, user).orElse(null);
-        if (friendList == null) {
-            throw new CustomException(ErrorCode.NOT_OUR_USER);
-        }
-
-        for (Friend friend : friendList) {
-            if (!friend.isApproved()) {
-                continue;
-            }
-            User friend_user = (friend.getRequest() == user) ? friend.getTarget() : friend.getRequest();
-            UserResDto userResDto = new UserResDto();
-            userResDto.setEmail(friend_user.getEmail());
-            userResDto.setName(friend_user.getName());
-            userResDto.setImage(friend_user.getImage());
-
-            userResDtoList.add(userResDto);
-        }
-        return userResDtoList;
-    }
-
-    // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
-    public void deleteFriendTest(String myEmail, String userEmail) {
-        User reqUser = userRepository.findByEmail(myEmail).orElseThrow(() ->
-                new CustomException(ErrorCode.NOT_OUR_USER));
-        User targetUser = userRepository.findByEmail(userEmail).orElseThrow(() ->
-                new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
-
-        Friend friend = targetFriend == null ? reqFriend : targetFriend;
-        if (friend == null) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        }
-        else {
-            friendRepository.delete(friend);
-        }
-    }
-
 }
