@@ -43,7 +43,10 @@ public class GameService {
 
     // 순서
     protected ConcurrentHashMap<String, Map<Integer, String>> sOrderMap = new ConcurrentHashMap<>();
-    protected ConcurrentHashMap<String, Map<String, String>> sNickMap = new ConcurrentHashMap<>();
+//
+
+    // 그림 저장 <sessionId, [그림url, ...] }
+    protected ConcurrentHashMap<String, ArrayList<String>> imagesMap = new ConcurrentHashMap<>();
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -146,20 +149,19 @@ public class GameService {
 
         // 1번순서 => 키워드 입력하고 첫 그림 시작, 마지막 순서 => 문제를 맞춰야 함
         String sessionId = message.get("sessionId").getAsString();
-        sNickMap.put(sessionId, nickMap);
         sOrderMap.put(sessionId, orderMap);
         
-        // 나머지 게임은 '술래'가 따로 없음
-        if(gameId == TAG) {
+        // 이어그리기 '술래'가 따로 없음
+        if(gameId == TAG || gameId == BODY) {
             List<Object> participantList = Arrays.asList(participants.toArray());
             Collections.shuffle(participantList);
-            // 섞어서 0번쨰에 오는 사람의 streamId가 술래
+            // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
             Participant target = (Participant) participantList.get(0);
 
-            // 술래 지정
+            // 술래(출제자) 지정
             data.addProperty("tagStreamId", target.getPublisherStreamId());
             data.addProperty("gameStatus", 2);
-        } 
+        }
 
         params.add("data", data);
         for (Participant p : participants) {
@@ -174,13 +176,13 @@ public class GameService {
      * */
     public void selectGame(Participant participant, Set<Participant> participants,
                            JsonObject message, JsonObject params, JsonObject data) {
-        int strssstttt;
         int index = data.get("index").getAsInt();
         int number = participants.size();
         int gameId = data.get("gameId").getAsInt();
+        String sessionId = message.get("sessionId").getAsString();
 
         if (gameId == RELAY) {
-            String sessionId = message.get("sessionId").getAsString();
+
 
             // order 확인
             Map<Integer, String > orderMap = sOrderMap.get(sessionId);
@@ -197,16 +199,57 @@ public class GameService {
         }
 
 
+        params.add("data", data);
+        for (Participant p : participants) {
+            rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
+                    ProtocolElements.PARTICIPANTSENDMESSAGE_METHOD, params);
+        }
     }
 
     public void startGame(Participant participant, Set<Participant> participants,
                              JsonObject message, JsonObject params, JsonObject data) {
 
+        int index = data.get("index").getAsInt();
+        int number = participants.size();
+        int gameId = data.get("gameId").getAsInt();
+        String sessionId = message.get("sessionId").getAsString();
+
+        if (gameId == RELAY) {
+
+        }else if (gameId == TAG) {
+
+        }else if (gameId == BODY) {
+
+        }
+
+        params.add("data", data);
+        for (Participant p : participants) {
+            rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
+                    ProtocolElements.PARTICIPANTSENDMESSAGE_METHOD, params);
+        }
     }
 
     public void finishGame(Participant participant, Set<Participant> participants,
                            JsonObject message, JsonObject params, JsonObject data) {
 
+        int gameId = data.get("gameId").getAsInt();
+        String sessionId = message.get("sessionId").getAsString();
+
+        // 게임 끝났으면 제외 시켜 준다.
+        sOrderMap.remove(sessionId);
+        if (gameId == RELAY) {
+
+        }else if (gameId == TAG) {
+
+        }else if (gameId == BODY) {
+
+        }
+
+        params.add("data", data);
+        for (Participant p : participants) {
+            rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
+                    ProtocolElements.PARTICIPANTSENDMESSAGE_METHOD, params);
+        }
     }
 
 
