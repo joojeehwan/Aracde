@@ -1,5 +1,6 @@
 package com.ssafy.arcade.notification.dtos;
 
+import com.ssafy.arcade.notification.entity.Notification;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,5 +17,9 @@ public class NotiDTO {
         this.name = name;
         this.inviteCode = inviteCode;
         this.type = type;
+    }
+    public Notification toEntity(){
+        return Notification.builder()
+                .inviteCode(inviteCode).name(name).type(type).userSeq(userSeq).build();
     }
 }
