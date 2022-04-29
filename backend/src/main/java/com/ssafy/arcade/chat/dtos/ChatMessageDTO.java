@@ -10,4 +10,13 @@ public class ChatMessageDTO {
     private String roomId;
     private String writer;
     private String message;
+
+    @Override
+    public String toString() {
+        return "ChatMessageDTO{" +
+                "roomId='" + roomId + '\'' +
+                ", writer='" + writer + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }
