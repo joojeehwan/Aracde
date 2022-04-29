@@ -102,7 +102,8 @@ function Main() {
       client.connect({}, () => {
         console.log("connection");
         client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
-            const content = JSON.parse(notiDTO.body);
+            console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");  
+          const content = JSON.parse(notiDTO.body);
             console.log(content.name);
         })
       })
