@@ -1,39 +1,37 @@
 import { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import 'react-toastify/dist/ReactToastify.css';
+import loadable from '@loadable/component';
+import { ToastContainer } from 'react-toastify';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
+
+const Main = loadable(() => import('./components/Main/Main'));
+const Login = loadable(() => import('./components/Login/mainLogin'));
+const KakaoRedirectHandler = loadable(() => import('./components/Login/kakao/OAuth2RedirectHandler'));
+const NaverRedirectHandler = loadable(() => import('./components/Login/naver/OAuth2RedirectHandler'));
+const GoogleRedirectHandler = loadable(() => import('./components/Login/google/OAuth2RedirectHandler'));
+const MyRoom = loadable(() => import('./components/MyRoom/MyRoom'));
+const EntranceRoom = loadable(() => import('./components/Room/EntranceRoom'));
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p style={{ fontFamily: 'neodgm' }}>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+
+          <Route path='/' element={<Main />} />
+          <Route path="/login" element={<Login />} />
+          <Route path='/myroom' element={<MyRoom />} />
+          <Route path='/entrance' element={<EntranceRoom />} />
+          <Route path="/oauth/callback/kakao" element={<KakaoRedirectHandler />} />
+          <Route path="/oauth/callback/naver" element={<NaverRedirectHandler />} />
+          <Route path="/oauth/callback/google" element={<GoogleRedirectHandler />} />
+
+        </Routes>
+      </BrowserRouter>
+      <ToastContainer autoClose={1500} style={{ display: 'inline' }} theme="colored" />
+    </>
   );
 }
 
