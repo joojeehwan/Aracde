@@ -18,7 +18,7 @@ import java.util.Map;
 @CrossOrigin("*")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping("/apiv1/users")
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
