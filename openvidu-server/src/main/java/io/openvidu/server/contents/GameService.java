@@ -174,7 +174,7 @@ public class GameService {
      * */
     public void selectGame(Participant participant, Set<Participant> participants,
                            JsonObject message, JsonObject params, JsonObject data) {
-        int str;
+        int strsss;
         int index = data.get("index").getAsInt();
         int number = participants.size();
         int gameId = data.get("gameId").getAsInt();
