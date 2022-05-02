@@ -16,7 +16,7 @@ docker rmi arcade_backend
 # 새로운 백엔드 이미지 만들기
 echo "++++++++++백엔드 도커 이미지 새로 만들기"
 pwd
-docker build -t arcade_back:latest /backend
+docker build -t arcade_back:latest backend
 # 새로운 백엔드 컨테이너 실행하기
 echo "++++++++++백엔드 도커 새로만든 이미지로 컨테이너 실행하기"
 docker run -d --name arcade_backend -p 8080:8080 arcade_backend
