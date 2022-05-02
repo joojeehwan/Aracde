@@ -44,22 +44,24 @@ public class FixedOneKmsManager extends KmsManager {
 			throws Exception {
 		KmsProperties firstProps = kmsProperties.get(0);
 		KurentoClient kClient = null;
-		Kms kms = new Kms(firstProps, loadManager, quarantineKiller);
+		Kms kms = new Kms(firstProps, loadManager, this);
 		try {
 			JsonRpcWSConnectionListener listener = this.generateKurentoConnectionListener(kms.getId());
 			JsonRpcClientNettyWebSocket client = new JsonRpcClientNettyWebSocket(firstProps.getUri(), listener);
 			client.setTryReconnectingMaxTime(0);
 			client.setTryReconnectingForever(false);
-			kClient = KurentoClient.createFromJsonRpcClient(client);
-			this.addKms(kms);
+			client.setConnectionTimeout(MAX_CONNECT_TIME_MILLIS);
+			client.setRequestTimeout(MAX_REQUEST_TIMEOUT);
+			kClient = KurentoClient.createFromJsonRpcClientHonoringClientTimeouts(client);
 			kms.setKurentoClient(kClient);
 
 			// TODO: This should be done in KurentoClient connected event
-			kms.setKurentoClientConnected(true);
-			kms.setTimeOfKurentoClientConnection(System.currentTimeMillis());
+			kms.setKurentoClientConnected(true, false);
+
+			this.addKms(kms);
 
 			// Set Media Server in OpenVidu configuration
-			this.openviduConfig.setMediaServer(kms.getMediaServer());
+			this.openviduConfig.setMediaServer(kms.getMediaServerType());
 
 		} catch (KurentoException e) {
 			log.error("KMS in {} is not reachable by OpenVidu Server", firstProps.getUri());
@@ -70,7 +72,6 @@ public class FixedOneKmsManager extends KmsManager {
 		}
 		return Arrays.asList(kms);
 	}
-
 
 	@Override
 	public void incrementActiveRecordings(RecordingProperties properties, String recordingId, Session session) {
