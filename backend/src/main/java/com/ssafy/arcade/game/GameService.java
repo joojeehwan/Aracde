@@ -54,7 +54,7 @@ public class GameService {
         gameRoom.addMember();
         gameRoomRepository.save(gameRoom);
     }
-    public void exitGameRoom(String inviteCode) {
+    public boolean exitGameRoom(String inviteCode) {
         GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElseThrow(() ->
                 new CustomException(ErrorCode.UNMATHCED_CODE));
 
@@ -66,10 +66,14 @@ public class GameService {
         gameRoom.delMember();
         if (curMember == 0) {
             deleteGameRoom(inviteCode);
-        }
-        else {
             gameRoomRepository.save(gameRoom);
+            return true;
         }
+        gameRoomRepository.save(gameRoom);
+        return false;
+
+
+
     }
 
 
