@@ -19,9 +19,9 @@ public class GameController {
     private final GameService gameService;
 
     @PostMapping(value="/create")
-    public ResponseEntity<Map<String, String>> createRoom(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Map<String, String>> createRoom() {
 
-        String inviteCode = gameService.createInviteCode(token);
+        String inviteCode = gameService.createInviteCode();
         Map<String, String> map = new HashMap<>();
         map.put("inviteCode", inviteCode);
 

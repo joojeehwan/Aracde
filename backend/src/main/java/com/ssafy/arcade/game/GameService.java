@@ -15,14 +15,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GameService {
 
-    private final UserRepository userRepository;
-    private final UserService userService;
     private final GameRoomRepository gameRoomRepository;
 
     // Room 생성
-    public String createInviteCode(String token) {
-        User user = userRepository.findByEmail(userService.getEmailByToken(token)).orElseThrow(() ->
-                new CustomException(ErrorCode.NOT_OUR_USER));
+    public String createInviteCode() {
 
         // 일단 무조건 요청하는대로 방 생성하는걸로
         String inviteCode = createRandString();
