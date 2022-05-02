@@ -2,6 +2,7 @@ package com.ssafy.arcade.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ssafy.arcade.common.util.BaseTimeEntity;
+import com.ssafy.arcade.game.entity.Game;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +37,9 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "target", orphanRemoval = true)
     private List<Friend> targetList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<Game> gameList = new ArrayList<>();
+
     public void addFriend(Friend friend) {
         this.requestList.add(friend);
         if (friend.getRequest() != this) {
@@ -47,6 +51,12 @@ public class User extends BaseTimeEntity {
         this.targetList.add(friend);
         if (friend.getTarget() != this) {
             friend.setTarget(this);
+        }
+    }
+    public void addGame(Game game) {
+        this.gameList.add(game);
+        if (game.getUser() != this) {
+            game.setUser(this);
         }
     }
 
