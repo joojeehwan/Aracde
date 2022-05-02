@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 import io.openvidu.client.internal.ProtocolElements;
 import io.openvidu.server.core.Participant;
 import io.openvidu.server.rpc.RpcNotificationService;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.security.core.parameters.P;
 
 import javax.servlet.http.Part;
@@ -43,10 +44,10 @@ public class GameService {
 
     // 순서
     protected ConcurrentHashMap<String, Map<Integer, String>> sOrderMap = new ConcurrentHashMap<>();
-//
-
+    // 닉네임 저장
+    protected ConcurrentHashMap<String, Map<Integer, String>> sNickMap = new ConcurrentHashMap<>();
     // 그림 저장 <sessionId, [그림url, ...] }
-    protected ConcurrentHashMap<String, ArrayList<String>> imagesMap = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, ArrayList<String>> sImageMap = new ConcurrentHashMap<>();
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -123,13 +124,13 @@ public class GameService {
 
         // 순서 매핑
         Map<Integer, String> orderMap = new HashMap<>();
-        Map<String, String> nickMap = new HashMap<>();
-
         // idx 순서 섞기
+
         int[] idxArr = new int[number];
         for (int i = 0; i < number; i++) {
             idxArr[i] = i+1;
         }
+
         System.out.println("idxArr: " + idxArr);
         int idx1, idx2;
         for (int i = 0; i < number; i++) {
@@ -143,25 +144,12 @@ public class GameService {
         int idx = 0;
         for (Participant p : participants) {
             orderMap.put(idxArr[idx], p.getPublisherStreamId());
-            nickMap.put(p.getPublisherStreamId(), "");
             idx++;
         }
 
         // 1번순서 => 키워드 입력하고 첫 그림 시작, 마지막 순서 => 문제를 맞춰야 함
         String sessionId = message.get("sessionId").getAsString();
         sOrderMap.put(sessionId, orderMap);
-        
-        // 이어그리기 '술래'가 따로 없음
-        if(gameId == TAG || gameId == BODY) {
-            List<Object> participantList = Arrays.asList(participants.toArray());
-            Collections.shuffle(participantList);
-            // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
-            Participant target = (Participant) participantList.get(0);
-
-            // 술래(출제자) 지정
-            data.addProperty("tagStreamId", target.getPublisherStreamId());
-            data.addProperty("gameStatus", 2);
-        }
 
         params.add("data", data);
         for (Participant p : participants) {
@@ -176,28 +164,42 @@ public class GameService {
      * */
     public void selectGame(Participant participant, Set<Participant> participants,
                            JsonObject message, JsonObject params, JsonObject data) {
-        int index = data.get("index").getAsInt();
+
         int number = participants.size();
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
 
         if (gameId == RELAY) {
-
-
-            // order 확인
+            // 첫번째 순서
             Map<Integer, String > orderMap = sOrderMap.get(sessionId);
-            String curStreamId = orderMap.get(index);
-
+            String curStreamId = orderMap.get(0);
             data.addProperty("streamId", curStreamId);
-            data.addProperty("index", index++);
+            data.addProperty("index", 0);
             data.addProperty("gameStatus", 2);
 
+            // 이미지 저장용 리스트 생성
+            ArrayList<String> imageList = new ArrayList<>();
+            sImageMap.put(sessionId, imageList);
+
         }else if (gameId == TAG) {
+            List<Object> participantList = Arrays.asList(participants.toArray());
+            Collections.shuffle(participantList);
+            // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
+            Participant target = (Participant) participantList.get(0);
 
+            // 술래 지정
+            data.addProperty("tagStreamId", target.getPublisherStreamId());
+            data.addProperty("gameStatus", 2);
         }else if (gameId == BODY) {
+            List<Object> participantList = Arrays.asList(participants.toArray());
+            Collections.shuffle(participantList);
+            // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
+            Participant target = (Participant) participantList.get(0);
 
+            // 출제자 지정
+            data.addProperty("tagStreamId", target.getPublisherStreamId());
+            data.addProperty("gameStatus", 2);
         }
-
 
         params.add("data", data);
         for (Participant p : participants) {
@@ -213,15 +215,43 @@ public class GameService {
         int number = participants.size();
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
+        switch (gameId) {
+            case RELAY:
+                // 이미지 추가
+                String imageUrl = data.get("imageUrl").getAsString();
+                ArrayList<String> imageList = sImageMap.get(sessionId);
+                imageList.add(imageUrl);
+                sImageMap.put(sessionId, imageList);
 
-        if (gameId == RELAY) {
+                String answer = data.get("answer").getAsString();
+                // 처음 출제자의 경우, 어떤 그림인지
+                if (index == 0) {
+                    data.addProperty("answer", answer);
+                }
+                // 맞출 사람
+                else if (index == number - 1) {
+                    String keyword = data.get("keyword").getAsString();
+                    if (answer.equals(keyword)) {
+                        data.addProperty("isRight", "Y");
+                    } else {
+                        data.addProperty("isRight", "N");
+                    }
+                }
+                //다음 차례에게 그림 보내줌
+                Map<Integer, String> orderMap = sOrderMap.get(sessionId);
+                String curStreamId = orderMap.get(++index);
+                data.addProperty("curStreamId", curStreamId);
+                data.addProperty("imageUrl", imageUrl);
+                data.addProperty("index", index);
+                break;
+            case TAG:
 
-        }else if (gameId == TAG) {
+                break;
 
-        }else if (gameId == BODY) {
+            case BODY:
+                break;
 
         }
-
         params.add("data", data);
         for (Participant p : participants) {
             rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
@@ -238,13 +268,15 @@ public class GameService {
         // 게임 끝났으면 제외 시켜 준다.
         sOrderMap.remove(sessionId);
         if (gameId == RELAY) {
-
+            sOrderMap.remove(sessionId);
+            sImageMap.remove(sessionId);
         }else if (gameId == TAG) {
-
+            sNickMap.remove(sessionId);
         }else if (gameId == BODY) {
 
         }
 
+        data.addProperty("gameStatus", 3);
         params.add("data", data);
         for (Participant p : participants) {
             rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
