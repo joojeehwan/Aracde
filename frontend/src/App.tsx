@@ -13,7 +13,6 @@ const NaverRedirectHandler = loadable(() => import('./components/Login/naver/OAu
 const GoogleRedirectHandler = loadable(() => import('./components/Login/google/OAuth2RedirectHandler'));
 const MyRoom = loadable(() => import('./components/MyRoom/MyRoom'));
 const EntranceRoom = loadable(() => import('./components/Room/EntranceRoom'));
-
 function App() {
   return (
     <>
