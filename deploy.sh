@@ -74,8 +74,8 @@ echo "+++++++++++++++++++++++++++++++++++"
 # 3. 메이븐 빌드
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++/home/ubuntu/openvidu에서 한번 메이븐 빌드"
-cd /home/ubuntu/openvidu
 sudo chmod -R 777 /home/ubuntu
+cd /home/ubuntu/openvidu
 mvn install -DskipTests
 echo "++++++++++/home/ubuntu/openvidu/openvidu-server로 이동해서 메이븐 빌드"
 cd openvidu-server
