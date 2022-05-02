@@ -57,7 +57,7 @@ function Chatting({ open, onClose }: MyProps) {
 
   const connect = () => {
     client.current = new StompJs.Client({
-      brokerURL: 'ws://k6a203.p.ssafy.io:8080/ws-stomp', // 웹소켓 서버로 직접 접속
+      brokerURL: 'ws://k6a203.p.ssafy.io:8080/ws-stomp', // 웹소켓 서버로 직접 접속!
       debug: function (str) {
         console.log(str);
       },
