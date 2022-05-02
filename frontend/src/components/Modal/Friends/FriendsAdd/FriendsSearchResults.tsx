@@ -5,7 +5,6 @@ import Avatar from '@mui/material/Avatar';
 import styles from '../../styles/Friends.module.scss';
 import UserApi from '../../../../common/api/UserApi';
 
-
 //mui
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -49,30 +48,31 @@ function FriendsSearchResults({ client, seq, name, email, imgUrl, status }: any)
   const [isClicked, setIsClicked] = useState(false);
   const [curStatus, setCurStatus] = useState<number>(status);
 
-  const {getAddFriendRequestResult} = UserApi;
+  const { getAddFriendRequestResult } = UserApi;
 
   // const onClickAddFriends = useCallback(() => {
   //   // setIsClicked(true);
 
   // }, [isClicked]);
-  const onClickAddFriends = async (email : string) => {
+  const onClickAddFriends = async (email: string) => {
     const result = await getAddFriendRequestResult(email);
-    if(result?.status === 200){
+    if (result?.status === 200) {
       console.log(result, client);
-      // 
+      //
       setCurStatus(0);
     }
-  }
-
+  };
 
   return (
-    <div style={{ 
-      display: 'flex',
-      justifyContent : 'space-evenly',
-      alignItems : 'center',
-      padding : 10,
-      marginTop : 15  
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        padding: 10,
+        marginTop: 15,
+      }}
+    >
       <div>
         {isOnline ? (
           <StyledBadgeOnline
@@ -92,20 +92,26 @@ function FriendsSearchResults({ client, seq, name, email, imgUrl, status }: any)
           </StyledBadgeOffline>
         )}
       </div>
-      <div style={{
-        display : "block",
-        textAlign : "left",
-        width : 180
-      }}>
-        <div style={{
-          marginTop : 5
-        }}>
+      <div
+        style={{
+          display: 'block',
+          textAlign: 'left',
+          width: 180,
+        }}
+      >
+        <div
+          style={{
+            marginTop: 5,
+          }}
+        >
           {name}
         </div>
-        <div style={{
-          marginTop : 5,
-          fontSize : 15
-        }}>
+        <div
+          style={{
+            marginTop: 5,
+            fontSize: 15,
+          }}
+        >
           {email}
         </div>
       </div>
@@ -113,7 +119,7 @@ function FriendsSearchResults({ client, seq, name, email, imgUrl, status }: any)
         {curStatus === 0 ? (
           <button className={styles.buttonYocheong}>요청됨</button>
         ) : (
-          <button className={styles.button} onClick={()=>onClickAddFriends(email)}>
+          <button className={styles.button} onClick={() => onClickAddFriends(email)}>
             친구 추가
           </button>
         )}

@@ -38,22 +38,22 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
   const handleMic = () => {
     setMic((prev) => !prev);
   };
-  const handleVideo = () => {
-    if (isVideo) {
-      videoRef.current.pause();
-      videoRef.current.src = '';
-      localStream.getTracks()[0].stop();
-    } else {
-      videoRef.current.play();
-    }
-    setVideo((prev) => !prev);
-  };
+  // const handleVideo = () => {
+  //   if (isVideo) {
+  //     videoRef.current.pause();
+  //     videoRef.current.src = '';
+  //     localStream.getTracks()[0].stop();
+  //   } else {
+  //     videoRef.current.play();
+  //   }
+  //   setVideo((prev) => !prev);
+  // };
   const handleEnter = async () => {
     const response = await enterRoom(code as string);
     console.log(response);
-    if (response.statusCode === 200) {
-      navigate(`/`);
-    }
+    // if (response.statusCode === 200) {
+    //   navigate(`/`);
+    // }
   };
   const handleCancel = () => {
     navigate(`/`);
@@ -66,13 +66,13 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
     setCode(e.target.value);
   }
 
-  useEffect(() => {
-    videoRef.current.srcObject = mediaStream ? mediaStream : null;
-    navigator.mediaDevices.getUserMedia({ video: isVideo, audio: isMic }).then((stream) => {
-      setLocalStream(stream);
-      videoRef.current.srcObject = stream;
-    });
-  }, [mediaStream]);
+  // useEffect(() => {
+  //   videoRef.current.srcObject = mediaStream ? mediaStream : null;
+  //   navigator.mediaDevices.getUserMedia({ video: isVideo, audio: isMic }).then((stream) => {
+  //     setLocalStream(stream);
+  //     videoRef.current.srcObject = stream;
+  //   });
+  // }, [mediaStream]);
 
   return (
     <>
@@ -84,10 +84,10 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
           </h1>
           <div className={styles.content}>
             <div className={styles.preferences}>
-              <div className={styles.camera}>
+              {/* <div className={styles.camera}>
                 <video ref={videoRef} autoPlay={isVideo} mediaStream={localStream} muted={isMic}></video>
-                {/* <img src="../src/assets/character.png" alt="" /> */}
-              </div>
+                <img src="../src/assets/character.png" alt="" />
+              </div> */}
               <div className={styles.cameraBtn}>
                 {isMic ? (
                   <Button
@@ -137,7 +137,7 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
                       fontFamily: 'neodgm',
                       fontSize: '16px',
                     }}
-                    onClick={handleVideo}
+                    // onClick={handleVideo}
                   >
                     <VideocamIcon />
                     &nbsp;비디오 중지
@@ -154,7 +154,7 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
                       fontFamily: 'neodgm',
                       fontSize: '16px',
                     }}
-                    onClick={handleVideo}
+                    // onClick={handleVideo}
                   >
                     <VideocamOffIcon />
                     &nbsp;비디오 시작
