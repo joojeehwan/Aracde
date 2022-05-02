@@ -1,4 +1,4 @@
-package com.ssafy.arcade.user.request;
+package com.ssafy.arcade.game.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +9,6 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class UserReqDto {
-    private String email;
+public class RoomReqDto {
+    private String inviteCode;
 }

@@ -1,14 +1,39 @@
 package com.ssafy.arcade.game;
 
 
+import com.ssafy.arcade.game.request.RoomReqDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping("/apiv1/room")
 public class GameController {
+
+    private final GameService gameService;
+
+    @PostMapping(value="/create")
+    public ResponseEntity<Map<String, String>> createRoom(@RequestHeader("Authorization") String token) {
+
+        String inviteCode = gameService.createInviteCode(token);
+        Map<String, String> map = new HashMap<>();
+        map.put("inviteCode", inviteCode);
+
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
+    @PatchMapping(value="/enter")
+    public ResponseEntity<String> enterRoom(@RequestBody RoomReqDto roomReqDto) {
+
+        gameService.enterGameRoom(roomReqDto.getInviteCode());
+
+        return new ResponseEntity<>("초대코드 일치 확인", HttpStatus.OK);
+    }
+
 }
