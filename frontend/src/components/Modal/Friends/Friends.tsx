@@ -6,14 +6,14 @@ import FriendsSearchResults from './FriendsAdd/FriendsSearchResults';
 import UserApi from '../../../common/api/UserApi';
 
 interface MyProps {
-  client : any;
+  // client : any;
   open: boolean;
   onClose: (e: any) => void;
 }
 
 
 
-function Friends({ client, open, onClose }: MyProps) {
+function Friends({ open, onClose }: MyProps) {
   const [friend, setFriend] = useState<{userSeq : number, email : string, name : string, image : string, status : number}[]>([]);
   const [people, setPeople] = useState<{userSeq : number, email : string, name : string, image : string, status : number}[]>([]);
   const [label, setLabel] = useState([]);
@@ -59,7 +59,7 @@ function Friends({ client, open, onClose }: MyProps) {
             <div className={styles.friendAddContainer}>
               {people.map((value, i) => {
                 const idx = i;
-                return <FriendsSearchResults client={client} seq={value.userSeq} key={idx} imgUrl={value.image} name={value.name} email={value.email} status={value.status}/>;
+                return <FriendsSearchResults seq={value.userSeq} key={idx} imgUrl={value.image} name={value.name} email={value.email} status={value.status}/>;
               })}
             </div>
             </>

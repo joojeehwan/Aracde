@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
-import { Stomp } from '@stomp/stompjs';
+// import { Stomp } from '@stomp/stompjs';
 import {deleteToken} from '../../common/api/jWT-Token';
 
 function Main() {
@@ -17,8 +17,8 @@ function Main() {
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
 
-  const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp')
-  const client = Stomp.over(sock);
+  // const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp')
+  // const client = Stomp.over(sock);
 
   const navigate = useNavigate();
 
@@ -99,14 +99,14 @@ function Main() {
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
-      client.connect({}, () => {
-        console.log("connection");
-        client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
-            console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");  
-          const content = JSON.parse(notiDTO.body);
-            console.log(content.name);
-        })
-      })
+      // client.connect({}, () => {
+      //   console.log("connection");
+      //   client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
+      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");  
+      //     const content = JSON.parse(notiDTO.body);
+      //       console.log(content.name);
+      //   })
+      // })
     }
   }, []);
 
@@ -188,7 +188,7 @@ function Main() {
       </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
-        {friendsIsOpen ? <Friends client={client} open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
+        {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
       </div>
     </>
