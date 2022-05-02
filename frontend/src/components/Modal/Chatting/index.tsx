@@ -14,7 +14,6 @@ import useInput from '../../../common/hooks/useInput';
 //stomp & sockjs
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
-import { Stomp } from '@stomp/stompjs';
 
 interface MyProps {
   open: boolean;
@@ -39,21 +38,16 @@ const dummydata = [
 ];
 
 function Chatting({ open, onClose }: MyProps) {
-  const [isOnline, setIsOnline] = useState(true);
   const [tab, setTab] = useState('CHATROOM');
   const scrollbarRef = useRef<Scrollbars>(null);
-  const [chat, onChangeChat, setChat] = useInput('');
   const client = useRef<any>({});
-
+  const [chat, onChangeChat, setChat] = useInput('');
+  const [chateMessages, setChatMessages] = useState<any>([]);
   useEffect(() => {
     connect();
-  }, []);
 
-  // const connect = () => {
-  //   const sock = new SockJS('http://k6a203.p.ssafy.io:8080/ws-stomp');
-  //   client.current = Stomp.over(sock);
-  //   console.log(client);
-  // };
+    return () => disconnect();
+  }, []);
 
   const connect = () => {
     client.current = new StompJs.Client({
@@ -65,7 +59,7 @@ function Chatting({ open, onClose }: MyProps) {
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        // subscribe();
+        subscribe();
       },
       onStompError: (frame) => {
         console.error(frame);
@@ -84,6 +78,12 @@ function Chatting({ open, onClose }: MyProps) {
     };
   }
 
+  const subscribe = () => {
+    client.current.subscribe('/sub/chat/room/1', ({ body }: any) => {
+      setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
+    });
+  };
+
   const publish = () => {
     if (!client.current.connected) {
       return;
@@ -96,6 +96,7 @@ function Chatting({ open, onClose }: MyProps) {
     });
 
     // setMessage('');
+    setChat('');
   };
 
   const disconnect = () => {
