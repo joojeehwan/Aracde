@@ -69,7 +69,8 @@ echo "+++++++++++++++++++++++++++++++++++"
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++openvidu-server 폴더 복붙"
 echo "++++++++++권한 문제. ubnutu 계정으로 바꿔봄"
-sudo cp -r ../openvidu-server /home/ubuntu/openvidu/openvidu-server
+pwd
+sudo cp -r openvidu-server /home/ubuntu/openvidu/openvidu-server
 echo "+++++++++++++++++++++++++++++++++++"
 # 3. 메이븐 빌드
 echo "+++++++++++++++++++++++++++++++++++"
