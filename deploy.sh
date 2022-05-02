@@ -68,14 +68,16 @@ echo "+++++++++++++++++++++++++++++++++++"
 # 2. openvidu-server 폴더 복붙
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++openvidu-server 폴더 복붙"
-echo "++++++++++권한 문제. ubnutu 계정으로 바꿔봄"
 pwd
 sudo cp -r openvidu-server /home/ubuntu/openvidu/openvidu-server
 echo "+++++++++++++++++++++++++++++++++++"
 # 3. 메이븐 빌드
 echo "+++++++++++++++++++++++++++++++++++"
+echo "++++++++++/home/ubuntu/openvidu에서 한번 메이븐 빌드"
+cd /home/ubuntu/openvidu
+mvn install -DskipTests
 echo "++++++++++/home/ubuntu/openvidu/openvidu-server로 이동해서 메이븐 빌드"
-cd /home/ubuntu/openvidu/openvidu-server
+cd openvidu-server
 echo "++++++++++권한 문제. 혹시 모르니까 target 폴더 권한 받아옴"
 sudo chmod -R 777 target
 mvn install -DskipTests
@@ -89,9 +91,8 @@ echo "+++++++++++++++++++++++++++++++++++"
 # 5. openvidu-server 이미지 빌드
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++openvidu-server 이미지 빌드하기"
-chmod +x create_image.sh
+sudo chmod +x create_image.sh
 echo "++++++++++혹시 모르니까 root계정으로 변경해봄"
-sudo su
 ./create_image.sh arcade
 echo "+++++++++++++++++++++++++++++++++++"
 
