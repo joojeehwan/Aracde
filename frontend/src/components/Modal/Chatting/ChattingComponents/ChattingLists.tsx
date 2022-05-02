@@ -45,7 +45,10 @@ function ChattingLists() {
   const [isOnline, setIsOnline] = useState(true);
 
   return (
-    <div style={{ display: 'flex', cursor: 'pointer' }}>
+    <div
+      className={styles.onFocus}
+      style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
+    >
       <div style={{ marginLeft: '-35px' }}>
         {isOnline ? (
           <StyledBadgeOnline

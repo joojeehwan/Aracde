@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars-2';
 //styles
-import { StickyHeader, Section } from '../styles/ChattingStyles';
+import { StickyHeader, Section, Button, Input, Label } from '../styles/ChattingStyles';
 import styles from '../styles/Chatting.module.scss';
+//png
+import plus from '../../../assets/Modal/Plus.png';
 //mui
 import Avatar from '@mui/material/Avatar';
 //components
+import Modal from '../../../common/Modal';
 import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
 import ChattingLists from './ChattingComponents/ChattingLists';
@@ -49,9 +52,21 @@ function Chatting({ open, onClose }: MyProps) {
     return () => disconnect();
   }, []);
 
+  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
+  const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
+  const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
+
+  const onClickCreateWorkspace = useCallback(() => {
+    setShowCreateWorkspaceModal(true);
+  }, []);
+
+  const onCloseModal = useCallback(() => {
+    setShowCreateWorkspaceModal(false);
+  }, []);
+
   const connect = () => {
     client.current = new StompJs.Client({
-      brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속!
+      brokerURL: 'ws://k6a203.p.ssafy.io:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
@@ -135,7 +150,24 @@ function Chatting({ open, onClose }: MyProps) {
               }}
               className={styles.chatList}
             >
-              <ChattingLists />
+              <div style={{ height: '600px' }}>
+                <ChattingLists />
+                <ChattingLists />
+                <ChattingLists />
+                <ChattingLists />
+                {/* <ChattingLists /> */}
+              </div>
+
+              <img
+                src={plus}
+                style={{
+                  height: '64px',
+                  width: '64px',
+                  display: 'block',
+                  margin: '0px auto',
+                }}
+                onClick={onClickCreateWorkspace}
+              />
             </div>
             {tab === 'CHATROOM' && (
               <div className={styles.chatContent}>
@@ -159,6 +191,19 @@ function Chatting({ open, onClose }: MyProps) {
               </div>
             )}
           </div>
+          <Modal show={showCreateWorkspaceModal} onCloseModal={onCloseModal}>
+            <form>
+              <Label id="workspace-label">
+                <span>워크스페이스 이름</span>
+                <Input id="workspace" value={newWorkspace} onChange={onChangeNewWorkspace} />
+              </Label>
+              <Label id="workspace-url-label">
+                <span>워크스페이스 url</span>
+                <Input id="workspace-url" value={newUrl} onChange={onChangeNewUrl} />
+              </Label>
+              <Button type="submit">생성하기</Button>
+            </form>
+          </Modal>
         </section>
       ) : null}
     </div>
