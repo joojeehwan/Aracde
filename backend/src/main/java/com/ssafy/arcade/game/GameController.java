@@ -36,11 +36,11 @@ public class GameController {
         return new ResponseEntity<>("초대코드 일치 확인", HttpStatus.OK);
     }
 
-    @DeleteMapping(value="/delete")
-    public ResponseEntity<String> deleteRoom(@RequestBody RoomReqDto roomReqDto) {
+    @PatchMapping(value="/exit")
+    public ResponseEntity<String> exitRoom(@RequestBody RoomReqDto roomReqDto) {
 
-        gameService.deleteGameRoom(roomReqDto.getInviteCode());
-        return new ResponseEntity<>("방 삭제 성공", HttpStatus.OK);
+        gameService.exitGameRoom(roomReqDto.getInviteCode());
+        return new ResponseEntity<>("요청 성공", HttpStatus.OK);
     }
 
 }

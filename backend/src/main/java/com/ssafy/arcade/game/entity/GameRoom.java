@@ -35,4 +35,5 @@ public class GameRoom extends BaseTimeEntity {
     public void addMember() {
         this.currentMember++;
     }
+    public void delMember() { this.currentMember--; }
 }

@@ -54,8 +54,26 @@ public class GameService {
         gameRoom.addMember();
         gameRoomRepository.save(gameRoom);
     }
+    public void exitGameRoom(String inviteCode) {
+        GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElseThrow(() ->
+                new CustomException(ErrorCode.UNMATHCED_CODE));
 
-    // 방 삭제
+        Integer curMember = gameRoom.getCurrentMember();
+        if (curMember == 0) {
+            throw new CustomException(ErrorCode.ALREADY_DELETE);
+        }
+        curMember--;
+        gameRoom.delMember();
+        if (curMember == 0) {
+            deleteGameRoom(inviteCode);
+        }
+        else {
+            gameRoomRepository.save(gameRoom);
+        }
+    }
+
+
+    // 방 삭제 (인원이 0명이 되면 실행하도록 구현)
     public void deleteGameRoom(String inviteCode) {
         GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElseThrow(() ->
                 new CustomException(ErrorCode.UNMATHCED_CODE));
