@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars-2';
 //styles
-import { StickyHeader, Section } from '../styles/ChattingStyles';
+import { StickyHeader, Section, Button, Input, Label } from '../styles/ChattingStyles';
 import styles from '../styles/Chatting.module.scss';
+//png
+import plus from '../../../assets/Modal/Plus.png';
 //mui
 import Avatar from '@mui/material/Avatar';
 //components
+import Modal from '../../../common/Modal';
 import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
 import ChattingLists from './ChattingComponents/ChattingLists';
@@ -49,9 +52,20 @@ function Chatting({ open, onClose }: MyProps) {
     return () => disconnect();
   }, []);
 
+  const [showCreateChattRoomModal, setShowCreateChattRoomModal] = useState(false);
+  const [newChattRoom, onChangeNewChattRoom, setNewChattRoom] = useInput('');
+
+  const onClickCreateChattRoom = useCallback(() => {
+    setShowCreateChattRoomModal(true);
+  }, []);
+
+  const onCloseModal = useCallback(() => {
+    setShowCreateChattRoomModal(false);
+  }, []);
+
   const connect = () => {
     client.current = new StompJs.Client({
-      brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속!
+      brokerURL: 'ws://k6a203.p.ssafy.io:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
@@ -135,7 +149,24 @@ function Chatting({ open, onClose }: MyProps) {
               }}
               className={styles.chatList}
             >
-              <ChattingLists />
+              <div style={{ height: '600px' }}>
+                <ChattingLists />
+                <ChattingLists />
+                <ChattingLists />
+                <ChattingLists />
+                {/* <ChattingLists /> */}
+              </div>
+
+              <img
+                src={plus}
+                style={{
+                  height: '64px',
+                  width: '64px',
+                  display: 'block',
+                  margin: '0px auto',
+                }}
+                onClick={onClickCreateChattRoom}
+              />
             </div>
             {tab === 'CHATROOM' && (
               <div className={styles.chatContent}>
@@ -159,6 +190,15 @@ function Chatting({ open, onClose }: MyProps) {
               </div>
             )}
           </div>
+          <Modal show={showCreateChattRoomModal} onCloseModal={onCloseModal}>
+            <form>
+              <Label id="ChattRoom-label">
+                <span>친구ID</span>
+                <Input id="ChattRoom" value={newChattRoom} onChange={onChangeNewChattRoom} />
+              </Label>
+              <Button type="submit">생성</Button>
+            </form>
+          </Modal>
         </section>
       ) : null}
     </div>

@@ -114,6 +114,7 @@ function Main() {
     }
   };
 
+  // 모달 창 열리면 옆에 스크롤바 안보임
   useEffect(() => {
     if (friendsIsOpen === true || alarmsIsOpen === true || open === true) {
       document.body.style.overflow = 'hidden';

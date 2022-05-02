@@ -64,6 +64,48 @@
   border: 1px solid rgb(29, 28, 29);
 }
 
+#addButton {
+  // text-align: center;
+  // background: #1aab8a;
+  // color: #fff;
+  // border: none;
+  // border-radius: 50%;
+  // width: 15px;
+  // position: relative;
+  // height: 60px;
+  // font-size: 1.6em;
+  // padding: 0 2em;
+  // cursor: pointer;
+  // transition: 800ms ease all;
+  // outline: none;
+  // &:hover {
+  //   background: #fff;
+  //   color: #1aab8a;
+  // }
+  // &:before,
+  // &:after {
+  //   content: '';
+  //   position: absolute;
+  //   top: 0;
+  //   right: 0;
+  //   height: 2px;
+  //   width: 0;
+  //   background: #1aab8a;
+  //   transition: 400ms ease all;
+  // }
+  // &:after {
+  //   right: inherit;
+  //   top: inherit;
+  //   left: 0;
+  //   bottom: 0;
+  // }
+  // &:hover:before,
+  // &:hover:after {
+  //   width: 100%;
+  //   transition: 800ms ease all;
+  // }
+}
+
 .inputMessage {
   width: 90%;
   // border-radius: 50px;
@@ -74,9 +116,6 @@
   border-radius: 50px;
   margin-left: 5px;
   cursor: pointer;
-}
-
-.chatWrapper {
 }
 
 .preview {
@@ -162,11 +201,17 @@
   font-size: 20px;
   margin-left: 20px;
   font-family: 'neodgm';
-  border-style: none none solid none;
+  border-style: none none so1lid none;
   &:focus {
     outline: none;
   }
 }
+.onFocus {
+  &:hover {
+    background-color: #ededed;
+  }
+}
+
 // .modal .cancel {
 //   position: absolute;
 //   margin-top: 370px;
