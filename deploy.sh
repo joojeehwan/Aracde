@@ -68,6 +68,7 @@ echo "+++++++++++++++++++++++++++++++++++"
 # 2. openvidu-server 폴더 복붙
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++openvidu-server 폴더 복붙"
+cd ..
 pwd
 sudo cp -r openvidu-server /home/ubuntu/openvidu/openvidu-server
 echo "+++++++++++++++++++++++++++++++++++"
