@@ -21,7 +21,16 @@ public class GameService {
     public String createInviteCode() {
 
         // 일단 무조건 요청하는대로 방 생성하는걸로
+
         String inviteCode = createRandString();
+        // 혹시나 하는 중복 제거.
+        while (true) {
+            GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElse(null);
+            if (gameRoom == null) {
+                break;
+            }
+            inviteCode = createRandString();
+        }
         GameRoom gameRoom = GameRoom.builder().
                 inviteCode(inviteCode).currentMember(1).isDel(false).build();
         gameRoomRepository.save(gameRoom);
