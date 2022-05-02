@@ -11,7 +11,7 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 
-import Chatting from '../Modal/Chatting/ChattingList/index';
+import Chatting from '../Modal/Chatting';
 
 import { Stomp } from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
@@ -125,14 +125,14 @@ function Main() {
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
-      client.connect({}, () => {
-        console.log('connection');
-        client.subscribe('/sub/noti/' + window.localStorage.getItem('userSeq'), function (notiDTO) {
-          console.log('TLqkfjwlSWk whwRkxsp wlsWkfh');
-          const content = JSON.parse(notiDTO.body);
-          console.log(content.name);
-        });
-      });
+      // client.connect({}, () => {
+      //   console.log('connection');
+      //   client.subscribe('/sub/noti/' + window.localStorage.getItem('userSeq'), function (notiDTO) {
+      //     console.log('TLqkfjwlSWk whwRkxsp wlsWkfh');
+      //     const content = JSON.parse(notiDTO.body);
+      //     console.log(content.name);
+      //   });
+      // });
     }
   }, []);
 
