@@ -48,6 +48,8 @@ public class GameService {
     protected ConcurrentHashMap<String, Map<Integer, String>> sNickMap = new ConcurrentHashMap<>();
     // 그림 저장 <sessionId, [그림url, ...] }
     protected ConcurrentHashMap<String, ArrayList<String>> sImageMap = new ConcurrentHashMap<>();
+    // 단어 저장(중복 방지용)
+    protected ConcurrentHashMap<String, Map<String, Integer>> sWordMap = new ConcurrentHashMap<>();
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -138,7 +140,7 @@ public class GameService {
             idx2 = (int) (Math.random()*number);
             swap(idxArr, idx1, idx2);
         }
-        // 순서 섞였는지 체크
+        // 순서 섞였는지 체크 z
         System.out.println("idxArr: " + idxArr);
 
         int idx = 0;
@@ -191,6 +193,8 @@ public class GameService {
             data.addProperty("tagStreamId", target.getPublisherStreamId());
             data.addProperty("gameStatus", 2);
         }else if (gameId == BODY) {
+            Map<String, Integer> wordMap = new HashMap<>();
+            sWordMap.put(sessionId, wordMap);
             List<Object> participantList = Arrays.asList(participants.toArray());
             Collections.shuffle(participantList);
             // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
@@ -208,6 +212,10 @@ public class GameService {
         }
     }
 
+    /**
+     *  게임 진행
+     *  gameStatus: 2
+     * */
     public void startGame(Participant participant, Set<Participant> participants,
                              JsonObject message, JsonObject params, JsonObject data) {
 
@@ -249,6 +257,25 @@ public class GameService {
                 break;
 
             case BODY:
+                Random rand = new Random();
+                BodyGameUtil bodyGameUtil = new BodyGameUtil();
+                // 카테고리
+                String category = data.get("category").getAsString();
+                String targetStreamId = data.get("targetStreamId").getAsString();
+                String[] wordList = bodyGameUtil.takeWord(category);
+
+                Map<String, Integer> wordMap = sWordMap.get(sessionId);
+                // 중복 없는 단어 나올 때까지 random 반복
+                while (true) {
+                    // 전체 요소중 임의로 추출
+                    String word = wordList[rand.nextInt(wordList.length)];
+
+                    if (!wordMap.containsKey(word)) {
+                        wordMap.put(word, 1);
+                        break;
+                    }
+                }
+                
                 break;
 
         }
@@ -259,6 +286,10 @@ public class GameService {
         }
     }
 
+    /**
+     *  게임 종료
+     *  gameStatus: 3
+     * */
     public void finishGame(Participant participant, Set<Participant> participants,
                            JsonObject message, JsonObject params, JsonObject data) {
 
@@ -273,6 +304,7 @@ public class GameService {
         }else if (gameId == TAG) {
             sNickMap.remove(sessionId);
         }else if (gameId == BODY) {
+            sWordMap.remove(sessionId);
 
         }
 
