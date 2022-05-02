@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
 import com.ssafy.arcade.common.util.JwtTokenUtil;
+import com.ssafy.arcade.game.GameService;
 import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;

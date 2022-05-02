@@ -1,7 +1,7 @@
 package com.ssafy.arcade.game.entity;
 
 import com.ssafy.arcade.common.util.BaseTimeEntity;
-import com.ssafy.arcade.common.util.CommonCode;
+import com.ssafy.arcade.common.util.Code;
 import com.ssafy.arcade.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -26,20 +28,21 @@ public class Game extends BaseTimeEntity {
     // 게임 참여 횟수
     @Column(nullable = false)
     private Integer gameCnt;
-    // 게임 종류
-    @Enumerated(EnumType.STRING)
-    private CommonCode gameCode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id")
-    private User user;
+    
+    @OneToMany(mappedBy = "game")
+    private List<GameUser> gameUsers = new ArrayList<>();
 
-    // 순환참조 방지
-    public void setUser(User user) {
-        this.user = user;
-        // 포함되어있지 않으면
-        if (!user.getGameList().contains(this)) {
-            user.getGameList().add(this);
+
+    public void addGameUsers(GameUser gameUser) {
+        this.gameUsers.add(gameUser);
+        if (gameUser.getGame() != this) {
+            gameUser.setGame(this);
         }
     }
+
+    public void addVicCnt() {
+        this.vicCnt++;
+    }
+    public void addGameCnt() { this.gameCnt++; }
 }

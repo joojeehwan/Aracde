@@ -3,6 +3,7 @@ package com.ssafy.arcade.user.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ssafy.arcade.common.util.BaseTimeEntity;
 import com.ssafy.arcade.game.entity.Game;
+import com.ssafy.arcade.game.entity.GameUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,8 +38,9 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "target", orphanRemoval = true)
     private List<Friend> targetList = new ArrayList<>();
 
+    // 게임 table
     @OneToMany(mappedBy = "user")
-    private List<Game> gameList = new ArrayList<>();
+    private List<GameUser> gameUsers = new ArrayList<>();
 
     public void addFriend(Friend friend) {
         this.requestList.add(friend);
@@ -53,12 +55,14 @@ public class User extends BaseTimeEntity {
             friend.setTarget(this);
         }
     }
-    public void addGame(Game game) {
-        this.gameList.add(game);
-        if (game.getUser() != this) {
-            game.setUser(this);
+
+    public void addGameUsers(GameUser gameUser) {
+        this.gameUsers.add(gameUser);
+        if (gameUser.getUser() != this) {
+            gameUser.setUser(this);
         }
     }
+
 
 
 //    @JsonManagedReference // 순환 참조 방어

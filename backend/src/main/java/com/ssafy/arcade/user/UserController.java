@@ -1,6 +1,8 @@
 package com.ssafy.arcade.user;
 
+import com.ssafy.arcade.common.util.Code;
 import com.ssafy.arcade.common.util.JwtTokenUtil;
+import com.ssafy.arcade.game.GameService;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.*;
@@ -24,6 +26,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final NaverLoginService naverLoginService;
     private final GoogleLoginService googleLoginService;
+    private final GameService gameService;
 
     // 카카오 로그인
     // 인가코드를 받아온 후 부터 진행
@@ -78,6 +81,11 @@ public class UserController {
         if (user.getUserSeq() == null) {
             // 회원가입 후 토큰 발급
             user = userService.signUp(email,image,name);
+
+            // User 생성한 이후 바로 게임 DB 생성
+            for (Code type : Code.values()) {
+                gameService.createGame(email, type);
+            }
         }
         // 4. 커스텀 토큰 발급
         map.put("token", "Bearer " + JwtTokenUtil.getToken(user.getEmail()));

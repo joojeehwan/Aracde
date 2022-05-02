@@ -18,6 +18,9 @@ public class GameController {
 
     private final GameService gameService;
 
+    /**
+     *  GameRoom 관련 Controller
+     * */
     @PostMapping(value="/create")
     public ResponseEntity<Map<String, String>> createRoom() {
 
@@ -45,5 +48,10 @@ public class GameController {
             return new ResponseEntity<>("요청 성공", HttpStatus.OK);
         }
     }
+
+    /**
+     *  Game 관련 Controller
+     * */
+
 
 }

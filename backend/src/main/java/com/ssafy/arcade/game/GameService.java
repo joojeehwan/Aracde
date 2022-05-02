@@ -2,20 +2,30 @@ package com.ssafy.arcade.game;
 
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
+import com.ssafy.arcade.common.util.Code;
+import com.ssafy.arcade.game.entity.Game;
 import com.ssafy.arcade.game.entity.GameRoom;
+import com.ssafy.arcade.game.entity.GameUser;
+import com.ssafy.arcade.game.repositroy.GameRepository;
 import com.ssafy.arcade.game.repositroy.GameRoomRepository;
+import com.ssafy.arcade.game.repositroy.GameUserRepository;
 import com.ssafy.arcade.user.UserService;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 public class GameService {
 
+    private final GameRepository gameRepository;
     private final GameRoomRepository gameRoomRepository;
+    private final GameUserRepository gameUserRepository;
+    private final UserRepository userRepository;
 
     // Room 생성
     public String createInviteCode() {
@@ -71,9 +81,8 @@ public class GameService {
         }
         gameRoomRepository.save(gameRoom);
         return false;
-        
-    }
 
+    }
 
     // 방 삭제 (인원이 0명이 되면 실행하도록 구현)
     public void deleteGameRoom(String inviteCode) {
@@ -87,6 +96,28 @@ public class GameService {
         gameRoom.deleteRoom();
         gameRoomRepository.save(gameRoom);
     }
+
+    // Game DB 생성
+    public void createGame(String email, Code code) {
+        User user = userRepository.findByEmail(email).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElse(null);
+
+        if (gameUser != null) {
+            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+        }
+        // 모든 종류의 게임 DB를 생성
+        Game game = Game.builder()
+                .gameCnt(0).vicCnt(0).build();
+        gameRepository.save(game);
+
+        gameUser = GameUser.builder()
+                .game(game).user(user).gameCode(code).build();
+
+        gameUserRepository.save(gameUser);
+
+    }
+    
     
     // 10자리 임시 코드 생성
     protected String createRandString() {
