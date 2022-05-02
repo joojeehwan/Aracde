@@ -77,12 +77,11 @@ echo "++++++++++/home/ubuntu/openvidu에서 한번 메이븐 빌드"
 sudo chmod -R 777 /home/ubuntu
 cd /home/ubuntu/openvidu
 pwd
-mvn install -DskipTests
+sudo mvn install -DskipTests
 echo "++++++++++/home/ubuntu/openvidu/openvidu-server로 이동해서 메이븐 빌드"
 cd openvidu-server
-echo "++++++++++권한 문제. 혹시 모르니까 target 폴더 권한 받아옴"
-sudo chmod -R 777 target
-mvn install -DskipTests
+echo "++++++++++"
+sudo mvn install -DskipTests
 echo "+++++++++++++++++++++++++++++++++++"
 # 4. 도커경로로 이동하기
 echo "+++++++++++++++++++++++++++++++++++"
