@@ -9,29 +9,24 @@ import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
-import Room from '../../common/api/Room'
+import Room from '../../common/api/Room';
 
-const useStore = create((set) => ({
-  nickname: '', // 닉네임
-  code: '', // 초대 코드
-  setNickname: (input: string | null) => set({ nickname: input }),
-  setCode: (input: string | null) => set({ code: input }),
-}));
+// const useStore = create((set) => ({
+//   nickname: '', // 닉네임
+//   code: '', // 초대 코드
+//   setNickname: (input: string | null) => set({ nickname: input }),
+//   setCode: (input: string | null) => set({ code: input }),
+// }));
 
-interface RTCVideoProps {
-  mediaStream: MediaStream | undefined;
-}
-
-const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
+const CreateRoom = () => {
   const navigate = useNavigate();
 
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [localStream, setLocalStream] = useState<MediaStream>();
   const [isMic, setMic] = useState(true);
   const [isVideo, setVideo] = useState(true);
 
-  const [nickname, setNickname] = useState(""); // 닉네임
-  const [code, setCode] = useState(""); // 초대 코드
+  const [nickname, setNickname] = useState(''); // 닉네임
+  const [code, setCode] = useState(''); // 초대 코드
 
   const { enterRoom } = Room;
 
@@ -39,40 +34,41 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
     setMic((prev) => !prev);
   };
   const handleVideo = () => {
-    if (isVideo) {
-      videoRef.current.pause();
-      videoRef.current.src = '';
-      localStream.getTracks()[0].stop();
-    } else {
-      videoRef.current.play();
+    if (videoRef && videoRef.current) {
+      if (isVideo) {
+        videoRef.current.pause();
+        videoRef.current.src = '';
+      } else {
+        videoRef.current.play();
+      }
     }
+
     setVideo((prev) => !prev);
   };
   const handleEnter = async () => {
     const response = await enterRoom(code as string);
-    console.log(response);
-    if (response.statusCode === 200) {
-      navigate(`/`);
+    if (response.data.statusCode === 200) {
+      navigate(`/ready`);
     }
   };
   const handleCancel = () => {
     navigate(`/`);
   };
 
-  const handleNickname = (e : any) => {
+  const handleNickname = (e: any) => {
     setNickname(e.target.value);
-  }
-  const handleCode = (e : any) => {
+  };
+  const handleCode = (e: any) => {
     setCode(e.target.value);
-  }
+  };
 
   useEffect(() => {
-    videoRef.current.srcObject = mediaStream ? mediaStream : null;
     navigator.mediaDevices.getUserMedia({ video: isVideo, audio: isMic }).then((stream) => {
-      setLocalStream(stream);
-      videoRef.current.srcObject = stream;
+      if (videoRef && videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
     });
-  }, [mediaStream]);
+  }, []);
 
   return (
     <>
@@ -85,8 +81,7 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
           <div className={styles.content}>
             <div className={styles.preferences}>
               <div className={styles.camera}>
-                <video ref={videoRef} autoPlay={isVideo} mediaStream={localStream} muted={isMic}></video>
-                {/* <img src="../src/assets/character.png" alt="" /> */}
+                <video ref={videoRef} autoPlay={isVideo} muted={isMic}></video>
               </div>
               <div className={styles.cameraBtn}>
                 {isMic ? (
@@ -166,7 +161,14 @@ const CreateRoom = ({ mediaStream }: RTCVideoProps) => {
               <div className={styles.form}>
                 <div className={styles.nickname}>
                   <label htmlFor="nickname">닉네임</label>
-                  <input type="text" id="nickname" autoFocus value={nickname} onChange={handleNickname} className={styles.gray}></input>
+                  <input
+                    type="text"
+                    id="nickname"
+                    autoFocus
+                    value={nickname}
+                    onChange={handleNickname}
+                    className={styles.gray}
+                  ></input>
                 </div>
 
                 <div className={styles.code}>
