@@ -57,7 +57,7 @@ function Chatting({ open, onClose }: MyProps) {
 
   const connect = () => {
     client.current = new StompJs.Client({
-      brokerURL: 'ws://k6a203.p.ssafy.io:8080/ws-stomp', // 웹소켓 서버로 직접 접속!
+      brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속!
       debug: function (str) {
         console.log(str);
       },
@@ -80,7 +80,7 @@ function Chatting({ open, onClose }: MyProps) {
     // to be used for each (re)connect
     client.current.webSocketFactory = function () {
       // Note that the URL is different from the WebSocket URL
-      return new SockJS('http://k6a203.p.ssafy.io:8080/ws-stomp');
+      return new SockJS('http://localhost:8080/ws-stomp');
     };
   }
 
