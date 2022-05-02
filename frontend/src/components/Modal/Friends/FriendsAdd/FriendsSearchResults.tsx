@@ -59,7 +59,8 @@ function FriendsSearchResults({ client, seq, name, email, imgUrl, status }: any)
     const result = await getAddFriendRequestResult(email);
     if(result?.status === 200){
       console.log(result, client);
-      // 
+      // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
+    
       setCurStatus(0);
     }
   }
