@@ -15,21 +15,21 @@ const useStore = create((set) => ({
   setActiveTab: (input: number) => set({ activeTab: input }),
   setEmail: (input: string | null) => set({ email: input }),
   setName: (input: string | null) => set({ name: input }),
-  setCount: () => set((state) => ({ count: state.count + 1 })),
-  setAnswer: () => set((state) => ({ answer: state.answer + 1 })),
+  // setCount: () => set((state) => ({ count: state.count + 1 })),
+  // setAnswer: () => set((state) => ({ answer: state.answer + 1 })),
 }));
 
 const MyRoom = () => {
-  const { activeTab, email, name, count, answer, setActiveTab, setEmail, setName, setCount, setAnswer } = useStore();
+  // const { activeTab, email, name, count, answer, setActiveTab, setEmail, setName, setCount, setAnswer } = useStore();
 
-  const clickHandler = (id: number) => {
-    setActiveTab(id);
-  };
+  // const clickHandler = (id: number) => {
+  //   setActiveTab(id);
+  // };
 
   return (
     <div className={styles.body}>
       <Navbar />
-      <div className={styles.wrapper}>
+      {/* <div className={styles.wrapper}>
         <div className={styles.tab}>
           <Button
             variant="contained"
@@ -88,7 +88,7 @@ const MyRoom = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

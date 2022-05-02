@@ -5,37 +5,55 @@ import Content from './Content';
 import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
+import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
-// import StompJs from '@stomp/stompjs';
+
+import Chatting from '../Modal/Chatting';
+
 import { Stomp } from '@stomp/stompjs';
+import { deleteToken } from '../../common/api/jWT-Token';
+
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
-  const mySeq = 1;
-  const sendSeq = 2;
-  const navigate = useNavigate;
+
+  const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
+  const client = Stomp.over(sock);
+
+  const navigate = useNavigate();
 
   //지환 코드
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
-  const sock = new WebSocket('ws://localhost:8080/ws-stomp')
-  const client = Stomp.over(sock);
-  const roomId = "3c54881e-72c4-4f03-a7f9-836a0dfd8818"
+  const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
 
   const handleOpenAlarms = useCallback(() => {
     setAlarmsIsOpen(true);
   }, [alarmsIsOpen]);
 
-  const handleCloseAlarms = useCallback(() => {
-    setAlarmsIsOpen(false);
-  }, [alarmsIsOpen]);
+  const handleCloseAlarms = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      setAlarmsIsOpen(false);
+    },
+    [alarmsIsOpen],
+  );
 
   const handleOpensFriends = useCallback(() => {
+    client.send(
+      '/pub/noti/2',
+      {},
+      JSON.stringify({
+        userSeq: window.localStorage.getItem('userSeq'),
+        name: '홍승기',
+        inviteCode: 'asdfasf',
+        type: 'friend',
+      }),
+    );
     setFriendsIsOpen(true);
   }, [friendsIsOpen]);
 
@@ -51,6 +69,14 @@ function Main() {
     setTest(false);
   }, [test]);
 
+  const handleOpenChatting = useCallback(() => {
+    setChattingIsOpen(true);
+  }, [test]);
+
+  const handleCloseChatting = useCallback(() => {
+    setChattingIsOpen(false);
+  }, [test]);
+
   const handleOpenCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setOpen(true);
@@ -62,25 +88,26 @@ function Main() {
   };
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
-    // client.send('/pub/chat/message', {}, JSON.stringify({ "roomId": roomId, "writer": "username", "message": "안녕하세욧!!" }))
-    client.send('/pub/noti/1', {}, JSON.stringify({ "userSeq": 2, "name": "박현우", "type": "friend" }))
     console.log('눌렸음');
   };
 
   const handleClickLogout = (e: React.MouseEvent) => {
-    // here localstorage clean
+    deleteToken();
     setIsLogin(false);
   };
   // 임시 메서드
   const handleClickLogin = (e: React.MouseEvent) => {
     console.log('here');
     // navigate login page here
+    navigate(`/login`);
     setIsLogin(true);
   };
+
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
     console.log('hererererererere');
   };
+
   const handleClickTop = (e: React.MouseEvent) => {
     if (divRef.current !== null) {
       window.scrollBy({ top: divRef.current.getBoundingClientRect().top, behavior: 'smooth' });
@@ -88,30 +115,27 @@ function Main() {
   };
 
   useEffect(() => {
-
-    const ChatMessageDTO = {
-      roomId: roomId, writer: "username", messege: "안녕하세욧!!"
+    if (friendsIsOpen === true || alarmsIsOpen === true || open === true) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
     }
+  }, [friendsIsOpen, alarmsIsOpen, open]);
 
+  useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
+      // client.connect({}, () => {
+      //   console.log('connection');
+      //   client.subscribe('/sub/noti/' + window.localStorage.getItem('userSeq'), function (notiDTO) {
+      //     console.log('TLqkfjwlSWk whwRkxsp wlsWkfh');
+      //     const content = JSON.parse(notiDTO.body);
+      //     console.log(content.name);
+      //   });
+      // });
     }
-    client.connect({}, () => {
-      console.log('Connected');
-      client.send('/pub/chat/enter', {}, JSON.stringify({ "roomId": roomId, "writer": "username", "message": "안녕하세욧!!" }))
-      // 연결시 계속 여기로 messege를 받는다!
-      client.subscribe("/sub/chat/room/" + roomId, function (ChatMessageDTO) {
-        var content = JSON.parse(ChatMessageDTO.body);
-        console.log(content.message);// ~~ 님이 채팅방에 입장하였습니다.
-      });
-      // 알람을 받기 위한 구독
-      client.subscribe("/sub/noti/" + mySeq, function (notiDTO) {
-        var content = JSON.parse(notiDTO.body);
-        console.log(content.message);
-      });
-    })
-    // return () => client.disconnect();
   }, []);
+
   return (
     <>
       <div ref={divRef} className={styles.scroll}>
@@ -120,7 +144,7 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
-              <button onClick={handleOpenTest}>test</button>
+              {/* <button onClick={handleOpenTest}>test</button> */}
               <Bell
                 className={styles.button}
                 onClick={handleOpenAlarms}
@@ -136,6 +160,18 @@ function Main() {
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}
+                style={{
+                  width: 28,
+                  height: 28,
+                  float: 'right',
+                  marginTop: '2%',
+                  marginRight: '2%',
+                }}
+                filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+              />
+              <Chatt
+                className={styles.button}
+                onClick={handleOpenChatting}
                 style={{
                   width: 28,
                   height: 28,
@@ -196,8 +232,9 @@ function Main() {
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
-        {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
+        {friendsIsOpen ? <Friends client={client} open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
+        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
       </div>
     </>
   );
