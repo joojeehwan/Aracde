@@ -69,15 +69,14 @@ echo "+++++++++++++++++++++++++++++++++++"
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++openvidu-server 폴더 복붙"
 echo "++++++++++권한 문제. ubnutu 계정으로 바꿔봄"
-su ubuntu
-cp -r ../openvidu-server /home/ubuntu/openvidu/openvidu-server
+sudo cp -r ../openvidu-server /home/ubuntu/openvidu/openvidu-server
 echo "+++++++++++++++++++++++++++++++++++"
 # 3. 메이븐 빌드
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++/home/ubuntu/openvidu/openvidu-server로 이동해서 메이븐 빌드"
 cd /home/ubuntu/openvidu/openvidu-server
-# echo "++++++++++권한 문제. 혹시 모르니까 target 폴더 권한 받아옴"
-# sudo chmod -R 777 target
+echo "++++++++++권한 문제. 혹시 모르니까 target 폴더 권한 받아옴"
+sudo chmod -R 777 target
 mvn install -DskipTests
 echo "+++++++++++++++++++++++++++++++++++"
 # 4. 도커경로로 이동하기
