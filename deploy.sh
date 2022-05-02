@@ -45,18 +45,19 @@ sudo cp -r dist/assets /opt/openvidu/front_build
 
 
 # --- openvidu ----
-# 1. openvidu-server 폴더로 이동
-echo "++++++++++openvidu 폴더로 이동"
-cd ../openvidu-server
-# 2. 메이븐 빌드
-echo "++++++++++openvidu 메이븐 빌드중"
+# 1. home/ubuntu/openvidu/openvidu-server 폴더 제거(갈아끼울거임)
+echo "++++++++++home/ubuntu/openvidu/openvidu-server 폴더 제거(갈아끼울거임)"
+rm -rf /home/ubuntu/openvidu/openvidu-server
+# 2. openvidu-server 폴더 복붙
+echo "++++++++++openvidu-server 폴더 복붙"
+cp -r openvidu-server /home/ubuntu/openvidu/openvidu-server
+# 3. 메이븐 빌드
+echo "++++++++++/home/ubuntu/openvidu/openvidu-server 메이븐 빌드중"
+cd /home/ubuntu/openvidu/openvidu-server
 mvn install -DskipTests
-# 3. 도커경로로 이동하기
+# 4. 도커경로로 이동하기
 echo "++++++++++openvidu-server 도커 폴더로 이동"
 cd docker/openvidu-server
-# 4. 루트 권한
-echo "++++++++++루트권한 얻기"
-sudo su
 # 5. openvidu-server 이미지 빌드
 echo "++++++++++openvidu-server 이미지 빌드하기"
 chmod +x create_image.sh
