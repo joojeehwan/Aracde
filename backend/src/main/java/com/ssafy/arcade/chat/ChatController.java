@@ -1,6 +1,7 @@
 package com.ssafy.arcade.chat;
 
 import com.ssafy.arcade.chat.dtos.ChatMessageDTO;
+import com.ssafy.arcade.common.RedisPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 public class ChatController {
 
     private final SimpMessagingTemplate template; //특정 Broker로 메세지를 전달
+    private final RedisPublisher redisPublisher;
 
     //Client가 SEND할 수 있는 경로
     //stompConfig에서 설정한 applicationDestinationPrefixes와 @MessageMapping 경로가 병합됨
