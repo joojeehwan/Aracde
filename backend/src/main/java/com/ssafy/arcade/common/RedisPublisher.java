@@ -5,6 +5,7 @@ import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.notification.repository.NotiRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
