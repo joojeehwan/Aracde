@@ -93,10 +93,12 @@ echo "+++++++++++++++++++++++++++++++++++"
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++openvidu-server 이미지 빌드하기"
 sudo chmod +x create_image.sh
-echo "++++++++++혹시 모르니까 root계정으로 변경해봄"
 ./create_image.sh arcade
 echo "+++++++++++++++++++++++++++++++++++"
-
+echo "+++++++++++++++++++++++++++++++++++"
+echo "++++++++++필요없는 도커 이미지들 지우기"
+docker image prune -f
+echo "+++++++++++++++++++++++++++++++++++"
 # --- openvidu restart
 # cd /opt/openvidu
 # ./openvidu restart
