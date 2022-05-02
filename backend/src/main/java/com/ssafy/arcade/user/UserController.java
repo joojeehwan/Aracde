@@ -18,7 +18,7 @@ import java.util.Map;
 @CrossOrigin("*")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
+@RequestMapping("/apiv1/users")
 public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
@@ -144,34 +144,6 @@ public class UserController {
         List<UserResDto> userResDtoList = userService.searchFriend(token, userEmail);
 
         return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
-    }
-
-
-
-
-    // 친구 테스트용,
-    @PostMapping("/friend/test")
-    public ResponseEntity<String> requestFriendTest(@RequestParam("fromEmail") String fromEmail, @RequestParam("toEmail") String toEmail) {
-        userService.requestFriendTest(fromEmail, toEmail);
-        return new ResponseEntity<>("친구 요청 성공", HttpStatus.OK);
-    }
-    @PatchMapping("/friend/test")
-    public ResponseEntity<String> approveFriendTest(@RequestParam("toEmail") String toEmail, @RequestParam("fromEmail") String fromEmail) {
-
-        userService.approveFriendTest(toEmail, fromEmail);
-        return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
-    }
-
-    @GetMapping("/friend/test")
-    public ResponseEntity<List<UserResDto>> UserFriendList(@RequestParam("Email") String email) {
-        List<UserResDto> userResDtoList = userService.getFriendListTest(email);
-        return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
-    }
-
-    @DeleteMapping(value = "/friend/test")
-    public ResponseEntity<String> deleteFriendTest(@RequestParam("myEmail") String myEmail, @RequestParam("userEmail") String userEmail) {
-        userService.deleteFriendTest(myEmail, userEmail);
-        return new ResponseEntity<>("친구 삭제 성공", HttpStatus.OK);
     }
 
 
