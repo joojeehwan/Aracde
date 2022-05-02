@@ -8,6 +8,7 @@ export const CreateModal = styled.div`
   top: 0;
   right: 0;
   z-index: 1022;
+  animation: modal-show 0.3s;
 
   & > div {
     margin-top: 200px;
@@ -24,6 +25,17 @@ export const CreateModal = styled.div`
     z-index: 1012;
     position: relative;
   }
+
+  @keyframes modal-show {
+    from {
+      opacity: 0;
+      margin-top: -50px;
+    }
+    to {
+      opacity: 1;
+      margin-top: 0;
+    }
+  }
 `;
 
 export const CloseModalButton = styled.button`
@@ -34,4 +46,12 @@ export const CloseModalButton = styled.button`
   border: none;
   font-size: 30px;
   cursor: pointer;
+  &:hover {
+    background-color: rgba(74, 21, 75, 0.9);
+    border: none;
+  }
+  &:focus {
+    --saf-0: rgba(var(--sk_highlight, 18, 100, 163), 1);
+    box-shadow: 0 0 0 1px var(--saf-0), 0 0 0 5px rgba(29, 155, 209, 0.3);
+  }
 `;

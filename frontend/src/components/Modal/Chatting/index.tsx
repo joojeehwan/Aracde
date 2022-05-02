@@ -52,16 +52,15 @@ function Chatting({ open, onClose }: MyProps) {
     return () => disconnect();
   }, []);
 
-  const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
-  const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
-  const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
+  const [showCreateChattRoomModal, setShowCreateChattRoomModal] = useState(false);
+  const [newChattRoom, onChangeNewChattRoom, setNewChattRoom] = useInput('');
 
-  const onClickCreateWorkspace = useCallback(() => {
-    setShowCreateWorkspaceModal(true);
+  const onClickCreateChattRoom = useCallback(() => {
+    setShowCreateChattRoomModal(true);
   }, []);
 
   const onCloseModal = useCallback(() => {
-    setShowCreateWorkspaceModal(false);
+    setShowCreateChattRoomModal(false);
   }, []);
 
   const connect = () => {
@@ -166,7 +165,7 @@ function Chatting({ open, onClose }: MyProps) {
                   display: 'block',
                   margin: '0px auto',
                 }}
-                onClick={onClickCreateWorkspace}
+                onClick={onClickCreateChattRoom}
               />
             </div>
             {tab === 'CHATROOM' && (
@@ -191,17 +190,13 @@ function Chatting({ open, onClose }: MyProps) {
               </div>
             )}
           </div>
-          <Modal show={showCreateWorkspaceModal} onCloseModal={onCloseModal}>
+          <Modal show={showCreateChattRoomModal} onCloseModal={onCloseModal}>
             <form>
-              <Label id="workspace-label">
-                <span>워크스페이스 이름</span>
-                <Input id="workspace" value={newWorkspace} onChange={onChangeNewWorkspace} />
+              <Label id="ChattRoom-label">
+                <span>친구ID</span>
+                <Input id="ChattRoom" value={newChattRoom} onChange={onChangeNewChattRoom} />
               </Label>
-              <Label id="workspace-url-label">
-                <span>워크스페이스 url</span>
-                <Input id="workspace-url" value={newUrl} onChange={onChangeNewUrl} />
-              </Label>
-              <Button type="submit">생성하기</Button>
+              <Button type="submit">생성</Button>
             </form>
           </Modal>
         </section>
