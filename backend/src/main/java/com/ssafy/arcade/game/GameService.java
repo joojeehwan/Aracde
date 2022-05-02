@@ -54,6 +54,19 @@ public class GameService {
         gameRoom.addMember();
         gameRoomRepository.save(gameRoom);
     }
+
+    // 방 삭제
+    public void deleteGameRoom(String inviteCode) {
+        GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElseThrow(() ->
+                new CustomException(ErrorCode.UNMATHCED_CODE));
+        boolean isDel = gameRoom.isDel();
+        // 이미 삭제된 데이터
+        if (isDel) {
+            throw new CustomException(ErrorCode.ALREADY_DELETE);
+        }
+        gameRoom.deleteRoom();
+        gameRoomRepository.save(gameRoom);
+    }
     
     // 10자리 임시 코드 생성
     protected String createRandString() {

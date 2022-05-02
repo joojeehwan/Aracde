@@ -25,7 +25,7 @@ public class GameRoom extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer currentMember;
     // 삭제 여부
-    @Column(nullable = false)
+    @Column
     private boolean isDel;
 
     public void deleteRoom() {
