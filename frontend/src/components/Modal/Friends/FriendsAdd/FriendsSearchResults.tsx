@@ -44,7 +44,7 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsSearchResults({ client, seq, name, email, imgUrl, status }: any) {
+function FriendsSearchResults({ seq, name, email, imgUrl, status }: any) {
   const [isOnline, setIsOnline] = useState(true);
   const [isClicked, setIsClicked] = useState(false);
   const [curStatus, setCurStatus] = useState<number>(status);
@@ -58,7 +58,7 @@ function FriendsSearchResults({ client, seq, name, email, imgUrl, status }: any)
   const onClickAddFriends = async (email : string) => {
     const result = await getAddFriendRequestResult(email);
     if(result?.status === 200){
-      console.log(result, client);
+      // console.log(result, client);
       // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
     
       setCurStatus(0);
