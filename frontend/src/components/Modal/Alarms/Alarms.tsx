@@ -75,29 +75,31 @@ function Alarms({ open, onClose }: MyProps) {
               {dummydata.map((value, i) => {
                 const idx = i;
                 return (
-                  <div style={{
-                    display : "flex",
-                    alignItems : "center",
-                    marginBottom : 10
-                  }} key={idx}>
-                    <div style={
-                      {
-                        textAlign : "left",
-                        width : 340,
-                        marginRight : 10
-                      }
-                    }>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginBottom: 10,
+                    }}
+                    key={idx}
+                  >
+                    <div
+                      style={{
+                        textAlign: 'left',
+                        width: 340,
+                        marginRight: 10,
+                      }}
+                    >
                       {value.message}
                     </div>
-                    <div style={
-                      {
-                        display : "flex",
-                        alignItems : "center",
-
-                      }
-                    }>
-                        <img style={{ marginRight: '10px' }} src={pos} alt="긍정" />
-                        <img src={neg} alt="부정" />
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <img style={{ marginRight: '10px' }} src={pos} alt="긍정" />
+                      <img src={neg} alt="부정" />
                     </div>
                   </div>
                 );
@@ -109,6 +111,5 @@ function Alarms({ open, onClose }: MyProps) {
     </div>
   );
 }
-
 
 export default Alarms;

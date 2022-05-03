@@ -20,8 +20,7 @@ function Friends({ open, onClose }: MyProps) {
   const [number, setNum] = useState([]);
   const [tab, setTab] = useState(0);
 
-
-  const {getUserSearchResult} = UserApi;
+  const { getUserSearchResult } = UserApi;
 
   const handletab = useCallback(
     (value: any) => {
@@ -33,13 +32,12 @@ function Friends({ open, onClose }: MyProps) {
     e.stopPropagation();
   }, []);
 
-  const handleSearchPeople = async (name : string) => {
+  const handleSearchPeople = async (name: string) => {
     const result = await getUserSearchResult(name);
-    if(result?.status === 200){
+    if (result?.status === 200) {
       setPeople([...result.data]);
     }
-  }
-
+  };
 
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5) {
@@ -63,7 +61,7 @@ function Friends({ open, onClose }: MyProps) {
               })}
             </div>
             </>
-          )} 
+          )}
         </div>
       );
     }

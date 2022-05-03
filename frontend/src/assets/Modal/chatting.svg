@@ -1,0 +1,16 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="Mask group">
+<mask id="mask0_256_2338" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="128" height="128">
+<rect id="chat (2) 1" width="128" height="128" fill="url(#pattern0)"/>
+</mask>
+<g mask="url(#mask0_256_2338)">
+<rect id="Rectangle 192" x="-43" y="-19" width="202" height="172" fill="white"/>
+</g>
+</g>
+<defs>
+<pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_256_2338" transform="scale(0.0078125)"/>
+</pattern>
+<image id="image0_256_2338" data-name="chat (2).png" width="128" height="128" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAN2AAADdgF91YLMAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAKtQTFRF////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAvu0PFgAAADh0Uk5TAAUGCBAUGBkqLzQ4PkBISk9QWFleYmZocHR4fYmLjJCTmKKosLO2vsDCxsjS1dnc6Oru7/D4+vu0LxFpAAABkUlEQVR42u3bXVOCQBTG8TXUXowKsrKiELGidzKX+P6frAvONlPOtuzOWR3q+V97Dj8v3BlBhdAla/tKwRgAAACwKcBeTsUOHavhHXdApN5N4DA8VMMhAAAA4PD5j5pO5lTPAdBXw2Pattt+Nif7nOUYLWhbBgAAAHQAIKk4aOqxALZo2yltX+pfqg7PWPjojLZLAAAAgBOQZO279wEoHb6zAQAAAByAfkgtHACVGh64A8KaowgAAADoICApmxYsgHfalrUHZLWPcgAAAMAMuEqbnrwAXmh7qgfIei1tHjCirh+bEiPgcGTfvh6gWrlLpgUMhX0BAAAAYAaM6Wi8mFAfupHLiX3nZoAqqtcbAAAAsAI4oO9O+ltRb6W5yh0gWE7CAgAAAPjTgIfC3NInwPNRDAAAAHw1pefPz16u+6oeb5sPNd93yQAAAABjU/o9WsVy4Yq2zYR1vp6aAQAAAN0BDKIf3dicP2poW/CVWgCk8BAAAPxfwBH9t+/2lwve5d+bcQLa/J4wFB4DAAAAeAGfYrbC5l/U1RYAAAAASUVORK5CYII="/>
+</defs>
+</svg>
