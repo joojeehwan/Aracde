@@ -80,7 +80,7 @@ public class UserController {
             user = userService.signUp(email,image,name);
         }
         // 4. 커스텀 토큰 발급
-        map.put("token", "Bearer " + JwtTokenUtil.getToken(user.getEmail()));
+        map.put("token", "Bearer " + JwtTokenUtil.getToken(user.getUserSeq()));
         map.put("name", user.getName());
         map.put("email", user.getEmail());
         map.put("image", user.getImage());
