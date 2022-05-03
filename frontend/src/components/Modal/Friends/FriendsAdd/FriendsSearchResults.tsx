@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
-
 import styles from '../../styles/Friends.module.scss';
+import UserApi from '../../../../common/api/UserApi';
 
 //mui
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
@@ -43,20 +43,36 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsSearchResults({ name, imgUrl }: any) {
+function FriendsSearchResults({ client, seq, name, email, imgUrl, status }: any) {
   const [isOnline, setIsOnline] = useState(true);
   const [isClicked, setIsClicked] = useState(false);
+  const [curStatus, setCurStatus] = useState<number>(status);
 
-  const onClickAddFriends = useCallback(() => {
-    setIsClicked(true);
-  }, [isClicked]);
+  const { getAddFriendRequestResult } = UserApi;
+
+  // const onClickAddFriends = useCallback(() => {
+  //   // setIsClicked(true);
+
+  // }, [isClicked]);
+  const onClickAddFriends = async (email: string) => {
+    const result = await getAddFriendRequestResult(email);
+    if (result?.status === 200) {
+      console.log(result, client);
+      //
+      setCurStatus(0);
+    }
+  };
+
   return (
-    <div style={{ 
-      display: 'flex',
-      justifyContent : 'space-evenly',
-      alignItems : 'center',
-      marginTop : 15  
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        padding: 10,
+        marginTop: 15,
+      }}
+    >
       <div>
         {isOnline ? (
           <StyledBadgeOnline
@@ -76,12 +92,34 @@ function FriendsSearchResults({ name, imgUrl }: any) {
           </StyledBadgeOffline>
         )}
       </div>
-      <div>{name}</div>
+      <div
+        style={{
+          display: 'block',
+          textAlign: 'left',
+          width: 180,
+        }}
+      >
+        <div
+          style={{
+            marginTop: 5,
+          }}
+        >
+          {name}
+        </div>
+        <div
+          style={{
+            marginTop: 5,
+            fontSize: 15,
+          }}
+        >
+          {email}
+        </div>
+      </div>
       <div>
-        {isClicked ? (
+        {curStatus === 0 ? (
           <button className={styles.buttonYocheong}>요청됨</button>
         ) : (
-          <button className={styles.button} onClick={onClickAddFriends}>
+          <button className={styles.button} onClick={() => onClickAddFriends(email)}>
             친구 추가
           </button>
         )}
