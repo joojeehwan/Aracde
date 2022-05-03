@@ -13,9 +13,9 @@ import { NAVER_AUTH_URL } from './naver/OAuth';
 import { GOOGLE_AUTH_URL } from './google/OAuth';
 
 function mainLogin() {
-  useEffect(()=>{
-    console.log(KAKAO_AUTH_URL, NAVER_AUTH_URL, GOOGLE_AUTH_URL)
-  }, []);
+  // useEffect(()=>{
+  //   console.log(KAKAO_AUTH_URL, NAVER_AUTH_URL, GOOGLE_AUTH_URL)
+  // }, []);
   return (
     <>
       <div className={styles.main}>

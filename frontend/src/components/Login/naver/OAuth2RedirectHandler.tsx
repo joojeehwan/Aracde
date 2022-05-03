@@ -14,6 +14,7 @@ function OAuth2RedirectHandler() {
     console.log(result);
     saveToken(result.data.token);
     window.localStorage.setItem('userSeq', result.data.userSeq);
+    window.localStorage.setItem('name', result.data.name);
     navigate('/');
     return result;
   };

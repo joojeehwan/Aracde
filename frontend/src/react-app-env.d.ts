@@ -1,8 +1,9 @@
-/// <reference types="vite/client" />
-// declare module '*.png' {
-//   const value: any;
-//   export = value;
-// }
+/// <reference types="react-scripts" />
+declare module '@loadable/component';
+declare module 'react-modal';
+declare module 'sass';
+declare module 'aos';
+declare module 'lodash';
 declare module '*.jpg';
 declare module '*.png';
 declare module 'react-slick';
