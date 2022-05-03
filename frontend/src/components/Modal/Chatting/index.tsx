@@ -56,6 +56,7 @@ function Chatting({ open, onClose }: MyProps) {
   const [newChattRoom, onChangeNewChattRoom, setNewChattRoom] = useInput('');
 
   const onClickCreateChattRoom = useCallback(() => {
+    console.log("????");
     setShowCreateChattRoomModal(true);
   }, []);
 

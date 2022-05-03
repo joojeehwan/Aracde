@@ -3,6 +3,7 @@ package com.ssafy.arcade.chat;
 import com.ssafy.arcade.chat.dtos.ChatMessageDTO;
 import com.ssafy.arcade.chat.dtos.ChatRoomDTO;
 import com.ssafy.arcade.chat.dtos.request.CreateChattingRoomReq;
+import com.ssafy.arcade.chat.dtos.request.SendMessageReq;
 import com.ssafy.arcade.chat.repository.ChatRoomRepository;
 import com.ssafy.arcade.common.RedisPublisher;
 import lombok.RequiredArgsConstructor;
@@ -32,5 +33,9 @@ public class ChatController {
     public ResponseEntity<String> createChattingRoom(@RequestHeader("Authorization") String token, @RequestBody CreateChattingRoomReq createChattingRoomReq) {
         return new ResponseEntity<>(chatService.createChattingRoom(token, createChattingRoomReq), HttpStatus.OK);
     }
-
+    // 2. 채팅방에 메시지 전송하기
+    @PostMapping("/message")
+    public ResponseEntity<String> sendMessage(@RequestHeader("Authorization") String token, @RequestBody SendMessageReq sendMessageReq) {
+        return new ResponseEntity<>(chatService.sendMessage(token, sendMessageReq), HttpStatus.OK);
+    }
 }
