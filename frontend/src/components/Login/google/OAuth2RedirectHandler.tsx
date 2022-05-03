@@ -20,6 +20,7 @@ function OAuth2RedirectHandler() {
     // 프론트는 딱히.. 어렵지가 않앙,,항항,,,
     saveToken(result.data.token);
     window.localStorage.setItem('userSeq', result.data.userSeq);
+    window.localStorage.setItem('name', result.data.name);
     navigate('/');
     return result;
   };

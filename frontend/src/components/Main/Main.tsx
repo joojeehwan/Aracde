@@ -54,6 +54,9 @@ function Main() {
         type: 'friend',
       }),
     );
+
+    // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
+
     setFriendsIsOpen(true);
   }, [friendsIsOpen]);
 
