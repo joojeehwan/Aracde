@@ -54,15 +54,16 @@ public class GameController {
      *  Game 관련 Controller
      * */
     @PatchMapping(value="/win")
-    public ResponseEntity<String> winGame(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> winGame(@RequestBody GameReqDto gameReqDto) {
 
-
+        gameService.handleWinGame(gameReqDto.getUserSeq(), gameReqDto.getCodeIdx());
         return new ResponseEntity<>("요청 성공", HttpStatus.OK);
     }
     @PatchMapping(value="/init")
-    public ResponseEntity<String> enterGame(@RequestBody GameReqDto gameReqDto) {
+    public ResponseEntity<String> initGame(@RequestBody GameReqDto gameReqDto) {
 
 
+        gameService.handleInitGame(gameReqDto.getUserSeq(), gameReqDto.getCodeIdx());
         return new ResponseEntity<>("요청 성공", HttpStatus.OK);
     }
 

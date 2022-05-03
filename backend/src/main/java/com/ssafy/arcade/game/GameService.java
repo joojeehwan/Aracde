@@ -118,11 +118,51 @@ public class GameService {
 
     }
     // 게임 참가
-    public void enterGame(String email, Code code) {
-
+    public void handleInitGame(Long userSeq, Integer codeIdx) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        boolean flag = false;
+        for (Code code : Code.values()) {
+            if (code.ordinal() == codeIdx) {
+                GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElseThrow(() ->
+                        new CustomException(ErrorCode.DATA_NOT_FOUND));
+                Game game = gameUser.getGame();
+                game.addGameCnt();
+                gameRepository.save(game);
+                flag = true;
+                break;
+            }
+        }
+        System.out.println("flag: " + flag);
+        // 유효하지 않은 code를 보낼 경우
+        if (!flag) {
+            throw new CustomException(ErrorCode.WRONG_DATA);
+        }
     }
     // 게임 승리
-    
+    public void handleWinGame(Long userSeq, Integer codeIdx) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        boolean flag = false;
+        for (Code code : Code.values()) {
+            if (code.ordinal() == codeIdx) {
+                GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElseThrow(() ->
+                        new CustomException(ErrorCode.DATA_NOT_FOUND));
+                Game game = gameUser.getGame();
+                if (game.getVicCnt() >= game.getGameCnt()) {
+                    throw new CustomException(ErrorCode.WRONG_DATA);
+                }
+                game.addVicCnt();
+                gameRepository.save(game);
+                flag = true;
+                break;
+            }
+        }
+        // 유효하지 않은 code를 보낼 경우
+        if (!flag) {
+            throw new CustomException(ErrorCode.WRONG_DATA);
+        }
+    }
     
     // 10자리 임시 코드 생성
     protected String createRandString() {

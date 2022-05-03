@@ -8,8 +8,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
+import com.ssafy.arcade.common.util.Code;
 import com.ssafy.arcade.common.util.JwtTokenUtil;
 import com.ssafy.arcade.game.GameService;
+import com.ssafy.arcade.game.entity.Game;
+import com.ssafy.arcade.game.entity.GameUser;
+import com.ssafy.arcade.game.repositroy.GameUserRepository;
+import com.ssafy.arcade.game.request.GameReqDto;
+import com.ssafy.arcade.game.request.GameResDto;
 import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;
@@ -17,6 +23,7 @@ import com.ssafy.arcade.user.repository.FriendRepository;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.KakaoProfile;
 import com.ssafy.arcade.user.request.KakaoToken;
+import com.ssafy.arcade.user.response.ProfileResDto;
 import com.ssafy.arcade.user.response.UserResDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +51,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final SimpMessagingTemplate template;
+    private final GameUserRepository gameUserRepository;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -362,5 +370,35 @@ public class UserService {
 
         }
         return userResDtoList;
+    }
+
+    // 유저 프로필
+    public ProfileResDto getUserProfile(String token) {
+        User user = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+
+        List<GameResDto> gameResDtos = new ArrayList<>();
+        // 게임별 gameResDto 추가
+        for (Code code : Code.values()) {
+            GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).get();
+            Game game = gameUser.getGame();
+            
+            GameResDto gameResDto = new GameResDto();
+
+            gameResDto.setGameCode(gameUser.getGameCode());
+            gameResDto.setGameCnt(game.getGameCnt());
+            gameResDto.setVicCnt(game.getVicCnt());
+
+            gameResDtos.add(gameResDto);
+        }
+        ProfileResDto profileResDto = new ProfileResDto();
+
+        profileResDto.setUserSeq(user.getUserSeq());
+        profileResDto.setEmail(user.getEmail());
+        profileResDto.setName(user.getName());
+        profileResDto.setImage(user.getImage());
+        profileResDto.setGameResDtos(gameResDtos);
+
+        return profileResDto;
     }
 }

@@ -1,6 +1,6 @@
 package com.ssafy.arcade.game.request;
 
-
+import com.ssafy.arcade.common.util.Code;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,9 +10,8 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class GameReqDto {
-    private Long userSeq;
-    // 백에서 Code로 치환 1이면 G01 / 2면 G02
-    private Integer codeIdx;
-
+public class GameResDto {
+    private Code gameCode;
+    private Integer gameCnt;
+    private Integer VicCnt;
 }

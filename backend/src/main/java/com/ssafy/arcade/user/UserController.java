@@ -7,6 +7,7 @@ import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.*;
 
+import com.ssafy.arcade.user.response.ProfileResDto;
 import com.ssafy.arcade.user.response.UserResDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -139,7 +140,7 @@ public class UserController {
     }
 
     // 친구 목록 불러오기
-    @GetMapping(value="/friendList")
+    @GetMapping(value = "/friendList")
     public ResponseEntity<List<UserResDto>> friendList(@RequestHeader("Authorization") String token) {
         List<UserResDto> userResDtoList = userService.getFriendList(token);
 
@@ -152,6 +153,15 @@ public class UserController {
         List<UserResDto> userResDtoList = userService.searchFriend(token, userEmail);
 
         return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
+    }
+
+    // 유저 프로필 불러오기
+    @GetMapping(value = "/profile")
+    public ResponseEntity<ProfileResDto> getProfile(@RequestHeader("Authorization") String token) {
+
+        ProfileResDto profileResDto = userService.getUserProfile(token);
+
+        return new ResponseEntity<>(profileResDto, HttpStatus.OK);
     }
 
 
