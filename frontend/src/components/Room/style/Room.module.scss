@@ -1,6 +1,6 @@
 .nav {
     width: 100%;
-    height: 64px;
+    height: 40px;
     display: inline-block;
   }
   .link {
@@ -27,26 +27,24 @@
     color: #eaeaea;
     transform: translateY(-7px);
   }
-  .title {
-    height: 48px;
-  }
   .container {
-    color: #eee;
+    color: #000;
     height: 100vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    background-color: #231557;
     /* justify-content: space-between; */
-    padding: 0px 30px;
+    // padding: 20px;
     position: relative;
     width: 100%;
     /* margin : 0px 0px 0px 0px; */
   }
   .innerContainer {
     display: flex;
-    width: 100%;
-    height: calc(100% - 154px);
-    margin: 5px 15px 0px;
+    width: 80%;
+    height: 100%;
+    // margin: 5px 15px 0px;
   }
   
   .contents {
@@ -57,8 +55,8 @@
   }
   
   .main-contents {
-    display: flex;
-    height: calc(100% - 48px);
+    // display: flex;
+    // height: calc(100% - 48px);
   }
   
   video {
