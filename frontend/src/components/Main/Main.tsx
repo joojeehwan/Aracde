@@ -11,10 +11,15 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 
+
 import Chatting from '../Modal/Chatting';
 
 import { Stomp } from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
+
+// import { Stomp } from '@stomp/stompjs';
+
+
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -130,13 +135,13 @@ function Main() {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
       // client.connect({}, () => {
-      //   console.log('connection');
-      //   client.subscribe('/sub/noti/' + window.localStorage.getItem('userSeq'), function (notiDTO) {
-      //     console.log('TLqkfjwlSWk whwRkxsp wlsWkfh');
+      //   console.log("connection");
+      //   client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
+      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");  
       //     const content = JSON.parse(notiDTO.body);
-      //     console.log(content.name);
-      //   });
-      // });
+      //       console.log(content.name);
+      //   })
+      // })
     }
   }, []);
 
@@ -236,7 +241,7 @@ function Main() {
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
-        {friendsIsOpen ? <Friends client={client} open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
+        {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
       </div>

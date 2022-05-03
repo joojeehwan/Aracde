@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import style from './RoomCreate.module.scss';
 import Char from '../../../assets/character.png';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 type MyProps = {
   open: boolean;
@@ -10,6 +11,7 @@ type MyProps = {
 
 function RoomCreate({ open, onClose }: MyProps) {
   const [nick, setNick] = useState<string>('');
+  const navigate = useNavigate();
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
   };
@@ -20,9 +22,8 @@ function RoomCreate({ open, onClose }: MyProps) {
   const handleCreateRoom = (e: React.MouseEvent) => {
     e.preventDefault();
     if (nick.length > 0) {
-      // api 통신 들어가는 부분
-      // 방 코드 받아와서 session 만들어 줘야 함
-      // room 컴포넌트에다 내 닉넴, 방 코드 보내줘야함 navigate?
+      
+      navigate('/room');
       console.log(nick);
     } else {
       toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>닉네임을 입력해주세요.</div>, {

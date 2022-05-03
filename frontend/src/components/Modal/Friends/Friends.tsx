@@ -6,18 +6,16 @@ import FriendsSearchResults from './FriendsAdd/FriendsSearchResults';
 import UserApi from '../../../common/api/UserApi';
 
 interface MyProps {
-  client: any;
+  // client : any;
   open: boolean;
   onClose: (e: any) => void;
 }
 
-function Friends({ client, open, onClose }: MyProps) {
-  const [friend, setFriend] = useState<
-    { userSeq: number; email: string; name: string; image: string; status: number }[]
-  >([]);
-  const [people, setPeople] = useState<
-    { userSeq: number; email: string; name: string; image: string; status: number }[]
-  >([]);
+
+
+function Friends({ open, onClose }: MyProps) {
+  const [friend, setFriend] = useState<{userSeq : number, email : string, name : string, image : string, status : number}[]>([]);
+  const [people, setPeople] = useState<{userSeq : number, email : string, name : string, image : string, status : number}[]>([]);
   const [label, setLabel] = useState([]);
   const [number, setNum] = useState([]);
   const [tab, setTab] = useState(0);
@@ -30,7 +28,7 @@ function Friends({ client, open, onClose }: MyProps) {
     },
     [tab],
   );
-  const stopEvent = useCallback((e) => {
+  const stopEvent = useCallback((e : any) => {
     e.stopPropagation();
   }, []);
 
@@ -55,23 +53,13 @@ function Friends({ client, open, onClose }: MyProps) {
             </div>
           ) : (
             <>
-              <FriendsSeachBar searchPeople={handleSearchPeople} />
-              <div className={styles.friendAddContainer}>
-                {people.map((value, i) => {
-                  const idx = i;
-                  return (
-                    <FriendsSearchResults
-                      client={client}
-                      seq={value.userSeq}
-                      key={idx}
-                      imgUrl={value.image}
-                      name={value.name}
-                      email={value.email}
-                      status={value.status}
-                    />
-                  );
-                })}
-              </div>
+            <FriendsSeachBar searchPeople={handleSearchPeople}/>
+            <div className={styles.friendAddContainer}>
+              {people.map((value, i) => {
+                const idx = i;
+                return <FriendsSearchResults seq={value.userSeq} key={idx} imgUrl={value.image} name={value.name} email={value.email} status={value.status}/>;
+              })}
+            </div>
             </>
           )}
         </div>
