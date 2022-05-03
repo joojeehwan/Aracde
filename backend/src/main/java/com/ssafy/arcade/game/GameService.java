@@ -6,9 +6,12 @@ import com.ssafy.arcade.common.util.Code;
 import com.ssafy.arcade.game.entity.Game;
 import com.ssafy.arcade.game.entity.GameRoom;
 import com.ssafy.arcade.game.entity.GameUser;
+import com.ssafy.arcade.game.entity.Picture;
 import com.ssafy.arcade.game.repositroy.GameRepository;
 import com.ssafy.arcade.game.repositroy.GameRoomRepository;
 import com.ssafy.arcade.game.repositroy.GameUserRepository;
+import com.ssafy.arcade.game.repositroy.PictureRepository;
+import com.ssafy.arcade.game.response.PictureResDto;
 import com.ssafy.arcade.user.UserService;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
@@ -26,6 +29,7 @@ public class GameService {
     private final GameRoomRepository gameRoomRepository;
     private final GameUserRepository gameUserRepository;
     private final UserRepository userRepository;
+    private final PictureRepository pictureRepository;
 
     // Room 생성
     public String createInviteCode() {
@@ -162,6 +166,33 @@ public class GameService {
         if (!flag) {
             throw new CustomException(ErrorCode.WRONG_DATA);
         }
+    }
+
+    // 그림 저장
+    public void createPicture(Long userSeq, List<String> pictureUrls) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+
+
+        for (String pictureUrl : pictureUrls) {
+            Picture picture = pictureRepository.findByUserAndPictureUrlAndDelYn(user, pictureUrl, false).orElse(null);
+            if (picture != null) {
+                throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+            }
+            picture = Picture.builder().pictureUrl(pictureUrl).delYn(false).user(user)
+                    .build();
+            pictureRepository.save(picture);
+        }
+
+    }
+    // 그림 삭제
+    public void deletePicture(Long userSeq, String pictureUrl) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        Picture picture = pictureRepository.findByUserAndPictureUrlAndDelYn(user, pictureUrl, false).orElseThrow(() ->
+                new CustomException(ErrorCode.DATA_NOT_FOUND));
+        picture.deletePicture();
+        pictureRepository.save(picture);
     }
     
     // 10자리 임시 코드 생성

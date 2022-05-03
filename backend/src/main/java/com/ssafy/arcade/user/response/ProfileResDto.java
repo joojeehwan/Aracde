@@ -1,6 +1,7 @@
 package com.ssafy.arcade.user.response;
 
 import com.ssafy.arcade.game.request.GameResDto;
+import com.ssafy.arcade.game.response.PictureResDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,5 +19,5 @@ public class ProfileResDto {
     private String name;
     private String image;
     private List<GameResDto> gameResDtos;
-
+    private List<PictureResDto> pictureResDtos;
 }

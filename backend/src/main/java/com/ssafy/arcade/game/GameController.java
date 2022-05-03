@@ -2,6 +2,7 @@ package com.ssafy.arcade.game;
 
 
 import com.ssafy.arcade.game.request.GameReqDto;
+import com.ssafy.arcade.game.request.PictureReqDto;
 import com.ssafy.arcade.game.request.RoomReqDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -65,6 +66,13 @@ public class GameController {
 
         gameService.handleInitGame(gameReqDto.getUserSeq(), gameReqDto.getCodeIdx());
         return new ResponseEntity<>("요청 성공", HttpStatus.OK);
+    }
+    // 이어그리기 그림 추가
+    @PostMapping(value="/picture")
+    public ResponseEntity<String> savePicture(@RequestBody PictureReqDto pictureReqDto) {
+
+        gameService.createPicture(pictureReqDto.getUserSeq(), pictureReqDto.getPictureUrls());
+        return new ResponseEntity<>("그림 저장 성공", HttpStatus.OK);
     }
 
 
