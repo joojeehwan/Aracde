@@ -150,6 +150,10 @@
   height: 200px;
 }
 
+#test {
+  width: 200px;
+}
+
 .modalForm .title {
   display: inline;
   font-size: 30px;
@@ -182,7 +186,7 @@
 }
 
 .modal > section {
-  width: 800px;
+  width: auto;
   height: 600px;
   border-radius: 10px;
   background-color: #ffff;

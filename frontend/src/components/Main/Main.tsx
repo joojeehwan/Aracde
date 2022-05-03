@@ -11,23 +11,18 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 
-
 import Chatting from '../Modal/Chatting';
 
 import { Stomp } from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
-
-// import { Stomp } from '@stomp/stompjs';
-
-
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
 
-  const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
-  const client = Stomp.over(sock);
+  // const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
+  // const client = Stomp.over(sock);
 
   const navigate = useNavigate();
 
@@ -49,16 +44,16 @@ function Main() {
   );
 
   const handleOpensFriends = useCallback(() => {
-    client.send(
-      '/pub/noti/2',
-      {},
-      JSON.stringify({
-        userSeq: window.localStorage.getItem('userSeq'),
-        name: '홍승기',
-        inviteCode: 'asdfasf',
-        type: 'friend',
-      }),
-    );
+    // client.send(
+    //   '/pub/noti/2',
+    //   {},
+    //   JSON.stringify({
+    //     userSeq: window.localStorage.getItem('userSeq'),
+    //     name: '홍승기',
+    //     inviteCode: 'asdfasf',
+    //     type: 'friend',
+    //   }),
+    // );
 
     // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
 
@@ -137,7 +132,7 @@ function Main() {
       // client.connect({}, () => {
       //   console.log("connection");
       //   client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
-      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");  
+      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");
       //     const content = JSON.parse(notiDTO.body);
       //       console.log(content.name);
       //   })
