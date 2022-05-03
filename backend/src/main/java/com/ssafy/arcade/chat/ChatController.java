@@ -4,10 +4,14 @@ import com.ssafy.arcade.chat.dtos.ChatMessageDTO;
 import com.ssafy.arcade.chat.dtos.ChatRoomDTO;
 import com.ssafy.arcade.chat.dtos.request.CreateChattingRoomReq;
 import com.ssafy.arcade.chat.dtos.request.SendMessageReq;
+import com.ssafy.arcade.chat.dtos.response.SendMessageRes;
+import com.ssafy.arcade.chat.entity.ChatRoom;
 import com.ssafy.arcade.chat.repository.ChatRoomRepository;
 import com.ssafy.arcade.common.RedisPublisher;
+import com.ssafy.arcade.common.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,15 +32,33 @@ public class ChatController {
     private final ChatService chatService;
     private final SimpMessagingTemplate template; //특정 Broker로 메세지를 전달
     private final RedisPublisher redisPublisher;
+    private final RedisSubscriber redisSubscriber;
+    private Map<String, ChannelTopic> channels;
 
     // 1. 1:1 채팅방 만들기
     @PostMapping("/create")
     public ResponseEntity<String> createChattingRoom(@RequestHeader("Authorization") String token, @RequestBody CreateChattingRoomReq createChattingRoomReq) {
+
         return new ResponseEntity<>(chatService.createChattingRoom(token, createChattingRoomReq), HttpStatus.OK);
+    }
+    @PostMapping("/test/create")
+    public ResponseEntity<ChatRoom> testCreateChattingRoom(@RequestBody CreateChattingRoomReq createChattingRoomReq) {
+
+        return new ResponseEntity<>(chatService.testCreateChattingRoom(createChattingRoomReq), HttpStatus.OK);
     }
     // 2. 채팅방에 메시지 전송하기
     @PostMapping("/message")
     public ResponseEntity<String> sendMessage(@RequestHeader("Authorization") String token, @RequestBody SendMessageReq sendMessageReq) {
         return new ResponseEntity<>(chatService.sendMessage(token, sendMessageReq), HttpStatus.OK);
+    }
+    // 테스트용
+    @PostMapping("/test/message")
+    public ResponseEntity<SendMessageRes> testSendMessage(@RequestBody SendMessageReq sendMessageReq) {
+        return new ResponseEntity<>(chatService.testSendMessage(sendMessageReq), HttpStatus.OK);
+    }
+    // 테스트용 방 입장
+    @GetMapping("/test/enter")
+    public ResponseEntity<String> testEnter(@RequestParam Long chatRoomSeq) {
+        return new ResponseEntity<>(chatService.testEnter(chatRoomSeq), HttpStatus.OK);
     }
 }

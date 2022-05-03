@@ -1,6 +1,7 @@
 package com.ssafy.arcade.common;
 
 import com.ssafy.arcade.chat.dtos.ChatMessageDTO;
+import com.ssafy.arcade.chat.dtos.response.SendMessageRes;
 import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.notification.repository.NotiRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +18,15 @@ public class RedisPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final NotiRepository notiRepository;
 
-    // Overloading - 알림
-    public void publish(ChannelTopic topic, NotiDTO notiDTO) {
-        notiRepository.save(notiDTO.toEntity());
-        redisTemplate.convertAndSend(topic.getTopic(), notiDTO);
-    }
+//    // Overloading - 알림
+//    public void publish(ChannelTopic topic, NotiDTO notiDTO) {
+//        notiRepository.save(notiDTO.toEntity());
+//        redisTemplate.convertAndSend(topic.getTopic(), notiDTO);
+//    }
 
     // Overloading - 채팅
-    public void publish(ChannelTopic topic, ChatMessageDTO chatDTO) {
-        redisTemplate.convertAndSend(topic.getTopic(), chatDTO);
+    public void publish(ChannelTopic topic, SendMessageRes sendMessageRes) {
+        redisTemplate.convertAndSend(topic.getTopic(), sendMessageRes);
     }
 
 }
