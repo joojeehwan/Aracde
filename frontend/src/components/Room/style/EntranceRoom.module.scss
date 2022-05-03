@@ -7,6 +7,7 @@
 }
 
 .wrapper{
+  // margin-top: -20px;
   width: 100vw;
   height: 100vh;
 }
@@ -17,27 +18,31 @@
   margin-bottom: 0px;
 }
 .content{
+  margin-top: 20px;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: row;
+  // flex-direction: row;
 }
 
 .preferences{
-  padding: 50px;
+  // padding: 50px;
 }
 
 .camera{
   background-color: gray;
   border-radius: 30px;
-  width: 700px;
-  height: 500px;
+  width: 55vw;
+  height: 60vh;
   display: flex;
   justify-content: center;
 }
 
 .camera video {
   border-radius: 30px;
+  width: 60vw;
+  height: 55vh;
   margin: auto;
 }
 .cameraBtn{
@@ -45,15 +50,28 @@
 }
 
 .form{
-  padding: 30px;
-  font-size: 64px;
+  // padding: 30px;
+  margin-left: 20px;
+  font-size: 2rem;
+  height: 40vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .nickname{
-  padding: 30px;
+  margin-bottom: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // padding: 30px;
+  // font-size: 2rem;
 }
 .code{
-  padding: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // padding: 30px;
 }
 .gray{
   width: 350px;
@@ -61,7 +79,7 @@
   background-color: gray;
   border-radius: 10px;
   float: right;
-  margin-left: 50px;
+  // margin-left: 50px;
   font-size: 64px;
   color: white;
 }

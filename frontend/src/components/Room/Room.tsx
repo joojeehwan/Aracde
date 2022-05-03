@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import styles from "./style/Room.module.scss";
 import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "./store";
+import { infoStore } from "../Store/info";
 import RoomContents from "./RoomContents";
 // import LoadingSpinner from "../Modals/LoadingSpinner/LoadingSpinner";
 // import RoomApi from "../../api/RoomApi";
@@ -29,10 +30,13 @@ import RoomContents from "./RoomContents";
 
 const Room = () => {
   const {sessionId, setSessionId} = useStore();
+  // const {nickname, invitecode, setNick} = infoStore();
 //   const { setLoginStatus } = useContext(LoginStatusContext);
 //   const { myVMstate } = useContext(VideoMicContext);
   // const { myName } = useContext(NameContext);
-  const myName = localStorage.getItem("name");
+  // const [myName, setMyName] = useState<string>(nickname);
+  const myName = window.localStorage.getItem("nickname");
+  
   const [mode, setMode] = useState("basic");
   const [contentTitle, setContentTitle] = useState("");
   const [onGameList, setOnGameList] = useState(false);
@@ -43,11 +47,22 @@ const Room = () => {
   const [roomTitle, setRoomTitle] = useState("");
 //   const { setbangZzang } = useContext(BangZzangContext);
 
-  const [roomseq, setRoomseq] = useState<string>("sasd");
-
+  // const [roomseq, setRoomseq] = useState<string>(invitecode);
+  const roomseq = window.localStorage.getItem("invitecode");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  
+
+  useEffect(()=>{
+    console.log("???왜 사라짐??");
+    if(myName === null){
+      navigate('/');
+    }
+    if(roomseq === null){
+      navigate('/');
+    }
+  }, []);
+
+
   return (
     <div className={styles.container}>
       {/* {loading ? <LoadingSpinner></LoadingSpinner> : null} */}
