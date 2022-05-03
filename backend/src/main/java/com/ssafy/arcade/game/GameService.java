@@ -117,6 +117,11 @@ public class GameService {
         gameUserRepository.save(gameUser);
 
     }
+    // 게임 참가
+    public void enterGame(String email, Code code) {
+
+    }
+    // 게임 승리
     
     
     // 10자리 임시 코드 생성

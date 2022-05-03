@@ -1,6 +1,7 @@
 package com.ssafy.arcade.game;
 
 
+import com.ssafy.arcade.game.request.GameReqDto;
 import com.ssafy.arcade.game.request.RoomReqDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,7 @@ import java.util.Map;
 @CrossOrigin("*")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/apiv1/room")
+@RequestMapping("/apiv1/game")
 public class GameController {
 
     private final GameService gameService;
@@ -21,7 +22,7 @@ public class GameController {
     /**
      *  GameRoom 관련 Controller
      * */
-    @PostMapping(value="/create")
+    @PostMapping(value="/room")
     public ResponseEntity<Map<String, String>> createRoom() {
 
         String inviteCode = gameService.createInviteCode();
@@ -31,7 +32,7 @@ public class GameController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @PatchMapping(value="/enter")
+    @PatchMapping(value="/room")
     public ResponseEntity<String> enterRoom(@RequestBody RoomReqDto roomReqDto) {
 
         gameService.enterGameRoom(roomReqDto.getInviteCode());
@@ -52,6 +53,24 @@ public class GameController {
     /**
      *  Game 관련 Controller
      * */
+    @PatchMapping(value="/win")
+    public ResponseEntity<String> winGame(@RequestHeader("Authorization") String token) {
 
 
+        return new ResponseEntity<>("요청 성공", HttpStatus.OK);
+    }
+    @PatchMapping(value="/init")
+    public ResponseEntity<String> enterGame(@RequestBody GameReqDto gameReqDto) {
+
+
+        return new ResponseEntity<>("요청 성공", HttpStatus.OK);
+    }
+
+
+    // test용, 승리, 게임 횟수 초기화
+    @PatchMapping(value="/reset")
+    public ResponseEntity<String> resetPoint(@RequestBody GameReqDto gameReqDto){
+
+        return new ResponseEntity<>("초기화 성공", HttpStatus.OK);
+    }
 }
