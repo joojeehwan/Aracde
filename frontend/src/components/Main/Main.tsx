@@ -96,6 +96,7 @@ function Main() {
   };
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
+    navigate('/entrance');
     console.log('눌렸음');
   };
 

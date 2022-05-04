@@ -9,7 +9,7 @@ import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
-import Room from '../../common/api/Room';
+import RoomApi from '../../common/api/Room';
 
 const CreateRoom = () => {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ const CreateRoom = () => {
   const [nickname, setNickname] = useState(''); // 닉네임
   const [code, setCode] = useState(''); // 초대 코드
 
-  const { enterRoom } = Room;
+  const { enterRoom } = RoomApi;
 
   const handleMic = () => {
     setMic((prev) => !prev);
@@ -39,8 +39,11 @@ const CreateRoom = () => {
   };
   const handleEnter = async () => {
     const response = await enterRoom(code as string);
-    if (response.data.statusCode === 200) {
-      navigate(`/ready`);
+    if (response.status === 200) {
+      console.log("??????");
+      window.localStorage.setItem('nickname', nickname);
+      window.localStorage.setItem('invitecode', code);
+      navigate('/room');
     }
   };
   const handleCancel = () => {
@@ -152,7 +155,7 @@ const CreateRoom = () => {
             <div>
               <div className={styles.form}>
                 <div className={styles.nickname}>
-                  <label htmlFor="nickname">닉네임</label>
+                  <label style={{width : "40%"}} htmlFor="nickname">닉네임</label>
                   <input
                     type="text"
                     id="nickname"
@@ -174,8 +177,8 @@ const CreateRoom = () => {
                   variant="contained"
                   color="secondary"
                   sx={{
-                    width: 250,
-                    height: 80,
+                    width: "40%",
+                    height: "10%",
                     fontSize: '32px',
                     m: 2,
                     p: 1,
@@ -189,8 +192,8 @@ const CreateRoom = () => {
                   variant="contained"
                   color="error"
                   sx={{
-                    width: 250,
-                    height: 80,
+                    width: "40%",
+                    height: "10%",
                     fontSize: '32px',
                     m: 2,
                     p: 1,
