@@ -42,6 +42,7 @@ public class ChatService {
     }
 
     public String createChattingRoom(String token, CreateChattingRoomReq createChattingRoomReq) {
+
         // 토큰으로 유저 찾기
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
@@ -50,6 +51,7 @@ public class ChatService {
                 new CustomException(ErrorCode.NOT_OUR_USER));
         // 이미 채팅방이 존재하는 경우 에러
         List<ChatRoom> chatRooms = chatRoomRepository.findAll();
+
         ChatRoom chatRoom = null;
         for (ChatRoom chat : chatRooms) {
             if ((chat.getUser1().getUserSeq() == user.getUserSeq() && chat.getUser2().getUserSeq() == target.getUserSeq())
@@ -60,6 +62,8 @@ public class ChatService {
         if (chatRoom != null) {
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
+        chatRoom = ChatRoom.builder()
+                .user1(user).user2(target).build();
         // 채팅방 만들기
         chatRoomRepository.save(chatRoom);
         // 해당 채팅방 토픽 생성
