@@ -11,10 +11,16 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 
-import Chatting from '../Modal/Chatting';
 
+// import Chatting from '../Modal/Chatting';
+
+// import { Stomp } from '@stomp/stompjs';
+// import { deleteToken } from '../../common/api/jWT-Token';
+
+import Chatting from '../Modal/Chatting/ChattingList/index';
 import { Stomp } from '@stomp/stompjs';
-import { deleteToken } from '../../common/api/jWT-Token';
+import {deleteToken} from '../../common/api/jWT-Token';
+
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -44,6 +50,7 @@ function Main() {
   );
 
   const handleOpensFriends = useCallback(() => {
+<<<<<<< HEAD
     client.send(
       '/pub/noti/2',
       {},
@@ -54,6 +61,9 @@ function Main() {
         type: 'friend',
       }),
     );
+=======
+    // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
+>>>>>>> 834f71630cf4af41a572f9eb9912f209ff8c991e
     setFriendsIsOpen(true);
   }, [friendsIsOpen]);
 

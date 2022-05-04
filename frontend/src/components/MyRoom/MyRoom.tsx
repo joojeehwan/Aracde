@@ -1,26 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../common/navbar/Navbar';
-import create from 'zustand';
 import styles from './style/MyRoom.module.scss';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 
-const useStore = create((set) => ({
-  activeTab: 0, // 탭 번호
-  email: 'kimms4142@naver.com', // 이메일
-  name: '김명섭', // 이름
-  count: 0, // 게임 참여 횟수
-  answer: 0, // 정답 맞춘 개수
-  setActiveTab: (input: number) => set({ activeTab: input }),
-  setEmail: (input: string | null) => set({ email: input }),
-  setName: (input: string | null) => set({ name: input }),
-  // setCount: () => set((state) => ({ count: state.count + 1 })),
-  // setAnswer: () => set((state) => ({ answer: state.answer + 1 })),
-}));
-
 const MyRoom = () => {
-  // const { activeTab, email, name, count, answer, setActiveTab, setEmail, setName, setCount, setAnswer } = useStore();
+  const [activeTab, setActiveTab] = useState(0);
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [count, setCount] = useState(0);
+  const [answer, setAnswer] = useState(0);
 
   // const clickHandler = (id: number) => {
   //   setActiveTab(id);
