@@ -47,12 +47,43 @@ const getAddFriendRequestResult = async (email: string) => {
   return null;
 };
 
+const getFriendList = async () => {
+  const token = getToken()
+  if (token !== null) {
+    const result = await axios.get(`${BASE_URL}/friendList`, { headers: { Authorization: token } }).then((res) => {
+      console.log(res)
+      return res
+    })
+      .then((err) => {
+        console.dir(err)
+        return err
+      })
+    return result;
+  }
+  return null;
+}
+
+const deleteFriend = async (userSeq: number) => {
+  const token = getToken();
+  const body = {
+    userSeq,
+  };
+  if (token !== null) {
+    const result = await axios.post(`${BASE_URL}/friend`, body, { headers: { Authorization: token } });
+    console.log(result);
+    return result;
+  }
+  return null;
+};
+
 const UserApi = {
   getKakaoLoginResult,
   getNaverLoginResult,
   getGoogleLoginResult,
   getUserSearchResult,
   getAddFriendRequestResult,
+  getFriendList,
+  deleteFriend
 };
 
 export default UserApi;

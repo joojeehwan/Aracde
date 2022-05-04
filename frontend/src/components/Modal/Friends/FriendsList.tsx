@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 
 import styles from '../styles/Friends.module.scss';
+
+//api
+import UserApi from "../../../common/api/UserApi"
 
 //mui
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
@@ -46,6 +49,15 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
 function FriendsList({ name, imgUrl }: any) {
   const [isOnline, setIsOnline] = useState(true);
 
+  //api
+  const { deleteFriend } = UserApi
+
+  const userSeq = window.localStorage.getItem('useSeq')
+  console.log(userSeq)
+  const onClickdeleteFriend = useCallback(() => {
+    deleteFriend(userSeq as unknown as number)
+  }, [userSeq])
+
   return (
     <div
       style={{
@@ -76,7 +88,7 @@ function FriendsList({ name, imgUrl }: any) {
       </div>
       <div>{name}</div>
       <div>
-        <button className={styles.button}>친구 삭제</button>
+        <button className={styles.button} onClick={onClickdeleteFriend}>친구 삭제</button>
       </div>
     </div>
   );

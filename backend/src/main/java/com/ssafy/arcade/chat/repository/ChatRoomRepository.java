@@ -1,15 +1,12 @@
 package com.ssafy.arcade.chat.repository;
 
-import com.ssafy.arcade.chat.dtos.ChatRoomDTO;
 import com.ssafy.arcade.chat.entity.ChatRoom;
-import com.ssafy.arcade.notification.entity.Notification;
+import com.ssafy.arcade.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
 
-import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
-
+    ChatRoom findByUser1AndUser2(User user1, User user2);
 }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars-2';
 //styles
 import { StickyHeader, Section, Button, Input, Label } from '../styles/ChattingStyles';
@@ -13,99 +13,118 @@ import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
 import ChattingLists from './ChattingComponents/ChattingLists';
 import useInput from '../../../common/hooks/useInput';
-
+import ChatInvite from "../Chatting/ChattingComponents/ChatInvite"
+import { getToken } from '../../../common/api/jWT-Token';
 //stomp & sockjs
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
+import create from "zustand"
 
-interface MyProps {
-  open: boolean;
-  onClose: (e: any) => void;
-}
+//api
+import ChatAPI from "../../../common/api/ChatAPI"
+
+// interface MyProps {
+//   open: boolean;
+//   onClose: (e: any) => void;
+// }
 
 const dummyChatList: (any | null)[] = [
-  {
-    roomId: '1',
-    name: '배하은',
-    content: '캐치마인드 한판 고?!',
-    time: '오후 5:46',
-    unreads: 1,
-    chatMessages: [
-      { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '2', name: '배하은', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-      { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '4', name: '배하은', content: '오케잉', time: '오후 5:46' },
-      { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '6', name: '배하은', content: '오케잉', time: '오후 5:46' },
-      { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '8', name: '배하은', content: '오케잉', time: '오후 5:46' },
-      { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '10', name: '배하은', content: '오케잉', time: '오후 5:46' },
-      { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '12', name: '배하은', content: '오케잉', time: '오후 5:46' },
-      { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '14', name: '배하은', content: '오케잉', time: '오후 5:46' },
-    ],
-  },
-  {
-    roomId: '2',
-    name: '홍승기',
-    content: '캐치마인드 한판 고?!',
-    time: '오후 5:47',
-    unreads: 2,
-    chatMessages: [
-      { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '2', name: '홍승기', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-      { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '4', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-      { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '6', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-      { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '8', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-      { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '10', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-      { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '12', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-      { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '14', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-    ],
-  },
-  {
-    roomId: '3',
-    name: '박현우',
-    content: '캐치마인드 한판 고?!',
-    time: '오후 5:48',
-    unreads: 3,
-    chatMessages: [
-      { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '2', name: '박현우', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-      { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '4', name: '박현우', content: '오케잉', time: '오후 5:46' },
-      { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '6', name: '박현우', content: '오케잉', time: '오후 5:46' },
-      { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '8', name: '박현우', content: '오케잉', time: '오후 5:46' },
-      { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '10', name: '박현우', content: '오케잉', time: '오후 5:46' },
-      { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '12', name: '박현우', content: '오케잉', time: '오후 5:46' },
-      { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-      { idx: '14', name: '박현우', content: '오케잉', time: '오후 5:46' },
-    ],
-  },
+  // {
+  //   roomId: '1',
+  //   name: '배하은',
+  //   content: '캐치마인드 한판 고?!',
+  //   time: '오후 5:46',
+  //   unreads: 1,
+  //   chatMessages: [
+  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '2', name: '배하은', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
+  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '4', name: '배하은', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '6', name: '배하은', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '8', name: '배하은', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '10', name: '배하은', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '12', name: '배하은', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '14', name: '배하은', content: '오케잉', time: '오후 5:46' },
+  //   ],
+  // },
+  // {
+  //   roomId: '2',
+  //   name: '홍승기',
+  //   content: '캐치마인드 한판 고?!',
+  //   time: '오후 5:47',
+  //   unreads: 2,
+  //   chatMessages: [
+  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '2', name: '홍승기', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
+  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '4', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '6', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '8', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '10', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '12', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '14', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+  //   ],
+  // },
+  // {
+  //   roomId: '3',
+  //   name: '박현우',
+  //   content: '캐치마인드 한판 고?!',
+  //   time: '오후 5:48',
+  //   unreads: 3,
+  //   chatMessages: [
+  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '2', name: '박현우', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
+  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '4', name: '박현우', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '6', name: '박현우', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '8', name: '박현우', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '10', name: '박현우', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '12', name: '박현우', content: '오케잉', time: '오후 5:46' },
+  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+  //     { idx: '14', name: '박현우', content: '오케잉', time: '오후 5:46' },
+  //   ],
+  // },
 ];
 
-function Chatting({ open, onClose }: MyProps) {
+function Chatting({ open, onClose, client }: any) {
   const [tab, setTab] = useState('CHATROOM');
   const scrollbarRef = useRef<Scrollbars>(null);
-  const client = useRef<any>({});
   const [chat, onChangeChat, setChat] = useInput('');
   const [chateMessages, setChatMessages] = useState<any>([]);
+  const [chatList, setChatList] = useState<any>([])
 
-  useEffect(() => {
-    connect();
-    return () => disconnect();
-  }, []);
+  const [chatInvite, setChatInvite] = useState<boolean>(false)
+
+  console.log(client)
+  //api
+  const { getChatList, createChatRoom } = ChatAPI
+
+  const onClickCreateChatRoom = useCallback(() => {
+    const body = { targetUserSeq: 3 }
+    createChatRoom(body)
+  }, [])
+
+  const handleOpenChatInvite = useCallback(() => {
+    setChatInvite(true);
+  }, [chatInvite]);
+
+  const handleCloseChatInvite = useCallback(() => {
+    setChatInvite(false);
+  }, [chatInvite]);
 
   //modal
 
@@ -120,51 +139,24 @@ function Chatting({ open, onClose }: MyProps) {
     setShowCreateChattRoomModal(false);
   }, []);
 
-  // Websocket
-
-  const connect = () => {
-    client.current = new StompJs.Client({
-      brokerURL: 'ws://k6a203.p.ssafy.io:8080/ws-stomp', // 웹소켓 서버로 직접 접속
-      debug: function (str) {
-        console.log(str);
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-      onConnect: () => {
-        subscribe();
-      },
-      onStompError: (frame) => {
-        console.error(frame);
-      },
-    });
-    console.log(client.current);
-    client.current.activate();
-  };
-
-  if (typeof WebSocket !== 'function') {
-    // For SockJS you need to set a factory that creates a new SockJS instance
-    // to be used for each (re)connect
-    client.current.webSocketFactory = function () {
-      // Note that the URL is different from the WebSocket URL
-      return new SockJS('http://localhost:8080/ws-stomp');
-    };
-  }
-
-  const subscribe = () => {
-    client.current.subscribe('/sub/chat/room/1', ({ body }: any) => {
-      setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
-    });
-  };
+  // const subscribe = () => {
+  //   client.current.subscribe('/sub/chat/room/1', ({ body }: any) => {
+  //     setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
+  //   });
+  // };
 
   const publish = () => {
     if (!client.current.connected) {
       return;
     }
-
+    const SendMessageReq = {
+      chatRoomSeq: 1,
+      content: chat
+    }
     client.current.publish({
-      destination: '/sub/chat/1',
-      body: { chat },
+      destination: '/pub/chat/message',
+      body: JSON.stringify(SendMessageReq),
+      headers: { 'Authorization': getToken() },
       skipContentLengthHeader: true,
     });
 
@@ -172,9 +164,9 @@ function Chatting({ open, onClose }: MyProps) {
     setChat('');
   };
 
-  const disconnect = () => {
-    client.current.deactivate();
-  };
+  // const disconnect = () => {
+  //   client.current.deactivate();
+  // };
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -189,10 +181,9 @@ function Chatting({ open, onClose }: MyProps) {
     };
   };
 
-  const { chatt, chatChange } = useTabs(0, dummyChatList);
+  const { chatt, chatChange } = useTabs(0, chatList);
   const date = '2022-04-30';
   console.log(chatt);
-  console.log(dummyChatList);
 
   //객체 길이 구하기
   // const getLenfthOfObject = (obj: any): any => {
@@ -200,6 +191,19 @@ function Chatting({ open, onClose }: MyProps) {
   //   return legnthOgObject;
   // };
   // console.log(getLenfthOfObject({ dummyChatList }));
+
+  const getAndgetChatList = async () => {
+    const result = await getChatList()
+    console.log(result)
+    if (result?.status === 200) {
+      setChatList([...result.data])
+    }
+
+  }
+
+  useLayoutEffect(() => {
+    getAndgetChatList()
+  }, [])
 
   return (
     <div
@@ -230,17 +234,18 @@ function Chatting({ open, onClose }: MyProps) {
               className={styles.chatList}
             >
               <div style={{ height: '600px', width: '400px' }}>
-                {dummyChatList.length > 0 ? (
-                  dummyChatList?.map((section) => {
+                {chatList.length > 0 ? (
+                  chatList?.map((section: any) => {
                     return (
                       <ChattingLists
                         chatChange={chatChange}
-                        key={section.roomId}
-                        roomId={section.roomId}
+                        key={section.chatRoomSeq}
+                        roomId={section.chatRoomSeq}
                         name={section.name}
-                        content={section.content}
-                        time={section.time}
-                        unreads={section.unreads}
+                        image={section.image}
+                        content={section.lastMessage}
+                        time={section.lastTime}
+                      // unreads={section.unreads}
                       />
                     );
                   })
@@ -256,10 +261,10 @@ function Chatting({ open, onClose }: MyProps) {
                   display: 'block',
                   margin: '0px 150px',
                 }}
-                onClick={onClickCreateChattRoom}
+                onClick={handleOpenChatInvite}
               />
             </div>
-            {dummyChatList.length > 0 ? (
+            {chatList.length > 0 ? (
               <div className={styles.chatContent}>
                 <header className={styles.chatHeader}>
                   <Avatar alt="사진" sx={{ width: 56, height: 56 }} />
@@ -271,9 +276,10 @@ function Chatting({ open, onClose }: MyProps) {
                       <StickyHeader>
                         <button>{date}</button>
                       </StickyHeader>
-                      {chatt?.chatMessages.map((value: any) => {
+                      {/* 웹소켓 연결부분 */}
+                      {/* {chatt?.chatMessages.map((value: any) => {
                         return <ChatEach name={value.name} content={value.content} time={value.time} key={value.idx} />;
-                      })}
+                      })} */}
                     </Section>
                   </Scrollbars>
                 </div>
@@ -281,7 +287,7 @@ function Chatting({ open, onClose }: MyProps) {
               </div>
             ) : null}
           </div>
-          <Modal show={showCreateChattRoomModal} onCloseModal={onCloseModal}>
+          {/* <Modal show={showCreateChattRoomModal} onCloseModal={onCloseModal}>
             <form>
               <Label id="ChattRoom-label">
                 <span>친구ID</span>
@@ -289,7 +295,9 @@ function Chatting({ open, onClose }: MyProps) {
               </Label>
               <Button type="submit">생성</Button>
             </form>
-          </Modal>
+          </Modal> */}
+          {chatInvite ? <ChatInvite open={chatInvite} onClose={handleCloseChatInvite} /> : null}
+
         </section>
       ) : null}
     </div>

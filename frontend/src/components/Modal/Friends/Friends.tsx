@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styles from '../styles/Friends.module.scss';
 import FriendsList from './FriendsList';
 import FriendsSeachBar from './FriendsAdd/FriendsSearhBar';
@@ -22,7 +22,7 @@ function Friends({ open, onClose }: MyProps) {
   const [number, setNum] = useState([]);
   const [tab, setTab] = useState(0);
 
-  const { getUserSearchResult } = UserApi;
+  const { getUserSearchResult, getFriendList } = UserApi;
 
   const handletab = useCallback(
     (value: any) => {
@@ -40,6 +40,18 @@ function Friends({ open, onClose }: MyProps) {
       setPeople([...result.data]);
     }
   };
+
+  const getAndgetFriendList = async () => {
+    const result = await getFriendList()
+    console.log(result)
+    if (result?.status === 200) {
+      setFriend([...result.data])
+    }
+  }
+
+  useEffect(() => {
+    getAndgetFriendList()
+  }, [tab])
 
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5) {

@@ -41,7 +41,7 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function ChattingLists({ name, content, time, unreads, chatChange, roomId }: any) {
+function ChattingLists({ name, content, time, chatChange, roomId }: any) {
   const [isOnline, setIsOnline] = useState(true);
 
   return (
@@ -79,7 +79,7 @@ function ChattingLists({ name, content, time, unreads, chatChange, roomId }: any
       <div>
         <div style={{ position: 'absolute', marginLeft: '-1px' }}>
           <div style={{ fontSize: '11px', color: '#B6A7A7' }}>{time}</div>
-          <div className={styles.count}>{unreads}</div>
+          {/* <div className={styles.count}>{unreads}</div> */}
         </div>
       </div>
     </div>
