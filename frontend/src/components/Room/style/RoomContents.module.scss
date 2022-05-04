@@ -1,0 +1,70 @@
+.contents-container {
+    width: 100%;
+    height: 65vh;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .user-videos-container {
+    width: 85%;
+    height: 100%;
+    // display: flex;
+    // justify-content: center;
+  }
+  
+  .video-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr; 
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+  }
+  .video-container.karaoke {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+  }
+  .videoplayer {
+    grid-column: 2 / 4;
+    grid-row: 1 / 3;
+  }
+  
+  .chat-container {
+    // margin-top: 10px;
+    margin : 0px;
+    margin-right: 10px;
+    width: 50%;
+    height: 100%;
+  }
+  .selectGame {
+    background-color: #F3C522;
+    color : white;
+    border: none;
+    border-radius: 5px;
+  }
+  .infoGame {
+    background-color: #38C502;
+    color : white;
+    border : none;
+    border-radius: 5px;
+  }
+  .inviteFriend{
+    background-color: #4CC3FF;
+    color : white;
+    border: none;
+    border-radius: 5px;
+  }
+  .countContainer {
+    position: absolute;
+    z-index: 999;
+    top: 47%;
+    left: 41%;
+  }
+  
+  .count {
+    font-size: 50px;
+  }
