@@ -1,8 +1,8 @@
 # jenkins의 기존 경로는 /var/lib/jenkins/workspace/arcade 이다.
-echo "+++++++++++++++++++++++++++++++++++"
-echo "++++++++++백엔드 properties 복사하기"
-cp /home/ubuntu/properties/*.properties /var/lib/jenkins/workspace/arcade/backend/src/main/resources/
-echo "+++++++++++++++++++++++++++++++++++"
+# echo "+++++++++++++++++++++++++++++++++++"
+# echo "++++++++++백엔드 properties 복사하기"
+# sudo cp /home/ubuntu/properties/*.properties /var/lib/jenkins/workspace/arcade/backend/src/main/resources/
+# echo "+++++++++++++++++++++++++++++++++++"
 
 # --- 백엔드 ----
 
@@ -75,11 +75,13 @@ echo "+++++++++++++++++++++++++++++++++++"
 # 3. 메이븐 빌드
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++/home/ubuntu/openvidu에서 한번 메이븐 빌드"
+pwd
 cd /home/ubuntu/openvidu
 pwd
 sudo mvn install -DskipTests
 echo "++++++++++/home/ubuntu/openvidu/openvidu-server로 이동해서 메이븐 빌드"
 cd openvidu-server
+pwd
 echo "++++++++++"
 sudo mvn install -DskipTests
 echo "+++++++++++++++++++++++++++++++++++"
@@ -88,6 +90,7 @@ echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++openvidu-server 도커 폴더로 이동"
 pwd
 cd docker/openvidu-server
+pwd
 echo "+++++++++++++++++++++++++++++++++++"
 # 5. openvidu-server 이미지 빌드
 echo "+++++++++++++++++++++++++++++++++++"
