@@ -3,5 +3,6 @@
 
 /src/main/resources/static/dashboard/
 .idea
+.vscode
 localhost.p12
 openvidu-server.iml
