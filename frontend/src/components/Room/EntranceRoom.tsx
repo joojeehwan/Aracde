@@ -11,13 +11,6 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import Room from '../../common/api/Room';
 
-// const useStore = create((set) => ({
-//   nickname: '', // 닉네임
-//   code: '', // 초대 코드
-//   setNickname: (input: string | null) => set({ nickname: input }),
-//   setCode: (input: string | null) => set({ code: input }),
-// }));
-
 const CreateRoom = () => {
   const navigate = useNavigate();
 
@@ -42,7 +35,6 @@ const CreateRoom = () => {
         videoRef.current.play();
       }
     }
-
     setVideo((prev) => !prev);
   };
   const handleEnter = async () => {
@@ -132,7 +124,7 @@ const CreateRoom = () => {
                       fontFamily: 'neodgm',
                       fontSize: '16px',
                     }}
-                    // onClick={handleVideo}
+                    onClick={handleVideo}
                   >
                     <VideocamIcon />
                     &nbsp;비디오 중지
@@ -149,7 +141,7 @@ const CreateRoom = () => {
                       fontFamily: 'neodgm',
                       fontSize: '16px',
                     }}
-                    // onClick={handleVideo}
+                    onClick={handleVideo}
                   >
                     <VideocamOffIcon />
                     &nbsp;비디오 시작

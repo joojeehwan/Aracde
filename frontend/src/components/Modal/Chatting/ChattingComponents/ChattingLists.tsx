@@ -41,13 +41,17 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function ChattingLists() {
+function ChattingLists({ name, content, time, unreads, chatChange, roomId }: any) {
   const [isOnline, setIsOnline] = useState(true);
 
   return (
     <div
       className={styles.onFocus}
       style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
+      onClick={() => {
+        console.log(roomId);
+        chatChange(roomId - 1);
+      }}
     >
       <div style={{ marginLeft: '-35px' }}>
         {isOnline ? (
@@ -69,15 +73,13 @@ function ChattingLists() {
         )}
       </div>
       <div>
-        <div style={{ marginTop: '10px', paddingRight: '30px', marginLeft: '10px' }}>배하은</div>
-        <div style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', maxWidth: '170px' }}>
-          캐치마인드 한판 고?!
-        </div>
+        <div style={{ marginTop: '10px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
+        <div style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', maxWidth: '170px' }}>{content}</div>
       </div>
       <div>
         <div style={{ position: 'absolute', marginLeft: '-1px' }}>
-          <div style={{ fontSize: '11px', color: '#B6A7A7' }}>오후 5:46</div>
-          <div className={styles.count}>5</div>
+          <div style={{ fontSize: '11px', color: '#B6A7A7' }}>{time}</div>
+          <div className={styles.count}>{unreads}</div>
         </div>
       </div>
     </div>
