@@ -772,228 +772,17 @@ const RoomContents = ({
         .catch((error) => reject(error));
     });
   };
-
-//   const onCapture = () => {
-//     let flag = 0;
-//     setImages([]);
-//     setStatus(1);
-//     const loop = setInterval(() => {
-//       setCount((prev) => prev - 1);
-//       if (countRef.current === 0) {
-//         let cameraSound = new Audio(require("../../assets/sounds/camera.mp3"));
-//         cameraSound.volume = 0.1;
-//         cameraSound.play();
-
-//         setCount(5);
-//         console.log(flag);
-
-//         html2canvas(document.getElementById("user-video")).then((canvas) => {
-//           setImages([...imagesRef.current, canvas.toDataURL("image/jpeg")]);
-//           flag++;
-
-//           // onSaveAs(canvas.toDataURL("image/png"), "image-download.png");
-//         });
-//         if (flag === 3) {
-//           setStatus(2);
-//           clearInterval(loop);
-//           //api호출
-//           //백엔드에 사진저장
-//           console.log("api!!!");
-//           let blobBin = atob(imagesRef.current[0].split(",")[1]); // base64 데이터 디코딩
-//           let array = [];
-//           for (let i = 0; i < blobBin.length; i++) {
-//             array.push(blobBin.charCodeAt(i));
-//           }
-//           console.log(array);
-//           let file = new Blob([new Uint8Array(array)], { type: "image/jpeg" }); // Blob 생성
-//           let newfile = new File([file], `room${sessionName}.jpeg`);
-//           console.log(newfile);
-//           let formdata = new FormData(); // formData 생성
-//           formdata.append("file", newfile); // file data 추가
-//           console.dir(formdata);
-//           onSaveToProfile(formdata);
-//           // console.log(imagesRef.current);
-//           // onSaveToProfile(imagesRef.current[0]);
-//         }
-//         // sleep(1500);
-//       }
-//     }, 1500);
-//   };
-
-//   const onSaveToProfile = async (formdata) => {
-//     console.log(formdata);
-
-//     const { data } = await getImgUploadResult(formdata);
-//     console.log(data);
-//     const body = {
-//       roomSeq: Number(sessionName),
-//       imgUrl: data.url,
-//     };
-//     await setRoomSnapshotResult(body);
-//   };
-
-//   const onRetry = () => {
-//     sendSignalCameraStart();
-//   };
-
-//   const onSave = () => {
-//     html2canvas(document.getElementById("image-container")).then((canvas) => {
-//       saveImg(canvas.toDataURL("image/png"), "오늘의 추억.png");
-//     });
-//   };
-
-  // const randomNum = (min, max) => {
-  //   const randNum = Math.floor(Math.random() * (max - min) + min);
-  //   return randNum;
-  // };
-
-//   const handleVoiceFilter = () => {
-//     const filterList = [0.6, 0.7, 0.8, 1.5, 1.6, 1.7];
-//     const type = "GStreamerFilter";
-//     const rnum = Math.floor(Math.random() * 5);
-//     console.log(rnum);
-//     const options = { command: `pitch pitch=${filterList[rnum]}` };
-//     // const options = { command: `pitch pitch=0.6` };
-//     localUserRef.current
-//       .getStreamManager()
-//       .stream.applyFilter(type, options)
-//       .then((result) => {
-//         console.log(result);
-//       });
-//   };
-
-//   const removeVoiceFilter = () => {
-//     localUserRef.current
-//       .getStreamManager()
-//       .stream.removeFilter()
-//       .then(() => {
-//         console.log("필터 제거");
-//       })
-//       .catch(() => {
-//         console.log("필터 없어용");
-//       });
-//   };
-
-//   // filter.options = { command: "pitch pitch=0.5" };
-//   const saveImg = (uri, filename) => {
-//     let link = document.createElement("a");
-//     document.body.appendChild(link);
-//     link.href = uri;
-//     link.download = filename;
-//     link.click();
-//     document.body.removeChild(link);
-//   };
-//   const closeSelectingPage = () => {
-//     setIsSelecting(false);
-//   };
-//   const closeStartPage = () => {
-//     console.log("close here");
-//     setStartPage(false);
-//   };
-//   // const openStartPage = () => {
-//   //   setStartPage(true);
-//   // };
-//   const giveGamename = (data, gamemode) => {
-//     console.log(streamId);
-//     console.log(targetId);
-//     console.log(data);
-//     console.log(index);
-//     let senddata = {};
-//     if (gamemode === 1) {
-//       senddata = {
-//         streamId: streamId,
-//         gameStatus: 1,
-//         gameId: gamemode,
-//         gamename: data,
-//         index: index,
-//       };
-//     } else if (gamemode === 2) {
-//       senddata = {
-//         streamId: streamId,
-//         gameStatus: 1,
-//         gameId: gamemode,
-//         gamename: data,
-//         index: index,
-//         sirenYn: siren,
-//       };
-//     }
-//     localUserRef.current.getStreamManager().stream.session.signal({
-//       data: JSON.stringify(senddata),
-//       type: "game",
-//     });
-//   };
-//   const checkMyAnswer = (data, gamemode) => {
-//     let senddata = {};
-//     console.log(gamemode);
-//     if (gamemode === 1) {
-//       senddata = {
-//         streamId: streamId,
-//         gameStatus: 2,
-//         gameId: 1,
-//         gamename: data,
-//       };
-//     } else if (gamemode === 2) {
-//       console.log("여기");
-//       senddata = {
-//         streamId: streamId,
-//         gameStatus: 2,
-//         gameId: gamemode,
-//         gamename: data,
-//         sirenYn: "N",
-//       };
-//     }
-//     localUserRef.current.getStreamManager().stream.session.signal({
-//       data: JSON.stringify(senddata),
-//       type: "game",
-//     });
-//   };
-//   const openKeywordInputModal = (changemode) => {
-//     //키워드 이미 맞췄다
-//     if (correctForbiddenName === true) {
-//       setModalMode("alreadyForbidden");
-//       //금지어 이미 맞췄다
-//     } else if (correctGamename === true) {
-//       setModalMode("already");
-//       //아직 마추지 못했다
-//     } else {
-//       setModalMode(changemode);
-//     }
-//     setKeywordInputModal(true);
-//   };
-//   const closeKeywordInputModal = (changeMode) => {
-//     setModalMode(changeMode);
-//     setKeywordInputModal(false);
-//   };
-//   const confirmMyAnswer = (data, gamemode) => {
-//     closeKeywordInputModal();
-//     setAnswer(data);
-//     //게임 정답 맞추는 api호출
-//     checkMyAnswer(data, gamemode);
-//   };
-
-//   const confirmTargetGameName = (data) => {
-//     closeKeywordInputModal();
-//     setTargetGameName(data);
-//     if (mode === "game1") giveGamename(data, 1);
-//     else if (mode === "game2") giveGamename(data, 2);
-//     //target gamename 지정해주는 api호출
-//   };
-
-//   const sirenWingWing = (target) => {
-//     console.log(target);
-//     console.log("wing~~~~~~~");
-//     //사이렌 당한 유저 가져오기
-//     const data = {
-//       streamId: target.getStreamManager().stream.streamId,
-//       gameId: 2,
-//       gameStatus: 2,
-//       sirenYn: "Y",
-//     };
-//     sessionRef.current.signal({
-//       type: "game",
-//       data: JSON.stringify(data),
-//     });
-//   };
+  const handleCopy = () => {
+    let value = document.getElementById("code")?.innerHTML as string;
+    navigator.clipboard.writeText(value).then(
+      () => {
+        toast.success(<div style={{ width: 'inherit', fontSize: '14px' }}>복사 완료!</div>, {
+          position: toast.POSITION.TOP_CENTER,
+          role: 'alert',
+        });
+      }
+    );
+  }
   return (
     <div style={{
       width : "100vw"
@@ -1128,11 +917,33 @@ const RoomContents = ({
               // gap : "5% 2%"
               // gridColumn : "1 / span 2",
             }}>
-              <button style={{
-                gridColumn : "1 / span 2",
-                marginBottom : "2%"
-              }}>ㅎㅇㅎㅇ
-              </button>
+              <div style={{
+                  gridColumn : "1 / span 2",
+                  marginBottom : "2%",
+                  display : "flex",
+
+                }}>
+                  <button onClick={handleCopy}>COPY</button>
+                
+                <div id="code" style={{
+                  width : "100%",
+                  // height : "100%",
+                  // textAlign : "center",
+                  // paddingBottom : 10,
+                  // paddingTop : 20,
+                  // wordBreak : "break-all",
+                  // resize : "none",
+                  backgroundColor : "#C4C4C4",
+                  borderRadius : "0px 5px 5px 0px",
+                  display : "flex",
+                  justifyContent : "center",
+                  alignItems : "center",
+                  fontSize : 32
+                }}>
+                  {window.localStorage.getItem("invitecode")}
+                </div>
+              </div>
+              
               <button className={styles.selectGame} style={{
                 gridRow : "2 / span 3",
                 display : "flex",
