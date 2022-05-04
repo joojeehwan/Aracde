@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -226,6 +226,11 @@ public class KurentoSessionManager extends SessionManager {
 					if (sessionidParticipantpublicidParticipant.get(sessionId) != null) {
 						Participant p = sessionidParticipantpublicidParticipant.get(sessionId)
 								.remove(participant.getParticipantPublicId());
+
+						if (p != null && p.getToken() != null && p.getToken().getTurnCredentials() != null
+								&& this.openviduConfig.isTurnadminAvailable()) {
+							this.coturnCredentialsService.deleteUser(p.getToken().getTurnCredentials().getUsername());
+						}
 
 						// TODO: why is this necessary??
 						if (p != null && insecureUsers.containsKey(p.getParticipantPrivateId())) {
@@ -752,8 +757,14 @@ public class KurentoSessionManager extends SessionManager {
 			KurentoParticipant kParticipant = (KurentoParticipant) participant;
 			log.debug("Request [ICE_CANDIDATE] endpoint={} candidate={} " + "sdpMLineIdx={} sdpMid={} ({})",
 					endpointName, candidate, sdpMLineIndex, sdpMid, participant.getParticipantPublicId());
-			kParticipant.addIceCandidate(endpointName, new IceCandidate(candidate, sdpMid, sdpMLineIndex));
-			sessionEventsHandler.onRecvIceCandidate(participant, transactionId, null);
+			if (kParticipant.isPublisherEndpointDefined()) {
+				kParticipant.addIceCandidate(endpointName, new IceCandidate(candidate, sdpMid, sdpMLineIndex));
+				sessionEventsHandler.onRecvIceCandidate(participant, transactionId, null);
+			} else {
+				throw new OpenViduException(Code.PUBLISHER_ENDPOINT_NOT_FOUND_ERROR_CODE,
+						"Request to onIceCandidate for connection " + endpointName
+								+ " gone wrong. There is no publisher endpoint available");
+			}
 		} catch (OpenViduException e) {
 			log.error("PARTICIPANT {}: Error receiving ICE " + "candidate (epName={}, candidate={})",
 					participant.getParticipantPublicId(), endpointName, candidate, e);

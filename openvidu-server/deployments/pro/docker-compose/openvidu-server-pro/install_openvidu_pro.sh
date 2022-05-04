@@ -3,7 +3,7 @@
 # Global variables
 OPENVIDU_FOLDER=openvidu
 OPENVIDU_VERSION=master
-OPENVIDU_UPGRADABLE_VERSION="2.21"
+OPENVIDU_UPGRADABLE_VERSION="2.18"
 AWS_SCRIPTS_FOLDER=${OPENVIDU_FOLDER}/cluster/aws
 ELASTICSEARCH_FOLDER=${OPENVIDU_FOLDER}/elasticsearch
 BEATS_FOLDER=${OPENVIDU_FOLDER}/beats
@@ -13,7 +13,7 @@ fatal_error() {
     printf "\n     =======¡ERROR!======="
     printf "\n     %s" "$1"
     printf "\n"
-    exit 1
+    exit 0
 }
 
 new_ov_installation() {
@@ -183,13 +183,6 @@ upgrade_ov() {
      # posible or not. If it is not posible launch a warning and stop the upgrade.
      if [[ "${OPENVIDU_PREVIOUS_VERSION}" != "${OPENVIDU_UPGRADABLE_VERSION}."* ]] && [[ "${OPENVIDU_PREVIOUS_VERSION}" != "${OPENVIDU_VERSION//v}"* ]]; then
           fatal_error "You can't update from version ${OPENVIDU_PREVIOUS_VERSION} to ${OPENVIDU_VERSION}.\nNever upgrade across multiple major versions."
-     fi
-
-     # If deployment has AWS_DEFAULT_REGION defined (deployed with cloudformation), check if new AMI of the media node is present as argument
-     NEW_AMI_ID="${1:-}"
-     AWS_REGION=$(get_previous_env_variable AWS_DEFAULT_REGION)
-     if [[ -n ${AWS_REGION} ]]; then
-          [[ -z ${NEW_AMI_ID} ]] && fatal_error "You need to copy and specify an AMI Id for Media Nodes. Check https://docs.openvidu.io/en/${OPENVIDU_VERSION}/deployment/pro/upgrading/#option-2-update-current-deployment-to-${OPENVIDU_VERSION//.}"
      fi
 
      printf '\n'
@@ -375,6 +368,12 @@ upgrade_ov() {
      AWS_REGION=$(get_previous_env_variable AWS_DEFAULT_REGION)
      if [[ -n ${AWS_REGION} ]]; then
 
+          # Get new AMI ID
+          NEW_AMI_ID=$(curl https://s3-eu-west-1.amazonaws.com/aws.openvidu.io/CF-OpenVidu-Pro-${OPENVIDU_VERSION//v}.yaml --silent |
+                         sed -n -e '/KMSAMIMAP:/,/Metadata:/ p' |
+                         grep -A 1 "${AWS_REGION}" | grep AMI | tr -d " " | cut -d":" -f2)
+          [[ -z ${NEW_AMI_ID} ]] && fatal_error "Error while getting new AWS_IMAGE_ID for Media Nodes"
+
           # Get previous values
           PREV_AWS_DEFAULT_REGION=$(get_previous_env_variable AWS_DEFAULT_REGION)
           PREV_AWS_INSTANCE_TYPE=$(get_previous_env_variable AWS_INSTANCE_TYPE)
@@ -449,7 +448,7 @@ fi
 
 # Check type of installation
 if [[ -n "$1" && "$1" == "upgrade" ]]; then
-     upgrade_ov "$2"
+     upgrade_ov
 else
      new_ov_installation
 fi
