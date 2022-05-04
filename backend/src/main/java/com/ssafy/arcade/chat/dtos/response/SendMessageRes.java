@@ -15,6 +15,7 @@ public class SendMessageRes {
     private String name;
     private String content;
     private String image;
+    private Long chatRoomSeq;
 
     public Message toEntity(Long chatRoomSeq, String image, String name, Long sender){
         return Message.builder().chatRoomSeq(chatRoomSeq).content(content)

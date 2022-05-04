@@ -21,8 +21,10 @@ public class RedisSubscriber implements MessageListener {
 
     private final ObjectMapper objectMapper;
     private final RedisTemplate redisTemplate;
+    private final SimpMessageSendingOperations messageTemplate;
     private final RedisMessageListenerContainer redisMessageListenerContainer;
 
+    // 채팅 메시지
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try{
@@ -30,7 +32,7 @@ public class RedisSubscriber implements MessageListener {
             // Dto에 매핑한다.
             SendMessageRes sendMessageRes = objectMapper.readValue(body, SendMessageRes.class);
             log.info("[메시지 내용] : {}", sendMessageRes.getContent());
-
+            messageTemplate.convertAndSend("/sub/chat/room"+sendMessageRes.getChatRoomSeq());
         }catch(Exception e){
             log.error(e.getMessage());
         }

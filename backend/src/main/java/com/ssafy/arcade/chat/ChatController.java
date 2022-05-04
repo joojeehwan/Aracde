@@ -41,15 +41,15 @@ public class ChatController {
 
         return new ResponseEntity<>(chatService.createChattingRoom(token, createChattingRoomReq), HttpStatus.OK);
     }
-    @PostMapping("/test/create")
-    public ResponseEntity<ChatRoom> testCreateChattingRoom(@RequestBody CreateChattingRoomReq createChattingRoomReq) {
-
-        return new ResponseEntity<>(chatService.testCreateChattingRoom(createChattingRoomReq), HttpStatus.OK);
-    }
     // 2. 채팅방에 메시지 전송하기
     @PostMapping("/message")
     public ResponseEntity<String> sendMessage(@RequestHeader("Authorization") String token, @RequestBody SendMessageReq sendMessageReq) {
         return new ResponseEntity<>(chatService.sendMessage(token, sendMessageReq), HttpStatus.OK);
+    }
+    @PostMapping("/test/create")
+    public ResponseEntity<ChatRoom> testCreateChattingRoom(@RequestBody CreateChattingRoomReq createChattingRoomReq) {
+
+        return new ResponseEntity<>(chatService.testCreateChattingRoom(createChattingRoomReq), HttpStatus.OK);
     }
     // 테스트용
     @PostMapping("/test/message")

@@ -67,7 +67,7 @@ public class ChatService {
         // 채팅방 만들기
         chatRoomRepository.save(chatRoom);
         // 해당 채팅방 토픽 생성
-        ChannelTopic channel = new ChannelTopic("room" + chatRoom.getChatRoomSeq());
+        ChannelTopic channel = new ChannelTopic("/chat/room/" + chatRoom.getChatRoomSeq());
         // 리스너 등록
         redisMessageListener.addMessageListener(redisSubscriber, channel);
 
@@ -88,10 +88,11 @@ public class ChatService {
         //  2-2. 채팅방의 lastMessage, time 등을 조정한다.
         // 3. 다른 사람이 채팅방에 존재하지 않는 경우
         //  3-1.
-//        ChannelTopic channel = channels.get("room"+sendMessageReq.getChatRoomSeq());
-//        SendMessageRes sendMessageRes = SendMessageRes.builder()
-//                .name().build();
-//        redisPublisher.publish(channel, new SendMessageRes());
+        ChannelTopic channel = channels.get("room"+sendMessageReq.getChatRoomSeq());
+        SendMessageRes sendMessageRes = SendMessageRes.builder()
+                .name(user.getName()).image(user.getImage())
+                .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).build();
+        redisPublisher.publish(channel, sendMessageRes);
         return "OK";
     }
 
