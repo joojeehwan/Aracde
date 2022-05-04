@@ -11,8 +11,8 @@ const Login = loadable(() => import('./components/Login/mainLogin'));
 const KakaoRedirectHandler = loadable(() => import('./components/Login/kakao/OAuth2RedirectHandler'));
 const NaverRedirectHandler = loadable(() => import('./components/Login/naver/OAuth2RedirectHandler'));
 const GoogleRedirectHandler = loadable(() => import('./components/Login/google/OAuth2RedirectHandler'));
-// const MyRoom = loadable(() => import('./components/MyRoom/MyRoom'));
-// const EntranceRoom = loadable(() => import('./components/Room/EntranceRoom'));
+const MyRoom = loadable(() => import('./components/MyRoom/MyRoom'));
+const EntranceRoom = loadable(() => import('./components/Room/EntranceRoom'));
 const Room = loadable(() => import('./components/Room/Room'));
 
 
