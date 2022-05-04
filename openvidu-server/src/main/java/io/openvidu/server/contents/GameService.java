@@ -154,11 +154,6 @@ public class GameService {
         // 순서 매핑
         Map<Integer, String> peopleOrder = new HashMap<>();
 
-        // 사람 수 만큼 index 리스트 생성
-        int[] idxArr = new int[peopleCnt];
-        for (int i = 0; i < peopleCnt; i++) {
-            idxArr[i] = i+1;
-        }
 
         System.out.println("idxArr: " + Arrays.toString(idxArr));
         int idx1, idx2;
@@ -199,8 +194,8 @@ public class GameService {
 
         }else if (gameId == CHARADES) {
 
-            Map<String, Integer> wordMap = new HashMap<>();
-            wordMAp.put(sessionId, wordMap);
+            Map<String, Integer> wordOrder = new HashMap<>();
+            wordMap.put(sessionId, wordOrder);
 
             // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
             String curStreamId = peopleOrder.get(0);
@@ -310,7 +305,7 @@ public class GameService {
         }else if (gameId == GUESS) {
             System.out.println("잠깐만");
         }else if (gameId == CHARADES) {
-            wordMAp.remove(sessionId);
+            wordMap.remove(sessionId);
 
         }
 
