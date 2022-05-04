@@ -183,6 +183,10 @@ public class GameService {
             ArrayList<String> imageList = new ArrayList<>();
             sImageMap.put(sessionId, imageList);
 
+            // 보낼 제시어들 전송
+            WordGameUtil wordGameUtil = new WordGameUtil();
+            List<String> wordList = wordGameUtil.takeAllWord();
+
         }else if (gameId == TAG) {
             List<Object> participantList = Arrays.asList(participants.toArray());
             Collections.shuffle(participantList);
@@ -232,7 +236,7 @@ public class GameService {
                 sImageMap.put(sessionId, imageList);
 
                 String answer = data.get("answer").getAsString();
-                // 처음 출제자의 경우, 어떤 그림인지
+                // 처음 출제자의 경우 제시어 선택
                 if (index == 0) {
                     data.addProperty("answer", answer);
                 }
@@ -258,17 +262,17 @@ public class GameService {
 
             case BODY:
                 Random rand = new Random();
-                BodyGameUtil bodyGameUtil = new BodyGameUtil();
+                WordGameUtil wordGameUtil = new WordGameUtil();
                 // 카테고리
                 String category = data.get("category").getAsString();
                 String targetStreamId = data.get("targetStreamId").getAsString();
-                String[] wordList = bodyGameUtil.takeWord(category);
+                List<String> wordList = wordGameUtil.takeWord(category);
 
                 Map<String, Integer> wordMap = sWordMap.get(sessionId);
                 // 중복 없는 단어 나올 때까지 random 반복
                 while (true) {
                     // 전체 요소중 임의로 추출
-                    String word = wordList[rand.nextInt(wordList.length)];
+                    String word = wordList.get(rand.nextInt(wordList.size()));
 
                     if (!wordMap.containsKey(word)) {
                         wordMap.put(word, 1);

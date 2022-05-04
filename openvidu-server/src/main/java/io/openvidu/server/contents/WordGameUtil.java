@@ -1,8 +1,12 @@
 package io.openvidu.server.contents;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class BodyGameUtil {
+public class WordGameUtil {
 
     // 단어는 추후에 추가해야 함
     static String[] proverb = { "죽마고우", "청출어람", "환골탈태", "수어지교", "상전벽해", "사면초가", "진퇴양난" ,
@@ -34,10 +38,33 @@ public class BodyGameUtil {
     private Map<String, String[]> category = Map.of(
             "속담", proverb, "영화", movie, "게임", game, "생물", life, "인물", character);
 
-    public String[] takeWord(String keyword) {
+
+    private enum Keyword {
+        porverb,
+        movie,
+        game,
+        life,
+        character;
+    }
+
+
+    // 키워드별 (카테고리별로 퀴즈)
+    public List<String> takeWord(String keyword) {
 
         String[] categ = category.get(keyword);
-        return categ;
 
+        return Arrays.asList(categ);
+
+    }
+
+    // 모든 단어 (그냥 랜덤)
+    public List<String> takeAllWord() {
+        List<String> allWord = new ArrayList<>();
+
+        for (Keyword keyword : Keyword.values()) {
+           List<String> categWords = takeWord(keyword.toString());
+           allWord.addAll(categWords);
+        }
+        return allWord;
     }
 }
