@@ -307,9 +307,6 @@ const Chat = (props : any) => {
   return (
     <>
       <div className={styles.chatComponent}>
-        <div className={styles.chatToolbar}>
-          <span>채팅창</span>
-        </div>
         <div className={styles["message-wrap"]} ref={chatScroll}>
          {props.mode === "game3" ? (answerList.map((data : any, i : any) => 
             (<div
@@ -318,7 +315,7 @@ const Chat = (props : any) => {
 
               className={
                 data.connectionId !== props.user.getStreamManager().stream.streamId
-                  ? styles["message-left"]
+                  ? styles["message-r"]
                   : styles["message-right"]
               }
             >
