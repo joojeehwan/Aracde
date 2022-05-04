@@ -1,18 +1,6 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-<<<<<<< HEAD
-const BASE_URL = 'http://k6a203.p.ssafy.io:8080/apiv1/room';
-
-const createRoom = async () => {
-  const response = await axios.post(`${BASE_URL}/create`);
-  console.log(response);
-  return response;
-};
-
-const enterRoom = async (code: string) => {
-  const response = await axios.patch(`${BASE_URL}/enter`,{inviteCode : code});
-=======
 const BASE_URL = 'http://localhost:8080/apiv1';
 const token = getToken();
 
@@ -48,7 +36,6 @@ const createRoom = async () => {
 
 const enterRoom = async (code: string) => {
   const response = await axios.patch(`${BASE_URL}/room/enter`, { inviteCode: code });
->>>>>>> feat/#S06P31A203-79/myroom
   console.log(response);
   return response;
 };
@@ -60,10 +47,7 @@ const exitRoom = async (code: string) => {
 };
 
 const RoomApi = {
-<<<<<<< HEAD
-=======
   getProfile,
->>>>>>> feat/#S06P31A203-79/myroom
   createRoom,
   enterRoom,
   exitRoom,
