@@ -24,75 +24,75 @@ interface MyProps {
 }
 
 const dummyChatList: (any | null)[] = [
-  // {
-  //   roomId: '1',
-  //   name: '배하은',
-  //   content: '캐치마인드 한판 고?!',
-  //   time: '오후 5:46',
-  //   unreads: 1,
-  //   chatMessages: [
-  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '2', name: '배하은', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '4', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '6', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '8', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '10', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '12', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '14', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //   ],
-  // },
-  // {
-  //   roomId: '2',
-  //   name: '홍승기',
-  //   content: '캐치마인드 한판 고?!',
-  //   time: '오후 5:47',
-  //   unreads: 2,
-  //   chatMessages: [
-  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '2', name: '홍승기', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '4', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '6', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '8', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '10', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '12', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '14', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //   ],
-  // },
-  // {
-  //   roomId: '3',
-  //   name: '박현우',
-  //   content: '캐치마인드 한판 고?!',
-  //   time: '오후 5:48',
-  //   unreads: 3,
-  //   chatMessages: [
-  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '2', name: '박현우', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '4', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '6', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '8', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '10', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '12', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '14', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //   ],
-  // },
+  {
+    roomId: '1',
+    name: '배하은',
+    content: '캐치마인드 한판 고?!',
+    time: '오후 5:46',
+    unreads: 1,
+    chatMessages: [
+      { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '2', name: '배하은', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
+      { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '4', name: '배하은', content: '오케잉', time: '오후 5:46' },
+      { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '6', name: '배하은', content: '오케잉', time: '오후 5:46' },
+      { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '8', name: '배하은', content: '오케잉', time: '오후 5:46' },
+      { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '10', name: '배하은', content: '오케잉', time: '오후 5:46' },
+      { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '12', name: '배하은', content: '오케잉', time: '오후 5:46' },
+      { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '14', name: '배하은', content: '오케잉', time: '오후 5:46' },
+    ],
+  },
+  {
+    roomId: '2',
+    name: '홍승기',
+    content: '캐치마인드 한판 고?!',
+    time: '오후 5:47',
+    unreads: 2,
+    chatMessages: [
+      { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '2', name: '홍승기', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
+      { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '4', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+      { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '6', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+      { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '8', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+      { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '10', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+      { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '12', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+      { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '14', name: '홍승기', content: '오케잉', time: '오후 5:46' },
+    ],
+  },
+  {
+    roomId: '3',
+    name: '박현우',
+    content: '캐치마인드 한판 고?!',
+    time: '오후 5:48',
+    unreads: 3,
+    chatMessages: [
+      { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '2', name: '박현우', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
+      { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '4', name: '박현우', content: '오케잉', time: '오후 5:46' },
+      { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '6', name: '박현우', content: '오케잉', time: '오후 5:46' },
+      { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '8', name: '박현우', content: '오케잉', time: '오후 5:46' },
+      { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '10', name: '박현우', content: '오케잉', time: '오후 5:46' },
+      { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '12', name: '박현우', content: '오케잉', time: '오후 5:46' },
+      { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
+      { idx: '14', name: '박현우', content: '오케잉', time: '오후 5:46' },
+    ],
+  },
 ];
 
 function Chatting({ open, onClose }: MyProps) {
@@ -164,7 +164,7 @@ function Chatting({ open, onClose }: MyProps) {
 
     client.current.publish({
       destination: '/sub/chat/1',
-      body: 'hello world',
+      body: { chat },
       skipContentLengthHeader: true,
     });
 
@@ -277,7 +277,7 @@ function Chatting({ open, onClose }: MyProps) {
                     </Section>
                   </Scrollbars>
                 </div>
-                <ChatInput publish={publish} />
+                <ChatInput publish={publish} onChangeChat={onChangeChat} />
               </div>
             ) : null}
           </div>
