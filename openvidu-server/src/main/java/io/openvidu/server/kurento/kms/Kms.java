@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.openvidu.java.client.RecordingProperties;
+import io.openvidu.server.core.MediaServer;
 import io.openvidu.server.kurento.core.KurentoSession;
-import io.openvidu.server.utils.QuarantineKiller;
 import io.openvidu.server.utils.RecordingUtils;
 import io.openvidu.server.utils.UpdatableTimerTask;
-import io.openvidu.server.core.MediaServer;
 
 /**
  * Abstraction of a KMS instance: an object of this class corresponds to a KMS
@@ -62,10 +61,12 @@ public class Kms {
 	private String uri;
 	private String ip;
 	private KurentoClient client;
+	private MediaServer mediaServer;
 	private UpdatableTimerTask clientReconnectTimer;
 	private LoadManager loadManager;
-	private QuarantineKiller quarantineKiller;
+	private KmsManager kmsManager;
 
+	private boolean hasTriggeredNodeCrashedEvent = false;
 	private AtomicBoolean isKurentoClientConnected = new AtomicBoolean(false);
 	private AtomicLong timeOfKurentoClientConnection = new AtomicLong(0);
 	private AtomicLong timeOfKurentoClientDisconnection = new AtomicLong(0);
@@ -74,7 +75,7 @@ public class Kms {
 	private Map<String, String> activeRecordings = new ConcurrentHashMap<>();
 	private AtomicLong activeComposedRecordings = new AtomicLong();
 
-	public Kms(KmsProperties props, LoadManager loadManager, QuarantineKiller quarantineKiller) {
+	public Kms(KmsProperties props, LoadManager loadManager, KmsManager kmsManager) {
 		this.id = props.getId();
 		this.uri = props.getUri();
 
@@ -88,7 +89,7 @@ public class Kms {
 		this.ip = url.getHost();
 
 		this.loadManager = loadManager;
-		this.quarantineKiller = quarantineKiller;
+		this.kmsManager = kmsManager;
 	}
 
 	public KurentoClient getKurentoClient() {
@@ -127,12 +128,33 @@ public class Kms {
 		return true; // loadManager.allowMoreElements(this);
 	}
 
+	public boolean hasTriggeredNodeCrashedEvent() {
+		return this.hasTriggeredNodeCrashedEvent;
+	}
+
+	public void setHasTriggeredNodeCrashedEvent(boolean hasTriggeredNodeCrashedEvent) {
+		this.hasTriggeredNodeCrashedEvent = hasTriggeredNodeCrashedEvent;
+	}
+
 	public boolean isKurentoClientConnected() {
 		return this.isKurentoClientConnected.get();
 	}
 
-	public void setKurentoClientConnected(boolean isConnected) {
+	public void setKurentoClientConnected(boolean isConnected, boolean nodeRecovered) {
+		final long timestamp = System.currentTimeMillis();
 		this.isKurentoClientConnected.set(isConnected);
+		if (isConnected) {
+			this.setTimeOfKurentoClientConnection(timestamp);
+			this.setTimeOfKurentoClientDisconnection(0);
+			this.setHasTriggeredNodeCrashedEvent(false);
+			kmsManager.getMediaNodeManager().mediaNodeUsageRegistration(this, timestamp, kmsManager.getKmss(),
+					nodeRecovered);
+			if (this.mediaServer == null) {
+				this.fetchMediaServerType();
+			}
+		} else {
+			this.setTimeOfKurentoClientDisconnection(timestamp);
+		}
 	}
 
 	public long getTimeOfKurentoClientConnection() {
@@ -180,7 +202,7 @@ public class Kms {
 		if (RecordingUtils.IS_COMPOSED(properties.outputMode())) {
 			this.activeComposedRecordings.decrementAndGet();
 		}
-		this.quarantineKiller.dropMediaNode(this.id);
+		kmsManager.getMediaNodeManager().dropIdleMediaNode(this.id);
 	}
 
 	public JsonObject toJson() {
@@ -201,8 +223,7 @@ public class Kms {
 	public JsonObject toJsonExtended(boolean withSessions, boolean withRecordings, boolean withExtraInfo) {
 
 		JsonObject json = this.toJson();
-		MediaServer mediaServer = getMediaServer();
-		json.addProperty("mediaServer", mediaServer.name());
+		json.addProperty("mediaServer", this.mediaServer.name());
 
 		if (withSessions) {
 			JsonArray sessions = new JsonArray();
@@ -227,7 +248,7 @@ public class Kms {
 				JsonObject kurentoExtraInfo = new JsonObject();
 
 				try {
-					if (MediaServer.kurento.equals(mediaServer)) {
+					if (MediaServer.kurento.equals(this.mediaServer)) {
 						kurentoExtraInfo.addProperty("memory", this.client.getServerManager().getUsedMemory() / 1024);
 
 						ServerInfo info = this.client.getServerManager().getInfo();
@@ -281,13 +302,21 @@ public class Kms {
 		return this.activeComposedRecordings.intValue();
 	}
 
-	public MediaServer getMediaServer() {
+	public MediaServer getMediaServerType() {
+		if (this.mediaServer == null) {
+			this.fetchMediaServerType();
+		}
+		return this.mediaServer;
+	}
+
+	public MediaServer fetchMediaServerType() {
 		ServerInfo serverInfo = this.client.getServerManager().getInfo();
 		if (serverInfo.getVersion().startsWith("openvidu/mediasoup-controller")) {
-			return MediaServer.mediasoup;
+			this.mediaServer = MediaServer.mediasoup;
 		} else {
-			return MediaServer.kurento;
+			this.mediaServer = MediaServer.kurento;
 		}
+		return this.mediaServer;
 	}
 
 }
