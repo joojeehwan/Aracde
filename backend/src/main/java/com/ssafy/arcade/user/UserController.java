@@ -33,7 +33,7 @@ public class UserController {
     // 인가코드를 받아온 후 부터 진행
     @GetMapping("/login")
     public ResponseEntity<Map<String, Object>> socialLogin(@RequestParam String code, @RequestParam String provider
-    , @RequestParam String state) {
+            , @RequestParam String state) {
         User user = null;
         String email = null;
         String image = null;

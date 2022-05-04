@@ -2,7 +2,7 @@
 
 MEDIA_NODE_FOLDER=kms
 MEDIA_NODE_VERSION=master
-OPENVIDU_UPGRADABLE_VERSION="2.21"
+OPENVIDU_UPGRADABLE_VERSION="2.18"
 BEATS_FOLDER=${MEDIA_NODE_FOLDER}/beats
 OPENVIDU_RECORDINGS_FOLDER="/opt/openvidu/recordings"
 DOWNLOAD_URL=https://raw.githubusercontent.com/OpenVidu/openvidu/${MEDIA_NODE_VERSION}
@@ -18,7 +18,7 @@ fatal_error() {
      printf "\n     =======¡ERROR!======="
      printf "\n     %s" "$1"
      printf "\n"
-     exit 1
+     exit 0
 }
 
 docker_command_by_container_image() {

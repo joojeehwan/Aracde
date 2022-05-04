@@ -267,7 +267,7 @@ public class UserService {
                 .type("friend").build();
         template.convertAndSend("/sub/noti" + targetUser.getUserSeq(), notiDTO);
     }
-        
+
     // 친구 수락
     public void approveFriend(String token, String reqEmail) {
         User targetUser = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
@@ -371,7 +371,6 @@ public class UserService {
             userResDto.setStatus(1);
 
             userResDtoList.add(userResDto);
-
         }
         return userResDtoList;
     }

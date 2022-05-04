@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ import io.openvidu.server.core.SessionManager;
 
 public class FixedOneKmsManager extends KmsManager {
 
-	public FixedOneKmsManager(SessionManager sessionManager, LoadManager loadManager) {
-		super(sessionManager, loadManager);
+	public FixedOneKmsManager(SessionManager sessionManager) {
+		super(sessionManager);
 	}
 
 	@Override
@@ -44,24 +44,22 @@ public class FixedOneKmsManager extends KmsManager {
 			throws Exception {
 		KmsProperties firstProps = kmsProperties.get(0);
 		KurentoClient kClient = null;
-		Kms kms = new Kms(firstProps, loadManager, this);
+		Kms kms = new Kms(firstProps, loadManager, quarantineKiller);
 		try {
 			JsonRpcWSConnectionListener listener = this.generateKurentoConnectionListener(kms.getId());
 			JsonRpcClientNettyWebSocket client = new JsonRpcClientNettyWebSocket(firstProps.getUri(), listener);
 			client.setTryReconnectingMaxTime(0);
 			client.setTryReconnectingForever(false);
-			client.setConnectionTimeout(MAX_CONNECT_TIME_MILLIS);
-			client.setRequestTimeout(MAX_REQUEST_TIMEOUT);
-			kClient = KurentoClient.createFromJsonRpcClientHonoringClientTimeouts(client);
+			kClient = KurentoClient.createFromJsonRpcClient(client);
+			this.addKms(kms);
 			kms.setKurentoClient(kClient);
 
 			// TODO: This should be done in KurentoClient connected event
-			kms.setKurentoClientConnected(true, false);
-
-			this.addKms(kms);
+			kms.setKurentoClientConnected(true);
+			kms.setTimeOfKurentoClientConnection(System.currentTimeMillis());
 
 			// Set Media Server in OpenVidu configuration
-			this.openviduConfig.setMediaServer(kms.getMediaServerType());
+			this.openviduConfig.setMediaServer(kms.getMediaServer());
 
 		} catch (KurentoException e) {
 			log.error("KMS in {} is not reachable by OpenVidu Server", firstProps.getUri());
@@ -92,12 +90,13 @@ public class FixedOneKmsManager extends KmsManager {
 	}
 
 	@Override
-	public void removeMediaNodeUponCrash(String mediaNodeId) {
+	protected String removeMediaNodeUponCrash(String mediaNodeId) {
+		return null;
 	}
 
 	@Override
-	protected String getEnvironmentId(String mediaNodeId) {
-		return null;
+	protected boolean infiniteRetry() {
+		return true;
 	}
 
 	@Override

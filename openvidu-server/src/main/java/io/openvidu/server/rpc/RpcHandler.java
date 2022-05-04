@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -322,7 +322,7 @@ public class RpcHandler extends DefaultJsonRpcHandler<JsonObject> {
 		} else {
 			log.error("ERROR: token not valid");
 			throw new OpenViduException(Code.USER_UNAUTHORIZED_ERROR_CODE,
-					"Unable to join session " + sessionId + ". Token " + token + " is not valid");
+					"Unable to join session " + sessionId + ". Token " + token + "is not valid");
 		}
 	}
 
@@ -435,7 +435,7 @@ public class RpcHandler extends DefaultJsonRpcHandler<JsonObject> {
 		}
 
 		String message = getStringParam(request, ProtocolElements.SENDMESSAGE_MESSAGE_PARAM);
-		sessionManager.sendMessage(participant, message, request.getId());
+		sessionManager.sendMessage(participant, message, request.getId(), rpcConnection.getSessionId());
 	}
 
 	private void unpublishVideo(RpcConnection rpcConnection, Request<JsonObject> request) {
@@ -889,45 +889,36 @@ public class RpcHandler extends DefaultJsonRpcHandler<JsonObject> {
 	}
 
 	private void checkSdkVersionCompliancy(Request<JsonObject> request, Participant participant) {
-		String clientVersion = getStringParam(request, ProtocolElements.JOINROOM_SDKVERSION_PARAM);
+		// TODO: remove try-catch after release 2.21.0
+		String clientVersion = null;
+		try {
+			clientVersion = getStringParam(request, ProtocolElements.JOINROOM_SDKVERSION_PARAM);
+		} catch (RuntimeException e) {
+			// This empty catch is here to support client SDK 2.20.0 with server 2.21.0
+			// TODO: remove try-catch after release 2.21.0
+			return;
+		}
 		final String serverVersion = openviduBuildConfig.getOpenViduServerVersion();
 		try {
 			new VersionComparator().checkVersionCompatibility(clientVersion, serverVersion);
 		} catch (VersionMismatchException e) {
 			if (e.isIncompatible()) {
-
-				if (ProtocolElements.RECORDER_PARTICIPANT_PUBLICID.equals(participant.getParticipantPublicId())) {
-					log.error(
-							"The COMPOSED recording layout is using an incompatible version of openvidu-browser SDK ({}) for this OpenVidu deployment ({}). This may cause the system to malfunction",
-							clientVersion, serverVersion);
-				} else {
-					log.error(
-							"Participant {} with IP {} and platform {} has an incompatible version of openvidu-browser SDK ({}) for this OpenVidu deployment ({}). This may cause the system to malfunction",
-							participant.getParticipantPublicId(), participant.getLocation().getIp(),
-							participant.getPlatform(), clientVersion, serverVersion);
-					log.error(e.getMessage());
-					log.error(
-							"openvidu-browser SDK is only compatible with the same version or the immediately following minor version of an OpenVidu deployment");
-				}
-
+				log.error(
+						"Participant {} with IP {} and platform {} has an incompatible version of openvidu-browser SDK ({}) for this OpenVidu deployment ({}). This may cause the system to malfunction",
+						participant.getParticipantPublicId(), participant.getLocation().getIp(),
+						participant.getPlatform(), clientVersion, serverVersion);
+				log.error(e.getMessage());
+				log.error(
+						"openvidu-browser SDK is only compatible with the same version or the immediately following minor version of an OpenVidu deployment");
 			} else {
 				DefaultArtifactVersion v = new DefaultArtifactVersion(serverVersion);
-
-				if (ProtocolElements.RECORDER_PARTICIPANT_PUBLICID.equals(participant.getParticipantPublicId())) {
-					log.warn(
-							"The COMPOSED recording layout has an older version of openvidu-browser SDK ({}) for this OpenVidu deployment ({}). These versions are still compatible with each other, "
-									+ "but client SDK must be updated as soon as possible to {}.x. This recording layout using openvidu-browser {} will become incompatible with the next release of openvidu-server",
-							clientVersion, serverVersion, (v.getMajorVersion() + "." + v.getMinorVersion()),
-							clientVersion);
-				} else {
-					log.warn(
-							"Participant {} with IP {} and platform {} has an older version of openvidu-browser SDK ({}) for this OpenVidu deployment ({}). "
-									+ "These versions are still compatible with each other, but client SDK must be updated as soon as possible to {}.x. This client using "
-									+ "openvidu-browser {} will become incompatible with the next release of openvidu-server",
-							participant.getParticipantPublicId(), participant.getLocation().getIp(),
-							participant.getPlatform(), clientVersion, serverVersion,
-							(v.getMajorVersion() + "." + v.getMinorVersion()), clientVersion);
-				}
+				log.warn(
+						"Participant {} with IP {} and platform {} has an older version of openvidu-browser SDK ({}) for this OpenVidu deployment ({}). "
+								+ "These versions are still compatible with each other, but client SDK must be updated as soon as possible to {}.x. This client using "
+								+ "openvidu-browser {} will become incompatible with the next release of openvidu-server",
+						participant.getParticipantPublicId(), participant.getLocation().getIp(),
+						participant.getPlatform(), clientVersion, serverVersion,
+						(v.getMajorVersion() + "." + v.getMinorVersion()), clientVersion);
 			}
 		}
 	}

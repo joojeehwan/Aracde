@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import java.util.Map.Entry;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -59,7 +58,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import io.openvidu.java.client.IceServerProperties;
 import io.openvidu.java.client.OpenViduRole;
 import io.openvidu.java.client.VideoCodec;
 import io.openvidu.server.OpenViduServer;
@@ -163,7 +161,7 @@ public class OpenviduConfig {
 
 	private int coturnPort;
 
-	private String coturnSharedSecretKey;
+	private String coturnRedisIp;
 
 	// If true, coturn relay ips will come with the private IP of the machine
 	private boolean coturnInternalRelay;
@@ -188,6 +186,12 @@ public class OpenviduConfig {
 
 	private String openviduRecordingComposedUrl;
 
+	private String coturnRedisDbname;
+
+	private String coturnRedisPassword;
+
+	private String coturnRedisConnectTimeout;
+
 	private String certificateType;
 
 	protected int openviduSessionsGarbageInterval;
@@ -210,17 +214,25 @@ public class OpenviduConfig {
 
 	public static String finalUrl;
 
+	private boolean isTurnadminAvailable = false;
+
 	// Media Server properties
 
 	private MediaServer mediaServerInfo = MediaServer.kurento;
 
-	// Webrtc properties
+	// Media properties
 
 	private boolean webrtcSimulcast = false;
 
-	private List<IceServerProperties.Builder> webrtcIceServersBuilders;
-
 	// Plain config properties getters
+
+	public String getCoturnDatabaseDbname() {
+		return this.coturnRedisDbname;
+	}
+
+	public String getCoturnDatabasePassword() {
+		return this.coturnRedisPassword;
+	}
 
 	public boolean isCoturnUsingInternalRelay() {
 		return this.coturnInternalRelay;
@@ -276,10 +288,6 @@ public class OpenviduConfig {
 
 	public boolean isWebrtcSimulcast() {
 		return this.webrtcSimulcast;
-	}
-
-	public List<IceServerProperties.Builder> getWebrtcIceServersBuilders() {
-		return webrtcIceServersBuilders;
 	}
 
 	public String getOpenViduRecordingPath() {
@@ -342,10 +350,6 @@ public class OpenviduConfig {
 		return this.coturnPort;
 	}
 
-	public String getCoturnSharedSecretKey() {
-		return this.coturnSharedSecretKey;
-	}
-
 	public RecordingNotification getOpenViduRecordingNotification() {
 		return this.openviduRecordingNotification;
 	}
@@ -404,6 +408,14 @@ public class OpenviduConfig {
 		finalUrl = finalUrlParam.endsWith("/") ? (finalUrlParam) : (finalUrlParam + "/");
 	}
 
+	public boolean isTurnadminAvailable() {
+		return this.isTurnadminAvailable;
+	}
+
+	public void setTurnadminAvailable(boolean available) {
+		this.isTurnadminAvailable = available;
+	}
+
 	public boolean areMediaNodesPublicIpsDefined() {
 		return !this.mediaNodesPublicIps.isEmpty();
 	}
@@ -437,20 +449,17 @@ public class OpenviduConfig {
 		return secret.equals(this.getOpenViduSecret());
 	}
 
+	public String getCoturnDatabaseString() {
+		return "\"ip=" + this.coturnRedisIp + " dbname=" + this.coturnRedisDbname + " password="
+				+ this.coturnRedisPassword + " connect_timeout=" + this.coturnRedisConnectTimeout + "\"";
+	}
+
 	public boolean openviduRecordingCustomLayoutChanged(String path) {
 		return !"/opt/openvidu/custom-layout".equals(path);
 	}
 
 	public String getOpenViduFrontendDefaultPath() {
 		return RequestMappings.FRONTEND_CE;
-	}
-
-	public int getReconnectionTimeout() {
-		return -1;
-	}
-
-	public int getAppliedReconnectionTimeout() {
-		return Integer.MAX_VALUE;
 	}
 
 	// Properties management methods
@@ -525,15 +534,8 @@ public class OpenviduConfig {
 			log.error("Exception checking configuration", e);
 			addError(null, "Exception checking configuration." + e.getClass().getName() + ":" + e.getMessage());
 		}
-		postProcessConfigProps();
 		userConfigProps = new ArrayList<>(configProps.keySet());
 		userConfigProps.removeAll(getNonUserProperties());
-		for (String notShowEmptyConfigKey : getNonPrintablePropertiesIfEmpty()) {
-			String value = configProps.get(notShowEmptyConfigKey);
-			if (value == null || value.isEmpty() || value.equals(new JsonArray().toString())) {
-				userConfigProps.remove(notShowEmptyConfigKey);
-			}
-		}
 	}
 
 	@PostConstruct
@@ -541,16 +543,10 @@ public class OpenviduConfig {
 		this.checkConfiguration(true);
 	}
 
-	protected void postProcessConfigProps() {
-	}
-
 	protected List<String> getNonUserProperties() {
-		return Arrays.asList("server.port", "SERVER_PORT", "DOTENV_PATH", "COTURN_IP", "COTURN_PORT",
-				"COTURN_INTERNAL_RELAY", "COTURN_SHARED_SECRET_KEY", "OPENVIDU_RECORDING_IMAGE", "OPENVIDU_RECORDING_ENABLE_GPU");
-	}
-
-	protected List<String> getNonPrintablePropertiesIfEmpty() {
-		return Arrays.asList("MEDIA_NODES_PUBLIC_IPS", "OPENVIDU_WEBRTC_ICE_SERVERS");
+		return Arrays.asList("server.port", "SERVER_PORT", "DOTENV_PATH", "COTURN_IP", "COTURN_PORT", "COTURN_REDIS_IP",
+				"COTURN_REDIS_DBNAME", "COTURN_REDIS_PASSWORD", "COTURN_REDIS_CONNECT_TIMEOUT", "COTURN_INTERNAL_RELAY",
+				"OPENVIDU_RECORDING_IMAGE", "OPENVIDU_RECORDING_ENABLE_GPU");
 	}
 
 	// Properties
@@ -566,21 +562,18 @@ public class OpenviduConfig {
 		checkDomainOrPublicIp();
 		populateSpringServerPort();
 
+		coturnRedisDbname = getValue("COTURN_REDIS_DBNAME");
+
+		coturnRedisPassword = getValue("COTURN_REDIS_PASSWORD");
+
+		coturnRedisConnectTimeout = getValue("COTURN_REDIS_CONNECT_TIMEOUT");
+
 		// If true, coturn is using private IPs as relay IPs to enable relay connections
 		// pass through internal network
 		coturnInternalRelay = asBoolean("COTURN_INTERNAL_RELAY");
 
 		openviduSecret = asNonEmptyAlphanumericString("OPENVIDU_SECRET",
 				"Cannot be empty and must contain only alphanumeric characters [a-zA-Z0-9], hypens (\"-\") and underscores (\"_\")");
-
-		// Read coturn shared key
-		coturnSharedSecretKey = asOptionalString("COTURN_SHARED_SECRET_KEY");
-		if (coturnSharedSecretKey == null || coturnSharedSecretKey.isEmpty()) {
-			log.warn("COTURN_SHARED_SECRET_KEY is not defined. Using OPENVIDU_SECRET");
-			this.coturnSharedSecretKey = this.openviduSecret;
-		} else {
-			log.info("COTURN_SHARED_SECRET_KEY used to generate TURN users: {}", this.coturnSharedSecretKey);
-		}
 
 		openviduCdr = asBoolean("OPENVIDU_CDR");
 		openviduCdrPath = openviduCdr ? asWritableFileSystemPath("OPENVIDU_CDR_PATH")
@@ -620,11 +613,11 @@ public class OpenviduConfig {
 
 		checkCoturnPort();
 
+		coturnRedisIp = asOptionalInetAddress("COTURN_REDIS_IP");
+
 		checkWebhook();
 
 		checkCertificateType();
-
-		webrtcIceServersBuilders = loadWebrtcIceServers("OPENVIDU_WEBRTC_ICE_SERVERS");
 
 	}
 
@@ -886,6 +879,7 @@ public class OpenviduConfig {
 			addError(property, "Cannot be empty");
 			return false;
 		}
+
 		if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
 			return Boolean.parseBoolean(value);
 		} else {
@@ -897,38 +891,13 @@ public class OpenviduConfig {
 	protected Integer asNonNegativeInteger(String property) {
 		try {
 			Integer integerValue = Integer.parseInt(getValue(property));
+
 			if (integerValue < 0) {
 				addError(property, "Is not a non negative integer");
 			}
 			return integerValue;
 		} catch (NumberFormatException e) {
 			addError(property, "Is not a non negative integer");
-			return 0;
-		}
-	}
-
-	protected Integer asOptionalIntegerBetweenRanges(String property, Range<Integer>... ranges) {
-		try {
-			String value = getValue(property);
-			if (value == null || value.isEmpty()) {
-				return null;
-			}
-			Integer integerValue = Integer.parseInt(getValue(property));
-			boolean belognsToRanges = false;
-			for (int i = 0; i < ranges.length; i++) {
-				if (ranges[i].contains(integerValue)) {
-					belognsToRanges = true;
-					break;
-				}
-			}
-			if (!belognsToRanges) {
-				addError(property, "It does not belong to the accepted ranges");
-				return 0;
-			} else {
-				return integerValue;
-			}
-		} catch (NumberFormatException e) {
-			addError(property, "Is not an integer");
 			return 0;
 		}
 	}
@@ -1176,59 +1145,6 @@ public class OpenviduConfig {
 				addError(property, "Is not a valid IP Address (IPv4 or IPv6): " + ip);
 			}
 		}
-	}
-
-	private List<IceServerProperties.Builder> loadWebrtcIceServers(String property) {
-		String rawIceServers = asOptionalString(property);
-		List<IceServerProperties.Builder> webrtcIceServers = new ArrayList<>();
-		if (rawIceServers == null || rawIceServers.isEmpty()) {
-			return webrtcIceServers;
-		}
-		List<String> arrayIceServers = asJsonStringsArray(property);
-		for (String iceServerString : arrayIceServers) {
-			try {
-				IceServerProperties.Builder iceServerProperties = readIceServer(property, iceServerString);
-				webrtcIceServers.add(iceServerProperties);
-			} catch (Exception e) {
-				addError(property, iceServerString + " is not a valid webrtc ice server: " + e.getMessage());
-			}
-		}
-		return webrtcIceServers;
-	}
-
-	private IceServerProperties.Builder readIceServer(String property, String iceServerString) {
-		String url = null, username = null, credential = null, staticAuthSecret = null;
-		String[] iceServerPropList = iceServerString.split(",");
-		for (String iceServerProp : iceServerPropList) {
-			if (iceServerProp.startsWith("url=")) {
-				url = StringUtils.substringAfter(iceServerProp, "url=");
-			} else if (iceServerProp.startsWith("username=")) {
-				username = StringUtils.substringAfter(iceServerProp, "username=");
-			} else if (iceServerProp.startsWith("credential=")) {
-				credential = StringUtils.substringAfter(iceServerProp, "credential=");
-			} else if (iceServerProp.startsWith("staticAuthSecret=")) {
-				staticAuthSecret = StringUtils.substringAfter(iceServerProp, "staticAuthSecret=");
-			} else {
-				addError(property, "Wrong parameter: " + iceServerProp);
-			}
-		}
-		IceServerProperties.Builder builder = new IceServerProperties.Builder().url(url);
-		IceServerProperties.Builder builderCheck = new IceServerProperties.Builder().url(url);
-		if (staticAuthSecret != null) {
-			builder.staticAuthSecret(staticAuthSecret);
-			builderCheck.staticAuthSecret(staticAuthSecret);
-		}
-		if (username != null) {
-			builder.username(username);
-			builderCheck.username(username);
-		}
-		if (credential != null) {
-			builder.credential(credential);
-			builderCheck.credential(credential);
-		}
-		// Validate config input
-		builderCheck.build();
-		return builder;
 	}
 
 }

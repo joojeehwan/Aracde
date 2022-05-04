@@ -12,7 +12,7 @@
 	<packaging>jar</packaging>
 
 	<name>OpenVidu Server</name>
-	<version>2.21.0</version>
+	<version>2.20.0</version>
 	<description>OpenVidu Server</description>
 	<url>https://openvidu.io</url>
 
@@ -270,8 +270,13 @@
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
+<<<<<<< HEAD
 			<!-- <version>${version.commons-validator}</version> -->
 			<version>1.7</version>
+=======
+			<version>1.7</version>
+<!--			<version>${version.commons-validator}</version>-->
+>>>>>>> feat/#S06P31A203-93/openvidu-setting
 		</dependency>
 		<dependency>
 			<groupId>com.github.docker-java</groupId>

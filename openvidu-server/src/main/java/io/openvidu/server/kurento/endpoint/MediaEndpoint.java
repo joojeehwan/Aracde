@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -300,7 +300,8 @@ public abstract class MediaEndpoint {
 				public void onSuccess(WebRtcEndpoint result) throws Exception {
 					webEndpoint = result;
 
-					if (openviduConfig.getCoturnIp() != null && !openviduConfig.getCoturnIp().isEmpty()) {
+					if (openviduConfig.getCoturnIp() != null && !openviduConfig.getCoturnIp().isEmpty()
+							&& openviduConfig.isTurnadminAvailable()) {
 						webEndpoint.setStunServerAddress(openviduConfig.getCoturnIp());
 						webEndpoint.setStunServerPort(openviduConfig.getCoturnPort());
 					}
