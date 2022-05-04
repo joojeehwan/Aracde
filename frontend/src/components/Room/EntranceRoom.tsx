@@ -40,11 +40,7 @@ const CreateRoom = () => {
   const handleEnter = async () => {
     const response = await enterRoom(code as string);
     if (response.status === 200) {
-<<<<<<< HEAD
       console.log("??????");
-=======
-      console.log('??????');
->>>>>>> feat/#S06P31A203-79/myroom
       window.localStorage.setItem('nickname', nickname);
       window.localStorage.setItem('invitecode', code);
       navigate('/room');
