@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+import io.openvidu.server.contents.GameService;
 import org.bouncycastle.util.Arrays;
 import org.kurento.jsonrpc.internal.server.config.JsonRpcConfiguration;
 import org.kurento.jsonrpc.server.JsonRpcConfigurer;
@@ -132,6 +133,12 @@ public class OpenViduServer implements JsonRpcConfigurer {
 	@DependsOn("openviduConfig")
 	public SessionManager sessionManager() {
 		return new KurentoSessionManager();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public GameService gameService() {
+		return new GameService();
 	}
 
 	@Bean
