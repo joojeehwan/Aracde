@@ -103,6 +103,8 @@ Resources:
             "/usr/local/bin/testRecording.sh":
               content: |
                 #!/bin/bash -x
+                # This script checks the recording COMPOSED and cache it from AMIs to the EBS volume.
+                # https://serverfault.com/a/837118
                 TEST_RECORDING_DIR="/opt/openvidu/test-recording"
 
                 docker run -d --rm --name=test-recording -e URL=https://openvidu.io/ -v "${TEST_RECORDING_DIR}":/recordings openvidu/openvidu-recording:OPENVIDU_RECORDING_DOCKER_TAG
@@ -115,12 +117,18 @@ Resources:
                   ELAPSED=$((ELAPSED+1))
                 done
 
+                # Cache ffmpeg binary
+                INSTALLATION_DIR="/opt/kms"
+                MEDIASOUP_IMAGE="$(grep MEDIASOUP_IMAGE "${INSTALLATION_DIR}"/docker-compose.yml | cut -d'=' -f2)"
+                docker run --entrypoint /ffmpeg "${MEDIASOUP_IMAGE}" -version
+
                 # Sleep 30 seconds
                 sleep 30
 
                 # Clean test recording
                 docker rm -f test-recording
                 rm -rf "${TEST_RECORDING_DIR}"
+
               mode: "000755"
               owner: "root"
               group: "root"

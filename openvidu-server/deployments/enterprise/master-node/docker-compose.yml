@@ -11,7 +11,7 @@
 #
 #    This file will be overridden when update OpenVidu Platform
 #
-#    Openvidu Version: 2.20.0
+#    Openvidu Version: 2.21.0
 #
 #    Installation Mode: On Premises
 #
@@ -22,11 +22,12 @@ version: '3.1'
 services:
 
     openvidu-server:
-        image: openvidu/openvidu-server-pro:2.21.0-beta2
+        image: openvidu/openvidu-server-pro:2.21.0
         restart: on-failure
         network_mode: host
         entrypoint: ['/usr/local/bin/entrypoint.sh']
         volumes:
+            - ./coturn:/run/secrets/coturn
             - /var/run/docker.sock:/var/run/docker.sock
             - ${OPENVIDU_RECORDING_PATH}:${OPENVIDU_RECORDING_PATH}
             - ${OPENVIDU_RECORDING_CUSTOM_LAYOUT}:${OPENVIDU_RECORDING_CUSTOM_LAYOUT}
@@ -42,8 +43,6 @@ services:
             - OPENVIDU_WEBHOOK=false
             - OPENVIDU_WEBHOOK_ENDPOINT=http://127.0.0.1:7777/webhook
             - MULTI_MASTER_REPLICATION_MANAGER_WEBHOOK=http://127.0.0.1:4443/openvidu/replication-manager-webhook?OPENVIDU_SECRET=${OPENVIDU_SECRET}
-            - COTURN_REDIS_IP=127.0.0.1
-            - COTURN_REDIS_PASSWORD=${OPENVIDU_SECRET}
             - COTURN_IP=${COTURN_IP:-auto-ipv4}
             - COTURN_PORT=${COTURN_PORT:-3478}
             - OPENVIDU_PRO_CLUSTER=true
@@ -57,7 +56,7 @@ services:
                 max-size: "${DOCKER_LOGS_MAX_SIZE:-100M}"
 
     replication-manager:
-        image: openvidu/replication-manager:2.21.0-dev2
+        image: openvidu/replication-manager:2.21.0
         restart: always
         network_mode: host
         volumes:
@@ -83,36 +82,25 @@ services:
             options:
                 max-size: "${DOCKER_LOGS_MAX_SIZE:-100M}"
 
-    redis:
-        image: openvidu/openvidu-redis:4.0.0-dev2
-        restart: always
-        network_mode: host
-        environment:
-            - REDIS_PASSWORD=${OPENVIDU_SECRET}
-        logging:
-            options:
-                max-size: "${DOCKER_LOGS_MAX_SIZE:-100M}"
-
     coturn:
-        image: openvidu/openvidu-coturn:6.0.0-dev2
+        image: openvidu/openvidu-coturn:7.0.0-dev1
         restart: on-failure
         network_mode: host
         env_file:
             - .env
-        environment:
-            - REDIS_IP=127.0.0.1
-            - DB_NAME=0
-            - DB_PASSWORD=${OPENVIDU_SECRET}
+        volumes:
+            - ./coturn:/run/secrets/coturn
         command:
             - --log-file=stdout
             - --external-ip=$$(detect-external-ip)
             - --listening-port=${COTURN_PORT:-3478}
             - --fingerprint
-            - --lt-cred-mech
             - --min-port=${COTURN_MIN_PORT:-40000}
             - --max-port=${COTURN_MAX_PORT:-65535}
             - --realm=openvidu
             - --verbose
+            - --use-auth-secret
+            - --static-auth-secret=$${COTURN_SHARED_SECRET_KEY}
         logging:
             options:
                 max-size: "${DOCKER_LOGS_MAX_SIZE:-100M}"

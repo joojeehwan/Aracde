@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,11 @@
 
 package io.openvidu.server.core;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -34,7 +38,6 @@ import io.openvidu.client.OpenViduException;
 import io.openvidu.client.OpenViduException.Code;
 import io.openvidu.client.internal.ProtocolElements;
 import io.openvidu.java.client.OpenViduRole;
-import io.openvidu.server.cdr.CDREventNodeCrashed;
 import io.openvidu.server.cdr.CallDetailRecord;
 import io.openvidu.server.config.OpenviduBuildInfo;
 import io.openvidu.server.config.OpenviduConfig;
@@ -44,30 +47,12 @@ import io.openvidu.server.kurento.kms.Kms;
 import io.openvidu.server.recording.Recording;
 import io.openvidu.server.rpc.RpcNotificationService;
 
-import io.openvidu.server.contents.MusicService;
-import io.openvidu.server.contents.GameService;
-import io.openvidu.server.contents.PhotoService;
-import io.openvidu.server.contents.SingService;
-
-
 public class SessionEventsHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(SessionEventsHandler.class);
 
 	@Autowired
 	protected RpcNotificationService rpcNotificationService;
-
-	@Autowired
-	protected MusicService musicService;
-	
-	@Autowired
-	protected GameService gameService;
-
-	@Autowired
-	protected PhotoService photoService;
-
-	@Autowired
-	protected SingService singService;
 
 	@Autowired
 	protected CallDetailRecord CDR;
@@ -80,16 +65,18 @@ public class SessionEventsHandler {
 
 	protected Map<String, Recording> recordingsToSendClientEvents = new ConcurrentHashMap<>();
 
+
+	// session 생성
 	public void onSessionCreated(Session session) {
 		CDR.recordSessionCreated(session);
 	}
 
-	public void onSessionClosed(String sessionId, EndReason reason) {
-		CDR.recordSessionDestroyed(sessionId, reason);
+	// session 종료
+	public void onSessionClosed(Session session, EndReason reason) {
+		CDR.recordSessionDestroyed(session, reason);
 	}
 
-	// 참여자 발생 - 참가자, 세션 아이디, 이미 있던 사람들, 트랜젝션 아이디, 에러
-	// Transaction = 클라이언트와 서버간의 소통(conversation)
+	// 참가자 발생
 	public void onParticipantJoined(Participant participant, String sessionId, Set<Participant> existingParticipants,
 			Integer transactionId, OpenViduException error) {
 		if (error != null) {
@@ -97,7 +84,6 @@ public class SessionEventsHandler {
 			return;
 		}
 
-		// 여기다 담아서 보내줌
 		JsonObject result = new JsonObject();
 		JsonArray resultArray = new JsonArray();
 
@@ -109,12 +95,12 @@ public class SessionEventsHandler {
 					existingParticipant.getActiveAt());
 
 			// Metadata associated to each existing participant
-			participantJson.addProperty(ProtocolElements.JOINROOM_METADATA_PARAM,
-					existingParticipant.getFullMetadata());
-
+					participantJson.addProperty(ProtocolElements.JOINROOM_METADATA_PARAM,
+							existingParticipant.getFullMetadata());
+			// streaming 중이면, 해당값 추가로 저장
 			if (existingParticipant.isStreaming()) {
 
-				KurentoParticipant kParticipant = (KurentoParticipant) existingParticipant;
+					KurentoParticipant kParticipant = (KurentoParticipant) existingParticipant;
 
 				JsonObject stream = new JsonObject();
 				stream.addProperty(ProtocolElements.JOINROOM_PEERSTREAMID_PARAM,
@@ -183,16 +169,16 @@ public class SessionEventsHandler {
 				this.openviduConfig.getMediaServer().name());
 
 		switch (this.openviduConfig.getMediaServer()) {
-			case mediasoup:
-				// mediasoup supports simulcast
-				result.addProperty(ProtocolElements.PARTICIPANTJOINED_SIMULCAST_PARAM,
-						this.openviduConfig.isWebrtcSimulcast());
-				break;
-			case kurento:
-			default:
-				// Kurento does not support simulcast
-				result.addProperty(ProtocolElements.PARTICIPANTJOINED_SIMULCAST_PARAM, false);
-				break;
+		case mediasoup:
+			// mediasoup supports simulcast
+			result.addProperty(ProtocolElements.PARTICIPANTJOINED_SIMULCAST_PARAM,
+					this.openviduConfig.isWebrtcSimulcast());
+			break;
+		case kurento:
+		default:
+			// Kurento does not support simulcast
+			result.addProperty(ProtocolElements.PARTICIPANTJOINED_SIMULCAST_PARAM, false);
+			break;
 		}
 
 		if (participant.getToken() != null) {
@@ -214,7 +200,7 @@ public class SessionEventsHandler {
 		rpcNotificationService.sendResponse(participant.getParticipantPrivateId(), transactionId, result);
 	}
 
-	// 참가자가 방을 나갈 때
+	// 참가자 나갈때
 	public void onParticipantLeft(Participant participant, String sessionId, Set<Participant> remainingParticipants,
 			Integer transactionId, OpenViduException error, EndReason reason, boolean scheduleWebsocketClose) {
 		if (error != null) {
@@ -231,13 +217,12 @@ public class SessionEventsHandler {
 		params.addProperty(ProtocolElements.PARTICIPANTLEFT_NAME_PARAM, participant.getParticipantPublicId());
 		params.addProperty(ProtocolElements.PARTICIPANTLEFT_REASON_PARAM, reason != null ? reason.name() : "");
 
-		// 남아있는 참여자들에게 signal을 보내 찌릿 찌릿 찌릿 찌릿
+		// 남아있는 참여자들에게 신호 보내기
 		for (Participant p : remainingParticipants) {
 			rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
 					ProtocolElements.PARTICIPANTLEFT_METHOD, params);
 		}
 
-		// 참가자가 의도치 않게 방을 나간 경우 응답을 보내지 않는다.
 		if (transactionId != null) {
 			// No response when the participant is forcibly evicted instead of voluntarily
 			// leaving the session
@@ -255,7 +240,6 @@ public class SessionEventsHandler {
 			CDR.recordParticipantLeft(participant, sessionId, reason);
 		}
 	}
-
 	// media 발행? 참가자의 캠,마이크 상태 등등을 담아서 방에 있는 모든 참가자에게 전달
 	public void onPublishMedia(Participant participant, String streamId, Long createdAt, String sessionId,
 			MediaOptions mediaOptions, String sdpAnswer, Set<Participant> participants, Integer transactionId,
@@ -319,7 +303,6 @@ public class SessionEventsHandler {
 		params.addProperty(ProtocolElements.PARTICIPANTUNPUBLISHED_NAME_PARAM, participant.getParticipantPublicId());
 		params.addProperty(ProtocolElements.PARTICIPANTUNPUBLISHED_REASON_PARAM, reason != null ? reason.name() : "");
 
-		// 세션의 모든 참가자들에게
 		for (Participant p : participants) {
 			if (p.getParticipantPrivateId().equals(participant.getParticipantPrivateId())) {
 				// Send response to the affected participant
@@ -356,7 +339,7 @@ public class SessionEventsHandler {
 		rpcNotificationService.sendResponse(participant.getParticipantPrivateId(), transactionId, result);
 	}
 
-	// TODO: REMOVE ON 2.18.0 지우라고?
+	// TODO: REMOVE ON 2.18.0
 	public void onSubscribe(Participant participant, Session session, String sdpAnswer, Integer transactionId,
 			OpenViduException error) {
 		if (error != null) {
@@ -374,11 +357,9 @@ public class SessionEventsHandler {
 			});
 		}
 	}
-	// END TODO 지우면 안됨!!!!
+	// END TODO
 
-	// subscribe 실행
 	public void onSubscribe(Participant participant, Session session, Integer transactionId, OpenViduException error) {
-		// 에러가 있으면 에러를 보낸다.
 		if (error != null) {
 			rpcNotificationService.sendErrorResponse(participant.getParticipantPrivateId(), transactionId, null, error);
 			return;
@@ -386,7 +367,6 @@ public class SessionEventsHandler {
 		JsonObject result = new JsonObject();
 		rpcNotificationService.sendResponse(participant.getParticipantPrivateId(), transactionId, result);
 
-		// RECORDER는 대부분 무시...
 		if (ProtocolElements.RECORDER_PARTICIPANT_PUBLICID.equals(participant.getParticipantPublicId())) {
 			recordingsToSendClientEvents.computeIfPresent(session.getSessionId(), (key, value) -> {
 				sendRecordingStartedNotification(session, value);
@@ -395,7 +375,6 @@ public class SessionEventsHandler {
 		}
 	}
 
-	// subscribe 취소. 근데 우린 어차피 subscriber가 없어서 필요할지 잘 모르겠음..
 	public void onUnsubscribe(Participant participant, Integer transactionId, OpenViduException error) {
 		if (error != null) {
 			rpcNotificationService.sendErrorResponse(participant.getParticipantPrivateId(), transactionId, null, error);
@@ -404,9 +383,8 @@ public class SessionEventsHandler {
 		rpcNotificationService.sendResponse(participant.getParticipantPrivateId(), transactionId, new JsonObject());
 	}
 
-	// 딱!!! 이 함수로 모든 것을 소통함
 	public void onSendMessage(Participant participant, JsonObject message, Set<Participant> participants,
-							  String sessionId, String uniqueSessionId, Integer transactionId, OpenViduException error) {
+			String sessionId, String uniqueSessionId, Integer transactionId, OpenViduException error) {
 
 		boolean isRpcCall = transactionId != null;
 		if (isRpcCall) {
@@ -436,24 +414,14 @@ public class SessionEventsHandler {
 		}
 
 		Set<String> toSet = new HashSet<String>();
+	
 
-		// ********* 여기서부터 type에 맞춰서 우리 서비스 실행하면 됨
-		if (message.has("type") && message.get("type").getAsString().equals("signal:music")){
-			System.out.println("[Music] Request ...");
-			musicService.controlMusic(participant, message, participants, rpcNotificationService);
-		} else if (message.has("type") && message.get("type").getAsString().equals("signal:game")) {
-			System.out.println("Request Game ...");
-			gameService.controlGame(participant, message, participants, rpcNotificationService);
-		} else if (message.has("type") && message.get("type").getAsString().equals("signal:photo")) {
-			System.out.println("[Photo] Request ...");
-			photoService.controlPhoto(participant, message, participants, rpcNotificationService);
-		} else if (message.has("type") && message.get("type").getAsString().equals("signal:sing")) {
-			System.out.println("[Sing] Request ...");
-			singService.controlSing(participant, message, participants, rpcNotificationService);
+		if (message.has("type") && message.get("type").getAsString().equals("signal:game")){
+			System.out.println("Request Game!");
 		}
-		// ******** 이외에는 채팅!
+		
+		// 채팅 부분
 		else {
-			// 여기가 채팅일 때 실행되도록 type:chat
 			if (message.has("to")) {
 				JsonArray toJson = message.get("to").getAsJsonArray();
 				for (int i = 0; i < toJson.size(); i++) {
@@ -466,7 +434,6 @@ public class SessionEventsHandler {
 				}
 			}
 
-			// toSet이 비어있다면 '모든' 사용자에게 반환해주는 것. "to"라는 optional 데이터가 있다면 그 사람들에게만 메세지 반환.
 			if (toSet.isEmpty()) {
 				for (Participant p : participants) {
 					toSet.add(p.getParticipantPublicId());
@@ -487,18 +454,17 @@ public class SessionEventsHandler {
 					throw new OpenViduException(Code.SIGNAL_TO_INVALID_ERROR_CODE,
 							"Signal \"to\" field invalid format: some connectionId does not exist in this session");
 				}
-			}
-
+		}
 
 		}
+
 		if (isRpcCall) {
 			rpcNotificationService.sendResponse(participant.getParticipantPrivateId(), transactionId, new JsonObject());
 		}
-		CDR.recordSignalSent(sessionId, uniqueSessionId, from, toSet.toArray(new String[toSet.size()]), type, data);
 
+		CDR.recordSignalSent(sessionId, uniqueSessionId, from, toSet.toArray(new String[toSet.size()]), type, data);
 	}
 
-	// stream의 속성이 바뀌었을 때
 	public void onStreamPropertyChanged(Participant participant, Integer transactionId, Set<Participant> participants,
 			String streamId, String property, JsonElement newValue, String reason) {
 
@@ -510,21 +476,17 @@ public class SessionEventsHandler {
 		params.addProperty(ProtocolElements.STREAMPROPERTYCHANGED_NEWVALUE_PARAM, newValue.toString());
 		params.addProperty(ProtocolElements.STREAMPROPERTYCHANGED_REASON_PARAM, reason);
 
-		// 세션에 있는 모든 참가자들에게 바뀐 속성을 담아 보낸다.
 		for (Participant p : participants) {
 			if (p.getParticipantPrivateId().equals(participant.getParticipantPrivateId())) {
-				// 얘는 sendResponse라서 응답 반환 -> 본인일 때?
 				rpcNotificationService.sendResponse(participant.getParticipantPrivateId(), transactionId,
 						new JsonObject());
 			} else {
-				// 얘는 sendNotification이라 알람 반환.. 근데 왜 params가 여기지?
 				rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
 						ProtocolElements.STREAMPROPERTYCHANGED_METHOD, params);
 			}
 		}
 	}
 
-	// 참가자를 받았을 때
 	public void onRecvIceCandidate(Participant participant, Integer transactionId, OpenViduException error) {
 		if (error != null) {
 			rpcNotificationService.sendErrorResponse(participant.getParticipantPrivateId(), transactionId, null, error);
@@ -533,7 +495,6 @@ public class SessionEventsHandler {
 		rpcNotificationService.sendResponse(participant.getParticipantPrivateId(), transactionId, new JsonObject());
 	}
 
-	// 강제로 연결 끊김
 	public void onForceDisconnect(Participant moderator, Participant evictedParticipant, Set<Participant> participants,
 			Integer transactionId, OpenViduException error, EndReason reason) {
 
@@ -570,7 +531,6 @@ public class SessionEventsHandler {
 		this.rpcNotificationService.scheduleCloseRpcSession(evictedParticipant.getParticipantPrivateId(), 10000);
 	}
 
-	// 녹화 시작 알람 보내기인데 필요 없을 듯
 	public void sendRecordingStartedNotification(Session session, Recording recording) {
 		if (recording.recordingNotificationSent.compareAndSet(false, true)) {
 			// Filter participants by roles according to "OPENVIDU_RECORDING_NOTIFICATION"
@@ -617,7 +577,6 @@ public class SessionEventsHandler {
 		}
 	}
 
-	// 필터가 바뀌었을 때 - 참가자, 바꾼사람, 트랜젝션 아이디, 참여자들, 스트림 아이디, 필터, 에러, 필터Reason
 	public void onFilterChanged(Participant participant, Participant moderator, Integer transactionId,
 			Set<Participant> participants, String streamId, KurentoFilter filter, OpenViduException error,
 			String filterReason) {
@@ -640,7 +599,6 @@ public class SessionEventsHandler {
 		params.addProperty(ProtocolElements.STREAMPROPERTYCHANGED_PROPERTY_PARAM, "filter");
 		JsonObject filterJson = new JsonObject();
 		if (filter != null) {
-			// 필터의 타입과 옵션을 담아서
 			filterJson.addProperty(ProtocolElements.FILTER_TYPE_PARAM, filter.getType());
 			filterJson.add(ProtocolElements.FILTER_OPTIONS_PARAM, filter.getOptions());
 			if (filter.getLastExecMethod() != null) {
@@ -648,7 +606,6 @@ public class SessionEventsHandler {
 						filter.getLastExecMethod().toJson());
 			}
 		}
-		// stream 속성이 바뀐게 있는지 추가
 		params.add(ProtocolElements.STREAMPROPERTYCHANGED_NEWVALUE_PARAM, filterJson);
 		params.addProperty(ProtocolElements.STREAMPROPERTYCHANGED_REASON_PARAM, filterReason);
 
@@ -680,7 +637,6 @@ public class SessionEventsHandler {
 		}
 	}
 
-	// 필터 이벤트가 실행
 	public void onFilterEventDispatched(String sessionId, String uniqueSessionId, String connectionId, String streamId,
 			String filterType, GenericMediaEvent event, Set<Participant> participants,
 			Set<String> subscribedParticipants) {
@@ -702,7 +658,6 @@ public class SessionEventsHandler {
 		}
 	}
 
-	// 동영상 데이터
 	public void onVideoData(Participant participant, Integer transactionId, Integer height, Integer width,
 			Boolean videoActive, Boolean audioActive) {
 		participant.setVideoHeight(height);
@@ -715,7 +670,6 @@ public class SessionEventsHandler {
 		rpcNotificationService.sendResponse(participant.getParticipantPrivateId(), transactionId, new JsonObject());
 	}
 
-	// 에코, 울림 설정
 	public void onEcho(String participantPrivateId, Integer transactionId) {
 		rpcNotificationService.sendResponse(participantPrivateId, transactionId, new JsonObject());
 	}
@@ -724,11 +678,11 @@ public class SessionEventsHandler {
 	 * This handler must be called before cleaning any sessions or recordings hosted
 	 * by the crashed Media Node
 	 */
-	public void onMediaNodeCrashed(Kms kms, String environmentId, long timeOfKurentoDisconnection,
-			List<String> sessionIds, List<String> recordingIds) {
+	public void onMediaNodeCrashed(Kms kms, String environmentId, long timeOfDisconnection, List<String> sessionIds,
+			List<String> recordingIds) {
 	}
 
-	public void onMasterNodeCrashed(CDREventNodeCrashed event) {
+	public void onMediaNodeRecovered(Kms kms, String environmentId, long timeOfConnection) {
 	}
 
 	public void storeRecordingToSendClientEvent(Recording recording) {

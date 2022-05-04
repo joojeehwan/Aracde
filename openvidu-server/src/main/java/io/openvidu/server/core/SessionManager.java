@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package io.openvidu.server.core;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -47,6 +48,7 @@ import io.openvidu.client.OpenViduException;
 import io.openvidu.client.OpenViduException.Code;
 import io.openvidu.client.internal.ProtocolElements;
 import io.openvidu.java.client.ConnectionProperties;
+import io.openvidu.java.client.IceServerProperties;
 import io.openvidu.java.client.KurentoOptions;
 import io.openvidu.java.client.OpenViduRole;
 import io.openvidu.java.client.Recording;
@@ -60,7 +62,7 @@ import io.openvidu.server.recording.service.RecordingManager;
 import io.openvidu.server.utils.FormatChecker;
 import io.openvidu.server.utils.GeoLocation;
 import io.openvidu.server.utils.GeoLocationByIp;
-import io.openvidu.server.utils.QuarantineKiller;
+import io.openvidu.server.utils.MediaNodeManager;
 import io.openvidu.server.utils.UpdatableTimerTask;
 
 public abstract class SessionManager {
@@ -86,7 +88,7 @@ public abstract class SessionManager {
 	protected TokenRegister tokenRegister;
 
 	@Autowired
-	protected QuarantineKiller quarantineKiller;
+	protected MediaNodeManager mediaNodeManager;
 
 	@Autowired
 	protected GeoLocationByIp geoLocationByIp;
@@ -137,19 +139,6 @@ public abstract class SessionManager {
 	public void sendMessage(Participant participant, String message, Integer transactionId) {
 		try {
 			JsonObject messageJson = JsonParser.parseString(message).getAsJsonObject();
-			sessionEventsHandler.onSendMessage(participant, messageJson, getParticipants(participant.getSessionId()),
-					participant.getSessionId(), participant.getUniqueSessionId(), transactionId, null);
-		} catch (JsonSyntaxException | IllegalStateException e) {
-			throw new OpenViduException(Code.SIGNAL_FORMAT_INVALID_ERROR_CODE,
-					"Provided signal object '" + message + "' has not a valid JSON format");
-		}
-	}
-	//오버로딩
-	public void sendMessage(Participant participant, String message, Integer transactionId, String sessionId) {
-		try {
-			JsonObject messageJson = JsonParser.parseString(message).getAsJsonObject();
-			// 여기!!!! message에 JSON 추가
-			messageJson.add("sessionId", JsonParser.parseString(sessionId));
 			sessionEventsHandler.onSendMessage(participant, messageJson, getParticipants(participant.getSessionId()),
 					participant.getSessionId(), participant.getUniqueSessionId(), transactionId, null);
 		} catch (JsonSyntaxException | IllegalStateException e) {
@@ -342,20 +331,21 @@ public abstract class SessionManager {
 	}
 
 	public Token newToken(Session session, OpenViduRole role, String serverMetadata, boolean record,
-			KurentoOptions kurentoOptions) throws Exception {
+			KurentoOptions kurentoOptions, List<IceServerProperties> customIceServers) throws Exception {
 		if (!formatChecker.isServerMetadataFormatCorrect(serverMetadata)) {
 			log.error("Data invalid format");
 			throw new OpenViduException(Code.GENERIC_ERROR_CODE, "Data invalid format");
 		}
 		Token tokenObj = tokenGenerator.generateToken(session.getSessionId(), serverMetadata, record, role,
-				kurentoOptions);
+				kurentoOptions, customIceServers);
 
 		// Internal dev feature: allows customizing connectionId
 		if (serverMetadata.contains("openviduCustomConnectionId")) {
 			try {
 				JsonObject serverMetadataJson = JsonParser.parseString(serverMetadata).getAsJsonObject();
 				String customConnectionId = serverMetadataJson.get("openviduCustomConnectionId").getAsString();
-				customConnectionId = customConnectionId.replaceAll("\\W", ""); // Remove all non-word characters: [^A-Za-z0-9_]
+				// Remove all non-word characters: [^A-Za-z0-9_]
+				customConnectionId = customConnectionId.replaceAll("\\W", "");
 				customConnectionId = customConnectionId.replaceAll(IdentifierPrefixes.PARTICIPANT_PUBLIC_ID, "");
 				tokenObj.setConnectionId(IdentifierPrefixes.PARTICIPANT_PUBLIC_ID + customConnectionId);
 			} catch (Exception e) {
@@ -371,8 +361,7 @@ public abstract class SessionManager {
 
 	public Token newTokenForInsecureUser(Session session, String token, ConnectionProperties connectionProperties)
 			throws Exception {
-		Token tokenObj = new Token(token, session.getSessionId(), connectionProperties,
-				this.openviduConfig.isTurnadminAvailable() ? this.coturnCredentialsService.createUser() : null);
+		Token tokenObj = new Token(token, session.getSessionId(), connectionProperties, this.coturnCredentialsService.createUser());
 		session.storeToken(tokenObj);
 		return tokenObj;
 	}
@@ -548,42 +537,41 @@ public abstract class SessionManager {
 		if (session == null) {
 			throw new OpenViduException(Code.ROOM_NOT_FOUND_ERROR_CODE, "Session '" + sessionId + "' not found");
 		}
-		if (session.isClosed()) {
-			this.cleanCollections(sessionId);
-			throw new OpenViduException(Code.ROOM_CLOSED_ERROR_CODE, "Session '" + sessionId + "' already closed");
-		}
-		Set<Participant> participants = getParticipants(sessionId);
 
-		boolean sessionClosedByLastParticipant = false;
-
-		for (Participant p : participants) {
-			try {
-				sessionClosedByLastParticipant = this.evictParticipant(p, null, null, reason);
-			} catch (OpenViduException e) {
-				log.warn("Error evicting participant '{}' from session '{}'", p.getParticipantPublicId(), sessionId, e);
-			}
-		}
-
-		if (!sessionClosedByLastParticipant) {
-			// This code should only be executed when there were no participants connected
-			// to the session. That is: if the session was in the automatic recording stop
-			// timeout with INDIVIDUAL recording (no docker participant connected)
-			try {
-				if (session.closingLock.writeLock().tryLock(15, TimeUnit.SECONDS)) {
-					try {
-						if (session.isClosed()) {
-							return;
-						}
-						this.closeSessionAndEmptyCollections(session, reason, true);
-					} finally {
-						session.closingLock.writeLock().unlock();
+		try {
+			if (session.closingLock.writeLock().tryLock(15, TimeUnit.SECONDS)) {
+				try {
+					if (session.isClosed()) {
+						this.cleanCollections(sessionId);
+						throw new OpenViduException(Code.ROOM_CLOSED_ERROR_CODE,
+								"Session '" + sessionId + "' already closed");
 					}
-				} else {
-					log.error("Timeout waiting for Session {} closing lock to be available", sessionId);
+
+					boolean sessionClosedByLastParticipant = false;
+					Set<Participant> participants = getParticipants(sessionId);
+					for (Participant p : participants) {
+						try {
+							sessionClosedByLastParticipant = this.evictParticipant(p, null, null, reason);
+						} catch (OpenViduException e) {
+							log.warn("Error evicting participant '{}' from session '{}'", p.getParticipantPublicId(),
+									sessionId, e);
+						}
+					}
+					if (!sessionClosedByLastParticipant) {
+						// This code should only be executed when there were no participants connected
+						// to the session. That is: if the session was in the automatic recording stop
+						// timeout with INDIVIDUAL recording (no docker participant connected)
+						this.closeSessionAndEmptyCollections(session, reason, true);
+					}
+
+				} finally {
+					session.closingLock.writeLock().unlock();
 				}
-			} catch (InterruptedException e) {
-				log.error("InterruptedException while waiting for Session {} closing lock to be available", sessionId);
+			} else {
+				log.error("Timeout waiting for Session {} closing lock to be available", sessionId);
 			}
+		} catch (InterruptedException e) {
+			log.error("InterruptedException while waiting for Session {} closing lock to be available", sessionId);
 		}
 	}
 
@@ -645,7 +633,7 @@ public abstract class SessionManager {
 
 		if (session.close(reason)) {
 			try {
-				sessionEventsHandler.onSessionClosed(session.getSessionId(), reason);
+				sessionEventsHandler.onSessionClosed(session, reason);
 			} catch (Exception e) {
 				log.error("Error recording 'sessionDestroyed' event for session {}: {} - {}", session.getSessionId(),
 						e.getClass().getName(), e.getMessage());
@@ -657,7 +645,7 @@ public abstract class SessionManager {
 		log.info("Session '{}' removed and closed", session.getSessionId());
 
 		if (mediaNodeId != null) {
-			this.quarantineKiller.dropMediaNode(mediaNodeId);
+			this.mediaNodeManager.dropIdleMediaNode(mediaNodeId);
 		}
 	}
 
@@ -679,14 +667,14 @@ public abstract class SessionManager {
 	}
 
 	public void closeAllSessionsAndRecordingsOfKms(Kms kms, EndReason reason) {
-		// Close all active sessions
-		kms.getKurentoSessions().forEach(kSession -> {
-			this.closeSession(kSession.getSessionId(), reason);
-		});
 		// Close all non active sessions configured with this Media Node
 		this.closeNonActiveSessions(sessionNotActive -> {
 			return (sessionNotActive.getSessionProperties().mediaNode() != null
 					&& kms.getId().equals(sessionNotActive.getSessionProperties().mediaNode()));
+		});
+		// Close all active sessions
+		kms.getKurentoSessions().forEach(kSession -> {
+			this.closeSession(kSession.getSessionId(), reason);
 		});
 		// Stop all external recordings
 		kms.getActiveRecordings().forEach(recordingIdSessionId -> {

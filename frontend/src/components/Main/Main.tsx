@@ -10,24 +10,16 @@ import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
-
-
-// import Chatting from '../Modal/Chatting';
-
-// import { Stomp } from '@stomp/stompjs';
-// import { deleteToken } from '../../common/api/jWT-Token';
-
 import Chatting from '../Modal/Chatting/ChattingList/index';
 import { Stomp } from '@stomp/stompjs';
 import {deleteToken} from '../../common/api/jWT-Token';
-
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
 
-  const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
+  const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp')
   const client = Stomp.over(sock);
 
   const navigate = useNavigate();
@@ -42,28 +34,12 @@ function Main() {
     setAlarmsIsOpen(true);
   }, [alarmsIsOpen]);
 
-  const handleCloseAlarms = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      setAlarmsIsOpen(false);
-    },
-    [alarmsIsOpen],
-  );
+  const handleCloseAlarms = useCallback((e : React.MouseEvent<HTMLDivElement>) => {
+    setAlarmsIsOpen(false);
+  }, [alarmsIsOpen]);
 
   const handleOpensFriends = useCallback(() => {
-<<<<<<< HEAD
-    client.send(
-      '/pub/noti/2',
-      {},
-      JSON.stringify({
-        userSeq: window.localStorage.getItem('userSeq'),
-        name: '홍승기',
-        inviteCode: 'asdfasf',
-        type: 'friend',
-      }),
-    );
-=======
     // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
->>>>>>> 834f71630cf4af41a572f9eb9912f209ff8c991e
     setFriendsIsOpen(true);
   }, [friendsIsOpen]);
 
@@ -124,26 +100,26 @@ function Main() {
     }
   };
 
-  // 모달 창 열리면 옆에 스크롤바 안보임
-  useEffect(() => {
-    if (friendsIsOpen === true || alarmsIsOpen === true || open === true) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+  useEffect(()=> {
+    if(friendsIsOpen === true || alarmsIsOpen === true || open === true){
+      document.body.style.overflow = "hidden";
     }
-  }, [friendsIsOpen, alarmsIsOpen, open]);
+    else{
+      document.body.style.overflow = "unset";
+    }
+  }, [friendsIsOpen, alarmsIsOpen, open])
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
-      // client.connect({}, () => {
-      //   console.log('connection');
-      //   client.subscribe('/sub/noti/' + window.localStorage.getItem('userSeq'), function (notiDTO) {
-      //     console.log('TLqkfjwlSWk whwRkxsp wlsWkfh');
-      //     const content = JSON.parse(notiDTO.body);
-      //     console.log(content.name);
-      //   });
-      // });
+      client.connect({}, () => {
+        console.log("connection");
+        client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
+            console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");  
+          const content = JSON.parse(notiDTO.body);
+            console.log(content.name);
+        })
+      })
     }
   }, []);
 

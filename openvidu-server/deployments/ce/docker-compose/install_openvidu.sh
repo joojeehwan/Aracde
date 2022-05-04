@@ -3,14 +3,14 @@
 # Global variables
 OPENVIDU_FOLDER=openvidu
 OPENVIDU_VERSION=master
-OPENVIDU_UPGRADABLE_VERSION="2.18"
+OPENVIDU_UPGRADABLE_VERSION="2.21"
 DOWNLOAD_URL=https://raw.githubusercontent.com/OpenVidu/openvidu/${OPENVIDU_VERSION}
 
 fatal_error() {
      printf "\n     =======¡ERROR!======="
      printf "\n     %s" "$1"
      printf "\n"
-     exit 0
+     exit 1
 }
 
 new_ov_installation() {

@@ -9,10 +9,6 @@ export default defineConfig({
   define: {
     global: {},
   },
-  esbuild: {
-    jsxFactory: `jsx`,
-    jsxInject: `import { jsx } from '@emotion/react'`,
-  },
   // resolve: {
   //   alias: { stream: require.resolve('stream-browserify') },
   // },
