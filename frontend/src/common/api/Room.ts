@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-const BASE_URL = 'http://localhost:8080/apiv1';
+const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1';
 const token = getToken();
 
 const getProfile = async () => {
