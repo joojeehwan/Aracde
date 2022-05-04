@@ -444,6 +444,12 @@ public class SessionEventsHandler {
 		} else if (message.has("type") && message.get("type").getAsString().equals("signal:game")) {
 			System.out.println("Request Game ...");
 			gameService.controlGame(participant, message, participants, rpcNotificationService);
+		} else if (message.has("type") && message.get("type").getAsString().equals("signal:photo")) {
+			System.out.println("[Photo] Request ...");
+			photoService.controlPhoto(participant, message, participants, rpcNotificationService);
+		} else if (message.has("type") && message.get("type").getAsString().equals("signal:sing")) {
+			System.out.println("[Sing] Request ...");
+			singService.controlSing(participant, message, participants, rpcNotificationService);
 		}
 		// ******** 이외에는 채팅!
 		else {
