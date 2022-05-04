@@ -10,9 +10,20 @@ import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
+<<<<<<< HEAD
 import Chatting from '../Modal/Chatting/ChattingList/index';
+=======
+
+
+import Chatting from '../Modal/Chatting';
+
+>>>>>>> 7b6bd91e137ea60489b38d066a031732ef2b1ff6
 import { Stomp } from '@stomp/stompjs';
 import {deleteToken} from '../../common/api/jWT-Token';
+
+// import { Stomp } from '@stomp/stompjs';
+
+
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -39,7 +50,23 @@ function Main() {
   }, [alarmsIsOpen]);
 
   const handleOpensFriends = useCallback(() => {
+<<<<<<< HEAD
     // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
+=======
+    client.send(
+      '/pub/noti/2',
+      {},
+      JSON.stringify({
+        userSeq: window.localStorage.getItem('userSeq'),
+        name: '홍승기',
+        inviteCode: 'asdfasf',
+        type: 'friend',
+      }),
+    );
+
+    // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
+
+>>>>>>> 7b6bd91e137ea60489b38d066a031732ef2b1ff6
     setFriendsIsOpen(true);
   }, [friendsIsOpen]);
 
@@ -74,6 +101,7 @@ function Main() {
   };
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
+    navigate('/entrance');
     console.log('눌렸음');
   };
 
@@ -112,6 +140,7 @@ function Main() {
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
+<<<<<<< HEAD
       client.connect({}, () => {
         console.log("connection");
         client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
@@ -120,6 +149,16 @@ function Main() {
             console.log(content.name);
         })
       })
+=======
+      // client.connect({}, () => {
+      //   console.log("connection");
+      //   client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
+      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");  
+      //     const content = JSON.parse(notiDTO.body);
+      //       console.log(content.name);
+      //   })
+      // })
+>>>>>>> 7b6bd91e137ea60489b38d066a031732ef2b1ff6
     }
   }, []);
 
@@ -219,7 +258,7 @@ function Main() {
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
-        {friendsIsOpen ? <Friends client={client} open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
+        {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
       </div>

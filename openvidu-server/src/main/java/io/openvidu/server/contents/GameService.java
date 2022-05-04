@@ -16,9 +16,17 @@ public class GameService {
 
     /**
      * 게임 상태
+     *
+     * 게임 준비 : 게임 선택하는 화면을 클릭할 때,
+     *
+     * 게임 선택 : 특정 게임을 선택하고, 시작하기 전,
+     *
+     * 게임 시작 : 시작 버튼을 누를 때. (게임 진행 과정에 필요한 로직들이 포함되어야 함)
+     *
+     * 게임 종료 : 종료 조건이 되었거나, 게임을 종료할 때
      */
-    // 게임 비활성화
-    static final int NOGAME = -1;
+//    // 게임 비활성화
+//    static final int NOGAME = -1;
     // 게임 준비
     static final int PREPAREGAME = 0;
     // 게임선택
@@ -41,16 +49,15 @@ public class GameService {
 
     // params에 data를 추가해서 이 클래스를 통해 전달하는 형식
     static RpcNotificationService rpcNotificationService;
-
-    // log 관련
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
-
     // 순서
     protected ConcurrentHashMap<String, Map<Integer, String>> orderMap = new ConcurrentHashMap<>();
     // 그림 저장 <sessionId, [그림url, ...] }
     protected ConcurrentHashMap<String, ArrayList<String>> imageMap = new ConcurrentHashMap<>();
     // 단어 저장(중복 방지용)
-    protected ConcurrentHashMap<String, Map<String, Integer>> wordMAp = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, Map<String, Integer>> wordMap = new ConcurrentHashMap<>();
+
+
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -84,10 +91,8 @@ public class GameService {
         data.addProperty("gameStatus", gameStatus);
 
         switch (gameStatus) {
-            case NOGAME:
-                noGame(participant, participants, message, params, data);
-                break;
-            case PREPAREGAME: // 게임 준비
+
+            case PREPAREGAME:
                 prepareGame(participant, participants, message, params, data);
                 break;
             case SELECTGAME: // 게임 선택
@@ -106,14 +111,7 @@ public class GameService {
      *  게임 비활성화 상태
      *  gameStatus: -1
      * */
-    private void noGame(Participant participant, Set<Participant> participants,
-                        JsonObject message, JsonObject params, JsonObject data) {
-        params.add("data", data);
-        for (Participant p : participants) {
-            rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
-                    ProtocolElements.PARTICIPANTSENDMESSAGE_METHOD, params);
-        }
-    }
+
 
     /**
      *  게임 준비 상태
@@ -123,8 +121,8 @@ public class GameService {
      * */
     private void prepareGame(Participant participant, Set<Participant> participants,
                              JsonObject message, JsonObject params, JsonObject data) {
-        log.info("PrepareGame is called by {}", participant.getParticipantPublicId());
 
+        log.info("PrepareGame is called by {}", participant.getParticipantPublicId());
         params.add("data", data);
         // 브로드 캐스팅
         for (Participant p : participants) {
@@ -141,9 +139,17 @@ public class GameService {
                            JsonObject message, JsonObject params, JsonObject data) {
 
         int peopleCnt = participants.size();
-        // 어느 게임을 선택했는지
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
+        
+        // 순서 매핑
+        Map<Integer, String> peopleMap = new HashMap<>();
+       
+        // idx 순서 섞기
+        int[] idxArr = new int[peopleCnt];
+        for (int i = 0; i < peopleCnt; i++) {
+            idxArr[i] = i+1;
+        }
 
         // 순서 매핑
         Map<Integer, String> peopleOrder = new HashMap<>();
@@ -227,13 +233,12 @@ public class GameService {
             case CATCHMIND:
                 // 이미지 추가
                 String imageUrl = data.get("imageUrl").getAsString();
-
                 ArrayList<String> imageList = imageMap.get(sessionId);
                 imageList.add(imageUrl);
                 imageMap.put(sessionId, imageList);
 
                 String answer = data.get("answer").getAsString();
-                // 처음 출제자의 경우, 어떤 그림인지
+                // 처음 출제자의 경우 제시어 선택
                 if (index == 0) {
                     data.addProperty("answer", answer);
                 }
@@ -259,20 +264,20 @@ public class GameService {
 
             case CHARADES:
                 Random rand = new Random();
-                BodyGameUtil bodyGameUtil = new BodyGameUtil();
+                WordGameUtil wordGameUtil = new WordGameUtil();
                 // 카테고리
                 String category = data.get("category").getAsString();
                 String targetStreamId = data.get("targetStreamId").getAsString();
-                String[] wordList = bodyGameUtil.takeWord(category);
+                List<String> wordList = wordGameUtil.takeWord(category);
 
-                Map<String, Integer> wordMap = wordMAp.get(sessionId);
+                Map<String, Integer> wordOrder = wordMap.get(sessionId);
                 // 중복 없는 단어 나올 때까지 random 반복
                 while (true) {
                     // 전체 요소중 임의로 추출
-                    String word = wordList[rand.nextInt(wordList.length)];
+                    String word = wordList.get(rand.nextInt(wordList.size()));
 
-                    if (!wordMap.containsKey(word)) {
-                        wordMap.put(word, 1);
+                    if (!wordOrder.containsKey(word)) {
+                        wordOrder.put(word, 1);
                         break;
                     }
                 }

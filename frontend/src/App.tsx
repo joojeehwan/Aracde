@@ -13,18 +13,22 @@ const NaverRedirectHandler = loadable(() => import('./components/Login/naver/OAu
 const GoogleRedirectHandler = loadable(() => import('./components/Login/google/OAuth2RedirectHandler'));
 const MyRoom = loadable(() => import('./components/MyRoom/MyRoom'));
 const EntranceRoom = loadable(() => import('./components/Room/EntranceRoom'));
+const Room = loadable(() => import('./components/Room/Room'));
+
+
 function App() {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Main />} />
+          <Route path='/' element={<Main />} />
           <Route path="/login" element={<Login />} />
-          {/* <Route path='/myroom' element={<MyRoom />} /> */}
-          {/* <Route path='/entrance' element={<EntranceRoom />} /> */}
+          <Route path='/myroom' element={<MyRoom />} />
+          <Route path='/entrance' element={<EntranceRoom />} />
           <Route path="/oauth/callback/kakao" element={<KakaoRedirectHandler />} />
           <Route path="/oauth/callback/naver" element={<NaverRedirectHandler />} />
           <Route path="/oauth/callback/google" element={<GoogleRedirectHandler />} />
+          <Route path="/room" element={<Room/>}/>
         </Routes>
       </BrowserRouter>
       <ToastContainer autoClose={1500} style={{ display: 'inline' }} theme="colored" />
