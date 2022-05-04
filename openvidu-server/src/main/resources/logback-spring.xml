@@ -2,8 +2,9 @@
 <configuration>
 
 	<springProperty scope="context" name="cdrPath" source="OPENVIDU_CDR_PATH" />
-	<timestamp key="myTimestamp" timeReference="contextBirth" datePattern="HH-mm-ss" />
 
+	<timestamp key="myTimestamp" timeReference="contextBirth"
+		datePattern="HH-mm-ss" />
 	<appender name="STDOUT"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
@@ -20,8 +21,7 @@
 		</encoder>
 	</appender>
 
-	<!--
-	<appender name="CUSTOMCLASS"
+	<!--<appender name="CUSTOMCLASS"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
 			<pattern>%highlight([%p]) %d %magenta([%.15t]) %boldGreen(%c \(%M\) - %msg%n)
@@ -31,19 +31,12 @@
 	<logger
 		name="io.openvidu.server.kurento.core.KurentoSessionManager">
 		<appender-ref ref="CUSTOMCLASS" />
-	</logger>
-	-->
-
-	<logger name="org.kurento.jsonrpc.client">
-		<level value="ERROR" ></level>
-		<appender-ref ref="STDOUT" />
-	</logger>
+	</logger>-->
 
 	<root>
 		<level value="INFO" />
 		<appender-ref ref="STDOUT" />
 	</root>
-
 	<if condition='property("OPENVIDU_CDR").equalsIgnoreCase("true")'>
 		<then>
 			<appender name="CDR"
@@ -66,5 +59,4 @@
 			</logger>
 		</then>
 	</if>
-
 </configuration>

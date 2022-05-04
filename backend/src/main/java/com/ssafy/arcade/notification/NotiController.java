@@ -20,6 +20,7 @@ public class NotiController {
     // A -> B 알람 보낼때
     @MessageMapping("/noti/{userSeq}")
     public void message(@DestinationVariable("userSeq") Long userSeq, NotiDTO notiDTO) {
+        template.convertAndSend("/sub/noti/" + userSeq, notiDTO);
         System.out.println("noti controller");
         ChannelTopic topic = new ChannelTopic(String.valueOf(userSeq)); // destination
         redisPublisher.publish(topic, notiDTO); // destination, data
