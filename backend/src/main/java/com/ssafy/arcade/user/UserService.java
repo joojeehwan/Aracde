@@ -384,17 +384,23 @@ public class UserService {
 
         // 게임별 gameResDto 추가
         List<GameResDto> gameResDtos = new ArrayList<>();
+        int totalGameCnt = 0;
+        int totalVicCnt = 0;
         for (Code code : Code.values()) {
             GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).get();
             Game game = gameUser.getGame();
             
             GameResDto gameResDto = new GameResDto();
 
+            int gameCnt = game.getGameCnt();
+            int vicCnt = game.getVicCnt();
             gameResDto.setGameCode(gameUser.getGameCode());
-            gameResDto.setGameCnt(game.getGameCnt());
-            gameResDto.setVicCnt(game.getVicCnt());
-
+            gameResDto.setGameCnt(gameCnt);
+            gameResDto.setVicCnt(vicCnt);
             gameResDtos.add(gameResDto);
+
+            totalGameCnt += gameCnt;
+            totalVicCnt += vicCnt;
         }
         // 저장된 그림 추가
         List<PictureResDto> pictureResDtos = new ArrayList<>();
@@ -419,6 +425,8 @@ public class UserService {
         profileResDto.setImage(user.getImage());
         profileResDto.setGameResDtos(gameResDtos);
         profileResDto.setPictureResDtos(pictureResDtos);
+        profileResDto.setTotalGameCnt(totalGameCnt);
+        profileResDto.setTotalVicCnt(totalVicCnt);
 
         return profileResDto;
     }

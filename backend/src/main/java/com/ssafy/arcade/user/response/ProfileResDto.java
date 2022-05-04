@@ -18,6 +18,8 @@ public class ProfileResDto {
     private String email;
     private String name;
     private String image;
+    private Integer totalGameCnt;
+    private Integer totalVicCnt;
     private List<GameResDto> gameResDtos;
     private List<PictureResDto> pictureResDtos;
 }
