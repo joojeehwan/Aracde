@@ -1,8 +1,8 @@
 # jenkins의 기존 경로는 /var/lib/jenkins/workspace/arcade 이다.
-# echo "+++++++++++++++++++++++++++++++++++"
-# echo "++++++++++백엔드 properties 복사하기"
-# sudo cp /home/ubuntu/properties/*.properties /var/lib/jenkins/workspace/arcade/backend/src/main/resources/
-# echo "+++++++++++++++++++++++++++++++++++"
+echo "+++++++++++++++++++++++++++++++++++"
+echo "++++++++++백엔드 properties 복사하기"
+sudo cp /home/ubuntu/properties/*.properties /var/lib/jenkins/workspace/arcade/backend/src/main/resources/
+echo "+++++++++++++++++++++++++++++++++++"
 
 # --- 백엔드 ----
 
@@ -60,27 +60,15 @@ sudo cp -r dist/assets /opt/openvidu/front_build
 echo "+++++++++++++++++++++++++++++++++++"
 
 # --- openvidu ----
-# 1. home/ubuntu/openvidu/openvidu-server 폴더 제거(갈아끼울거임)
+# openvidu 에서 mvn install은 딱 한번만 해주면 된다.
+# 이때 openvidu-client, java client 등의 jar들이 생기고 이 jar파일들은 계정/.m2 폴더에 생성된다.
+# 그 jar 파일들을 openvidu-server jar만들때 쓴다. 그래서 초기에 한번만 해주면 매번 배포할 때마다 해주지 않아도 된다.
+# 심지어 git clone 받은 경로로 가서 openvidu-server 폴더를 갈아끼우지 않아도 된다.
+# 1. 메이븐 빌드
 echo "+++++++++++++++++++++++++++++++++++"
-echo "++++++++++home/ubuntu/openvidu/openvidu-server 폴더 제거(갈아끼울거임)"
-sudo rm -rf /home/ubuntu/openvidu/openvidu-server
-echo "+++++++++++++++++++++++++++++++++++"
-# 2. openvidu-server 폴더 복붙
-echo "+++++++++++++++++++++++++++++++++++"
-echo "++++++++++openvidu-server 폴더 복붙"
-cd ..
+echo "++++++++++openvidu-server 메이븐 빌드"
 pwd
-sudo cp -r openvidu-server /home/ubuntu/openvidu/openvidu-server
-echo "+++++++++++++++++++++++++++++++++++"
-# 3. 메이븐 빌드
-echo "+++++++++++++++++++++++++++++++++++"
-echo "++++++++++/home/ubuntu/openvidu에서 한번 메이븐 빌드"
-pwd
-cd /home/ubuntu/openvidu
-pwd
-sudo mvn install -DskipTests
-echo "++++++++++/home/ubuntu/openvidu/openvidu-server로 이동해서 메이븐 빌드"
-cd openvidu-server
+cd ../openvidu-server
 pwd
 echo "++++++++++"
 sudo mvn install -DskipTests
@@ -88,7 +76,6 @@ echo "+++++++++++++++++++++++++++++++++++"
 # 4. 도커경로로 이동하기
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++openvidu-server 도커 폴더로 이동"
-pwd
 cd docker/openvidu-server
 pwd
 echo "+++++++++++++++++++++++++++++++++++"
