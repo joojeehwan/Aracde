@@ -4,3 +4,4 @@
 /src/main/resources/static/dashboard/
 .idea
 localhost.p12
+openvidu-server.iml
