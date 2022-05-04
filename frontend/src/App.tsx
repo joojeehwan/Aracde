@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import 'react-toastify/dist/ReactToastify.css';
 import loadable from '@loadable/component';
 import { ToastContainer } from 'react-toastify';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import create from "zustand"
 
 const Main = loadable(() => import('./components/Main/Main'));
 const Login = loadable(() => import('./components/Login/mainLogin'));
@@ -13,18 +14,22 @@ const NaverRedirectHandler = loadable(() => import('./components/Login/naver/OAu
 const GoogleRedirectHandler = loadable(() => import('./components/Login/google/OAuth2RedirectHandler'));
 const MyRoom = loadable(() => import('./components/MyRoom/MyRoom'));
 const EntranceRoom = loadable(() => import('./components/Room/EntranceRoom'));
+const Room = loadable(() => import('./components/Room/Room'));
+
 function App() {
+
   return (
     <>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Main />} />
           <Route path="/login" element={<Login />} />
-          {/* <Route path='/myroom' element={<MyRoom />} /> */}
-          {/* <Route path='/entrance' element={<EntranceRoom />} /> */}
+          <Route path="/myroom" element={<MyRoom />} />
+          <Route path="/entrance" element={<EntranceRoom />} />
           <Route path="/oauth/callback/kakao" element={<KakaoRedirectHandler />} />
           <Route path="/oauth/callback/naver" element={<NaverRedirectHandler />} />
           <Route path="/oauth/callback/google" element={<GoogleRedirectHandler />} />
+          <Route path="/room" element={<Room />} />
         </Routes>
       </BrowserRouter>
       <ToastContainer autoClose={1500} style={{ display: 'inline' }} theme="colored" />
@@ -32,4 +37,7 @@ function App() {
   );
 }
 
+
+
 export default App;
+

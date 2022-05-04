@@ -9,6 +9,115 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 
+.chatBox {
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12);
+  // margin: 40px 50px;
+  height: 610px;
+  width: auto;
+  display: flex;
+}
+
+.chatHeader {
+  background-color: #ededed;
+  height: 10%;
+  padding-left: 20px;
+  padding-top: 5px;
+  display: flex;
+}
+
+.self {
+  float: right;
+}
+.chatList {
+  width: 30%;
+}
+
+.chatContent {
+  width: 60%;
+  margin-left: 10px;
+}
+
+.chatMessages {
+  height: 79%;
+  border: 1px solid #000;
+  margin-top: 1px;
+  margin-bottom: 1px;
+  display: flex;
+}
+
+.sendMessage {
+  display: flex;
+  width: 100%;
+  height: 9%;
+  // padding: 20px;
+  // padding-top: -20;
+}
+
+.form {
+  color: rgb(29, 28, 29);
+  font-size: 15px;
+  width: 100%;
+  border-radius: 4px;
+  flex-direction: row;
+  display: flex;
+  border: 1px solid rgb(29, 28, 29);
+}
+
+#addButton {
+  // text-align: center;
+  // background: #1aab8a;
+  // color: #fff;
+  // border: none;
+  // border-radius: 50%;
+  // width: 15px;
+  // position: relative;
+  // height: 60px;
+  // font-size: 1.6em;
+  // padding: 0 2em;
+  // cursor: pointer;
+  // transition: 800ms ease all;
+  // outline: none;
+  // &:hover {
+  //   background: #fff;
+  //   color: #1aab8a;
+  // }
+  // &:before,
+  // &:after {
+  //   content: '';
+  //   position: absolute;
+  //   top: 0;
+  //   right: 0;
+  //   height: 2px;
+  //   width: 0;
+  //   background: #1aab8a;
+  //   transition: 400ms ease all;
+  // }
+  // &:after {
+  //   right: inherit;
+  //   top: inherit;
+  //   left: 0;
+  //   bottom: 0;
+  // }
+  // &:hover:before,
+  // &:hover:after {
+  //   width: 100%;
+  //   transition: 800ms ease all;
+  // }
+}
+
+.inputMessage {
+  width: 90%;
+  // border-radius: 50px;
+}
+
+.sendButton {
+  width: 10%;
+  border-radius: 50px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
 .preview {
   position: relative;
   height: 40px;
@@ -39,6 +148,10 @@
   font-family: 'neodgm';
   padding: 20px 10px;
   height: 200px;
+}
+
+#test {
+  width: 200px;
 }
 
 .modalForm .title {
@@ -73,8 +186,8 @@
 }
 
 .modal > section {
-  width: 340px;
-  height: 410px;
+  width: auto;
+  height: 600px;
   border-radius: 10px;
   background-color: #ffff;
   /* 팝업이 열릴때 스르륵 열리는 효과 */
@@ -92,11 +205,17 @@
   font-size: 20px;
   margin-left: 20px;
   font-family: 'neodgm';
-  border-style: none none solid none;
+  border-style: none none so1lid none;
   &:focus {
     outline: none;
   }
 }
+.onFocus {
+  &:hover {
+    background-color: #ededed;
+  }
+}
+
 // .modal .cancel {
 //   position: absolute;
 //   margin-top: 370px;
