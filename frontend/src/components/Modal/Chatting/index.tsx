@@ -13,15 +13,15 @@ import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
 import ChattingLists from './ChattingComponents/ChattingLists';
 import useInput from '../../../common/hooks/useInput';
-import ChatInvite from "../Chatting/ChattingComponents/ChatInvite"
+import ChatInvite from '../Chatting/ChattingComponents/ChatInvite';
 import { getToken } from '../../../common/api/jWT-Token';
 //stomp & sockjs
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
-import create from "zustand"
+import create from 'zustand';
 
 //api
-import ChatAPI from "../../../common/api/ChatAPI"
+import ChatAPI from '../../../common/api/ChatAPI';
 
 // interface MyProps {
 //   open: boolean;
@@ -105,18 +105,18 @@ function Chatting({ open, onClose, client }: any) {
   const scrollbarRef = useRef<Scrollbars>(null);
   const [chat, onChangeChat, setChat] = useInput('');
   const [chateMessages, setChatMessages] = useState<any>([]);
-  const [chatList, setChatList] = useState<any>([])
+  const [chatList, setChatList] = useState<any>([]);
 
-  const [chatInvite, setChatInvite] = useState<boolean>(false)
+  const [chatInvite, setChatInvite] = useState<boolean>(false);
 
-  console.log(client)
+  console.log(client);
   //api
-  const { getChatList, createChatRoom } = ChatAPI
+  const { getChatList, createChatRoom } = ChatAPI;
 
   const onClickCreateChatRoom = useCallback(() => {
-    const body = { targetUserSeq: 3 }
-    createChatRoom(body)
-  }, [])
+    const body = { targetUserSeq: 3 };
+    createChatRoom(body);
+  }, []);
 
   const handleOpenChatInvite = useCallback(() => {
     setChatInvite(true);
@@ -151,12 +151,12 @@ function Chatting({ open, onClose, client }: any) {
     }
     const SendMessageReq = {
       chatRoomSeq: 1,
-      content: chat
-    }
+      content: chat,
+    };
     client.current.publish({
       destination: '/pub/chat/message',
       body: JSON.stringify(SendMessageReq),
-      headers: { 'Authorization': getToken() },
+      headers: { Authorization: getToken() },
       skipContentLengthHeader: true,
     });
 
@@ -193,17 +193,16 @@ function Chatting({ open, onClose, client }: any) {
   // console.log(getLenfthOfObject({ dummyChatList }));
 
   const getAndgetChatList = async () => {
-    const result = await getChatList()
-    console.log(result)
+    const result = await getChatList();
+    console.log(result);
     if (result?.status === 200) {
-      setChatList([...result.data])
+      setChatList([...result.data]);
     }
-
-  }
+  };
 
   useLayoutEffect(() => {
-    getAndgetChatList()
-  }, [])
+    getAndgetChatList();
+  }, []);
 
   return (
     <div
@@ -245,7 +244,7 @@ function Chatting({ open, onClose, client }: any) {
                         image={section.image}
                         content={section.lastMessage}
                         time={section.lastTime}
-                      // unreads={section.unreads}
+                        // unreads={section.unreads}
                       />
                     );
                   })
@@ -297,7 +296,6 @@ function Chatting({ open, onClose, client }: any) {
             </form>
           </Modal> */}
           {chatInvite ? <ChatInvite open={chatInvite} onClose={handleCloseChatInvite} /> : null}
-
         </section>
       ) : null}
     </div>
