@@ -1,8 +1,8 @@
 # jenkins의 기존 경로는 /var/lib/jenkins/workspace/arcade 이다.
-echo "+++++++++++++++++++++++++++++++++++"
-echo "++++++++++백엔드 properties 복사하기"
-sudo cp /home/ubuntu/properties/*.properties /var/lib/jenkins/workspace/arcade/backend/src/main/resources/
-echo "+++++++++++++++++++++++++++++++++++"
+# echo "+++++++++++++++++++++++++++++++++++"
+# echo "++++++++++백엔드 properties 복사하기"
+# sudo cp /home/ubuntu/properties/*.properties /var/lib/jenkins/workspace/arcade/backend/src/main/resources/
+# echo "+++++++++++++++++++++++++++++++++++"
 
 # --- 백엔드 ----
 
