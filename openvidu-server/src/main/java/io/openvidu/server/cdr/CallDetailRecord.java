@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2017-2020 OpenVidu (https://openvidu.io)
+ * (C) Copyright 2017-2022 OpenVidu (https://openvidu.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,10 +74,11 @@ public class CallDetailRecord {
 		this.log(e);
 	}
 
-	public void recordSessionDestroyed(String sessionId, EndReason reason) {
+	public void recordSessionDestroyed(Session session, EndReason reason) {
+		String sessionId = session.getSessionId();
 		CDREventSession e = this.sessions.remove(sessionId);
 		if (e != null) {
-			CDREventSession eventSessionEnd = new CDREventSession(e, RecordingManager.finalReason(reason),
+			CDREventSession eventSessionEnd = new CDREventSession(e, session, RecordingManager.finalReason(reason),
 					System.currentTimeMillis());
 			this.log(eventSessionEnd);
 
@@ -180,7 +181,7 @@ public class CallDetailRecord {
 		this.log(new CDREventSignal(sessionId, uniqueSessionId, from, to, type, data));
 	}
 
-	protected void log(CDREvent event) {
+	public void log(CDREvent event) {
 		this.loggers.forEach(logger -> {
 			logger.log(event);
 		});
