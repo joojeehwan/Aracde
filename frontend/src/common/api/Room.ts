@@ -23,7 +23,7 @@ const getProfile = async () => {
 
 const createRoom = async () => {
   return await axios
-    .post(`${BASE_URL}/room/create`)
+    .post(`${BASE_URL}/game/room`)
     .then((response) => {
       console.log(response);
       return response;
@@ -35,13 +35,13 @@ const createRoom = async () => {
 };
 
 const enterRoom = async (code: string) => {
-  const response = await axios.patch(`${BASE_URL}/room/enter`, { inviteCode: code });
+  const response = await axios.patch(`${BASE_URL}/game/room`, { inviteCode: code });
   console.log(response);
   return response;
 };
 
 const exitRoom = async (code: string) => {
-  const response = await axios.patch(`${BASE_URL}/room/exit`, { inviteCode: code });
+  const response = await axios.patch(`${BASE_URL}/game/exit`, { inviteCode: code });
   console.log(response);
   return response;
 };

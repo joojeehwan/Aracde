@@ -24,12 +24,12 @@ const MyRoom = () => {
   const getProfileInfo = async () => {
     const response = await getProfile();
     if (response.status === 200) {
-      setEmail(response.email);
-      setName(response.name);
-      setImage(response.image);
-      setGameResDtos(response.gameResDtos);
-      setGameCnt(response.totalGameCnt);
-      setVicCnt(response.totalVicCnt);
+      setEmail(response.data.email);
+      setName(response.data.name);
+      setImage(response.data.image);
+      setGameResDtos(response.data.gameResDtos);
+      setGameCnt(response.data.totalGameCnt);
+      setVicCnt(response.data.totalVicCnt);
     }
   };
 
