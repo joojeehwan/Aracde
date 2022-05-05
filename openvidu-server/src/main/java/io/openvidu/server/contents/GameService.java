@@ -50,6 +50,9 @@ public class GameService {
     // params에 data를 추가해서 이 클래스를 통해 전달하는 형식
     static RpcNotificationService rpcNotificationService;
     private static final Logger log = LoggerFactory.getLogger(GameService.class);
+
+    // 게임 스레드 관리용
+    protected ConcurrentHashMap<String, Thread> globalThread = new ConcurrentHashMap<>();
     // 순서
     protected ConcurrentHashMap<String, Map<Integer, String>> orderMap = new ConcurrentHashMap<>();
     // 그림 저장 <sessionId, [그림url, ...] }
@@ -123,6 +126,11 @@ public class GameService {
                              JsonObject message, JsonObject params, JsonObject data) {
 
         log.info("PrepareGame is called by {}", participant.getParticipantPublicId());
+        // 요청자 streamId (이 값이 맞는지는 테스트 해봐야 될 듯)
+        String streamId = participant.getParticipantPublicId();
+
+        data.addProperty("streamId", streamId);
+        data.addProperty("gameStatus", 0);
         params.add("data", data);
         // 브로드 캐스팅
         for (Participant p : participants) {
