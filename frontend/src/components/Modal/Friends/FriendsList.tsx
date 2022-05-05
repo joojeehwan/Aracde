@@ -59,14 +59,12 @@ function FriendsList({ name, imgUrl }: any) {
   }, [userSeq])
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-        marginBottom: '15px',
-      }}
-    >
+    <div style={{ 
+      display: 'flex',
+      justifyContent : 'space-evenly',
+      alignItems : 'center',
+      marginBottom : '15px',
+    }}>
       <div>
         {isOnline ? (
           <StyledBadgeOnline
