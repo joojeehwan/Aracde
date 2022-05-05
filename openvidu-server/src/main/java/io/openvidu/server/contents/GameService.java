@@ -101,7 +101,7 @@ public class GameService {
                 selectGame(participant, participants, message, params, data);
                 break;
             case STARTGAME: // 게임 실행
-                startGame(participant, participants, message, params, data);
+                startGame(participant, participants, message, params, data, rnfs);
                 break;
             case FINISHGAME: // 게임 종료
                 finishGame(participant, participants, message, params, data);
@@ -118,7 +118,7 @@ public class GameService {
     private void prepareGame(Participant participant, Set<Participant> participants,
                              JsonObject message, JsonObject params, JsonObject data) {
 
-        log.info("ARCADE : PrepareGame is called by {}", participant.getParticipantPublicId());
+        System.out.println("########## [ARCADE] : PrepareGame is called by " + participant.getParticipantPublicId());
 
         // 요청자 streamId (이 값이 맞는지는 테스트 해봐야 될 듯)
         String streamId = participant.getParticipantPublicId();
@@ -143,12 +143,12 @@ public class GameService {
         int peopleCnt = participants.size();
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
-        log.info("ARCADE : people count = {} , gameId = {}, sessionId = {}", peopleCnt, gameId, sessionId);
+        System.out.println("########## [ARCADE] : people count ="+peopleCnt+" gameId: "+gameId+" sessionId: "+sessionId);
 
         // 순서 매핑
         Map<Integer, String> peopleMap = new HashMap<>();
        
-        // idx 순서 섞기
+        // idx 순서 섞기. idx는 1부터!!!!! 뒤에서 get(0)하면 null 나옴!!!!!
         int[] idxArr = new int[peopleCnt];
         for (int i = 0; i < peopleCnt; i++) {
             idxArr[i] = i+1;
@@ -158,7 +158,7 @@ public class GameService {
         Map<Integer, String> peopleOrder = new HashMap<>();
 
 
-        System.out.println("idxArr: " + Arrays.toString(idxArr));
+        System.out.println("########## [ARCADE] : idxArr: " + Arrays.toString(idxArr));
         int idx1, idx2;
         for (int i = 0; i < peopleCnt; i++) {
             idx1 = (int) (Math.random()*peopleCnt);
@@ -166,8 +166,6 @@ public class GameService {
             swap(idxArr, idx1, idx2);
         }
         // 순서 섞였는지 체크
-        log.info("ARCADE : 사람 섞은 인덱스 배열 {}", idxArr);
-
         int idx = 0;
         for (Participant p : participants) {
             peopleOrder.put(idxArr[idx], p.getPublisherStreamId());
@@ -177,14 +175,14 @@ public class GameService {
 
         if (gameId == CATCHMIND) {
             // 이번 게임에서의 제시어를 미리 보내 줌
-            log.info("ARCADE : START Catch Mind!!");
+            System.out.println("########## [ARCADE] : START Catch Mind!!");
             WordGameUtil wordGameUtil = new WordGameUtil();
             List<String> randWord = wordGameUtil.takeAllWord();
             Collections.shuffle(randWord);
             String answer = randWord.get(0);
             data.addProperty("answer", answer);
             // 첫번째 순서
-            String curStreamId = peopleOrder.get(0);
+            String curStreamId = peopleOrder.get(1);
             data.addProperty("curStreamId", curStreamId);
 
             // 이미지 저장용 리스트 생성
@@ -192,27 +190,28 @@ public class GameService {
             imageMap.put(sessionId, imageList);
 
         }else if (gameId == GUESS) {
-            // 첫번째 : 탐정, 두번째 : 범인
-            String detectiveStreamId = peopleOrder.get(0);
-            String suspectStreamId = peopleOrder.get(1);
-            log.info("ARCADE : START Guess!!");
+            // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
+            String detectiveStreamId = peopleOrder.get(1);
+            String suspectStreamId = peopleOrder.get(2);
+            System.out.println("########## [ARCADE] : START Guess!!");
             // 탐정과 범인 지정
             data.addProperty("detectiveStreamId", detectiveStreamId);
             data.addProperty("suspectStreamId", suspectStreamId);
 
         }else if (gameId == CHARADES) {
-            log.info("ARCADE : START Charades!!");
+            System.out.println("########## [ARCADE] : START Charades!!");
             Map<String, Integer> wordOrder = new HashMap<>();
             wordMap.put(sessionId, wordOrder);
 
             // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
-            String curStreamId = peopleOrder.get(0);
+            String curStreamId = peopleOrder.get(1);
 
             // 출제자 지정
             data.addProperty("curStreamId", curStreamId);
         }
 
         data.addProperty("gameStatus", 2);
+        System.out.println("########## [ARCADE] : sent data = " + data);
 
         params.add("data", data);
         for (Participant p : participants) {
@@ -226,15 +225,15 @@ public class GameService {
      *  gameStatus: 2
      * */
     public void startGame(Participant participant, Set<Participant> participants,
-                             JsonObject message, JsonObject params, JsonObject data) {
+                             JsonObject message, JsonObject params, JsonObject data, RpcNotificationService rnfs) {
 
-        int index = data.get("index").getAsInt();
+        int index = data.get("index").getAsInt(); // 이번 차례인 사람 index
         int peopleCnt = participants.size();
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
-        if (index >= peopleCnt) {
-            index -= peopleCnt;
-        }
+        System.out.println("########## [ARCADE] : Start Game => " + gameId);
+
+
         switch (gameId) {
             case CATCHMIND:
                 // 이미지 추가
@@ -256,7 +255,7 @@ public class GameService {
                         data.addProperty("answerYn", "N");
                     }
 
-                    // 이미지 문자열 ( 프론트에서 & 으로 파싱)
+                    // 이미지 문자열 ( 프론트에서 | 으로 파싱)
                     String allImages = "";
 
                     for (int i = 0; i < imageList.size(); i++) {
@@ -264,7 +263,7 @@ public class GameService {
                         if (i == imageList.size()-1) {
                             allImages = allImages.concat(imgUrl);
                         } else {
-                            allImages = allImages.concat(imgUrl).concat("&");
+                            allImages = allImages.concat(imgUrl).concat("|");
                         }
                     }
                     System.out.printf("allImages: %s", allImages);
@@ -283,26 +282,10 @@ public class GameService {
                 break;
 
             case CHARADES:
-                Random rand = new Random();
-                WordGameUtil wordGameUtil = new WordGameUtil();
-                // 카테고리
-                String category = data.get("category").getAsString();
-                String targetStreamId = data.get("targetStreamId").getAsString();
-                List<String> wordList = wordGameUtil.takeWord(category);
-
-                Map<String, Integer> wordOrder = wordMap.get(sessionId);
-                // 중복 없는 단어 나올 때까지 random 반복
-                while (true) {
-                    // 전체 요소중 임의로 추출
-                    String word = wordList.get(rand.nextInt(wordList.size()));
-
-                    if (!wordOrder.containsKey(word)) {
-                        wordOrder.put(word, 1);
-                        break;
-                    }
-                }
-                
-                break;
+                CharadesRunnable charadesRunnable = new CharadesRunnable(participants, rnfs);
+                Thread charadesThread = new Thread(charadesRunnable);
+                charadesThread.start();
+                globalThread.putIfAbsent(sessionId, charadesThread);
 
         }
         data.addProperty("gameStatus", 2);
