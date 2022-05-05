@@ -1,10 +1,10 @@
 package com.ssafy.arcade.chat;
 
 import com.ssafy.arcade.chat.dtos.response.ChatRoomListDTO;
-//import com.ssafy.arcade.chat.dtos.request.CreateChattingRoomReq;
+import com.ssafy.arcade.chat.dtos.request.CreateChattingRoomReq;
 import com.ssafy.arcade.chat.dtos.response.SearchFriendRes;
 import com.ssafy.arcade.chat.repository.ChatRoomRepository;
-//import com.ssafy.arcade.messege.entity.Message;
+import com.ssafy.arcade.messege.entity.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
