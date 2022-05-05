@@ -11,10 +11,9 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 
-import Chatting from '../Modal/Chatting/ChattingList/index';
+import Chatting from '../Modal/Chatting';
 
 // import { Stomp } from '@stomp/stompjs';
-
 
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
@@ -148,7 +147,7 @@ function Main() {
   }, []);
 
   const connect = () => {
-    const token = getToken()
+    const token = getToken();
     client.current = new StompJs.Client({
       brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
@@ -168,7 +167,6 @@ function Main() {
     client.current.activate();
   };
 
-
   if (typeof WebSocket !== 'function') {
     // For SockJS you need to set a factory that creates a new SockJS instance
     // to be used for each (re)connect
@@ -180,16 +178,16 @@ function Main() {
 
   const subscribe = () => {
     client.current.subscribe('/sub/chat/room/1', ({ body }: any) => {
-      console.log(body)
+      console.log(body);
     });
   };
 
-  console.log(window.localStorage.getItem('token'))
+  console.log(window.localStorage.getItem('token'));
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
-      connect()
+      connect();
     }
-  }, [])
+  }, []);
 
   return (
     <>
