@@ -1,5 +1,6 @@
 package com.ssafy.arcade.config;
 
+import com.ssafy.arcade.common.RedisSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -8,7 +9,9 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -39,14 +42,15 @@ public class RedisConfig {
     }
 
     // redisTemplate을 사용하기 위한 설정. CRUD 는 이거 안쓸거임
+//    @Bean
+//    public RedisTemplate<?, ?> redisTemplate() {
+//        RedisTemplate<?, ?> redisTemplate = new RedisTemplate<>();
+//        redisTemplate.setConnectionFactory(redisConnectionFactory());
+//        return redisTemplate;
+//    }
     @Bean
-    public RedisTemplate<?, ?> redisTemplate() {
-        RedisTemplate<?, ?> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory());
-        return redisTemplate;
-    }
     // redis의 pub/sub 을 사용하기 위한 설정
-    public RedisTemplate<String, Object> redisTemplateForObject(RedisConnectionFactory connectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(connectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
@@ -55,9 +59,20 @@ public class RedisConfig {
 
     }
 
+//    @Bean
+//    MessageListenerAdapter messageListenerAdapter(RedisSubscriber redisSubscriber){
+//        return new MessageListenerAdapter(redisSubscriber);
+//    }
     // 지속적인 메시지 발행을 체크하기 위한 리스너
+//    @Bean
+//    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory, MessageListenerAdapter messageListenerAdapter
+//    , ChannelTopic topic) {
+//        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+//        container.setConnectionFactory(connectionFactory);
+//        return container;
+//    }
     @Bean
-    public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory) {
+    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         return container;

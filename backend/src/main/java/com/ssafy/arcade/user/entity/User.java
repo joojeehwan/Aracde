@@ -1,7 +1,6 @@
 package com.ssafy.arcade.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.ssafy.arcade.chat.entity.ChatRoom;
 import com.ssafy.arcade.common.util.BaseTimeEntity;
 import com.ssafy.arcade.game.entity.Game;
 import com.ssafy.arcade.game.entity.GameUser;

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import styles from '../styles/Friends.module.scss';
 import FriendsList from './FriendsList';
 import FriendsSeachBar from './FriendsAdd/FriendsSearhBar';
@@ -6,30 +6,27 @@ import FriendsSearchResults from './FriendsAdd/FriendsSearchResults';
 import UserApi from '../../../common/api/UserApi';
 
 interface MyProps {
-<<<<<<< HEAD
-  client : any;
-=======
   // client : any;
->>>>>>> 7b6bd91e137ea60489b38d066a031732ef2b1ff6
   open: boolean;
   onClose: (e: any) => void;
 }
 
 
 
-<<<<<<< HEAD
-function Friends({ client, open, onClose }: MyProps) {
-=======
+
 function Friends({ open, onClose }: MyProps) {
->>>>>>> 7b6bd91e137ea60489b38d066a031732ef2b1ff6
-  const [friend, setFriend] = useState<{userSeq : number, email : string, name : string, image : string, status : number}[]>([]);
-  const [people, setPeople] = useState<{userSeq : number, email : string, name : string, image : string, status : number}[]>([]);
+  const [friend, setFriend] = useState<
+    { userSeq: number; email: string; name: string; image: string; status: number }[]
+  >([]);
+  const [people, setPeople] = useState<
+    { userSeq: number; email: string; name: string; image: string; status: number }[]
+  >([]);
+
   const [label, setLabel] = useState([]);
   const [number, setNum] = useState([]);
   const [tab, setTab] = useState(0);
 
-
-  const {getUserSearchResult} = UserApi;
+  const { getUserSearchResult, getFriendList } = UserApi;
 
   const handletab = useCallback(
     (value: any) => {
@@ -37,7 +34,7 @@ function Friends({ open, onClose }: MyProps) {
     },
     [tab],
   );
-  const stopEvent = useCallback((e : any) => {
+  const stopEvent = useCallback((e: any) => {
     e.stopPropagation();
   }, []);
 
@@ -48,6 +45,18 @@ function Friends({ open, onClose }: MyProps) {
     }
   }
 
+
+  const getAndgetFriendList = async () => {
+    const result = await getFriendList()
+    console.log(result)
+    if (result?.status === 200) {
+      setFriend([...result.data])
+    }
+  }
+
+  useEffect(() => {
+    getAndgetFriendList()
+  }, [tab])
 
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5) {
@@ -63,17 +72,22 @@ function Friends({ open, onClose }: MyProps) {
             </div>
           ) : (
             <>
-            <FriendsSeachBar searchPeople={handleSearchPeople}/>
-            <div className={styles.friendAddContainer}>
-              {people.map((value, i) => {
-                const idx = i;
-<<<<<<< HEAD
-                return <FriendsSearchResults client={client} seq={value.userSeq} key={idx} imgUrl={value.image} name={value.name} email={value.email} status={value.status}/>;
-=======
-                return <FriendsSearchResults seq={value.userSeq} key={idx} imgUrl={value.image} name={value.name} email={value.email} status={value.status}/>;
->>>>>>> 7b6bd91e137ea60489b38d066a031732ef2b1ff6
-              })}
-            </div>
+              <FriendsSeachBar searchPeople={handleSearchPeople} />
+              <div className={styles.friendAddContainer}>
+                {people.map((value, i) => {
+                  const idx = i;
+                  return (
+                    <FriendsSearchResults
+                      seq={value.userSeq}
+                      key={idx}
+                      imgUrl={value.image}
+                      name={value.name}
+                      email={value.email}
+                      status={value.status}
+                    />
+                  );
+                })}
+              </div>
             </>
           )} 
         </div>
@@ -97,5 +111,6 @@ function Friends({ open, onClose }: MyProps) {
     </div>
   );
 }
+
 
 export default Friends;

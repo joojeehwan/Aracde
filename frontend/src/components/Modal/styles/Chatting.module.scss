@@ -41,6 +41,10 @@
   height: 200px;
 }
 
+#test {
+  width: 200px;
+}
+
 .modalForm .title {
   display: inline;
   font-size: 30px;
@@ -73,8 +77,8 @@
 }
 
 .modal > section {
-  width: 340px;
-  height: 410px;
+  width: auto;
+  height: 600px;
   border-radius: 10px;
   background-color: #ffff;
   /* 팝업이 열릴때 스르륵 열리는 효과 */
