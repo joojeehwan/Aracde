@@ -54,6 +54,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final SimpMessagingTemplate template;
+    private final GameService gameService;
     private final GameUserRepository gameUserRepository;
     private final PictureRepository pictureRepository;
 
@@ -386,8 +387,16 @@ public class UserService {
         List<GameResDto> gameResDtos = new ArrayList<>();
         int totalGameCnt = 0;
         int totalVicCnt = 0;
+
+
         for (Code code : Code.values()) {
-            GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).get();
+            GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElse(null);
+            // 만약 gameUser가 없는경우는 생성한 후에 다시 조회 (예외처리 개념)
+            if (gameUser == null) {
+                gameService.createGame(user.getEmail(), code);
+                gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElseThrow(() ->
+                        new CustomException(ErrorCode.WRONG_DATA));
+            }
             Game game = gameUser.getGame();
 
             GameResDto gameResDto = new GameResDto();

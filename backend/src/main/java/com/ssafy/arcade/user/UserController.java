@@ -169,7 +169,7 @@ public class UserController {
 
         return new ResponseEntity<>(profileResDto, HttpStatus.OK);
     }
-    // 저장된 그림들 불러오기
+
 
 
 }
