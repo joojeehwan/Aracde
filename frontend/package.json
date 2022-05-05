@@ -30,6 +30,7 @@
     "redis": "^4.1.0",
     "sass": "^1.51.0",
     "sockjs-client": "^1.6.0",
+    "swr": "^1.0.1",
     "three": "^0.140.0",
     "typescript": "^4.6.4",
     "web-vitals": "^2.1.4",

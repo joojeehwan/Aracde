@@ -1,14 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
+import styles from '../../styles/Chatting.module.scss';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 
-import styles from '../styles/Friends.module.scss';
-
-//api
-import UserApi from '../../../common/api/UserApi';
-
-//mui
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
     backgroundColor: '#44b700',
@@ -46,36 +41,39 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsList({ name, imgUrl }: any) {
+function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages }: any) {
   const [isOnline, setIsOnline] = useState(true);
 
-  //api
-  const { deleteFriend } = UserApi;
+  const subscribe = () => {
+    client.current.subscribe(`/sub/chat/detail/${roomId}`, ({ body }: any) => {
+      setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
+    });
+  };
 
-  const userSeq = window.localStorage.getItem('useSeq');
-  console.log(userSeq);
-
-  const onClickdeleteFriend = useCallback(() => {
-    deleteFriend(userSeq as unknown as number);
-  }, [userSeq]);
+  useEffect(() => {
+    subscribe();
+    return () => {
+      client.current.subscribe();
+    };
+  }, [roomId]);
 
   return (
     <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-evenly',
-        alignItems: 'center',
-        marginBottom: '15px',
+      className={styles.onFocus}
+      style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
+      onClick={() => {
+        console.log(roomId);
+        chatChange(roomId - 1);
       }}
     >
-      <div>
+      <div style={{ marginLeft: '-35px' }}>
         {isOnline ? (
           <StyledBadgeOnline
             overlap="circular"
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             variant="dot"
           >
-            <Avatar alt="사진" src={imgUrl} />
+            <Avatar alt="사진" sx={{ width: 56, height: 56 }} />
           </StyledBadgeOnline>
         ) : (
           <StyledBadgeOffline
@@ -83,18 +81,22 @@ function FriendsList({ name, imgUrl }: any) {
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             variant="dot"
           >
-            <Avatar alt="사진" src={imgUrl} />
+            <Avatar alt="사진" />
           </StyledBadgeOffline>
         )}
       </div>
-      <div>{name}</div>
       <div>
-        <button className={styles.button} onClick={onClickdeleteFriend}>
-          친구 삭제
-        </button>
+        <div style={{ marginTop: '10px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
+        <div style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', maxWidth: '170px' }}>{content}</div>
+      </div>
+      <div>
+        <div style={{ position: 'absolute', marginLeft: '-1px' }}>
+          <div style={{ fontSize: '11px', color: '#B6A7A7' }}>{time}</div>
+          {/* <div className={styles.count}>{unreads}</div> */}
+        </div>
       </div>
     </div>
   );
 }
 
-export default FriendsList;
+export default ChattingLists;
