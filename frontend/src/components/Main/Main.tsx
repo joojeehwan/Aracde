@@ -11,7 +11,10 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 
-import Chatting from '../Modal/Chatting';
+import Chatting from '../Modal/Chatting/ChattingList/index';
+
+// import { Stomp } from '@stomp/stompjs';
+
 
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
@@ -39,14 +42,12 @@ function Main() {
     setAlarmsIsOpen(true);
   }, [alarmsIsOpen]);
 
-  const handleCloseAlarms = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      setAlarmsIsOpen(false);
-    },
-    [alarmsIsOpen],
-  );
+  const handleCloseAlarms = useCallback((e : React.MouseEvent<HTMLDivElement>) => {
+    setAlarmsIsOpen(false);
+  }, [alarmsIsOpen]);
 
   const handleOpensFriends = useCallback(() => {
+
     // client.send(
     //   '/pub/noti/2',
     //   {},
@@ -121,14 +122,14 @@ function Main() {
     }
   };
 
-  // 모달 창 열리면 옆에 스크롤바 안보임
-  useEffect(() => {
-    if (friendsIsOpen === true || alarmsIsOpen === true || open === true) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+  useEffect(()=> {
+    if(friendsIsOpen === true || alarmsIsOpen === true || open === true){
+      document.body.style.overflow = "hidden";
     }
-  }, [friendsIsOpen, alarmsIsOpen, open]);
+    else{
+      document.body.style.overflow = "unset";
+    }
+  }, [friendsIsOpen, alarmsIsOpen, open])
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
@@ -286,7 +287,7 @@ function Main() {
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
-        {chattingIsOpen ? <Chatting client={client} open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
+        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
       </div>
     </>
   );

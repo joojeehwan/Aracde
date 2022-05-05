@@ -11,6 +11,9 @@ interface MyProps {
   onClose: (e: any) => void;
 }
 
+
+
+
 function Friends({ open, onClose }: MyProps) {
   const [friend, setFriend] = useState<
     { userSeq: number; email: string; name: string; image: string; status: number }[]
@@ -18,6 +21,7 @@ function Friends({ open, onClose }: MyProps) {
   const [people, setPeople] = useState<
     { userSeq: number; email: string; name: string; image: string; status: number }[]
   >([]);
+
   const [label, setLabel] = useState([]);
   const [number, setNum] = useState([]);
   const [tab, setTab] = useState(0);
@@ -34,12 +38,13 @@ function Friends({ open, onClose }: MyProps) {
     e.stopPropagation();
   }, []);
 
-  const handleSearchPeople = async (name: string) => {
+  const handleSearchPeople = async (name : string) => {
     const result = await getUserSearchResult(name);
-    if (result?.status === 200) {
+    if(result?.status === 200){
       setPeople([...result.data]);
     }
-  };
+  }
+
 
   const getAndgetFriendList = async () => {
     const result = await getFriendList()
@@ -84,7 +89,7 @@ function Friends({ open, onClose }: MyProps) {
                 })}
               </div>
             </>
-          )}
+          )} 
         </div>
       );
     }
@@ -106,5 +111,6 @@ function Friends({ open, onClose }: MyProps) {
     </div>
   );
 }
+
 
 export default Friends;
