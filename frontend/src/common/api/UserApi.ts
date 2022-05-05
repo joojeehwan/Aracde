@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { getToken } from './jWT-Token';
+import {getToken} from './jWT-Token';
 
-const BASE_URL = 'http://k6a203.p.ssafy.io:8080/apiv1/users';
+const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/users';
 
 const getKakaoLoginResult = async (code: string) => {
   const state = Math.random().toString(36).substring(2, 11);
@@ -47,12 +47,43 @@ const getAddFriendRequestResult = async (email: string) => {
   return null;
 };
 
+const getFriendList = async () => {
+  const token = getToken()
+  if (token !== null) {
+    const result = await axios.get(`${BASE_URL}/friendList`, { headers: { Authorization: token } }).then((res) => {
+      console.log(res)
+      return res
+    })
+      .then((err) => {
+        console.dir(err)
+        return err
+      })
+    return result;
+  }
+  return null;
+}
+
+const deleteFriend = async (userSeq: number) => {
+  const token = getToken();
+  const body = {
+    userSeq,
+  };
+  if (token !== null) {
+    const result = await axios.post(`${BASE_URL}/friend`, body, { headers: { Authorization: token } });
+    console.log(result);
+    return result;
+  }
+  return null;
+};
+
 const UserApi = {
   getKakaoLoginResult,
   getNaverLoginResult,
   getGoogleLoginResult,
   getUserSearchResult,
   getAddFriendRequestResult,
+  getFriendList,
+  deleteFriend
 };
 
 export default UserApi;
