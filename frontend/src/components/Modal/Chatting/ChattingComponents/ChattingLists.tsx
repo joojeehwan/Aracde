@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from '../../styles/Chatting.module.scss';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
@@ -41,8 +41,21 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function ChattingLists({ name, content, time, chatChange, roomId }: any) {
+function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages }: any) {
   const [isOnline, setIsOnline] = useState(true);
+
+  const subscribe = () => {
+    client.current.subscribe(`/sub/chat/detail/${roomId}`, ({ body }: any) => {
+      setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
+    });
+  };
+
+  useEffect(() => {
+    subscribe();
+    return () => {
+      client.current.subscribe();
+    };
+  }, [roomId]);
 
   return (
     <div

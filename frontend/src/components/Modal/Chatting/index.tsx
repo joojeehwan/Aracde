@@ -8,17 +8,13 @@ import plus from '../../../assets/Modal/Plus.png';
 //mui
 import Avatar from '@mui/material/Avatar';
 //components
-import Modal from '../../../common/Modal';
+// import Modal from '../../../common/Modal';
 import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
 import ChattingLists from './ChattingComponents/ChattingLists';
 import useInput from '../../../common/hooks/useInput';
 import ChatInvite from '../Chatting/ChattingComponents/ChatInvite';
 import { getToken } from '../../../common/api/jWT-Token';
-//stomp & sockjs
-import SockJS from 'sockjs-client/dist/sockjs';
-import * as StompJs from '@stomp/stompjs';
-import create from 'zustand';
 
 //api
 import ChatAPI from '../../../common/api/ChatAPI';
@@ -113,11 +109,6 @@ function Chatting({ open, onClose, client }: any) {
   //api
   const { getChatList, createChatRoom } = ChatAPI;
 
-  const onClickCreateChatRoom = useCallback(() => {
-    const body = { targetUserSeq: 3 };
-    createChatRoom(body);
-  }, []);
-
   const handleOpenChatInvite = useCallback(() => {
     setChatInvite(true);
   }, [chatInvite]);
@@ -138,12 +129,6 @@ function Chatting({ open, onClose, client }: any) {
   const onCloseModal = useCallback(() => {
     setShowCreateChattRoomModal(false);
   }, []);
-
-  // const subscribe = () => {
-  //   client.current.subscribe('/sub/chat/room/1', ({ body }: any) => {
-  //     setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
-  //   });
-  // };
 
   const publish = () => {
     if (!client.current.connected) {
@@ -237,6 +222,8 @@ function Chatting({ open, onClose, client }: any) {
                   chatList?.map((section: any) => {
                     return (
                       <ChattingLists
+                        setChatMessages={setChatMessages}
+                        client={client}
                         chatChange={chatChange}
                         key={section.chatRoomSeq}
                         roomId={section.chatRoomSeq}
