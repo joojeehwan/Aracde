@@ -1,6 +1,6 @@
 package com.ssafy.arcade.chat;
 
-import com.ssafy.arcade.chat.dtos.request.SendMessageReq;
+//import com.ssafy.arcade.chat.dtos.request.SendMessageReq;
 import com.ssafy.arcade.common.RedisPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.Header;
@@ -25,9 +25,9 @@ public class ChatRedisController {
 //        chatService.sendMessage(token, sendMessageReq);
 //    }
 
-    @MessageMapping(value = "/chat/message")
-    public void message(@Header("Authorization") String token, @RequestBody SendMessageReq sendMessageReq) {
-        // 메시지가 들어오면 /sub/chat/room/룸아이디 로 메시지를 보낸다.
-        chatService.sendMessage(token, sendMessageReq);
-    }
+//    @MessageMapping(value = "/chat/message")
+//    public void message(@Header("Authorization") String token, @RequestBody SendMessageReq sendMessageReq) {
+//        // 메시지가 들어오면 /sub/chat/room/룸아이디 로 메시지를 보낸다.
+//        chatService.sendMessage(token, sendMessageReq);
+//    }
 }

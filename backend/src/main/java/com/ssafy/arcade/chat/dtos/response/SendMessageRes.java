@@ -1,6 +1,6 @@
 package com.ssafy.arcade.chat.dtos.response;
 
-import com.ssafy.arcade.messege.entity.Message;
+//import com.ssafy.arcade.messege.entity.Message;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,9 +24,9 @@ public class SendMessageRes {
         CHAT, NOTI
     }
 
-    public Message toEntity(Long chatRoomSeq, String image, String name, Long sender){
-        return Message.builder().chatRoomSeq(chatRoomSeq).content(content)
-                .profile(image).name(name)
-                .sender(sender).build();
-    }
+//    public Message toEntity(Long chatRoomSeq, String image, String name, Long sender){
+//        return Message.builder().chatRoomSeq(chatRoomSeq).content(content)
+//                .profile(image).name(name)
+//                .sender(sender).build();
+//    }
 }
