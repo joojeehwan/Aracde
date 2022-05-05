@@ -2,17 +2,7 @@ import React, { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
 import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
-// import YangGameComponent from "././game/YangGameComponent";
-// import SelectingGame from "././game/SelectingGame";
 import styles from "./style/RoomContents.module.scss";
-// import LoginStatusContext from "../../contexts/LoginStatusContext";
-// import NameContext from "../../contexts/NameContext";
-// import SnapShotResult from "./snapshot/SnapShotResult";
-// import html2canvas from "html2canvas";
-// import MusicPlayer from "./music/MusicPlayer";
-// import SessionIdContext from "../../contexts/SessionIdContext";
-// import Keyword from "../Modals/Game/Keyword";
-// import Karaoke from "./karaoke/Karaoke";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useStore } from "./store";
@@ -23,7 +13,6 @@ import Chat from "./chat/Chat";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
 import { display } from "@mui/system";
-// import {useStore} from "./Room";
 
 const OPENVIDU_SERVER_URL = "https://k6a203.p.ssafy.io:5443";
 const OPENVIDU_SERVER_SECRET = "arcade";
@@ -34,15 +23,6 @@ let OV : any = undefined;
 const RoomContents = ({
   sessionName,
   userName,
-  media,
-  mode,
-  singMode,
-  // musicList,
-  // music,
-  bangzzang,
-  back,
-  goHome,
-  home,
 } : any) => {
   const navigate = useNavigate();
 //   const { setRoomSnapshotResult } = RoomApi;
@@ -61,37 +41,17 @@ const RoomContents = ({
   const subscribersRef = useRef(subscribers);
   subscribersRef.current = subscribers;
   const [targetSubscriber, setTargetSubscriber] = useState<any>({});
-  const [isSelecting, setIsSelecting] = useState<any>(false);
-  const [startPage, setStartPage] = useState<any>(true);
   const [nickname, setNickname] = useState<any[]>([]);
-  const [streamId, setStreamId] = useState<any>("");
-  const [targetId, setTargetId] = useState<any>("");
-  const [targetGameName, setTargetGameName] = useState<any>("");
-  const [index, setIndex] = useState<any>("1");
-  const [keywordInputModal, setKeywordInputModal] = useState<any>(false);
-  const [answer, setAnswer] = useState<any>("");
-  const [modalMode, setModalMode] = useState<any>("start");
-  const [targetNickName, setTargetNickName] = useState<any>("");
-  const [siren, setSiren] = useState<any>("N");
-  const [sirenTarget, setSirenTarget] = useState<any>({});
-  const [sirenTargetNickName, setSirenTargetNickName] = useState<any>({});
-  const [correctGamename, setCorrectGamename] = useState<any>(false);
-  const [correctForbiddenName, setCorrectForbiddenName] = useState<any>(false);
-
   const [correctNickname, setCorrectNickname] = useState<any[]>([]);
-  const [correctPeopleId, setCorrectPeopleId] = useState<any>();
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
-
-  // console.log(targetSubscriber);
-  // 인원수
   const [participantNum, setParticpantNum] = useState<any>(1);
+  const [mode , setMode] = useState<string>("home");
+
+
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
 
-//   const { getRoomExitResult } = RoomApi;
-  // voicefilter
-  // const [voiceFilter, setVoiceFilter] = useState(false);
-  console.log(sessionName);
+
 
   const sessionRef = useRef(session);
   sessionRef.current = session;
@@ -102,19 +62,7 @@ const RoomContents = ({
   const localUserRef = useRef(localUser);
   localUserRef.current = localUser;
 
-  console.log(localUserRef.current, sessionRef.current);
-
-  // 인생네컷
-//   const [count, setCount] = useState(5);
-//   const [images, setImages] = useState([]);
-//   const [status, setStatus] = useState(0); // 0 : ready 1 : start 2 : complete
-  // const [ready, setReady] = useState(true);
-
-//   const countRef = useRef(count);
-//   countRef.current = count;
-
-//   const imagesRef = useRef(images);
-//   imagesRef.current = images;
+  // console.log(localUserRef.current, sessionRef.current);
 
   const targetSubscriberRef = useRef(targetSubscriber);
   targetSubscriberRef.current = targetSubscriber;
@@ -124,34 +72,9 @@ const RoomContents = ({
     setSession(OV.initSession());
   };
 
-//   useEffect(() => {
-//     console.log(participantNum);
-//     console.log(participantNumRef.current);
-//   }, [participantNum]);
-  useEffect(() => {
-    // if (axios.defaults.headers.Authorization === undefined) {
-    //   const accessToken = sessionStorage.getItem("accessToken");
-    //   if (accessToken) {
-    //     console.log("실행됩니다.");
-    //     axios.defaults.headers.Authorization =
-    //       "Bearer " + sessionStorage.getItem("accessToken");
-    //     console.log(axios.defaults.headers.Authorization);
-    //   } else {
-    //     toast.error(
-    //       <div className="hi" style={{ width: "350px" }}>
-    //         로그인 후 이용가능 합니다. 로그인 해주세요
-    //       </div>,
-    //       {
-    //         position: toast.POSITION.TOP_CENTER,
-    //         role: "alert",
-    //       }
-    //     );
-    //     navigate("/user/login");
-    //   }
-    // }
 
-    // setLoginStatus("3");
-    // console.log(loginStatus);
+  useEffect(() => {
+
     const preventGoBack = () => {
       window.history.pushState(null, "", window.location.href);
       console.log("prevent go back!");
@@ -260,15 +183,10 @@ const RoomContents = ({
       sessionRef.current.on("exception", (exception : any) => {
         console.warn(exception);
       });
-
-      sessionRef.current.on("signal:photo", (event : any) => {
-        const data = event.data;
+      
+      sessionRef.current.on("signal:game", (data : any) => {
         console.log(data);
-        if (data.photoStatus === 1) {
-          console.log("사진 찍어요~");
-        //   onCapture();
-        }
-      });
+      })
 
       getToken().then((token) => {
         console.log("GETTOKEN", token);
@@ -310,296 +228,14 @@ const RoomContents = ({
             );
           });
       });
-
-      //back으로 부터 받는 data처리
-    //   sessionRef.current.on("signal:game", (event : any) => {
-    //     //초기요청 응답
-    //     //양세찬
-    //     let nicknameData = nickname;
-    //     let correctNicknameData = correctNickname;
-    //     const data = event.data;
-    //     if (data.gameStatus === 3) {
-    //       if (data.gameId !== 3) {
-    //         console.log("gotoHome");
-    //         goHome();
-    //       }
-    //     } else {
-    //       if (data.gameId === 1) {
-    //         if (data.index !== undefined) {
-    //           //기존 다 날리고 가자
-    //           console.log("set");
-    //           //닉네임 정하기
-    //           console.log("닉네임 정하자");
-    //           //바뀌는 닉네임
-    //           nicknameData.push({
-    //             connectionId: data.streamId,
-    //             keyword: data.gamename,
-    //           });
-    //           setNickname([...nicknameData]);
-
-    //           correctNicknameData.push({
-    //             connectionId: data.streamId,
-    //             keyword: data.gamename,
-    //           });
-
-    //           setCorrectNickname([...correctNicknameData]);
-    //         }
-    //         //닉네임 맞추는 단계
-    //         if (
-    //           data.gameStatus === 2 &&
-    //           data.index === undefined &&
-    //           data.answerYn !== undefined
-    //         ) {
-    //           console.log("here????");
-    //           nicknameData.push({
-    //             connectionId: data.streamId,
-    //             keyword: data.gamename,
-    //           });
-    //           setNickname([...nicknameData]);
-    //         }
-    //         if (data.index === undefined && data.gameStatus === 1) {
-    //           nicknameData.length = 0;
-    //           correctNicknameData.length = 0;
-    //           setNickname([...nicknameData]);
-    //           setCorrectNickname([...correctNicknameData]);
-    //           openKeywordInputModal("start");
-    //           setCorrectGamename(false);
-    //           setCorrectForbiddenName(false);
-    //           setTimeout(() => {
-    //             yangGame(data);
-    //           }, 5000);
-    //         } else {
-    //           yangGame(data);
-    //         }
-    //       } else if (data.gameId === 2) {
-    //         if (data.index !== undefined) {
-    //           //닉네임 정하기
-    //           //바뀌는 닉네임
-    //           nicknameData.push({
-    //             connectionId: data.streamId,
-    //             keyword: data.gamename,
-    //           });
-    //           setNickname([...nicknameData]);
-
-    //           correctNicknameData.push({
-    //             connectionId: data.streamId,
-    //             keyword: data.gamename,
-    //           });
-
-    //           setCorrectNickname([...correctNicknameData]);
-    //         }
-
-    //         //닉네임 맞추는 단계
-    //         if (
-    //           data.gameStatus === 2 &&
-    //           data.index === undefined &&
-    //           data.sirenYn === undefined
-    //         ) {
-    //           nicknameData.push({
-    //             connectionId: data.streamId,
-    //             keyword: data.gamename,
-    //           });
-    //           setNickname([...nicknameData]);
-    //         }
-
-    //         if (
-    //           data.index === undefined &&
-    //           data.gameStatus === 1 &&
-    //           data.sirenYn === undefined
-    //         ) {
-    //           nicknameData.length = 0;
-    //           correctNicknameData.length = 0;
-    //           setCorrectNickname([...correctNicknameData]);
-    //           setNickname([...nicknameData]);
-    //           openKeywordInputModal("startForbidden");
-    //           setCorrectForbiddenName(false);
-    //           setCorrectGamename(false);
-    //           setTimeout(() => {
-    //             forbidden(data);
-    //           }, 5000);
-    //         } else {
-    //           forbidden(data);
-    //         }
-    //       }
-    //     }
-    //   });
-
-    //   sessionRef.current.on("signal:sing", (event : any) => {
-    //     const data = event.data;
-    //     console.log(data);
-    //     console.log(localUserRef.current.getStreamManager().stream.streamId);
-    //     if (data.singStatus === 2 && data.singMode === 2) {
-    //       console.log("너도 오냐?");
-    //       removeVoiceFilter();
-    //       if (
-    //         data.voiceFilter.includes(
-    //           localUserRef.current.getStreamManager().stream.streamId
-    //         )
-    //       ) {
-    //         // setVoiceFilter(true);
-    //         handleVoiceFilter();
-    //       }
-    //     } else if (data.singStatus === -1) {
-    //       console.log("오냐?");
-    //       removeVoiceFilter();
-    //       goHome();
-    //       //       setContentTitle(roomTitle);
-    //       // setMode("basic");
-    //     }
-    //   });
     }
   }, [session]);
 
-//   useEffect(() => {
-//     console.log(subscribers);
-//     setTargetSubscriber(subscribers[0]);
-//   }, [subscribers]);
+  useEffect(() => {
+    console.log(subscribers);
+    setTargetSubscriber(subscribers[0]);
+  }, [subscribers]);
 
-//   const yangGame = (data : any) => {
-//     if (data.gameStatus === 1) {
-//       if (
-//         data.streamId ===
-//         localUserRef.current.getStreamManager().stream.streamId
-//       ) {
-//         console.log("my turn");
-//         //상대방 키워드 입력해줄 모달 띄우기
-//         setStreamId(data.streamId);
-//         setTargetId(data.targetId);
-//         // setModalMode("assign");
-//         openKeywordInputModal("assign");
-//         if (data.index !== undefined && data.index !== "") {
-//           setIndex(data.index);
-//         }
-//         //내가 정해줄 차례가 아니라면
-//       } else {
-//         console.log("not my turn");
-//         // setModalMode("wait");
-//         openKeywordInputModal("wait");
-//       }
-//     } else if (data.gameStatus === 2) {
-//       console.log(data.answerYn);
-//       //정답 맞추기 시도했다
-//       if (data.answerYn !== undefined && data.answerYn !== "") {
-//         //내가 했디
-//         if (
-//           data.streamId ===
-//           localUserRef.current.getStreamManager().stream.streamId
-//         ) {
-//           if (data.answerYn === "Y") {
-//             // setModalMode("correct");
-//             openKeywordInputModal("correct");
-//             setCorrectGamename(true);
-//             console.log("here!!!!");
-//           } else if (data.answerYn === "N") {
-//             console.log("wrong!!!!!!");
-//             // setModalMode("wrong");
-//             openKeywordInputModal("wrong");
-//           }
-//           //내가 안했다
-//         } else {
-//           //누군가 맞췄다
-//           if (data.answerYn === "Y") {
-//             openKeywordInputModal("someoneCorrect");
-//             setCorrectPeopleId(data.streamId);
-//           }
-//         }
-//         //게임안내
-//       } else {
-//         // setModalMode("letsplay");
-//         openKeywordInputModal("letsplay");
-//         setTimeout(() => {
-//           // setModalMode("answer");
-//           closeKeywordInputModal("answer");
-//         }, 4000);
-//         console.log("키워드 설정 완료");
-//       }
-//     }
-//   };
-
-//   const forbidden = (data : any) => {
-//     console.log("here");
-//     if (data.gameStatus === 1) {
-//       if (
-//         data.streamId ===
-//         localUserRef.current.getStreamManager().stream.streamId
-//       ) {
-//         console.log("my turn");
-//         //상대방 금지어 입력해줄 모달 띄우기
-//         setStreamId(data.streamId);
-//         setTargetId(data.targetId);
-//         // setModalMode("assignForbidden");
-//         openKeywordInputModal("assignForbidden");
-//         if (data.index !== undefined && data.index !== "") {
-//           setIndex(data.index);
-//         }
-//         //내가 정해줄 차례가 아니라면
-//       } else {
-//         console.log("not my turn");
-//         // setModalMode("waitForbidden");
-//         openKeywordInputModal("waitForbidden");
-//       }
-//       //금지어 입력 다했다
-//     } else if (data.gameStatus === 2) {
-//       console.log(data.answerYn);
-//       //정답 맞춘다
-//       if (data.answerYn !== undefined && data.answerYn !== "") {
-//         if (
-//           data.streamId ===
-//           localUserRef.current.getStreamManager().stream.streamId
-//         ) {
-//           if (data.answerYn === "Y") {
-//             // setModalMode("correct");
-//             setCorrectForbiddenName(true);
-//             openKeywordInputModal("correctForbidden");
-//           } else if (data.answerYn === "N") {
-//             // setModalMode("wrong");
-//             openKeywordInputModal("wrong");
-//           }
-//         } else {
-//           // 누군가 맞췄다
-//           if (data.answerYn === "Y") {
-//             openKeywordInputModal("someoneCorrectForbidden");
-//             setCorrectPeopleId(data.streamId);
-//             console.log("here!!!!");
-//           }
-//         }
-//       } else if (data.sirenYn !== undefined && data.sirenYn !== "") {
-//         console.log(data.sirenYn);
-//         //사이렌 울려라
-//         if (data.sirenYn === "Y") {
-//           console.log(data.streamId);
-//           setSirenTarget(data.streamId);
-//           //누가 날
-//           if (
-//             data.streamId ===
-//             localUserRef.current.getStreamManager().stream.streamId
-//           ) {
-//             // setModalMode("yousayForbidden");
-//             openKeywordInputModal("yousayForbidden");
-//             //저녀석 잡아라
-//           } else {
-//             // setModalMode("someonesayForbidden");
-//             openKeywordInputModal("someonesayForbidden");
-//           }
-//           //이제 금지어 찾아봐라
-//         } else {
-//           // setModalMode("letsplayForbidden");
-//           openKeywordInputModal("letsplayForbidden");
-//           setTimeout(() => {
-//             setModalMode("answer");
-//             // closeKeywordInputModal();
-//           }, 7000);
-//           console.log("키워드 설정 완료");
-//         }
-//       }
-//     }
-//   };
-//   const handleleaveRoom = async () => {
-//     const body = {
-//       roomSeq: sessionName * 1,
-//     };
-//     // await getRoomExitResult(body);
-//   };
   const leaveSession = () => {
     const mySession = sessionRef.current;
     //console.log(mySession);
@@ -772,6 +408,9 @@ const RoomContents = ({
         .catch((error) => reject(error));
     });
   };
+  const selectGame = () => {
+    setMode("game1");
+  }
   const handleCopy = () => {
     let value = document.getElementById("code")?.innerHTML as string;
     navigator.clipboard.writeText(value).then(
@@ -787,49 +426,27 @@ const RoomContents = ({
     <div style={{
       width : "100vw"
     }}>
-    <div className={styles["contents-container"]}>
-{/* <SelectingGame
-        open={isSelecting}
-        close={closeSelectingPage}
-        startPage={startPage}
-        closeStartPage={closeStartPage}
-      /> */}
-      {/* {mode === "snapshot" ? (
-        <div className={styles.countContainer}>
-          <p className={styles.count}>{count}</p>
-        </div>
-      ) : mode === "game1" ? (
-        <Keyword
-          open={keywordInputModal}
-          close={closeKeywordInputModal}
-          confirmMyAnswer={confirmMyAnswer}
-          confirmTargetGameName={confirmTargetGameName}
-          mode={modalMode}
-          targetNickName={targetNickName}
-          gameId={1}
-          correctPeopleName={correctPeopleName}
-        />
-      ) : mode === "game2" ? (
-        <Keyword
-          open={keywordInputModal}
-          close={closeKeywordInputModal}
-          confirmMyAnswer={confirmMyAnswer}
-          confirmTargetGameName={confirmTargetGameName}
-          mode={modalMode}
-          targetNickName={targetNickName}
-          gameId={2}
-          sirenTargetNickName={sirenTargetNickName}
-          correctPeopleName={correctPeopleName}
-        />
-      ) : null} */}
-      <div className={styles["user-videos-container"]}>
+    <div className={
+      mode === "home"
+      ? styles["contents-container"] 
+      : mode === "game1"
+      ? `${styles["contents-container"]} ${styles.catchmind}`
+      : styles["contents-container"] 
+    }>
+      <div className={
+        mode === "home" 
+        ? styles["user-videos-container"]
+        : mode === "game1"
+        ? `${styles["user-videos-container"]} ${styles.catchmind}`
+        : styles["user-videos-container"]
+      }>
         <div
           id="user-video"
           className={
-            mode === "karaoke"
-              ? `${styles["video-container"]} ${styles.karaoke}`
-              : participantNumRef.current > 6
-              ? `${styles["video-container"]} ${styles.twoXfour}`
+            mode === "home"
+              ? `${styles["video-container"]}`
+              : mode === "game1"
+              ? `${styles["video-container"]} ${styles.catchmind}`
               : participantNumRef.current > 4
               ? `${styles["video-container"]} ${styles.twoXthree}`
               : participantNumRef.current > 2
@@ -846,15 +463,10 @@ const RoomContents = ({
                 micStatusChanged={micStatusChanged}
                 subscribers={subscribers}
                 mode={mode}
-                bangzzang={bangzzang}
                 // openKeywordInputModal={openKeywordInputModal}
               />
             )}
-          {/* {mode === "karaoke" ? (
-            <div className={styles.videoplayer}>
-              <Karaoke user={localUserRef.current} singMode={singMode} />
-            </div>
-          ) : null} */}
+
 
           {subscribersRef.current.map((sub, i) => {
             return (
@@ -873,40 +485,33 @@ const RoomContents = ({
           })}
         </div>
       </div>
-    </div>
-    {localUser !== undefined && localUser.getStreamManager() !== undefined && (
-        <div style={{
-          width : "100vw",
-          display : "flex",
-          justifyContent : "center",
-        }}>
-          <div style={{
+      {mode === "game1" ? (
+            <div style={{
+              width : "60vw",
+              height : "100vh",
+              backgroundColor : "white"
+            }}></div>
+          ) : null}
+      {localUser !== undefined && localUser.getStreamManager() !== undefined && (
+        <div className={
+          mode === "home"
+          ? styles.etcbox
+          : mode === "game1"
+          ? `${styles.etcbox} ${styles.catchmind}`
+          : styles.etcbox
+        }>
+          {mode === "home" ? (<div style={{
             display : "flex",
             width : "85%"
           }}>
             <div className={styles["chat-container"]}>
-              {/* {mode === "snapshot" ? (
-                <SnapShotResult
-                  images={images}
-                  status={status}
-                  onStart={sendSignalCameraStart}
-                  onRetry={onRetry}
-                  onSave={onSave}
-                />
-              ) : ( */}
                 <>
                   <Chat
                     user={localUserRef.current}
                     mode={mode}
-                    exitgame={home}
                     sub={subscribers}
                   />
-                  {/* <button onClick={handleVoiceFilter}>목소리변조</button> */}
                 </>
-              
-              {/* {mode !== "karaoke" ? (
-                <MusicPlayer user={localUserRef.current} />
-              ) : null} */}
             </div>
             <div style={{
               width : "50%",
@@ -950,7 +555,7 @@ const RoomContents = ({
                 alignItems : "center",
                 justifyContent : "center",
                 marginRight : "4%"
-              }}><img src={Play} style={{width : "30%", height : "55%"}}></img>게임 선택</button>
+              }} onClick={selectGame}><img src={Play} style={{width : "30%", height : "55%"}}></img>게임 선택</button>
               <button style={{
                 display : "flex",
                 alignItems : "center",
@@ -972,10 +577,13 @@ const RoomContents = ({
               }} filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"/>
                 친구 초대</button>
             </div>
+        </div>) : (<>Gd</>)}
+          
         </div>
-          </div>
           
       )}
+    </div>
+    
     </div>
   );
 };

@@ -67,9 +67,9 @@ const Room = () => {
     <div className={styles.container}>
       {/* {loading ? <LoadingSpinner></LoadingSpinner> : null} */}
       <div className={styles.nav}>
-        {/* <button className={styles.link} onClick={onClickExit}>
+        <button className={styles.link}>
           EXIT
-        </button> */}
+        </button>
       </div>
       <div className={styles.innerContainer}>
         <div className={styles.contents}>
@@ -80,12 +80,6 @@ const Room = () => {
             <RoomContents
               sessionName={roomseq}
               userName={myName}
-            //   media={myVMstate}
-            //   mode={mode}
-            //   singMode={singMode}
-            //   back={handleHomeClick}
-            //   goHome={goHome}
-            //   home={handleGoTitle}
             />
           </div>
         </div>
