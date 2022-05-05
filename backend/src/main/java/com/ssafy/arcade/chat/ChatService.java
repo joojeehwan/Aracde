@@ -55,6 +55,8 @@ public class ChatService {
             redisMessageListener.addMessageListener(redisSubscriber, topic);
             channels.put("/chat/room/detail/" + chatRoomSeq, topic);
         }
+
+
         return topic;
     }
 
@@ -67,6 +69,9 @@ public class ChatService {
             redisMessageListener.addMessageListener(redisSubscriber, topic);
             channels.put("/chat/room/" + chatRoomSeq, topic);
         }
+
+
+
         return topic;
     }
 
@@ -156,6 +161,7 @@ public class ChatService {
         for (ChatRoomListDTO chatRoomListDTO : list) {
             enterRoom(chatRoomListDTO.getChatRoomSeq());
         }
+
         return list;
     }
 
@@ -203,7 +209,10 @@ public class ChatService {
     }
 
     public List<Message> enterChattingRoom(Long chatRoomSeq) {
-        return messageRepository.findAllByChatRoomSeq(chatRoomSeq).orElseThrow(() ->
+        // 읽지 않은 메시지를 전부 삭제하고 chatRoom에 보낸다.
+        // chatRoomSeq에 저장된 메시지 전부 가져온다.
+        List<Message> messages = messageRepository.findAllByChatRoomSeq(chatRoomSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.WRONG_DATA));
+        return messages;
     }
 }
