@@ -118,7 +118,8 @@ public class GameService {
     private void prepareGame(Participant participant, Set<Participant> participants,
                              JsonObject message, JsonObject params, JsonObject data) {
 
-        log.info("PrepareGame is called by {}", participant.getParticipantPublicId());
+        log.info("ARCADE : PrepareGame is called by {}", participant.getParticipantPublicId());
+
         // 요청자 streamId (이 값이 맞는지는 테스트 해봐야 될 듯)
         String streamId = participant.getParticipantPublicId();
 
@@ -142,7 +143,8 @@ public class GameService {
         int peopleCnt = participants.size();
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
-        
+        log.info("ARCADE : people count = {} , gameId = {}, sessionId = {}", peopleCnt, gameId, sessionId);
+
         // 순서 매핑
         Map<Integer, String> peopleMap = new HashMap<>();
        
@@ -164,7 +166,7 @@ public class GameService {
             swap(idxArr, idx1, idx2);
         }
         // 순서 섞였는지 체크
-        System.out.println("idxArr: " + idxArr);
+        log.info("ARCADE : 사람 섞은 인덱스 배열 {}", idxArr);
 
         int idx = 0;
         for (Participant p : participants) {
@@ -175,6 +177,7 @@ public class GameService {
 
         if (gameId == CATCHMIND) {
             // 이번 게임에서의 제시어를 미리 보내 줌
+            log.info("ARCADE : START Catch Mind!!");
             WordGameUtil wordGameUtil = new WordGameUtil();
             List<String> randWord = wordGameUtil.takeAllWord();
             Collections.shuffle(randWord);
@@ -192,13 +195,13 @@ public class GameService {
             // 첫번째 : 탐정, 두번째 : 범인
             String detectiveStreamId = peopleOrder.get(0);
             String suspectStreamId = peopleOrder.get(1);
-
+            log.info("ARCADE : START Guess!!");
             // 탐정과 범인 지정
             data.addProperty("detectiveStreamId", detectiveStreamId);
             data.addProperty("suspectStreamId", suspectStreamId);
 
         }else if (gameId == CHARADES) {
-
+            log.info("ARCADE : START Charades!!");
             Map<String, Integer> wordOrder = new HashMap<>();
             wordMap.put(sessionId, wordOrder);
 
@@ -238,7 +241,7 @@ public class GameService {
                 String imageUrl = data.get("imageUrl").getAsString();
                 ArrayList<String> imageList = imageMap.get(sessionId);
                 // 마지막 순서는 imageUrl을 공백으로 보내주기 때문.
-                if (imageUrl.trim() != "") {
+                if ("".equals(imageUrl.trim())) {
                     imageList.add(imageUrl);
                     imageMap.put(sessionId, imageList);
                 }
