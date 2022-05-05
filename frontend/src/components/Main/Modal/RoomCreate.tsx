@@ -3,6 +3,8 @@ import style from './RoomCreate.module.scss';
 import Char from '../../../assets/character.png';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import {infoStore} from '../../Store/info';
+import RoomApi from '../../../common/api/Room';
 
 type MyProps = {
   open: boolean;
@@ -10,21 +12,34 @@ type MyProps = {
 };
 
 function RoomCreate({ open, onClose }: MyProps) {
-  const [nick, setNick] = useState<string>('');
+  const [nick, setNickname] = useState<string>('');
   const navigate = useNavigate();
+
+  const {setNick, setInviteCode} = infoStore();
+  const {createRoom} = RoomApi;
+
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
   };
   const handleSetNick = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    setNick(e.currentTarget.value);
+    setNickname(e.currentTarget.value);
   };
-  const handleCreateRoom = (e: React.MouseEvent) => {
+  const handleCreateRoom = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (nick.length > 0) {
-      
-      navigate('/room');
-      console.log(nick);
+      const result = await createRoom();
+      // 
+      if(result.status === 200){
+        setNick(nick);
+        setInviteCode(result.data.inviteCode);
+        window.localStorage.setItem("nickname", nick);
+        window.localStorage.setItem("invitecode", result.data.inviteCode);
+        navigate('/room');
+      }
+
+      // 
+      // console.log(nick);
     } else {
       toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>닉네임을 입력해주세요.</div>, {
         position: toast.POSITION.TOP_CENTER,

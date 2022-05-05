@@ -8,7 +8,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
+import com.ssafy.arcade.common.util.Code;
 import com.ssafy.arcade.common.util.JwtTokenUtil;
+import com.ssafy.arcade.game.GameService;
+import com.ssafy.arcade.game.entity.Game;
+import com.ssafy.arcade.game.entity.GameUser;
+import com.ssafy.arcade.game.entity.Picture;
+import com.ssafy.arcade.game.repositroy.GameUserRepository;
+import com.ssafy.arcade.game.repositroy.PictureRepository;
+import com.ssafy.arcade.game.request.GameReqDto;
+import com.ssafy.arcade.game.request.GameResDto;
+import com.ssafy.arcade.game.response.PictureResDto;
 import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;
@@ -16,6 +26,7 @@ import com.ssafy.arcade.user.repository.FriendRepository;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.KakaoProfile;
 import com.ssafy.arcade.user.request.KakaoToken;
+import com.ssafy.arcade.user.response.ProfileResDto;
 import com.ssafy.arcade.user.response.UserResDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +54,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final SimpMessagingTemplate template;
+    private final GameUserRepository gameUserRepository;
+    private final PictureRepository pictureRepository;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -351,4 +364,70 @@ public class UserService {
         }
         return userResDtoList;
     }
+
+    // 유저 프로필
+    public ProfileResDto getUserProfile(String token) {
+        User user = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+
+
+        // 게임별 gameResDto 추가
+        List<GameResDto> gameResDtos = new ArrayList<>();
+        int totalGameCnt = 0;
+        int totalVicCnt = 0;
+        for (Code code : Code.values()) {
+            GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).get();
+            Game game = gameUser.getGame();
+            
+            GameResDto gameResDto = new GameResDto();
+
+            int gameCnt = game.getGameCnt();
+            int vicCnt = game.getVicCnt();
+            gameResDto.setGameCode(gameUser.getGameCode());
+            gameResDto.setGameCnt(gameCnt);
+            gameResDto.setVicCnt(vicCnt);
+            gameResDtos.add(gameResDto);
+
+            totalGameCnt += gameCnt;
+            totalVicCnt += vicCnt;
+        }
+        // 저장된 그림 추가
+        List<PictureResDto> pictureResDtos = new ArrayList<>();
+        List<Picture> pictureList = pictureRepository.findAllByUserAndDelYn(user, false).orElse(null);
+        // 있을때만 추가
+        if (pictureList != null){
+            for (Picture picture : pictureList) {
+                PictureResDto pictureResDto = new PictureResDto();
+                pictureResDto.setPictureUrl(picture.getPictureUrl());
+                pictureResDto.setCreatedDAte(picture.getCreatedDate());
+
+                pictureResDtos.add(pictureResDto);
+            }
+        }
+
+        // profileResDto에 전부 저장
+        ProfileResDto profileResDto = new ProfileResDto();
+
+        profileResDto.setUserSeq(user.getUserSeq());
+        profileResDto.setEmail(user.getEmail());
+        profileResDto.setName(user.getName());
+        profileResDto.setImage(user.getImage());
+        profileResDto.setGameResDtos(gameResDtos);
+        profileResDto.setPictureResDtos(pictureResDtos);
+        profileResDto.setTotalGameCnt(totalGameCnt);
+        profileResDto.setTotalVicCnt(totalVicCnt);
+
+        return profileResDto;
+    }
+    // JWT 토큰으로 유저 조회
+    public Long getUserSeqByToken(String token) {
+        JWTVerifier verifier = JwtTokenUtil.getVerifier();
+        if ("".equals(token)) {
+            throw new CustomException(ErrorCode.NOT_OUR_USER);
+        }
+        JwtTokenUtil.handleError(token);
+        DecodedJWT decodedJWT = verifier.verify(token.replace(JwtTokenUtil.TOKEN_PREFIX, ""));
+        return Long.parseLong(decodedJWT.getSubject());
+    }
+
 }

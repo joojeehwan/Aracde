@@ -1,7 +1,7 @@
 package com.ssafy.arcade.common;
 
 import com.ssafy.arcade.chat.dtos.response.SendMessageRes;
-//import com.ssafy.arcade.notification.repository.NotiRepository;
+import com.ssafy.arcade.notification.repository.NotiRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

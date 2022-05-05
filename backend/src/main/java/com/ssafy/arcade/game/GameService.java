@@ -2,20 +2,34 @@ package com.ssafy.arcade.game;
 
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
+import com.ssafy.arcade.common.util.Code;
+import com.ssafy.arcade.game.entity.Game;
 import com.ssafy.arcade.game.entity.GameRoom;
+import com.ssafy.arcade.game.entity.GameUser;
+import com.ssafy.arcade.game.entity.Picture;
+import com.ssafy.arcade.game.repositroy.GameRepository;
 import com.ssafy.arcade.game.repositroy.GameRoomRepository;
+import com.ssafy.arcade.game.repositroy.GameUserRepository;
+import com.ssafy.arcade.game.repositroy.PictureRepository;
+import com.ssafy.arcade.game.response.PictureResDto;
 import com.ssafy.arcade.user.UserService;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 public class GameService {
 
+    private final GameRepository gameRepository;
     private final GameRoomRepository gameRoomRepository;
+    private final GameUserRepository gameUserRepository;
+    private final UserRepository userRepository;
+    private final PictureRepository pictureRepository;
 
     // Room 생성
     public String createInviteCode() {
@@ -72,10 +86,7 @@ public class GameService {
         gameRoomRepository.save(gameRoom);
         return false;
 
-
-
     }
-
 
     // 방 삭제 (인원이 0명이 되면 실행하도록 구현)
     public void deleteGameRoom(String inviteCode) {
@@ -88,6 +99,100 @@ public class GameService {
         }
         gameRoom.deleteRoom();
         gameRoomRepository.save(gameRoom);
+    }
+
+    // Game DB 생성
+    public void createGame(String email, Code code) {
+        User user = userRepository.findByEmail(email).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElse(null);
+
+        if (gameUser != null) {
+            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+        }
+        // 모든 종류의 게임 DB를 생성
+        Game game = Game.builder()
+                .gameCnt(0).vicCnt(0).build();
+        gameRepository.save(game);
+
+        gameUser = GameUser.builder()
+                .game(game).user(user).gameCode(code).build();
+
+        gameUserRepository.save(gameUser);
+
+    }
+    // 게임 참가
+    public void handleInitGame(Long userSeq, Integer codeIdx) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        boolean flag = false;
+        for (Code code : Code.values()) {
+            if (code.ordinal() == codeIdx) {
+                GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElseThrow(() ->
+                        new CustomException(ErrorCode.DATA_NOT_FOUND));
+                Game game = gameUser.getGame();
+                game.addGameCnt();
+                gameRepository.save(game);
+                flag = true;
+                break;
+            }
+        }
+        System.out.println("flag: " + flag);
+        // 유효하지 않은 code를 보낼 경우
+        if (!flag) {
+            throw new CustomException(ErrorCode.WRONG_DATA);
+        }
+    }
+    // 게임 승리
+    public void handleWinGame(Long userSeq, Integer codeIdx) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        boolean flag = false;
+        for (Code code : Code.values()) {
+            if (code.ordinal() == codeIdx) {
+                GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElseThrow(() ->
+                        new CustomException(ErrorCode.DATA_NOT_FOUND));
+                Game game = gameUser.getGame();
+                if (game.getVicCnt() >= game.getGameCnt()) {
+                    throw new CustomException(ErrorCode.WRONG_DATA);
+                }
+                game.addVicCnt();
+                gameRepository.save(game);
+                flag = true;
+                break;
+            }
+        }
+        // 유효하지 않은 code를 보낼 경우
+        if (!flag) {
+            throw new CustomException(ErrorCode.WRONG_DATA);
+        }
+    }
+
+    // 그림 저장
+    public void createPicture(Long userSeq, List<String> pictureUrls) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+
+
+        for (String pictureUrl : pictureUrls) {
+            Picture picture = pictureRepository.findByUserAndPictureUrlAndDelYn(user, pictureUrl, false).orElse(null);
+            if (picture != null) {
+                throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
+            }
+            picture = Picture.builder().pictureUrl(pictureUrl).delYn(false).user(user)
+                    .build();
+            pictureRepository.save(picture);
+        }
+
+    }
+    // 그림 삭제
+    public void deletePicture(Long userSeq, String pictureUrl) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+        Picture picture = pictureRepository.findByUserAndPictureUrlAndDelYn(user, pictureUrl, false).orElseThrow(() ->
+                new CustomException(ErrorCode.DATA_NOT_FOUND));
+        picture.deletePicture();
+        pictureRepository.save(picture);
     }
     
     // 10자리 임시 코드 생성

@@ -16,9 +16,13 @@ import styles from "./style/RoomContents.module.scss";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useStore } from "./store";
+import Play from '../../assets/play.png';
+import {ReactComponent as Info} from '../../assets/info.svg';
+import {ReactComponent as People} from '../../assets/team.svg';
 import Chat from "./chat/Chat";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
+import { display } from "@mui/system";
 // import {useStore} from "./Room";
 
 const OPENVIDU_SERVER_URL = "https://k6a203.p.ssafy.io:5443";
@@ -159,13 +163,13 @@ const RoomContents = ({
     // window.addEventListener("unload", handleleaveRoom);
 
     joinSession();
-    // return () => {
-    //   window.removeEventListener("beforeunload", onbeforeunload);
-    //   window.removeEventListener("popstate", preventGoBack);
-    // //   window.removeEventListener("unload", handleleaveRoom);
-    // //   handleleaveRoom();
-    //   leaveSession();
-    // };
+    return () => {
+      window.removeEventListener("beforeunload", onbeforeunload);
+      window.removeEventListener("popstate", preventGoBack);
+    //   window.removeEventListener("unload", handleleaveRoom);
+    //   handleleaveRoom();
+      leaveSession();
+    };
   }, []);
 
 //   useEffect(() => {
@@ -205,7 +209,7 @@ const RoomContents = ({
   useEffect(() => {
     console.log(session, sessionRef.current);
     setSessionId(sessionRef.current);
-    if (sessionRef.current !== undefined) {
+    if (sessionRef.current) {
       console.log(sessionRef.current);
       // 상대방이 들어왔을 때 실행
         console.log("AS?DAS?DASDFKLASDFHNLS:DKFHNBVKLSJ:DVFHBNSHKDJ:FVHBNSAJKDFHBNASDKF");
@@ -270,7 +274,41 @@ const RoomContents = ({
         console.log("GETTOKEN", token);
         sessionRef.current
           .connect(token, { clientData: myUserName })
-          
+          .then(async () => {
+            let publisherTemp = OV.initPublisher(undefined, {
+              audioSource: undefined,
+              videoSource: undefined,
+              publishAudio: true,
+              publishVideo: true,
+              resolution: "640x480",
+              frameRate: 30,
+              insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
+              mirror: false,
+            });
+
+            // --- 6) Publish your stream ---
+
+            sessionRef.current.publish(publisherTemp);
+
+            localUserInit.setAudioActive(true);
+            localUserInit.setVideoActive(true);
+            localUserInit.setNickname(myUserName);
+            localUserInit.setConnectionId(
+              sessionRef.current.connection.connectionId
+            );
+            localUserInit.setStreamManager(publisherTemp);
+
+            // Set the main video in the page to display our webcam and store our Publisher
+            setPublisher(publisherTemp);
+            setLocalUser(localUserInit);
+          })
+          .catch((error : any) => {
+            console.log(
+              "There was an error connecting to the session:",
+              error.code,
+              error.message
+            );
+          });
       });
 
       //back으로 부터 받는 data처리
@@ -957,8 +995,176 @@ const RoomContents = ({
 //     });
 //   };
   return (
+    <div style={{
+      width : "100vw"
+    }}>
     <div className={styles["contents-container"]}>
-      ㅎㅇ
+{/* <SelectingGame
+        open={isSelecting}
+        close={closeSelectingPage}
+        startPage={startPage}
+        closeStartPage={closeStartPage}
+      /> */}
+      {/* {mode === "snapshot" ? (
+        <div className={styles.countContainer}>
+          <p className={styles.count}>{count}</p>
+        </div>
+      ) : mode === "game1" ? (
+        <Keyword
+          open={keywordInputModal}
+          close={closeKeywordInputModal}
+          confirmMyAnswer={confirmMyAnswer}
+          confirmTargetGameName={confirmTargetGameName}
+          mode={modalMode}
+          targetNickName={targetNickName}
+          gameId={1}
+          correctPeopleName={correctPeopleName}
+        />
+      ) : mode === "game2" ? (
+        <Keyword
+          open={keywordInputModal}
+          close={closeKeywordInputModal}
+          confirmMyAnswer={confirmMyAnswer}
+          confirmTargetGameName={confirmTargetGameName}
+          mode={modalMode}
+          targetNickName={targetNickName}
+          gameId={2}
+          sirenTargetNickName={sirenTargetNickName}
+          correctPeopleName={correctPeopleName}
+        />
+      ) : null} */}
+      <div className={styles["user-videos-container"]}>
+        <div
+          id="user-video"
+          className={
+            mode === "karaoke"
+              ? `${styles["video-container"]} ${styles.karaoke}`
+              : participantNumRef.current > 6
+              ? `${styles["video-container"]} ${styles.twoXfour}`
+              : participantNumRef.current > 4
+              ? `${styles["video-container"]} ${styles.twoXthree}`
+              : participantNumRef.current > 2
+              ? `${styles["video-container"]} ${styles.twoXtwo}`
+              : styles["video-container"]
+          }
+        >
+          {localUserRef.current !== undefined &&
+            localUserRef.current.getStreamManager() !== undefined && (
+              <StreamComponent
+                user={localUserRef.current}
+                sessionId={mySessionId}
+                camStatusChanged={camStatusChanged}
+                micStatusChanged={micStatusChanged}
+                subscribers={subscribers}
+                mode={mode}
+                bangzzang={bangzzang}
+                // openKeywordInputModal={openKeywordInputModal}
+              />
+            )}
+          {/* {mode === "karaoke" ? (
+            <div className={styles.videoplayer}>
+              <Karaoke user={localUserRef.current} singMode={singMode} />
+            </div>
+          ) : null} */}
+
+          {subscribersRef.current.map((sub, i) => {
+            return (
+              <StreamComponent
+                key={i}
+                user={sub}
+                targetSubscriber={targetSubscriber}
+                subscribers={subscribers}
+                mode={mode}
+                nickname={nickname}
+                correctNickname={correctNickname}
+                // sirenWingWing={sirenWingWing}
+                correctPeopleName={correctPeopleName}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+    {localUser !== undefined && localUser.getStreamManager() !== undefined && (
+        <div style={{
+          width : "100vw",
+          display : "flex",
+          justifyContent : "center",
+        }}>
+          <div style={{
+            display : "flex",
+            width : "85%"
+          }}>
+            <div className={styles["chat-container"]}>
+              {/* {mode === "snapshot" ? (
+                <SnapShotResult
+                  images={images}
+                  status={status}
+                  onStart={sendSignalCameraStart}
+                  onRetry={onRetry}
+                  onSave={onSave}
+                />
+              ) : ( */}
+                <>
+                  <Chat
+                    user={localUserRef.current}
+                    mode={mode}
+                    exitgame={home}
+                    sub={subscribers}
+                  />
+                  {/* <button onClick={handleVoiceFilter}>목소리변조</button> */}
+                </>
+              
+              {/* {mode !== "karaoke" ? (
+                <MusicPlayer user={localUserRef.current} />
+              ) : null} */}
+            </div>
+            <div style={{
+              width : "50%",
+              height : "23.7vh",
+              display : "grid",
+              gridTemplateColumns : "1fr 1fr",
+              gridTemplateRows : "1fr 1fr 1fr",
+              // gap : "5% 2%"
+              // gridColumn : "1 / span 2",
+            }}>
+              <button style={{
+                gridColumn : "1 / span 2",
+                marginBottom : "2%"
+              }}>ㅎㅇㅎㅇ
+              </button>
+              <button className={styles.selectGame} style={{
+                gridRow : "2 / span 3",
+                display : "flex",
+                alignItems : "center",
+                justifyContent : "center",
+                marginRight : "4%"
+              }}><img src={Play} style={{width : "30%", height : "55%"}}></img>게임 선택</button>
+              <button style={{
+                display : "flex",
+                alignItems : "center",
+                justifyContent : "center",
+                marginBottom : "2%"
+              }} className={styles.infoGame}><Info style={{
+                width : "20%",
+                height : "45%"
+              }} filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"/>설명서</button>
+              <button style={{
+                display : "flex",
+                alignItems : "center",
+                justifyContent : "center",
+                marginTop: "2%"
+              }} className={styles.inviteFriend}>
+                <People style={{
+                width : "20%",
+                height : "45%",
+              }} filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"/>
+                친구 초대</button>
+            </div>
+        </div>
+          </div>
+          
+      )}
     </div>
   );
 };

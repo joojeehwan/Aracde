@@ -11,7 +11,10 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 
-import Chatting from '../Modal/Chatting';
+import Chatting from '../Modal/Chatting/ChattingList/index';
+
+// import { Stomp } from '@stomp/stompjs';
+
 
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
@@ -94,6 +97,7 @@ function Main() {
   };
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
+    navigate('/entrance');
     console.log('눌렸음');
   };
 
@@ -285,7 +289,7 @@ function Main() {
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
-        {chattingIsOpen ? <Chatting client={client} open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
+        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
       </div>
     </>
   );
