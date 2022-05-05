@@ -7,7 +7,7 @@ interface Props {
 }
 
 const Modal: FC<PropsWithChildren<Props>> = ({ show, children, onCloseModal }) => {
-  const stopPropagation = useCallback((e: any) => {
+  const stopPropagation = useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
   }, []);
 

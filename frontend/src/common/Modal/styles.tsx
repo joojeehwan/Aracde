@@ -11,7 +11,7 @@ export const CreateModal = styled.div`
   animation: modal-show 0.3s;
 
   & > div {
-    margin-top: 200px;
+    margin-top: 360px;
     display: inline-block;
     width: 440px;
     background: white;

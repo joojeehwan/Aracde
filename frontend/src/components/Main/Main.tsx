@@ -11,23 +11,20 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 
-
 import Chatting from '../Modal/Chatting';
 
-import { Stomp } from '@stomp/stompjs';
+import SockJS from 'sockjs-client/dist/sockjs';
+import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
-
-// import { Stomp } from '@stomp/stompjs';
-
-
+import { getToken } from '../../common/api/jWT-Token';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
 
-  const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
-  const client = Stomp.over(sock);
+  // const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
+  // const client = Stomp.over(sock);
 
   const navigate = useNavigate();
 
@@ -36,6 +33,7 @@ function Main() {
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
+  const client = useRef<any>({});
 
   const handleOpenAlarms = useCallback(() => {
     setAlarmsIsOpen(true);
@@ -49,16 +47,16 @@ function Main() {
   );
 
   const handleOpensFriends = useCallback(() => {
-    client.send(
-      '/pub/noti/2',
-      {},
-      JSON.stringify({
-        userSeq: window.localStorage.getItem('userSeq'),
-        name: '홍승기',
-        inviteCode: 'asdfasf',
-        type: 'friend',
-      }),
-    );
+    // client.send(
+    //   '/pub/noti/2',
+    //   {},
+    //   JSON.stringify({
+    //     userSeq: window.localStorage.getItem('userSeq'),
+    //     name: '홍승기',
+    //     inviteCode: 'asdfasf',
+    //     type: 'friend',
+    //   }),
+    // );
 
     // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
 
@@ -138,13 +136,57 @@ function Main() {
       // client.connect({}, () => {
       //   console.log("connection");
       //   client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
-      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");  
+      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");
       //     const content = JSON.parse(notiDTO.body);
       //       console.log(content.name);
       //   })
       // })
     }
   }, []);
+
+  const connect = () => {
+    const token = getToken()
+    client.current = new StompJs.Client({
+      brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
+      debug: function (str) {
+        console.log(str);
+      },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      onConnect: () => {
+        subscribe();
+      },
+      onStompError: (frame) => {
+        console.error(frame);
+      },
+    });
+    console.log(client.current);
+    client.current.activate();
+  };
+
+
+  if (typeof WebSocket !== 'function') {
+    // For SockJS you need to set a factory that creates a new SockJS instance
+    // to be used for each (re)connect
+    client.current.webSocketFactory = function () {
+      // Note that the URL is different from the WebSocket URL
+      return new SockJS('http://localhost:8080/ws-stomp');
+    };
+  }
+
+  const subscribe = () => {
+    client.current.subscribe('/sub/chat/room/1', ({ body }: any) => {
+      console.log(body)
+    });
+  };
+
+  console.log(window.localStorage.getItem('token'))
+  useEffect(() => {
+    if (window.localStorage.getItem('token')) {
+      connect()
+    }
+  }, [])
 
   return (
     <>
@@ -244,7 +286,7 @@ function Main() {
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
-        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
+        {chattingIsOpen ? <Chatting client={client} open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
       </div>
     </>
   );

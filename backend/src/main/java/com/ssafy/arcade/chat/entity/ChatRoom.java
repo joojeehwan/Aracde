@@ -1,6 +1,7 @@
 package com.ssafy.arcade.chat.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.ssafy.arcade.common.util.BaseTimeEntity;
 import com.ssafy.arcade.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ChatRoom { // 관계형 DB에 매핑
+public class ChatRoom extends BaseTimeEntity { // 관계형 DB에 매핑
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ChatRoomSeq;
