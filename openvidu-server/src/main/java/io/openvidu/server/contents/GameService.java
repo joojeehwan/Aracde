@@ -256,7 +256,7 @@ public class GameService {
                         data.addProperty("answerYn", "N");
                     }
 
-                    // 이미지 문자열 ( 프론트에서 & 으로 파싱)
+                    // 이미지 문자열 ( 프론트에서 | 으로 파싱)
                     String allImages = "";
 
                     for (int i = 0; i < imageList.size(); i++) {
@@ -264,7 +264,7 @@ public class GameService {
                         if (i == imageList.size()-1) {
                             allImages = allImages.concat(imgUrl);
                         } else {
-                            allImages = allImages.concat(imgUrl).concat("&");
+                            allImages = allImages.concat(imgUrl).concat("|");
                         }
                     }
                     System.out.printf("allImages: %s", allImages);
