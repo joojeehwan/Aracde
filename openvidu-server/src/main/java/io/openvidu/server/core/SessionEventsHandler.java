@@ -422,8 +422,7 @@ public class SessionEventsHandler {
 
 		if (message.has("type") && message.get("type").getAsString().equals("signal:game")){
 			// 게임 요청이 들어오면 실행한다.
-			log.info("ARCADE : Request Game!!");
-			log.info("아케이드 : 게임요청!!");
+			System.out.println("########## [ARCADE] : Request Game!!");
 			gameService.controlGame(participant, message, participants, rpcNotificationService);
 		}
 		
