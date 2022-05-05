@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {getToken} from './jWT-Token';
+import { getToken } from './jWT-Token';
 
 const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/users';
 
@@ -48,20 +48,22 @@ const getAddFriendRequestResult = async (email: string) => {
 };
 
 const getFriendList = async () => {
-  const token = getToken()
+  const token = getToken();
   if (token !== null) {
-    const result = await axios.get(`${BASE_URL}/friendList`, { headers: { Authorization: token } }).then((res) => {
-      console.log(res)
-      return res
-    })
-      .then((err) => {
-        console.dir(err)
-        return err
+    const result = await axios
+      .get(`${BASE_URL}/friendList`, { headers: { Authorization: token } })
+      .then((res) => {
+        console.log(res);
+        return res;
       })
+      .then((err) => {
+        console.dir(err);
+        return err;
+      });
     return result;
   }
   return null;
-}
+};
 
 const deleteFriend = async (userSeq: number) => {
   const token = getToken();
@@ -83,7 +85,7 @@ const UserApi = {
   getUserSearchResult,
   getAddFriendRequestResult,
   getFriendList,
-  deleteFriend
+  deleteFriend,
 };
 
 export default UserApi;
