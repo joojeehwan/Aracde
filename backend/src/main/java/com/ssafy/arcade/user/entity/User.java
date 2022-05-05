@@ -3,6 +3,9 @@ package com.ssafy.arcade.user.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ssafy.arcade.chat.entity.ChatRoom;
 import com.ssafy.arcade.common.util.BaseTimeEntity;
+import com.ssafy.arcade.game.entity.Game;
+import com.ssafy.arcade.game.entity.GameUser;
+import com.ssafy.arcade.game.entity.Picture;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +39,14 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "target", orphanRemoval = true)
     private List<Friend> targetList = new ArrayList<>();
+
+    // 게임 table
+    @OneToMany(mappedBy = "user")
+    private List<GameUser> gameUsers = new ArrayList<>();
+    // 게임에서 이미지 저장 table
+    @OneToMany(mappedBy = "user")
+    private List<Picture> pictureList = new ArrayList<>();
+
     // chatRoom1과 2를 합쳐 나의 전체 채팅방 목록이 된다.
     @OneToMany(mappedBy = "user1", cascade = CascadeType.ALL)
     @JsonManagedReference
@@ -43,6 +54,8 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user2", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ChatRoom> chatRooms2 = new ArrayList<>();
+
+
     public void addFriend(Friend friend) {
         this.requestList.add(friend);
         if (friend.getRequest() != this) {
@@ -56,6 +69,21 @@ public class User extends BaseTimeEntity {
             friend.setTarget(this);
         }
     }
+
+    public void addGameUser(GameUser gameUser) {
+        this.gameUsers.add(gameUser);
+        if (gameUser.getUser() != this) {
+            gameUser.setUser(this);
+        }
+    }
+
+    public void addPicture(Picture picture) {
+        this.pictureList.add(picture);
+        if (picture.getUser() != this) {
+            picture.setUser(this);
+        }
+    }
+
 
 
 //    @JsonManagedReference // 순환 참조 방어

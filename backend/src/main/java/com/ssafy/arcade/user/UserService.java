@@ -8,7 +8,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
+import com.ssafy.arcade.common.util.Code;
 import com.ssafy.arcade.common.util.JwtTokenUtil;
+import com.ssafy.arcade.game.GameService;
+import com.ssafy.arcade.game.entity.Game;
+import com.ssafy.arcade.game.entity.GameUser;
+import com.ssafy.arcade.game.entity.Picture;
+import com.ssafy.arcade.game.repositroy.GameUserRepository;
+import com.ssafy.arcade.game.repositroy.PictureRepository;
+import com.ssafy.arcade.game.request.GameReqDto;
+import com.ssafy.arcade.game.request.GameResDto;
+import com.ssafy.arcade.game.response.PictureResDto;
 import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;
@@ -16,6 +26,7 @@ import com.ssafy.arcade.user.repository.FriendRepository;
 import com.ssafy.arcade.user.repository.UserRepository;
 import com.ssafy.arcade.user.request.KakaoProfile;
 import com.ssafy.arcade.user.request.KakaoToken;
+import com.ssafy.arcade.user.response.ProfileResDto;
 import com.ssafy.arcade.user.response.UserResDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +54,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final SimpMessagingTemplate template;
+    private final GameUserRepository gameUserRepository;
+    private final PictureRepository pictureRepository;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -206,7 +219,7 @@ public class UserService {
                 status = 0;
             }
 
-           if (friend == null) {
+            if (friend == null) {
                 status = -1;
             }
             UserResDto userResDto = new UserResDto();
@@ -254,7 +267,7 @@ public class UserService {
                 .type("friend").build();
         template.convertAndSend("/sub/noti" + targetUser.getUserSeq(), notiDTO);
     }
-        
+
     // 친구 수락
     public void approveFriend(String token, String reqEmail) {
         User targetUser = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
@@ -358,100 +371,63 @@ public class UserService {
             userResDto.setStatus(1);
 
             userResDtoList.add(userResDto);
+
         }
         return userResDtoList;
     }
 
-    /**
-     * 테스트용 Service (토큰 쓰기 번거로워서 이메일로만 소통)
-     */
-    public void requestFriendTest(String fromEmail, String toEmail) {
-        User reqUser = userRepository.findByEmail(fromEmail).get();
-        User targetUser = userRepository.findByEmail(toEmail).get();
-
-        Friend targetfriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqfriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
-
-        // 둘다 null이어야만 입력 가능
-        if (targetfriend == null && reqfriend == null) {
-            Friend friend = new Friend();
-
-            friend.setRequest(reqUser);
-            friend.setTarget(targetUser);
-            friend.setApproved(false);
-            friendRepository.save(friend);
-        }
-        else {
-            throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
-        }
-    }
-    public void approveFriendTest(String toEmail, String fromEmail) {
-        User targetUser = userRepository.findByEmail(toEmail).orElseThrow(() ->
+    // 유저 프로필
+    public ProfileResDto getUserProfile(String token) {
+        User user = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
-        User reqUser = userRepository.findByEmail(fromEmail).orElseThrow(() ->
-                new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
-        // 요청한 친구관계가 없을떄
-        if (targetFriend == null && reqFriend == null) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        // 게임별 gameResDto 추가
+        List<GameResDto> gameResDtos = new ArrayList<>();
+        int totalGameCnt = 0;
+        int totalVicCnt = 0;
+        for (Code code : Code.values()) {
+            GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).get();
+            Game game = gameUser.getGame();
+
+            GameResDto gameResDto = new GameResDto();
+
+            int gameCnt = game.getGameCnt();
+            int vicCnt = game.getVicCnt();
+            gameResDto.setGameCode(gameUser.getGameCode());
+            gameResDto.setGameCnt(gameCnt);
+            gameResDto.setVicCnt(vicCnt);
+            gameResDtos.add(gameResDto);
+
+            totalGameCnt += gameCnt;
+            totalVicCnt += vicCnt;
         }
-        else {
-            Friend friend = targetFriend == null ? reqFriend : targetFriend;
+        // 저장된 그림 추가
+        List<PictureResDto> pictureResDtos = new ArrayList<>();
+        List<Picture> pictureList = pictureRepository.findAllByUserAndDelYn(user, false).orElse(null);
+        // 있을때만 추가
+        if (pictureList != null){
+            for (Picture picture : pictureList) {
+                PictureResDto pictureResDto = new PictureResDto();
+                pictureResDto.setPictureUrl(picture.getPictureUrl());
+                pictureResDto.setCreatedDAte(picture.getCreatedDate());
 
-            if (friend.isApproved()) {
-                throw new CustomException(ErrorCode.ALREADY_ACCEPT);
+                pictureResDtos.add(pictureResDto);
             }
-            friend.setApproved(true);
-            friendRepository.save(friend);
         }
+
+        // profileResDto에 전부 저장
+        ProfileResDto profileResDto = new ProfileResDto();
+
+        profileResDto.setUserSeq(user.getUserSeq());
+        profileResDto.setEmail(user.getEmail());
+        profileResDto.setName(user.getName());
+        profileResDto.setImage(user.getImage());
+        profileResDto.setGameResDtos(gameResDtos);
+        profileResDto.setPictureResDtos(pictureResDtos);
+        profileResDto.setTotalGameCnt(totalGameCnt);
+        profileResDto.setTotalVicCnt(totalVicCnt);
+
+        return profileResDto;
     }
-
-    // 친구리스트 조회
-    public List<UserResDto> getFriendListTest(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
-                new CustomException(ErrorCode.NOT_OUR_USER));
-        List<UserResDto> userResDtoList = new ArrayList<>();
-
-        List<Friend> friendList = friendRepository.findAllByRequestOrTarget(user, user).orElse(null);
-        if (friendList == null) {
-            throw new CustomException(ErrorCode.NOT_OUR_USER);
-        }
-
-        for (Friend friend : friendList) {
-            if (!friend.isApproved()) {
-                continue;
-            }
-            User friend_user = (friend.getRequest() == user) ? friend.getTarget() : friend.getRequest();
-            UserResDto userResDto = new UserResDto();
-            userResDto.setEmail(friend_user.getEmail());
-            userResDto.setName(friend_user.getName());
-            userResDto.setImage(friend_user.getImage());
-
-            userResDtoList.add(userResDto);
-        }
-        return userResDtoList;
-    }
-
-    // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
-    public void deleteFriendTest(String myEmail, String userEmail) {
-        User reqUser = userRepository.findByEmail(myEmail).orElseThrow(() ->
-                new CustomException(ErrorCode.NOT_OUR_USER));
-        User targetUser = userRepository.findByEmail(userEmail).orElseThrow(() ->
-                new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
-
-        Friend friend = targetFriend == null ? reqFriend : targetFriend;
-        if (friend == null) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        }
-        else {
-            friendRepository.delete(friend);
-        }
-    }
-
 }
