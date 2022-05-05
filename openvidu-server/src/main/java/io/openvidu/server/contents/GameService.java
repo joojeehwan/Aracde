@@ -37,6 +37,7 @@ public class GameService {
     static final int FINISHGAME = 3;
     // 게임 패널티
     static final int PENALTYGAME = 4;
+
     /**
      * 게임 종류
      */
@@ -59,8 +60,6 @@ public class GameService {
     protected ConcurrentHashMap<String, ArrayList<String>> imageMap = new ConcurrentHashMap<>();
     // 단어 저장(중복 방지용)
     protected ConcurrentHashMap<String, Map<String, Integer>> wordMap = new ConcurrentHashMap<>();
-
-
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -109,12 +108,6 @@ public class GameService {
                 break;
         }
     }
-
-    /**
-     *  게임 비활성화 상태
-     *  gameStatus: -1
-     * */
-
 
     /**
      *  게임 준비 상태
@@ -181,8 +174,12 @@ public class GameService {
         orderMap.put(sessionId, peopleOrder);
 
         if (gameId == CATCHMIND) {
-            // 1번순서 => 키워드 입력하고 첫 그림 시작, 마지막 순서 => 문제를 맞춰야 함
-
+            // 이번 게임에서의 제시어를 미리 보내 줌
+            WordGameUtil wordGameUtil = new WordGameUtil();
+            List<String> randWord = wordGameUtil.takeAllWord();
+            Collections.shuffle(randWord);
+            String answer = randWord.get(0);
+            data.addProperty("answer", answer);
             // 첫번째 순서
             String curStreamId = peopleOrder.get(0);
             data.addProperty("curStreamId", curStreamId);
@@ -232,30 +229,47 @@ public class GameService {
         int peopleCnt = participants.size();
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
+        if (index >= peopleCnt) {
+            index -= peopleCnt;
+        }
         switch (gameId) {
             case CATCHMIND:
                 // 이미지 추가
                 String imageUrl = data.get("imageUrl").getAsString();
                 ArrayList<String> imageList = imageMap.get(sessionId);
-                imageList.add(imageUrl);
-                imageMap.put(sessionId, imageList);
-
-                String answer = data.get("answer").getAsString();
-                // 처음 출제자의 경우 제시어 선택
-                if (index == 0) {
-                    data.addProperty("answer", answer);
+                // 마지막 순서는 imageUrl을 공백으로 보내주기 때문.
+                if (imageUrl.trim() != "") {
+                    imageList.add(imageUrl);
+                    imageMap.put(sessionId, imageList);
                 }
                 // 맞출 사람
-                else if (index == peopleCnt - 1) {
-                    String keyword = data.get("keyword").getAsString();
-                    if (answer.equals(keyword)) {
-                        data.addProperty("isRight", "Y");
+                // 마지막 차례에는 지금까지의 모든 이미지를 str으로 만들어 전송해 줌
+                if (index == peopleCnt - 1) {
+                    String answer = data.get("answer").getAsString();
+                    String response = data.get("response").getAsString();
+                    if (answer.equals(response)) {
+                        data.addProperty("answerYn", "Y");
                     } else {
-                        data.addProperty("isRight", "N");
+                        data.addProperty("answerYn", "N");
                     }
+
+                    // 이미지 문자열 ( 프론트에서 & 으로 파싱)
+                    String allImages = "";
+
+                    for (int i = 0; i < imageList.size(); i++) {
+                        String imgUrl = imageList.get(i);
+                        if (i == imageList.size()-1) {
+                            allImages = allImages.concat(imgUrl);
+                        } else {
+                            allImages = allImages.concat(imgUrl).concat("&");
+                        }
+                    }
+                    System.out.printf("allImages: %s", allImages);
+                    data.addProperty("allImages", allImages);
                 }
                 //다음 차례에게 그림 보내줌
                 Map<Integer, String> peopleOrder = orderMap.get(sessionId);
+                // 다음 차례
                 String curStreamId = peopleOrder.get(++index);
                 data.addProperty("curStreamId", curStreamId);
                 data.addProperty("imageUrl", imageUrl);
@@ -288,6 +302,7 @@ public class GameService {
                 break;
 
         }
+        data.addProperty("gameStatus", 2);
         params.add("data", data);
         for (Participant p : participants) {
             rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
@@ -308,7 +323,7 @@ public class GameService {
         // 게임 끝났으면 제외 시켜 준다.
         orderMap.remove(sessionId);
         if (gameId == CATCHMIND) {
-            orderMap.remove(sessionId);
+            // 이미지맵도 제거
             imageMap.remove(sessionId);
         }else if (gameId == GUESS) {
             System.out.println("잠깐만");
