@@ -1,11 +1,7 @@
 package com.ssafy.arcade.notification;
 
 import com.ssafy.arcade.common.RedisPublisher;
-import com.ssafy.arcade.notification.dtos.NotiDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;

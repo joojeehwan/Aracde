@@ -1,6 +1,7 @@
 package com.ssafy.arcade.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ssafy.arcade.chat.entity.ChatRoom;
 import com.ssafy.arcade.common.util.BaseTimeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,7 +36,13 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "target", orphanRemoval = true)
     private List<Friend> targetList = new ArrayList<>();
-
+    // chatRoom1과 2를 합쳐 나의 전체 채팅방 목록이 된다.
+    @OneToMany(mappedBy = "user1", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<ChatRoom> chatRooms1 = new ArrayList<>();
+    @OneToMany(mappedBy = "user2", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<ChatRoom> chatRooms2 = new ArrayList<>();
     public void addFriend(Friend friend) {
         this.requestList.add(friend);
         if (friend.getRequest() != this) {
