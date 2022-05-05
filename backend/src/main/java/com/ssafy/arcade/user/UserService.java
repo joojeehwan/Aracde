@@ -419,4 +419,15 @@ public class UserService {
 
         return profileResDto;
     }
+    // JWT 토큰으로 유저 조회
+    public Long getUserSeqByToken(String token) {
+        JWTVerifier verifier = JwtTokenUtil.getVerifier();
+        if ("".equals(token)) {
+            throw new CustomException(ErrorCode.NOT_OUR_USER);
+        }
+        JwtTokenUtil.handleError(token);
+        DecodedJWT decodedJWT = verifier.verify(token.replace(JwtTokenUtil.TOKEN_PREFIX, ""));
+        return Long.parseLong(decodedJWT.getSubject());
+    }
+
 }
