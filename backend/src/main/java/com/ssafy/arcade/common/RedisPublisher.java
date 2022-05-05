@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class RedisPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
-//    private final NotiRepository notiRepository;
+    private final NotiRepository notiRepository;
 
 //    // Overloading - 알림
 //    public void publish(ChannelTopic topic, NotiDTO notiDTO) {

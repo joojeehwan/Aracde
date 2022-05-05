@@ -10,5 +10,5 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class UserReqDto {
-    private String email;
+    String email;
 }
