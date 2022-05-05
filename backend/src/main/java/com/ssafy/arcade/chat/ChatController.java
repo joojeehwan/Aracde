@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
+@CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping(value = "/apiv1/chat")
 public class ChatController {
 
     private final ChatRoomRepository chatRoomRepository;
