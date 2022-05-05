@@ -34,6 +34,19 @@
   width: 100%;
   border-radius: 5px;
 }
+.chatComponent.game{
+  background-color: rgba($color: #b8b8b8, $alpha: 0.5);
+  /* position: absolute; */
+  /* z-index: 99999; */
+  /* top: 0; */
+  /* left: 0; */
+  /* right: 0; */
+  /* bottom: 0; */
+  margin: auto;
+  height: 80vh;
+  width: 100%;
+  border-radius: 5px;
+}
 
 .message-wrap {
   padding: 0 15px;
@@ -41,6 +54,9 @@
   overflow: auto;
   display: flex;
   flex-direction: column;
+}
+.message-wrap.game{
+  height: 96%;
 }
 
 .message {
@@ -145,6 +161,16 @@
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
 }
+.messageInput.game{
+  display: flex;
+  width: 100%;
+  // margin-top: 4vh;
+  background-color: #ffffff;
+  align-items: center;
+  height: fit-content;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
 
 .defaultinput {
   width: 90%;
@@ -152,7 +178,7 @@
   border: none;
   outline: none;
   font-size: 14px;
-  margin-top: 5px;
+  // margin-top: 5px;
   margin-left: 10px;
   color: #000000;
   resize: none;

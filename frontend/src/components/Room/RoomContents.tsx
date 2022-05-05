@@ -409,6 +409,15 @@ const RoomContents = ({
     });
   };
   const selectGame = () => {
+
+    const data = {
+      gameStatus: 1,
+      gameId : 3,
+    };
+    sessionRef.current.signal({
+      type: "game",
+      data: JSON.stringify(data),
+    });
     setMode("game1");
   }
   const handleCopy = () => {
@@ -488,8 +497,9 @@ const RoomContents = ({
       {mode === "game1" ? (
             <div style={{
               width : "60vw",
-              height : "100vh",
-              backgroundColor : "white"
+              height : "80vh",
+              backgroundColor : "white",
+              marginTop : "-10vh",
             }}></div>
           ) : null}
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
@@ -532,12 +542,6 @@ const RoomContents = ({
                 
                 <div id="code" style={{
                   width : "100%",
-                  // height : "100%",
-                  // textAlign : "center",
-                  // paddingBottom : 10,
-                  // paddingTop : 20,
-                  // wordBreak : "break-all",
-                  // resize : "none",
                   backgroundColor : "#C4C4C4",
                   borderRadius : "0px 5px 5px 0px",
                   display : "flex",
@@ -577,7 +581,15 @@ const RoomContents = ({
               }} filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"/>
                 친구 초대</button>
             </div>
-        </div>) : (<>Gd</>)}
+        </div>) : (<div className={`${styles["chat-container"]} ${styles.game}`}>
+                <>
+                  <Chat
+                    user={localUserRef.current}
+                    mode={mode}
+                    sub={subscribers}
+                  />
+                </>
+            </div>)}
           
         </div>
           
