@@ -4,9 +4,9 @@ import Navbar from '../../common/navbar/Navbar';
 import styles from './style/MyRoom.module.scss';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Room from '../../common/api/Room';
+import UserApi from '../../common/api/UserApi';
 const MyRoom = () => {
-  const { getProfile } = Room;
+  const { getProfile } = UserApi;
 
   const [activeTab, setActiveTab] = useState<any>(0);
   const [email, setEmail] = useState<any>('');
