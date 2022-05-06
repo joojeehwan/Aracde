@@ -2,6 +2,7 @@ package com.ssafy.arcade.game;
 
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
+import com.ssafy.arcade.common.s3.S3Service;
 import com.ssafy.arcade.common.util.Code;
 import com.ssafy.arcade.game.entity.Game;
 import com.ssafy.arcade.game.entity.GameRoom;
@@ -16,7 +17,9 @@ import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -29,6 +32,7 @@ public class GameService {
     private final GameUserRepository gameUserRepository;
     private final UserRepository userRepository;
     private final PictureRepository pictureRepository;
+    private final S3Service s3Service;
 
     // Room 생성
     public String createInviteCode() {
@@ -166,6 +170,18 @@ public class GameService {
             throw new CustomException(ErrorCode.WRONG_DATA);
         }
     }
+    // 그림 업로드
+    public String uploadPicture(MultipartFile image) {
+        // s3Service 바로 부르고싶다가도.. 아무래도 역시 이렇게 처리를 해주는게 나을 것 같아서
+        String url = null;
+        try {
+            url = s3Service.uploadImg(image);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
+
 
     // 그림 저장
     public void createPicture(Long userSeq, List<String> pictureUrls) {
