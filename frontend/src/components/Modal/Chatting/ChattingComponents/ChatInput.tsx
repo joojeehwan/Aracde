@@ -7,7 +7,7 @@ function ChatInput({ publish, onChangeChat }: any) {
     <div className={styles.sendMessage}>
       <form className={styles.form} >
         <input type="text" className={styles.inputMessage} placeholder="enter the message" onChange={onChangeChat} />
-        <button type="button" className={styles.sendButton} onClick={publish}>
+        <button type="button" className={styles.sendButton} onKeyDown={publish}>
           전송
         </button>
       </form>

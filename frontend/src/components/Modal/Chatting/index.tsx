@@ -8,7 +8,6 @@ import plus from '../../../assets/Modal/Plus.png';
 //mui
 import Avatar from '@mui/material/Avatar';
 //components
-// import Modal from '../../../common/Modal';
 import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
 import ChattingLists from './ChattingComponents/ChattingLists';
@@ -26,78 +25,6 @@ import { modalStore } from "../../../components/Modal/store/modal"
 //   open: boolean;
 //   onClose: (e: any) => void;
 // }
-
-const dummyChatList: (any | null)[] = [
-  // {
-  //   roomId: '1',
-  //   name: '배하은',
-  //   content: '캐치마인드 한판 고?!',
-  //   time: '오후 5:46',
-  //   unreads: 1,
-  //   chatMessages: [
-  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '2', name: '배하은', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '4', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '6', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '8', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '10', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '12', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '14', name: '배하은', content: '오케잉', time: '오후 5:46' },
-  //   ],
-  // },
-  // {
-  //   roomId: '2',
-  //   name: '홍승기',
-  //   content: '캐치마인드 한판 고?!',
-  //   time: '오후 5:47',
-  //   unreads: 2,
-  //   chatMessages: [
-  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '2', name: '홍승기', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '4', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '6', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '8', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '10', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '12', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '14', name: '홍승기', content: '오케잉', time: '오후 5:46' },
-  //   ],
-  // },
-  // {
-  //   roomId: '3',
-  //   name: '박현우',
-  //   content: '캐치마인드 한판 고?!',
-  //   time: '오후 5:48',
-  //   unreads: 3,
-  //   chatMessages: [
-  //     { idx: '1', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '2', name: '박현우', content: '오케잉asfasdfasfsfasffafasdf', time: '오후 5:46' },
-  //     { idx: '3', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '4', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '5', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '6', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '7', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '8', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '9', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '10', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '11', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '12', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //     { idx: '13', name: '주지환', content: '한판 하자구!!', time: '오후 5:46' },
-  //     { idx: '14', name: '박현우', content: '오케잉', time: '오후 5:46' },
-  //   ],
-  // },
-];
 
 function Chatting({ open, onClose, client }: any) {
   const [tab, setTab] = useState('CHATROOM');
@@ -171,10 +98,9 @@ function Chatting({ open, onClose, client }: any) {
     };
   };
 
+  console.log(chatList)
   const { chatt, chatChange } = useTabs(0, chatList);
   const date = '2022-04-30';
-
-
   //객체 길이 구하기
   // const getLenfthOfObject = (obj: any): any => {
   //   let legnthOgObject = Object.keys(obj).length;
@@ -189,9 +115,18 @@ function Chatting({ open, onClose, client }: any) {
     }
   };
 
+  function islst(element: any) {
+    if (element.chatRoomSeq === romId) {
+      return true
+    }
+  }
+  const ChatHeader = chatList.find(islst)
+
   useLayoutEffect(() => {
     getAndgetChatList();
   }, []);
+
+  console.log(chateMessages)
 
   return (
     <div
@@ -203,7 +138,7 @@ function Chatting({ open, onClose, client }: any) {
     >
       {open ? (
         <section
-          id={dummyChatList.length < 0 ? styles.test : ''}
+          id={chatList.length < 0 ? styles.test : ''}
           className={styles.modalForm}
           onClick={handleStopEvent}
           onKeyDown={handleStopEvent}
@@ -249,7 +184,7 @@ function Chatting({ open, onClose, client }: any) {
                   height: '64px',
                   width: '64px',
                   display: 'block',
-                  margin: '0px 150px',
+                  margin: '0px 80px',
                 }}
                 onClick={handleOpenChatInvite}
               />
@@ -257,8 +192,8 @@ function Chatting({ open, onClose, client }: any) {
             {chatList.length > 0 ? (
               <div className={styles.chatContent}>
                 <header className={styles.chatHeader}>
-                  <Avatar alt="사진" sx={{ width: 56, height: 56 }} />
-                  <div style={{ marginTop: '20px', marginLeft: '20px' }}>{chatt?.name}</div>
+                  <Avatar alt="사진" src={ChatHeader?.image} sx={{ width: 56, height: 56 }} />
+                  <div style={{ marginTop: '20px', marginLeft: '20px' }}>{ChatHeader?.name}</div>
                 </header>
                 <div className={styles.chatMessages}>
                   <Scrollbars autoHide>

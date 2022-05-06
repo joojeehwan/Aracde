@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/users';
+const BASE_URL = 'http://localhost:8080/apiv1/users';
 
 const getKakaoLoginResult = async (code: string) => {
   const state = Math.random().toString(36).substring(2, 11);
