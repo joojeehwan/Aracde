@@ -61,6 +61,8 @@ public class GameService {
     // 단어 저장(캐치마인드)
     protected ConcurrentHashMap<String, String> answerMap = new ConcurrentHashMap<>();
 
+
+
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
         int temp = arr[idx1];
@@ -206,7 +208,7 @@ public class GameService {
         }else if (gameId == CHARADES) {
             System.out.println("########## [ARCADE] : START Charades!!");
             Map<String, Integer> wordOrder = new HashMap<>();
-            wordMap.put(sessionId, wordOrder);
+//            wordMap.put(sessionId, wordOrder);
 
             // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
             String curStreamId = peopleOrder.get(1);
