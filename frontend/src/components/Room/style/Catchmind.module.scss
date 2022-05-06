@@ -1,0 +1,34 @@
+.container{
+    position : relative;
+}
+
+.answerBox{
+    position : absolute;
+    font-size : 1.5rem;
+    display : flex;
+    flex-direction : column;
+    align-items : center;
+    top : 6vh;
+    left : 50%;
+    right : 50%;
+    width : fit-content;
+    text-align : center;
+    transform: translate(-50%, -50%);
+}
+.answer{
+    margin-top : 2vh;
+    width : calc(100% + 3vw);
+    background-color : #eeeeee;
+    font-size : 1.8rem;
+    height : 2rem;
+    display : flex;
+    justify-content : center;
+    align-items : center;
+    border-radius : 10px;
+}
+.timer{
+    position: absolute;
+    top : 2vh;
+    right : 10px;
+    font-size: 1.8rem;
+}
