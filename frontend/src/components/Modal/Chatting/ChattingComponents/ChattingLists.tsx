@@ -41,15 +41,17 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
   },
 }));
+
 let subscription: any = 0;
-function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages, image }: any) {
+function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages, image, privateChats, setPrivateChats }: any) {
   const [isOnline, setIsOnline] = useState(true);
-  const { romId, setRoomId } = modalStore()
+  const { romId, setRoomId, setHistory } = modalStore()
 
   const { enterChatRoom } = ChatApi
 
-  const enterChattingRoom = () => {
-    enterChatRoom(roomId)
+  const enterChattingRoom = async () => {
+    const result = await enterChatRoom(roomId)
+    setHistory(result)
   }
 
   let subList: any[] = [];
@@ -63,8 +65,17 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
 
   const subscribeDef = () => {
     subscription = client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
-      console.log()
-      setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
+      const payloadData = JSON.parse(body)
+      console.log(payloadData)
+      if (privateChats.get(payloadData.chatRoomSeq)) {
+        privateChats.get(payloadData.chatRoomSeq).push(payloadData)
+        setPrivateChats(new Map(privateChats))
+      } else {
+        let lst = []
+        lst.push(payloadData)
+        privateChats.set(payloadData.chatRoomSeq, lst)
+        setPrivateChats(new Map(privateChats))
+      }
     });
   };
 
@@ -91,8 +102,6 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
         subscribeDef()
         enterChattingRoom()
         setRoomId(roomId)
-        console.log(roomId);
-        chatChange(roomId - 1);
       }}
     >
       <div style={{ marginLeft: '-35px' }}>

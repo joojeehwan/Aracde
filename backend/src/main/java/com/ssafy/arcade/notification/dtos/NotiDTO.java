@@ -6,25 +6,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-public class NotiDTO implements Serializable{
-    private Long userSeq;
+public class NotiDTO {
+    private Long notiSeq;
+    private Long userSeq; // 누가 보낸 알람인지
     private String name;
+    private String type;
     private String inviteCode;
-    private String type; // "room", "friend"
-
-    @Builder
-    public NotiDTO(Long userSeq, String name, String inviteCode, String type) {
-        this.userSeq = userSeq;
-        this.name = name;
-        this.inviteCode = inviteCode;
-        this.type = type;
-    }
-    public Notification toEntity(){
-        return Notification.builder()
-                .inviteCode(inviteCode).name(name).type(type).userSeq(userSeq).build();
-    }
+    private boolean isConfirm; // 읽었는지 안읽었는지 여부
+    private String time;
 }

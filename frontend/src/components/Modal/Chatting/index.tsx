@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars-2';
+
 //styles
 import { StickyHeader, Section, Button, Input, Label } from '../styles/ChattingStyles';
 import styles from '../styles/Chatting.module.scss';
-//png
 import plus from '../../../assets/Modal/Plus.png';
+
 //mui
 import Avatar from '@mui/material/Avatar';
+
 //components
 import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
@@ -15,24 +17,15 @@ import useInput from '../../../common/hooks/useInput';
 import ChatInvite from '../Chatting/ChattingComponents/ChatInvite';
 import { getToken } from '../../../common/api/jWT-Token';
 
-//api
+//api & store
 import ChatAPI from '../../../common/api/ChatAPI';
-
 import { modalStore } from "../../../components/Modal/store/modal"
 
-
-// interface MyProps {
-//   open: boolean;
-//   onClose: (e: any) => void;
-// }
-
 function Chatting({ open, onClose, client }: any) {
-  const [tab, setTab] = useState('CHATROOM');
   const scrollbarRef = useRef<Scrollbars>(null);
   const [chat, onChangeChat, setChat] = useInput('');
-  const [chateMessages, setChatMessages] = useState<any>([]);
   const [chatList, setChatList] = useState<any>([]);
-
+  const [privateChats, setPrivateChats] = useState<any>(new Map())
   const [chatInvite, setChatInvite] = useState<boolean>(false);
 
   //api
@@ -46,22 +39,11 @@ function Chatting({ open, onClose, client }: any) {
     setChatInvite(false);
   }, [chatInvite]);
 
-  //modal
-  const { romId } = modalStore()
-  console.log("roomId는" + romId)
-
-  const [showCreateChattRoomModal, setShowCreateChattRoomModal] = useState(false);
-  const [newChattRoom, onChangeNewChattRoom, setNewChattRoom] = useInput('');
-
-  const onClickCreateChattRoom = useCallback(() => {
-    setShowCreateChattRoomModal(true);
-  }, []);
-
-  const onCloseModal = useCallback(() => {
-    setShowCreateChattRoomModal(false);
-  }, []);
+  //zustand
+  const { romId, histoty } = modalStore()
 
   const publish = (evt: any) => {
+
     if (!client.current.connected) {
       return;
     }
@@ -77,39 +59,22 @@ function Chatting({ open, onClose, client }: any) {
       skipContentLengthHeader: true,
     });
 
-    // setMessage('');
-    setChat('');
+    setChat(" ")
+    if (scrollbarRef.current) {
+      console.log("scroolToBottom!", scrollbarRef.current?.getValues())
+      scrollbarRef.current.scrollToBottom()
+    }
   };
-
-  // const disconnect = () => {
-  //   client.current.deactivate();
-  // };
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
   };
 
-  //tab
-  const useTabs = (inititalTabs: any, allTabs: any) => {
-    const [roomId, setRoomId] = useState(inititalTabs);
-    return {
-      chatt: allTabs[roomId],
-      chatChange: setRoomId,
-    };
-  };
-
-  console.log(chatList)
-  const { chatt, chatChange } = useTabs(0, chatList);
-  const date = '2022-04-30';
-  //객체 길이 구하기
-  // const getLenfthOfObject = (obj: any): any => {
-  //   let legnthOgObject = Object.keys(obj).length;
-  //   return legnthOgObject;
-  // };
-  // console.log(getLenfthOfObject({ dummyChatList }));
+  const date = '2022-04-30'; // dummy data => section 나누기 필요
 
   const getAndgetChatList = async () => {
     const result = await getChatList();
+    console.log(result)
     if (result?.status === 200) {
       setChatList([...result.data]);
     }
@@ -120,13 +85,17 @@ function Chatting({ open, onClose, client }: any) {
       return true
     }
   }
+
   const ChatHeader = chatList.find(islst)
 
   useLayoutEffect(() => {
     getAndgetChatList();
   }, []);
 
-  console.log(chateMessages)
+  // console.log(chatList)
+  // console.log(ChatHeader)
+  console.log(histoty)
+  // console.log(privateChats.get(romId))
 
   return (
     <div
@@ -161,16 +130,15 @@ function Chatting({ open, onClose, client }: any) {
                   chatList?.map((section: any) => {
                     return (
                       <ChattingLists
-                        setChatMessages={setChatMessages}
+                        setPrivateChats={setPrivateChats}
+                        privateChats={privateChats}
                         client={client}
-                        chatChange={chatChange}
                         key={section.chatRoomSeq}
                         roomId={section.chatRoomSeq}
                         name={section.name}
                         image={section.image}
                         content={section.lastMessage}
                         time={section.lastTime}
-                      // unreads={section.unreads}
                       />
                     );
                   })
@@ -196,31 +164,27 @@ function Chatting({ open, onClose, client }: any) {
                   <div style={{ marginTop: '20px', marginLeft: '20px' }}>{ChatHeader?.name}</div>
                 </header>
                 <div className={styles.chatMessages}>
-                  <Scrollbars autoHide>
+                  <Scrollbars autoHide ref={scrollbarRef}>
                     <Section>
                       <StickyHeader>
                         <button>{date}</button>
                       </StickyHeader>
                       {/* 웹소켓 연결부분 */}
-                      {/* {chatt?.chatMessages.map((value: any) => {
-                        return <ChatEach name={value.name} content={value.content} time={value.time} key={value.idx} />;
-                      })} */}
+                      {ChatHeader !== undefined ? histoty.data?.map((value: any) => {
+                        return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} content={value.content} image={value.profile} />
+                      }) : null}
+                      {privateChats.get(romId)?.map((value: any) => {
+                        return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} content={value.content} image={value.image} />
+                      })}
+
                     </Section>
                   </Scrollbars>
                 </div>
-                <ChatInput publish={publish} onChangeChat={onChangeChat} />
+                <ChatInput publish={publish} onChangeChat={onChangeChat} chat={chat} />
               </div>
             ) : null}
           </div>
-          {/* <Modal show={showCreateChattRoomModal} onCloseModal={onCloseModal}>
-            <form>
-              <Label id="ChattRoom-label">
-                <span>친구ID</span>
-                <Input id="ChattRoom" value={newChattRoom} onChange={onChangeNewChattRoom} />
-              </Label>
-              <Button type="submit">생성</Button>
-            </form>
-          </Modal> */}
+
           {chatInvite ? <ChatInvite open={chatInvite} onClose={handleCloseChatInvite} /> : null}
         </section>
       ) : null}

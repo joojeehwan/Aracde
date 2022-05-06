@@ -56,7 +56,7 @@ const getFriendList = async () => {
         console.log(res);
         return res;
       })
-      .then((err) => {
+      .catch((err) => {
         console.dir(err);
         return err;
       });
@@ -77,6 +77,8 @@ const deleteFriend = async (userSeq: number) => {
   }
   return null;
 };
+
+
 
 const UserApi = {
   getKakaoLoginResult,
