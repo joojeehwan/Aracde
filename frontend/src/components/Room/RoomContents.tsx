@@ -10,6 +10,7 @@ import Play from '../../assets/play.png';
 import {ReactComponent as Info} from '../../assets/info.svg';
 import {ReactComponent as People} from '../../assets/team.svg';
 import Chat from "./chat/Chat";
+import Catchmind from "./Game/Catchmin";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
 import { display } from "@mui/system";
@@ -412,7 +413,7 @@ const RoomContents = ({
 
     const data = {
       gameStatus: 1,
-      gameId : 3,
+      gameId : 1,
     };
     sessionRef.current.signal({
       type: "game",
@@ -495,12 +496,7 @@ const RoomContents = ({
         </div>
       </div>
       {mode === "game1" ? (
-            <div style={{
-              width : "60vw",
-              height : "80vh",
-              backgroundColor : "white",
-              marginTop : "-10vh",
-            }}></div>
+            <Catchmind/>
           ) : null}
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
         <div className={
