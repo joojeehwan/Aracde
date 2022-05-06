@@ -178,8 +178,12 @@ public class GameService {
             System.out.println("########## [ARCADE] : START Catch Mind!!");
             WordGameUtil wordGameUtil = new WordGameUtil();
             List<String> randWord = wordGameUtil.takeAllWord();
+
+            System.out.println("randWord: " + randWord);
             Collections.shuffle(randWord);
             String answer = randWord.get(0);
+
+            System.out.println("answer: " + answer);
             data.addProperty("answer", answer);
             // 첫번째 순서
             String curStreamId = peopleOrder.get(1);

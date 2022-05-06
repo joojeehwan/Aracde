@@ -39,32 +39,25 @@ public class WordGameUtil {
             "속담", proverb, "영화", movie, "게임", game, "생물", life, "인물", character);
 
 
-    private enum Keyword {
-        porverb,
-        movie,
-        game,
-        life,
-        character;
-    }
+    private String[] keyList = {"속담", "영화", "게임", "생물", "인물"};
 
 
     // 키워드별 (카테고리별로 퀴즈)
     public List<String> takeWord(String keyword) {
 
-        String[] categ = category.get(keyword);
-
-        return Arrays.asList(categ);
-
+        List<String> categ = Arrays.asList(category.get(keyword));
+        return categ;
     }
 
     // 모든 단어 (그냥 랜덤)
     public List<String> takeAllWord() {
         List<String> allWord = new ArrayList<>();
 
-        for (Keyword keyword : Keyword.values()) {
-           List<String> categWords = takeWord(keyword.toString());
-           allWord.addAll(categWords);
+        for (int i = 0; i < keyList.length; i++) {
+            List<String> categWord = takeWord(keyList[i]);
+            allWord.addAll(categWord);
         }
+        System.out.println("allWord: " + allWord);
         return allWord;
     }
 }
