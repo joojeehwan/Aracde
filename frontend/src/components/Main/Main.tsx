@@ -19,6 +19,7 @@ import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
 import { getToken } from '../../common/api/jWT-Token';
+import { WindowSharp } from '@mui/icons-material';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -163,7 +164,6 @@ function Main() {
         console.error(frame);
       },
     });
-    console.log(client.current);
     client.current.activate();
   };
 
@@ -177,12 +177,11 @@ function Main() {
   }
 
   const subscribe = () => {
-    client.current.subscribe('/sub/chat/room/1', ({ body }: any) => {
+    client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
       console.log(body);
     });
   };
 
-  console.log(window.localStorage.getItem('token'));
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       connect();
@@ -287,7 +286,7 @@ function Main() {
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
-        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
+        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} /> : null}
       </div>
     </>
   );

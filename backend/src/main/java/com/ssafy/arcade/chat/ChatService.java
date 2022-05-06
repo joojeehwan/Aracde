@@ -48,12 +48,12 @@ public class ChatService {
 
     // 해당 채팅방에 접속했을때
     public ChannelTopic enterRoomDetail(Long chatRoomSeq) {
-        ChannelTopic topic = channels.get("/chat/room/detail/" + chatRoomSeq);
+        ChannelTopic topic = channels.get("/sub/chat/room/detail/" + chatRoomSeq);
         // 토픽이 없으면 만든다.
         if (topic == null) {
-            topic = new ChannelTopic("/chat/room/detail/" + chatRoomSeq);
+            topic = new ChannelTopic("/sub/chat/room/detail/" + chatRoomSeq);
             redisMessageListener.addMessageListener(redisSubscriber, topic);
-            channels.put("/chat/room/detail/" + chatRoomSeq, topic);
+            channels.put("/sub/chat/room/detail/" + chatRoomSeq, topic);
         }
 
 
@@ -107,6 +107,7 @@ public class ChatService {
     }
 
     public String sendMessage(String token, SendMessageReq sendMessageReq) {
+        System.out.println("룸 번호"+sendMessageReq.getChatRoomSeq());
         // 토큰으로 유저 찾기
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
@@ -120,6 +121,7 @@ public class ChatService {
         //  3-1.
         // topic을 만든다. 이미 존재하면 그냥 그 토픽으로 들어감.
         ChannelTopic channel = enterRoomDetail(sendMessageReq.getChatRoomSeq());
+        System.out.println("현 topic = "+channel.getTopic());
         SendMessageRes sendMessageRes = SendMessageRes.builder()
                 .name(user.getName()).image(user.getImage())
                 .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).type(SendMessageRes.Type.CHAT).build();
@@ -213,6 +215,7 @@ public class ChatService {
         // chatRoomSeq에 저장된 메시지 전부 가져온다.
         List<Message> messages = messageRepository.findAllByChatRoomSeq(chatRoomSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.WRONG_DATA));
+        enterRoomDetail(chatRoomSeq);
         return messages;
     }
 }

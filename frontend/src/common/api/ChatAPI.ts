@@ -61,10 +61,22 @@ const createChatRoom = async (targetUserSeq: any) => {
   return null;
 };
 
-const enterChatRoom = async (code: string) => {
-  const response = await axios.get(`${BASE_URL}/rooms/inviteCode=${code}`);
-  console.log(response);
-  return response;
+const enterChatRoom = async (chatRoomSeq: number) => {
+  const token = getToken()
+  if (token !== null) {
+    const result = await axios
+      .get(`${BASE_URL}/enter?chatRoomSeq=${chatRoomSeq}`, { headers: { Authorization: token } })
+      .then((res) => {
+        console.log(res);
+        return res;
+      })
+      .catch((err) => {
+        console.dir(err);
+        return err;
+      });
+    return result;
+  }
+  return null;
 };
 
 const ChatAPI = {

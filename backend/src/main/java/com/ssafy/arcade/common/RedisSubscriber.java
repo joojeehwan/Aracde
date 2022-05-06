@@ -34,7 +34,7 @@ public class RedisSubscriber implements MessageListener {
             log.info("[메시지 내용] : {}", sendMessageRes.getContent());
             if(sendMessageRes.getType() == SendMessageRes.Type.CHAT){
                 // 구독자들에게 Dto 보내기
-                messageTemplate.convertAndSend("/sub/chat/room/"+sendMessageRes.getChatRoomSeq(), sendMessageRes);
+                messageTemplate.convertAndSend("/sub/chat/room/detail/"+sendMessageRes.getChatRoomSeq(), sendMessageRes);
             }
         }catch(Exception e){
             log.error(e.getMessage());

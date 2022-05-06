@@ -19,6 +19,9 @@ import { getToken } from '../../../common/api/jWT-Token';
 //api
 import ChatAPI from '../../../common/api/ChatAPI';
 
+import { modalStore } from "../../../components/Modal/store/modal"
+
+
 // interface MyProps {
 //   open: boolean;
 //   onClose: (e: any) => void;
@@ -105,7 +108,6 @@ function Chatting({ open, onClose, client }: any) {
 
   const [chatInvite, setChatInvite] = useState<boolean>(false);
 
-  console.log(client);
   //api
   const { getChatList, createChatRoom } = ChatAPI;
 
@@ -118,6 +120,8 @@ function Chatting({ open, onClose, client }: any) {
   }, [chatInvite]);
 
   //modal
+  const { romId } = modalStore()
+  console.log("roomId는" + romId)
 
   const [showCreateChattRoomModal, setShowCreateChattRoomModal] = useState(false);
   const [newChattRoom, onChangeNewChattRoom, setNewChattRoom] = useInput('');
@@ -130,12 +134,13 @@ function Chatting({ open, onClose, client }: any) {
     setShowCreateChattRoomModal(false);
   }, []);
 
-  const publish = () => {
+  const publish = (evt: any) => {
     if (!client.current.connected) {
       return;
     }
+    evt.preventDefault()
     const SendMessageReq = {
-      chatRoomSeq: 1,
+      chatRoomSeq: romId,
       content: chat,
     };
     client.current.publish({
@@ -168,7 +173,7 @@ function Chatting({ open, onClose, client }: any) {
 
   const { chatt, chatChange } = useTabs(0, chatList);
   const date = '2022-04-30';
-  console.log(chatt);
+
 
   //객체 길이 구하기
   // const getLenfthOfObject = (obj: any): any => {
@@ -179,7 +184,6 @@ function Chatting({ open, onClose, client }: any) {
 
   const getAndgetChatList = async () => {
     const result = await getChatList();
-    console.log(result);
     if (result?.status === 200) {
       setChatList([...result.data]);
     }
@@ -231,7 +235,7 @@ function Chatting({ open, onClose, client }: any) {
                         image={section.image}
                         content={section.lastMessage}
                         time={section.lastTime}
-                        // unreads={section.unreads}
+                      // unreads={section.unreads}
                       />
                     );
                   })
