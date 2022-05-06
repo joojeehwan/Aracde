@@ -125,9 +125,9 @@ public class UserService {
         return kakaoProfile;
     }
     // 회원 가입
-    public User signUp(String email, String image, String name) {
+    public User signUp(String email, String image, String name, String provider) {
         User user = User.builder()
-                .email(email).image(image).name(name).build();
+                .email(email).image(image).name(name).provider(provider).build();
         userRepository.save(user);
         return user;
     }
@@ -237,10 +237,10 @@ public class UserService {
 
 
     // 친구 요청
-    public void requestFriend(String token, String targetEmail) {
+    public void requestFriend(String token, Long targetUserSeq) {
         User reqUser = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
-        User targetUser = userRepository.findByEmail(targetEmail).orElseThrow(() ->
+        User targetUser = userRepository.findByUserSeq(targetUserSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
 
@@ -270,10 +270,10 @@ public class UserService {
     }
 
     // 친구 수락
-    public void approveFriend(String token, String reqEmail) {
+    public void approveFriend(String token, Long userSeq) {
         User targetUser = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
-        User reqUser = userRepository.findByEmail(reqEmail).orElseThrow(() ->
+        User reqUser = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
         System.out.println("reqUser: " + reqUser +  "targetUser: " + targetUser);
@@ -301,10 +301,10 @@ public class UserService {
         }
     }
     // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
-    public void deleteFriend(String token, String userEmail) {
+    public void deleteFriend(String token, Long userSeq) {
         User reqUser = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
-        User targetUser = userRepository.findByEmail(userEmail).orElseThrow(() ->
+        User targetUser = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
@@ -393,7 +393,7 @@ public class UserService {
             GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElse(null);
             // 만약 gameUser가 없는경우는 생성한 후에 다시 조회 (예외처리 개념)
             if (gameUser == null) {
-                gameService.createGame(user.getEmail(), code);
+                gameService.createGame(user.getUserSeq(), code);
                 gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElseThrow(() ->
                         new CustomException(ErrorCode.WRONG_DATA));
             }
