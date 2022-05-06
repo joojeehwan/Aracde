@@ -34,37 +34,30 @@ public class WordGameUtil {
             "아이유", "소녀시대", "유노윤호", "SG워너비", "홍진호", "페이커", "메시", "윤도현", "임요환", "기안84", "박나래",
             "유세윤", "조로", "베지터", "헤르미온느", "김연경"
     };
+    // index - array 매핑
+    private Map<Integer, String[]> category = Map.of(
+            0, proverb, 1, movie, 2, game, 3, life, 4, character);
 
-    private Map<String, String[]> category = Map.of(
-            "속담", proverb, "영화", movie, "게임", game, "생물", life, "인물", character);
+
+    private String[] keyList = {"속담", "영화", "게임", "생물", "인물"};
 
 
-    private enum Keyword {
-        porverb,
-        movie,
-        game,
-        life,
-        character;
+    // 카테고리별
+    public List<String> takeWord(int idx) {
+
+        List<String> categ = Arrays.asList(category.get(idx));
+        return categ;
     }
 
-
-    // 키워드별 (카테고리별로 퀴즈)
-    public List<String> takeWord(String keyword) {
-
-        String[] categ = category.get(keyword);
-
-        return Arrays.asList(categ);
-
-    }
-
-    // 모든 단어 (그냥 랜덤)
+    // 모든 단어
     public List<String> takeAllWord() {
         List<String> allWord = new ArrayList<>();
 
-        for (Keyword keyword : Keyword.values()) {
-           List<String> categWords = takeWord(keyword.toString());
-           allWord.addAll(categWords);
+        for (int i = 0; i < keyList.length; i++) {
+            List<String> categWord = takeWord(i);
+            allWord.addAll(categWord);
         }
+        System.out.println("allWord: " + allWord);
         return allWord;
     }
 }

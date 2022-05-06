@@ -29,12 +29,12 @@ public class ChatRoom extends BaseTimeEntity { // 관계형 DB에 매핑
     @Column
     private String lastContent;
     @Column
-    private LocalDate time;
+    private LocalDate lastTime;
     @Builder
-    public ChatRoom(User user1, User user2, String lastContent, LocalDate time) {
+    public ChatRoom(User user1, User user2, String lastContent, LocalDate lastTime) {
         this.user1 = user1;
         this.user2 = user2;
         this.lastContent = lastContent;
-        this.time = time;
+        this.lastTime = lastTime;
     }
 }

@@ -142,14 +142,14 @@ public class ChatService {
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
-                        .lastTime(chatRoom.getTime()).build());
+                        .lastTime(chatRoom.getLastTime()).build());
             } else if (chatRoom.getUser2().getUserSeq() == user.getUserSeq()) {
                 User target = chatRoom.getUser1();
                 list.add(ChatRoomListDTO.builder()
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
-                        .lastTime(chatRoom.getTime()).build());
+                        .lastTime(chatRoom.getLastTime()).build());
             }
         }
         // topic 발행

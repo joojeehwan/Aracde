@@ -9,7 +9,6 @@ import io.openvidu.server.rpc.RpcNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -59,7 +58,7 @@ public class GameService {
     protected ConcurrentHashMap<String, Map<Integer, String>> orderMap = new ConcurrentHashMap<>();
     // 그림 저장 <sessionId, [그림url, ...] }
     protected ConcurrentHashMap<String, ArrayList<String>> imageMap = new ConcurrentHashMap<>();
-    // 캐치마인드 단어 저장(중복 방지용)
+    // 단어 저장(캐치마인드)
     protected ConcurrentHashMap<String, String> answerMap = new ConcurrentHashMap<>();
     // 몸으로 말해요 단어 저장(중복 방지용)
     protected ConcurrentHashMap<String, ArrayList<String>> charadesWordMap = new ConcurrentHashMap<>();
@@ -181,10 +180,22 @@ public class GameService {
             // 이번 게임에서의 제시어를 미리 보내 줌
             System.out.println("########## [ARCADE] : START Catch Mind!!");
             WordGameUtil wordGameUtil = new WordGameUtil();
-            List<String> randWord = wordGameUtil.takeAllWord();
+            int category = data.get("category").getAsInt();
+            List<String> randWord = new ArrayList<>();
+            // category == 5 => all
+            if (category == 5) {
+                randWord = wordGameUtil.takeAllWord();
+            // 나머지는 카테고리 선택한 경우
+            } else {
+                randWord = wordGameUtil.takeWord(category);
+            }
+            System.out.println("randWord: " + randWord);
             Collections.shuffle(randWord);
             String answer = randWord.get(0);
+
+            System.out.println("answer: " + answer);
             data.addProperty("answer", answer);
+            answerMap.put(sessionId, answer);
             // 첫번째 순서
             String curStreamId = peopleOrder.get(1);
             data.addProperty("curStreamId", curStreamId);
@@ -255,8 +266,8 @@ public class GameService {
                 }
                 // 맞출 사람
                 // 마지막 차례에는 지금까지의 모든 이미지를 str으로 만들어 전송해 줌
-                if (index == peopleCnt - 1) {
-                    String answer = data.get("answer").getAsString();
+                if (index == peopleCnt) {
+                    String answer = answerMap.get(sessionId);
                     String response = data.get("response").getAsString();
                     if (answer.equals(response)) {
                         data.addProperty("answerYn", "Y");
@@ -264,7 +275,7 @@ public class GameService {
                         data.addProperty("answerYn", "N");
                     }
 
-                    // 이미지 문자열 ( 프론트에서 & 으로 파싱)
+                    // 이미지 문자열 ( 프론트에서 | 으로 파싱)
                     String allImages = "";
 
                     for (int i = 0; i < imageList.size(); i++) {
@@ -272,7 +283,7 @@ public class GameService {
                         if (i == imageList.size()-1) {
                             allImages = allImages.concat(imgUrl);
                         } else {
-                            allImages = allImages.concat(imgUrl).concat("&");
+                            allImages = allImages.concat(imgUrl).concat("|");
                         }
                     }
                     System.out.printf("allImages: %s", allImages);
@@ -282,6 +293,15 @@ public class GameService {
                 Map<Integer, String> peopleOrder = orderMap.get(sessionId);
                 // 다음 차례
                 String curStreamId = peopleOrder.get(++index);
+                boolean lastYn;
+
+                // 다음차례가 마지막
+                if (index == peopleCnt) {
+                    lastYn = true;
+                } else {
+                    lastYn = false;
+                }
+                data.addProperty("lastYn", lastYn);
                 data.addProperty("curStreamId", curStreamId);
                 data.addProperty("imageUrl", imageUrl);
                 data.addProperty("index", index);
@@ -317,6 +337,7 @@ public class GameService {
         orderMap.remove(sessionId);
         if (gameId == CATCHMIND) {
             // 이미지맵도 제거
+            answerMap.remove(sessionId);
             imageMap.remove(sessionId);
         }else if (gameId == CHARADES) {
             System.out.println("잠깐만");
