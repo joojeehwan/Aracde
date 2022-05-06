@@ -33,7 +33,6 @@ function ContentFirst({ type }: MyProps) {
   };
 
   const renderElement = () => {
-    console.log('??????');
     if (type === 0) {
       if (checkFlag) {
         return (

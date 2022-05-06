@@ -5,13 +5,13 @@ import useInput from '../../../../common/hooks/useInput';
 function ChatInput({ publish, onChangeChat }: any) {
   return (
     <div className={styles.sendMessage}>
-      <form className={styles.form}>
+      <form className={styles.form} >
         <input type="text" className={styles.inputMessage} placeholder="enter the message" onChange={onChangeChat} />
         <button type="button" className={styles.sendButton} onClick={publish}>
           전송
         </button>
       </form>
-    </div>
+    </div >
   );
 }
 

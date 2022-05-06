@@ -3,6 +3,8 @@ import styles from '../../styles/Chatting.module.scss';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
+import { modalStore } from "../../store/modal"
+import ChatApi from "../../../../common/api/ChatAPI"
 
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -43,9 +45,23 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
 
 function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages }: any) {
   const [isOnline, setIsOnline] = useState(true);
+  const { romId, setRoomId } = modalStore()
+
+  console.log(roomId)
+  const { enterChatRoom } = ChatApi
+
+  const enterChattingRoom = () => {
+    enterChatRoom(roomId)
+  }
 
   const subscribe = () => {
-    client.current.subscribe(`/sub/chat/detail/${roomId}`, ({ body }: any) => {
+    client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
+      setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
+    });
+  };
+
+  const subscribeDef = () => {
+    client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
       setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
     });
   };
@@ -62,6 +78,9 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
       className={styles.onFocus}
       style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
       onClick={() => {
+        subscribeDef()
+        enterChattingRoom()
+        setRoomId(roomId)
         console.log(roomId);
         chatChange(roomId - 1);
       }}
