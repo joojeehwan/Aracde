@@ -35,8 +35,8 @@ public class GameService {
     static final int STARTGAME = 2;
     // 게임 종료
     static final int FINISHGAME = 3;
-    // 게임 패널티
-    static final int PENALTYGAME = 4;
+    // 몸으로 말해요 정답
+    static final int CHARADES_GUESS = 4;
 
     /**
      * 게임 종류
@@ -106,10 +106,13 @@ public class GameService {
                 selectGame(participant, participants, message, params, data, rnfs);
                 break;
             case STARTGAME: // 게임 실행
-                startGame(participant, participants, message, params, data);
+                startGame(participant, participants, message, params, data, rnfs);
                 break;
             case FINISHGAME: // 게임 종료
                 finishGame(participant, participants, message, params, data);
+                break;
+            case CHARADES_GUESS: // 몸으로 말해요 정답 맞춰보기
+//                charadesGuess();
                 break;
         }
     }
@@ -159,8 +162,8 @@ public class GameService {
         // 순서 매핑
         Map<Integer, String> peopleOrder = new HashMap<>();
 
-
         System.out.println("########## [ARCADE] : idxArr: " + Arrays.toString(idxArr));
+
         int idx1, idx2;
         for (int i = 0; i < peopleCnt; i++) {
             idx1 = (int) (Math.random()*peopleCnt);
@@ -180,16 +183,14 @@ public class GameService {
             System.out.println("########## [ARCADE] : START Catch Mind!!");
             WordGameUtil wordGameUtil = new WordGameUtil();
             int category = data.get("category").getAsInt();
-            List<String> randWord = new ArrayList<>();
+            ArrayList<String> randWord;
             // category == 5 => all
             if (category == 5) {
-                randWord = wordGameUtil.takeAllWord();
+                randWord = wordGameUtil.takeAllWord(1);
             // 나머지는 카테고리 선택한 경우
             } else {
-                randWord = wordGameUtil.takeWord(category);
+                randWord = wordGameUtil.takeWord(category, 1);
             }
-            System.out.println("randWord: " + randWord);
-            Collections.shuffle(randWord);
             String answer = randWord.get(0);
 
             System.out.println("answer: " + answer);
@@ -197,7 +198,10 @@ public class GameService {
             answerMap.put(sessionId, answer);
             // 첫번째 순서
             String curStreamId = peopleOrder.get(1);
+            // 두번째 순서
+            String nextStreamId = peopleOrder.get(2);
             data.addProperty("curStreamId", curStreamId);
+            data.addProperty("nextStreamId", nextStreamId);
 
             // 이미지 저장용 리스트 생성
             ArrayList<String> imageList = new ArrayList<>();
@@ -205,19 +209,20 @@ public class GameService {
 
         }else if (gameId == CHARADES) {
             System.out.println("########## [ARCADE] : START Charades!!");
-            // 정답을 저장할 배열 wordOrder
-            ArrayList<String> wordOrder = new ArrayList<>();
+
             // 카테고리에 맞는 단어 가져오기
-
+            WordGameUtil wordGameUtil = new WordGameUtil();
+            int category = data.get("category").getAsInt();
+            ArrayList<String> randWords;
+            // category == 5 => all
+            if (category == 5) {
+                randWords = wordGameUtil.takeAllWord(peopleCnt);
+                // 나머지는 카테고리 선택한 경우
+            } else {
+                randWords = wordGameUtil.takeWord(category, peopleCnt);
+            }
             // 가져온 단어 정답 리스트에 저장
-
-            charadesWordMap.put(sessionId, wordOrder);
-
-            // 게임 실행
-            CharadesRunnable charadesRunnable = new CharadesRunnable(orderMap.get(sessionId), charadesWordMap.get(sessionId), data, params, participants, rnfs);
-            Thread charadesThread = new Thread(charadesRunnable);
-            charadesThread.start();
-            globalThread.putIfAbsent(sessionId, charadesThread);
+            charadesWordMap.put(sessionId, randWords);
 
         }else if (gameId == GUESS) {
             // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
@@ -245,7 +250,7 @@ public class GameService {
      *  gameStatus: 2
      * */
     public void startGame(Participant participant, Set<Participant> participants,
-                             JsonObject message, JsonObject params, JsonObject data) {
+                             JsonObject message, JsonObject params, JsonObject data, RpcNotificationService rnfs) {
 
         int index = data.get("index").getAsInt(); // 이번 차례인 사람 index
         int peopleCnt = participants.size();
@@ -293,27 +298,36 @@ public class GameService {
                 Map<Integer, String> peopleOrder = orderMap.get(sessionId);
                 // 다음 차례
                 String curStreamId = peopleOrder.get(++index);
-                boolean lastYn;
+                // 다다음차례, 마지막 차례인 사람에게는 안보내줌
+                if (index < peopleCnt) {
+                    String nextStreamId = peopleOrder.get(index + 1);
+                    data.addProperty("nextStreamId", nextStreamId);
+                }
 
+                int orderStatus;
                 // 다음차례가 마지막
                 if (index == peopleCnt) {
-                    lastYn = true;
+                    orderStatus = 2;
+                } else if (index == peopleCnt-1) {
+                    orderStatus = 1;
                 } else {
-                    lastYn = false;
+                    orderStatus = 0;
                 }
-                data.addProperty("lastYn", lastYn);
+                data.addProperty("orderStatus", orderStatus);
                 data.addProperty("curStreamId", curStreamId);
                 data.addProperty("imageUrl", imageUrl);
                 data.addProperty("index", index);
                 break;
             case CHARADES:
-                // 정답을 맞추려는 시도
+                // 게임 실행
+                CharadesRunnable charadesRunnable = new CharadesRunnable(orderMap.get(sessionId), charadesWordMap.get(sessionId), data, params, participants, rnfs);
+                Thread charadesThread = new Thread(charadesRunnable);
+                charadesThread.start();
+                globalThread.putIfAbsent(sessionId, charadesThread);
 
             case GUESS:
 
                 break;
-
-
         }
         data.addProperty("gameStatus", 2);
         params.add("data", data);
@@ -353,4 +367,9 @@ public class GameService {
         }
     }
 
+    /**
+     * 몸으로 말해요
+     * gameStatus : 4
+     */
+//    public void charadesGuess()
 }
