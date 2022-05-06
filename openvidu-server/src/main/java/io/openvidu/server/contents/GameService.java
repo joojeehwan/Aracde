@@ -62,7 +62,9 @@ public class GameService {
     protected ConcurrentHashMap<String, String> answerMap = new ConcurrentHashMap<>();
     // 몸으로 말해요 단어 저장(중복 방지용)
     protected ConcurrentHashMap<String, ArrayList<String>> charadesWordMap = new ConcurrentHashMap<>();
-
+    // 맞출사람, 범인 저장
+    protected ConcurrentHashMap<String, String> dectectMap = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, String> suspectMap = new ConcurrentHashMap<>();
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -150,7 +152,7 @@ public class GameService {
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
         System.out.println("########## [ARCADE] : people count ="+peopleCnt+" gameId: "+gameId+" sessionId: "+sessionId);
-       
+
         // idx 순서 섞기. idx는 1부터!!!!! 뒤에서 get(0)하면 null 나옴!!!!!
         int[] idxArr = new int[peopleCnt];
         for (int i = 0; i < peopleCnt; i++) {
@@ -196,7 +198,10 @@ public class GameService {
             answerMap.put(sessionId, answer);
             // 첫번째 순서
             String curStreamId = peopleOrder.get(1);
+            // 두번째 순서
+            String nextStreamId = peopleOrder.get(2);
             data.addProperty("curStreamId", curStreamId);
+            data.addProperty("nextStreamId", nextStreamId);
 
             // 이미지 저장용 리스트 생성
             ArrayList<String> imageList = new ArrayList<>();
@@ -223,6 +228,7 @@ public class GameService {
             // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
             String detectiveStreamId = peopleOrder.get(1);
             String suspectStreamId = peopleOrder.get(2);
+
             System.out.println("########## [ARCADE] : START Guess!!");
             // 탐정과 범인 지정
             data.addProperty("detectiveStreamId", detectiveStreamId);
@@ -292,15 +298,22 @@ public class GameService {
                 Map<Integer, String> peopleOrder = orderMap.get(sessionId);
                 // 다음 차례
                 String curStreamId = peopleOrder.get(++index);
-                boolean lastYn;
+                // 다다음차례, 마지막 차례인 사람에게는 안보내줌
+                if (index < peopleCnt) {
+                    String nextStreamId = peopleOrder.get(index + 1);
+                    data.addProperty("nextStreamId", nextStreamId);
+                }
 
+                int orderStatus;
                 // 다음차례가 마지막
                 if (index == peopleCnt) {
-                    lastYn = true;
+                    orderStatus = 2;
+                } else if (index == peopleCnt-1) {
+                    orderStatus = 1;
                 } else {
-                    lastYn = false;
+                    orderStatus = 0;
                 }
-                data.addProperty("lastYn", lastYn);
+                data.addProperty("orderStatus", orderStatus);
                 data.addProperty("curStreamId", curStreamId);
                 data.addProperty("imageUrl", imageUrl);
                 data.addProperty("index", index);
@@ -315,8 +328,6 @@ public class GameService {
             case GUESS:
 
                 break;
-
-
         }
         data.addProperty("gameStatus", 2);
         params.add("data", data);
@@ -361,6 +372,4 @@ public class GameService {
      * gameStatus : 4
      */
 //    public void charadesGuess()
-
-
 }
