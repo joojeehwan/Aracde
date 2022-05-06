@@ -188,7 +188,12 @@ public class GameService {
             answerMap.put(sessionId, answer);
             // 첫번째 순서
             String curStreamId = peopleOrder.get(1);
+            // 두번째 순서
+            String nextStreamId = peopleOrder.get(2);
             data.addProperty("curStreamId", curStreamId);
+            data.addProperty("nextStreamId", nextStreamId);
+
+
 
             // 이미지 저장용 리스트 생성
             ArrayList<String> imageList = new ArrayList<>();
