@@ -1,9 +1,6 @@
 package io.openvidu.server.contents;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class WordGameUtil {
@@ -39,25 +36,36 @@ public class WordGameUtil {
             0, proverb, 1, movie, 2, game, 3, life, 4, character);
 
 
-    private String[] keyList = {"속담", "영화", "게임", "생물", "인물"};
-
-
     // 카테고리별
-    public List<String> takeWord(int idx) {
+    public ArrayList<String> takeWord(int categoryIdx, int count) {
+        // 카테고리에 맞는 단어 목록 가져오고 랜덤으로 섞음
+        List<String> categoryWords = Arrays.asList(category.get(categoryIdx));
+        Collections.shuffle(categoryWords);
 
-        List<String> categ = Arrays.asList(category.get(idx));
-        return categ;
+        // 반환해줄 단어 목록
+        ArrayList<String> pickedWords = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            pickedWords.add(categoryWords.get(i));
+        }
+        return pickedWords;
     }
 
     // 모든 단어
-    public List<String> takeAllWord() {
-        List<String> allWord = new ArrayList<>();
+    public ArrayList<String> takeAllWord(int count) {
 
-        for (int i = 0; i < keyList.length; i++) {
-            List<String> categWord = takeWord(i);
-            allWord.addAll(categWord);
+        List<String> allWords = new ArrayList<>();
+        // 5개 카테고리의 모든 단어를 가져온다.
+        for (int i = 0; i < 5; i++) {
+            allWords.addAll(Arrays.asList(category.get(i)));
         }
-        System.out.println("allWord: " + allWord);
-        return allWord;
+        // 섞는다.
+        Collections.shuffle(allWords);
+
+        // 반환해줄 단어 목록
+        ArrayList<String> pickedWords = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            pickedWords.add(allWords.get(i));
+        }
+        return pickedWords;
     }
 }

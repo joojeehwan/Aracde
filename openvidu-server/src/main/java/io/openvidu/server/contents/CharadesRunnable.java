@@ -30,11 +30,13 @@ public class CharadesRunnable implements Runnable{
 
     @Override
     public void run() {
-        // 출제자 정하기
+        // 출제자 & 정답 정하기
+        int nowTurn = data.get("idx").getAsInt();
+        String curStreamId = peopleOrder.get(nowTurn);
+        String answer = wordList.get(nowTurn);
 
-        // 정답 정하기
-
-
+        data.addProperty("curStreamId", curStreamId);
+        data.addProperty("answer", answer);
 
         for (Participant p : participants) {
             rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
