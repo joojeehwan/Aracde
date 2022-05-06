@@ -1133,7 +1133,9 @@ const RoomContents = ({
                 marginBottom : "2%"
               }}>ㅎㅇㅎㅇ
               </button>
-              <button className={styles.selectGame} style={{
+              <button 
+              className={styles.selectGame} 
+              style={{
                 gridRow : "2 / span 3",
                 display : "flex",
                 alignItems : "center",

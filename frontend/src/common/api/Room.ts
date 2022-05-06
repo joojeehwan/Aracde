@@ -1,15 +1,15 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://k6a203.p.ssafy.io:8080/apiv1/room';
+const BASE_URL = 'http://k6a203.p.ssafy.io:8080/apiv1/game';
 
 const createRoom = async () => {
-  const response = await axios.post(`${BASE_URL}/create`);
+  const response = await axios.post(`${BASE_URL}/room`);
   console.log(response);
   return response;
 };
 
 const enterRoom = async (code: string) => {
-  const response = await axios.patch(`${BASE_URL}/enter`,{inviteCode : code});
+  const response = await axios.patch(`${BASE_URL}/room`,{inviteCode : code});
   console.log(response);
   return response;
 };
