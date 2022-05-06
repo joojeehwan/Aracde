@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import io.openvidu.server.contents.GameService;
 import org.kurento.client.GenericMediaEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,9 @@ import io.openvidu.server.rpc.RpcNotificationService;
 public class SessionEventsHandler {
 
 	private static final Logger log = LoggerFactory.getLogger(SessionEventsHandler.class);
+
+	@Autowired
+	protected GameService gameService;
 
 	@Autowired
 	protected RpcNotificationService rpcNotificationService;
@@ -417,7 +421,9 @@ public class SessionEventsHandler {
 	
 
 		if (message.has("type") && message.get("type").getAsString().equals("signal:game")){
-			System.out.println("Request Game!");
+			// 게임 요청이 들어오면 실행한다.
+			System.out.println("########## [ARCADE] : Request Game!!");
+			gameService.controlGame(participant, message, participants, rpcNotificationService);
 		}
 		
 		// 채팅 부분
