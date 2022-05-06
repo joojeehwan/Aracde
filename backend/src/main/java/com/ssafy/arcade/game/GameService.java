@@ -12,7 +12,6 @@ import com.ssafy.arcade.game.repositroy.GameRoomRepository;
 import com.ssafy.arcade.game.repositroy.GameUserRepository;
 import com.ssafy.arcade.game.repositroy.PictureRepository;
 import com.ssafy.arcade.game.response.PictureResDto;
-import com.ssafy.arcade.user.UserService;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -102,8 +101,8 @@ public class GameService {
     }
 
     // Game DB 생성
-    public void createGame(String email, Code code) {
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
+    public void createGame(Long userSeq, Code code) {
+        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
         GameUser gameUser = gameUserRepository.findByUserAndGameCode(user, code).orElse(null);
 
