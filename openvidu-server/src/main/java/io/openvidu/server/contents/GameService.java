@@ -8,7 +8,6 @@ import io.openvidu.server.rpc.RpcNotificationService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.parameters.P;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +60,8 @@ public class GameService {
     protected ConcurrentHashMap<String, ArrayList<String>> imageMap = new ConcurrentHashMap<>();
     // 단어 저장(캐치마인드)
     protected ConcurrentHashMap<String, String> answerMap = new ConcurrentHashMap<>();
-
+    // 몸으로 말해요 단어 저장(중복 방지용)
+    protected ConcurrentHashMap<String, ArrayList<String>> charadesWordMap = new ConcurrentHashMap<>();
 
 
     // 인덱스 순서 섞는 용
@@ -101,10 +101,10 @@ public class GameService {
                 prepareGame(participant, participants, message, params, data);
                 break;
             case SELECTGAME: // 게임 선택
-                selectGame(participant, participants, message, params, data);
+                selectGame(participant, participants, message, params, data, rnfs);
                 break;
             case STARTGAME: // 게임 실행
-                startGame(participant, participants, message, params, data, rnfs);
+                startGame(participant, participants, message, params, data);
                 break;
             case FINISHGAME: // 게임 종료
                 finishGame(participant, participants, message, params, data);
@@ -141,7 +141,7 @@ public class GameService {
      *  gameStatus: 1
      * */
     public void selectGame(Participant participant, Set<Participant> participants,
-                           JsonObject message, JsonObject params, JsonObject data) {
+                           JsonObject message, JsonObject params, JsonObject data, RpcNotificationService rnfs) {
 
         int peopleCnt = participants.size();
         int gameId = data.get("gameId").getAsInt();
@@ -204,6 +204,22 @@ public class GameService {
             ArrayList<String> imageList = new ArrayList<>();
             imageMap.put(sessionId, imageList);
 
+        }else if (gameId == CHARADES) {
+            System.out.println("########## [ARCADE] : START Charades!!");
+            // 정답을 저장할 배열 wordOrder
+            ArrayList<String> wordOrder = new ArrayList<>();
+            // 카테고리에 맞는 단어 가져오기
+
+            // 가져온 단어 정답 리스트에 저장
+
+            charadesWordMap.put(sessionId, wordOrder);
+
+            // 게임 실행
+            CharadesRunnable charadesRunnable = new CharadesRunnable(orderMap.get(sessionId), charadesWordMap.get(sessionId), data, params, participants, rnfs);
+            Thread charadesThread = new Thread(charadesRunnable);
+            charadesThread.start();
+            globalThread.putIfAbsent(sessionId, charadesThread);
+
         }else if (gameId == GUESS) {
             // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
             String detectiveStreamId = peopleOrder.get(1);
@@ -212,21 +228,10 @@ public class GameService {
             // 탐정과 범인 지정
             data.addProperty("detectiveStreamId", detectiveStreamId);
             data.addProperty("suspectStreamId", suspectStreamId);
-
-        }else if (gameId == CHARADES) {
-            System.out.println("########## [ARCADE] : START Charades!!");
-            Map<String, Integer> wordOrder = new HashMap<>();
-//            wordMap.put(sessionId, wordOrder);
-
-            // 섞어서 0번쨰에 오는 사람의 streamId가 술래(출제자)
-            String curStreamId = peopleOrder.get(1);
-
-            // 출제자 지정
-            data.addProperty("curStreamId", curStreamId);
         }
 
         data.addProperty("gameStatus", 2);
-        System.out.println("########## [ARCADE] : sent data = " + data);
+        System.out.println("########## [ARCADE] : data will be sent = " + data);
 
         params.add("data", data);
         for (Participant p : participants) {
@@ -240,13 +245,14 @@ public class GameService {
      *  gameStatus: 2
      * */
     public void startGame(Participant participant, Set<Participant> participants,
-                             JsonObject message, JsonObject params, JsonObject data, RpcNotificationService rnfs) {
+                             JsonObject message, JsonObject params, JsonObject data) {
 
         int index = data.get("index").getAsInt(); // 이번 차례인 사람 index
         int peopleCnt = participants.size();
         int gameId = data.get("gameId").getAsInt();
         String sessionId = message.get("sessionId").getAsString();
         System.out.println("########## [ARCADE] : Start Game => " + gameId);
+
 
         switch (gameId) {
             case CATCHMIND:
@@ -300,15 +306,13 @@ public class GameService {
                 data.addProperty("imageUrl", imageUrl);
                 data.addProperty("index", index);
                 break;
+            case CHARADES:
+                // 정답을 맞추려는 시도
+
             case GUESS:
 
                 break;
 
-            case CHARADES:
-                CharadesRunnable charadesRunnable = new CharadesRunnable(participants, rnfs);
-                Thread charadesThread = new Thread(charadesRunnable);
-                charadesThread.start();
-                globalThread.putIfAbsent(sessionId, charadesThread);
 
         }
         data.addProperty("gameStatus", 2);
@@ -335,10 +339,10 @@ public class GameService {
             // 이미지맵도 제거
             answerMap.remove(sessionId);
             imageMap.remove(sessionId);
-        }else if (gameId == GUESS) {
-            System.out.println("잠깐만");
         }else if (gameId == CHARADES) {
-//            wordMap.remove(sessionId);
+            System.out.println("잠깐만");
+        }else if (gameId == GUESS) {
+//            answerMap.remove(sessionId);
         }
 
         data.addProperty("gameStatus", 3);
@@ -348,8 +352,6 @@ public class GameService {
                     ProtocolElements.PARTICIPANTSENDMESSAGE_METHOD, params);
         }
     }
-
-
 
 
 }
