@@ -8,6 +8,7 @@ import io.openvidu.server.rpc.RpcNotificationService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.parameters.P;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,10 +44,10 @@ public class GameService {
      */
     // 이어서 그리기
     static final int CATCHMIND = 1;
-    // 범인을 찾아라
-    static final int GUESS = 2;
     // 몸으로 말해요
-    static final int CHARADES = 3;
+    static final int CHARADES = 2;
+    // 범인을 찾아라
+    static final int GUESS = 3;
 
     // params에 data를 추가해서 이 클래스를 통해 전달하는 형식
     static RpcNotificationService rpcNotificationService;
@@ -179,8 +180,15 @@ public class GameService {
             // 이번 게임에서의 제시어를 미리 보내 줌
             System.out.println("########## [ARCADE] : START Catch Mind!!");
             WordGameUtil wordGameUtil = new WordGameUtil();
-            List<String> randWord = wordGameUtil.takeAllWord();
-
+            int category = data.get("category").getAsInt();
+            List<String> randWord = new ArrayList<>();
+            // category == 5 => all
+            if (category == 5) {
+                randWord = wordGameUtil.takeAllWord();
+            // 나머지는 카테고리 선택한 경우
+            } else {
+                randWord = wordGameUtil.takeWord(category);
+            }
             System.out.println("randWord: " + randWord);
             Collections.shuffle(randWord);
             String answer = randWord.get(0);
@@ -240,7 +248,6 @@ public class GameService {
         String sessionId = message.get("sessionId").getAsString();
         System.out.println("########## [ARCADE] : Start Game => " + gameId);
 
-
         switch (gameId) {
             case CATCHMIND:
                 // 이미지 추가
@@ -253,7 +260,7 @@ public class GameService {
                 }
                 // 맞출 사람
                 // 마지막 차례에는 지금까지의 모든 이미지를 str으로 만들어 전송해 줌
-                if (index == peopleCnt - 1) {
+                if (index == peopleCnt) {
                     String answer = answerMap.get(sessionId);
                     String response = data.get("response").getAsString();
                     if (answer.equals(response)) {
@@ -280,6 +287,15 @@ public class GameService {
                 Map<Integer, String> peopleOrder = orderMap.get(sessionId);
                 // 다음 차례
                 String curStreamId = peopleOrder.get(++index);
+                boolean lastYn;
+
+                // 다음차례가 마지막
+                if (index == peopleCnt) {
+                    lastYn = true;
+                } else {
+                    lastYn = false;
+                }
+                data.addProperty("lastYn", lastYn);
                 data.addProperty("curStreamId", curStreamId);
                 data.addProperty("imageUrl", imageUrl);
                 data.addProperty("index", index);
@@ -332,6 +348,8 @@ public class GameService {
                     ProtocolElements.PARTICIPANTSENDMESSAGE_METHOD, params);
         }
     }
+
+
 
 
 }
