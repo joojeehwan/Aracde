@@ -419,7 +419,7 @@ public class UserService {
             for (Picture picture : pictureList) {
                 PictureResDto pictureResDto = new PictureResDto();
                 pictureResDto.setPictureUrl(picture.getPictureUrl());
-                pictureResDto.setCreatedDAte(picture.getCreatedDate());
+                pictureResDto.setCreatedDate(picture.getCreatedDate());
 
                 pictureResDtos.add(pictureResDto);
             }
