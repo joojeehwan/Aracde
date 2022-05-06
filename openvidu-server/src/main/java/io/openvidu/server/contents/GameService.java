@@ -58,8 +58,8 @@ public class GameService {
     protected ConcurrentHashMap<String, Map<Integer, String>> orderMap = new ConcurrentHashMap<>();
     // 그림 저장 <sessionId, [그림url, ...] }
     protected ConcurrentHashMap<String, ArrayList<String>> imageMap = new ConcurrentHashMap<>();
-    // 단어 저장(중복 방지용)
-    protected ConcurrentHashMap<String, Map<String, Integer>> wordMap = new ConcurrentHashMap<>();
+    // 단어 저장(캐치마인드)
+    protected ConcurrentHashMap<String, String> answerMap = new ConcurrentHashMap<>();
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -185,6 +185,7 @@ public class GameService {
 
             System.out.println("answer: " + answer);
             data.addProperty("answer", answer);
+            answerMap.put(sessionId, answer);
             // 첫번째 순서
             String curStreamId = peopleOrder.get(1);
             data.addProperty("curStreamId", curStreamId);
@@ -251,7 +252,7 @@ public class GameService {
                 // 맞출 사람
                 // 마지막 차례에는 지금까지의 모든 이미지를 str으로 만들어 전송해 줌
                 if (index == peopleCnt - 1) {
-                    String answer = data.get("answer").getAsString();
+                    String answer = answerMap.get(sessionId);
                     String response = data.get("response").getAsString();
                     if (answer.equals(response)) {
                         data.addProperty("answerYn", "Y");
@@ -314,12 +315,12 @@ public class GameService {
         orderMap.remove(sessionId);
         if (gameId == CATCHMIND) {
             // 이미지맵도 제거
+            answerMap.remove(sessionId);
             imageMap.remove(sessionId);
         }else if (gameId == GUESS) {
             System.out.println("잠깐만");
         }else if (gameId == CHARADES) {
-            wordMap.remove(sessionId);
-
+//            wordMap.remove(sessionId);
         }
 
         data.addProperty("gameStatus", 3);
