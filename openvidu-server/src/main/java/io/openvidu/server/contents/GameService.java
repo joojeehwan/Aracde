@@ -55,7 +55,9 @@ public class GameService {
     protected ConcurrentHashMap<String, String> answerMap = new ConcurrentHashMap<>();
     // 몸으로 말해요 단어 저장(중복 방지용)
     protected ConcurrentHashMap<String, ArrayList<String>> charadesWordMap = new ConcurrentHashMap<>();
-
+    // 맞출사람, 범인 저장
+    protected ConcurrentHashMap<String, String> dectectMap = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, String> suspectMap = new ConcurrentHashMap<>();
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -216,6 +218,7 @@ public class GameService {
             // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
             String detectiveStreamId = peopleOrder.get(1);
             String suspectStreamId = peopleOrder.get(2);
+
             System.out.println("########## [ARCADE] : START Guess!!");
             // 탐정과 범인 지정
             data.addProperty("detectiveStreamId", detectiveStreamId);
@@ -285,15 +288,22 @@ public class GameService {
                 Map<Integer, String> peopleOrder = orderMap.get(sessionId);
                 // 다음 차례
                 String curStreamId = peopleOrder.get(++index);
-                boolean lastYn;
+                // 다다음차례, 마지막 차례인 사람에게는 안보내줌
+                if (index < peopleCnt) {
+                    String nextStreamId = peopleOrder.get(index + 1);
+                    data.addProperty("nextStreamId", nextStreamId);
+                }
 
+                int orderStatus;
                 // 다음차례가 마지막
                 if (index == peopleCnt) {
-                    lastYn = true;
+                    orderStatus = 2;
+                } else if (index == peopleCnt-1) {
+                    orderStatus = 1;
                 } else {
-                    lastYn = false;
+                    orderStatus = 0;
                 }
-                data.addProperty("lastYn", lastYn);
+                data.addProperty("orderStatus", orderStatus);
                 data.addProperty("curStreamId", curStreamId);
                 data.addProperty("imageUrl", imageUrl);
                 data.addProperty("index", index);
