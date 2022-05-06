@@ -254,9 +254,10 @@ public class GameService {
                 // 이미지 추가
                 String imageUrl = data.get("imageUrl").getAsString();
                 ArrayList<String> imageList = imageMap.get(sessionId);
+                imageList.add(imageUrl);
                 // 마지막 순서는 imageUrl을 공백으로 보내주기 때문.
                 if ("".equals(imageUrl.trim())) {
-                    imageList.add(imageUrl);
+//                    imageList.add(imageUrl);
                     imageMap.put(sessionId, imageList);
                 }
                 // 맞출 사람
