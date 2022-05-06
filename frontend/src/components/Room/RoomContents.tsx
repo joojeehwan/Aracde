@@ -47,7 +47,7 @@ const RoomContents = ({
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
   const [mode , setMode] = useState<string>("home");
-
+  const [catchMindData, setCatchMindData] = useState<{answer : string, id : string, nextId : string}>();
 
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
@@ -62,6 +62,9 @@ const RoomContents = ({
 
   const localUserRef = useRef(localUser);
   localUserRef.current = localUser;
+
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
 
   // console.log(localUserRef.current, sessionRef.current);
 
@@ -185,8 +188,14 @@ const RoomContents = ({
         console.warn(exception);
       });
       
-      sessionRef.current.on("signal:game", (data : any) => {
-        console.log(data);
+      sessionRef.current.on("signal:game", (response : any) => {
+        // console.log("여긴 룸 컨텐츠에용 씨발 제발 불리지 마세용");
+        console.log(response);
+        if(response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1'){
+          console.log("?실행", modeRef.current);
+          setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
+          setMode("game1");
+        }
       })
 
       getToken().then((token) => {
@@ -414,12 +423,14 @@ const RoomContents = ({
     const data = {
       gameStatus: 1,
       gameId : 1,
+      category : 5,
+      count : 1
     };
     sessionRef.current.signal({
       type: "game",
       data: JSON.stringify(data),
     });
-    setMode("game1");
+    // setMode("game1");
   }
   const handleCopy = () => {
     let value = document.getElementById("code")?.innerHTML as string;
@@ -496,7 +507,7 @@ const RoomContents = ({
         </div>
       </div>
       {mode === "game1" ? (
-            <Catchmind/>
+            <Catchmind initData = {catchMindData} user={localUserRef.current}/>
           ) : null}
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
         <div className={

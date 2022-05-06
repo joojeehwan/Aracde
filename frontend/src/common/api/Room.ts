@@ -21,10 +21,18 @@ const exitRoom = async (code: string) => {
   return response;
 };
 
+const getUploadImageResult = async (data : FormData) => {
+  const response = await axios.post(`${BASE_URL}/upload`, data);
+  return response;
+
+}
+
+
 const RoomApi = {
   createRoom,
   enterRoom,
   exitRoom,
+  getUploadImageResult
 };
 
 export default RoomApi;
