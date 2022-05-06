@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
+import OnlineApi from '../../common/api/OnlineApi';
 
 import Chatting from '../Modal/Chatting';
 
@@ -25,6 +26,7 @@ function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
+  const { offline, online } = OnlineApi;
 
   // const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
   // const client = Stomp.over(sock);
@@ -103,6 +105,7 @@ function Main() {
 
   const handleClickLogout = (e: React.MouseEvent) => {
     deleteToken();
+    // 여기서 로그아웃 api 추가
     setIsLogin(false);
   };
   // 임시 메서드
@@ -147,8 +150,9 @@ function Main() {
     }
   }, []);
 
-  const connect = () => {
+  const connect = async () => {
     const token = getToken();
+    await online();
     client.current = new StompJs.Client({
       brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
@@ -163,9 +167,16 @@ function Main() {
       onStompError: (frame) => {
         console.error(frame);
       },
+      // onDisconnect: () => {
+      //   console.log("나간다")
+      //   client.current.deactivate();
+      // }
     });
     client.current.activate();
   };
+  const disconnect = () => {
+    client.current.deactivate();
+  }
 
   if (typeof WebSocket !== 'function') {
     // For SockJS you need to set a factory that creates a new SockJS instance
@@ -185,6 +196,10 @@ function Main() {
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       connect();
+    }
+    // unmount 될때 실행되는게 맞냐?
+    return () => {
+      disconnect();
     }
   }, []);
 

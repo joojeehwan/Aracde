@@ -13,6 +13,7 @@ import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
 import com.ssafy.arcade.messege.entity.Message;
 import com.ssafy.arcade.messege.repository.MessageRepository;
+import com.ssafy.arcade.user.OnlineService;
 import com.ssafy.arcade.user.UserService;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
@@ -23,6 +24,9 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +42,7 @@ public class ChatService {
     private final RedisPublisher redisPublisher;
     private final RedisSubscriber redisSubscriber;
     private final MessageRepository messageRepository;
+    private final OnlineService onlineService;
 
     private Map<String, ChannelTopic> channels;
 
@@ -107,7 +112,6 @@ public class ChatService {
     }
 
     public String sendMessage(String token, SendMessageReq sendMessageReq) {
-        System.out.println("룸 번호"+sendMessageReq.getChatRoomSeq());
         // 토큰으로 유저 찾기
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
@@ -121,13 +125,18 @@ public class ChatService {
         //  3-1.
         // topic을 만든다. 이미 존재하면 그냥 그 토픽으로 들어감.
         ChannelTopic channel = enterRoomDetail(sendMessageReq.getChatRoomSeq());
-        System.out.println("현 topic = "+channel.getTopic());
         SendMessageRes sendMessageRes = SendMessageRes.builder()
-                .name(user.getName()).image(user.getImage())
+                .name(user.getName()).image(user.getImage()).time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
                 .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).type(SendMessageRes.Type.CHAT).build();
         redisPublisher.publish(channel, sendMessageRes);
         // redis에 저장하기
-        messageRepository.save(sendMessageReq.toEntity(user.getImage(), user.getName(), user.getUserSeq()));
+        messageRepository.save(message);
+        // 채팅방 최근 메시지랑 최근 시간 변경하기
+        ChatRoom chatRoom = chatRoomRepository.findByChatRoomSeq(sendMessageReq.getChatRoomSeq()).orElseThrow(()->
+                new CustomException(ErrorCode.DATA_NOT_FOUND));
+        chatRoom.setLastContent(sendMessageReq.getContent());
+        chatRoom.setLastTime(message.getTime());
+        chatRoomRepository.save(chatRoom);
         return "OK";
     }
 
@@ -145,14 +154,19 @@ public class ChatService {
             if (chatRoom.getUser1().getUserSeq() == user.getUserSeq()) {
                 // 상대방 이름, 상대방 이미지, 채팅방 마지막 메시지, 마지막 시간
                 User target = chatRoom.getUser2();
+                ChannelTopic topic = onlineService.getOnlineTopic(target.getUserSeq());
+                boolean flag = topic != null;
                 list.add(ChatRoomListDTO.builder()
+                                .login(flag)
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
                         .lastTime(chatRoom.getLastTime()).build());
             } else if (chatRoom.getUser2().getUserSeq() == user.getUserSeq()) {
                 User target = chatRoom.getUser1();
-                list.add(ChatRoomListDTO.builder()
+                ChannelTopic topic = channels.get("/sub/" + target.getUserSeq());
+                boolean flag = topic != null;
+                list.add(ChatRoomListDTO.builder().login(flag)
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
@@ -215,6 +229,10 @@ public class ChatService {
         // chatRoomSeq에 저장된 메시지 전부 가져온다.
         List<Message> messages = messageRepository.findAllByChatRoomSeq(chatRoomSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.WRONG_DATA));
+//        messageRepository.findAll().forEach(tmp::add);
+//        for (Message message : tmp){
+//            System.out.println(message.getContent());
+//        }
         enterRoomDetail(chatRoomSeq);
         return messages;
     }

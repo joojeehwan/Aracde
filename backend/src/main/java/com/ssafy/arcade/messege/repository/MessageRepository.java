@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface MessageRepository extends CrudRepository<Message, Long> {
     Optional<List<Message>> findAllByChatRoomSeq(Long chatRoomSeq);
+//    Iterable<List<Message>> findAllByChatRoomSeq(Long chatRoomSeq);
 }

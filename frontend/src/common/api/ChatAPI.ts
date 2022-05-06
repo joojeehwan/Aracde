@@ -61,6 +61,7 @@ const createChatRoom = async (targetUserSeq: any) => {
   return null;
 };
 
+// 채팅방 입장하기
 const enterChatRoom = async (chatRoomSeq: number) => {
   const token = getToken()
   if (token !== null) {
@@ -79,11 +80,26 @@ const enterChatRoom = async (chatRoomSeq: number) => {
   return null;
 };
 
+//swr fetcher
+const fetcher = async (url: string) => {
+  const token = getToken()
+  if (token !== null) {
+    const result = await axios.get(`${BASE_URL}`, {
+      headers: {
+        Authorization: token
+      }
+    })
+    return result
+  }
+  return null
+}
+
 const ChatAPI = {
   createChatRoom,
   enterChatRoom,
   getChatList,
   getChatSearchResult,
+  fetcher
 };
 
 export default ChatAPI;

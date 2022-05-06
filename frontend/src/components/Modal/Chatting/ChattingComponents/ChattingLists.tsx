@@ -34,7 +34,6 @@ const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
     },
   },
 }));
-
 const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
     backgroundColor: '#f8f8f8',
@@ -43,33 +42,54 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages }: any) {
+let subscription: any = 0;
+function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages, image, privateChats, setPrivateChats }: any) {
   const [isOnline, setIsOnline] = useState(true);
-  const { romId, setRoomId } = modalStore()
+  const { romId, setRoomId, setHistory } = modalStore()
 
-  console.log(roomId)
   const { enterChatRoom } = ChatApi
 
-  const enterChattingRoom = () => {
-    enterChatRoom(roomId)
+  const enterChattingRoom = async () => {
+    const result = await enterChatRoom(roomId)
+    setHistory(result)
   }
 
+  let subList: any[] = [];
+  // 리스트 분리하자
+
   const subscribe = () => {
-    client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
+    subList.push(client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
       setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
-    });
+    }));
   };
 
   const subscribeDef = () => {
-    client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
-      setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
+    subscription = client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
+      const payloadData = JSON.parse(body)
+      console.log(payloadData)
+      if (privateChats.get(payloadData.chatRoomSeq)) {
+        privateChats.get(payloadData.chatRoomSeq).push(payloadData)
+        setPrivateChats(new Map(privateChats))
+      } else {
+        let lst = []
+        lst.push(payloadData)
+        privateChats.set(payloadData.chatRoomSeq, lst)
+        setPrivateChats(new Map(privateChats))
+      }
     });
+  };
+
+  const unsubscribe = () => {
+    if (subscription !== 0) {
+      subscription.unsubscribe();
+    }
   };
 
   useEffect(() => {
     subscribe();
     return () => {
-      client.current.subscribe();
+      subList.forEach(topic => topic.unsubscribe());
+      // client.current.unsubscribe();
     };
   }, [roomId]);
 
@@ -78,11 +98,10 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
       className={styles.onFocus}
       style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
       onClick={() => {
+        unsubscribe()
         subscribeDef()
         enterChattingRoom()
         setRoomId(roomId)
-        console.log(roomId);
-        chatChange(roomId - 1);
       }}
     >
       <div style={{ marginLeft: '-35px' }}>
@@ -92,7 +111,7 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             variant="dot"
           >
-            <Avatar alt="사진" sx={{ width: 56, height: 56 }} />
+            <Avatar alt="사진" src={image} sx={{ width: 56, height: 56 }} />
           </StyledBadgeOnline>
         ) : (
           <StyledBadgeOffline
@@ -100,7 +119,7 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             variant="dot"
           >
-            <Avatar alt="사진" />
+            <Avatar alt="사진" src={image} sx={{ width: 56, height: 56 }} />
           </StyledBadgeOffline>
         )}
       </div>
