@@ -62,7 +62,9 @@ public class GameService {
     protected ConcurrentHashMap<String, String> answerMap = new ConcurrentHashMap<>();
     // 몸으로 말해요 단어 저장(중복 방지용)
     protected ConcurrentHashMap<String, ArrayList<String>> charadesWordMap = new ConcurrentHashMap<>();
-
+    // 맞출사람, 범인 저장
+    protected ConcurrentHashMap<String, String> dectectMap = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, String> suspectMap = new ConcurrentHashMap<>();
 
     // 인덱스 순서 섞는 용
     public void swap(int[] arr, int idx1, int idx2) {
@@ -148,9 +150,6 @@ public class GameService {
         String sessionId = message.get("sessionId").getAsString();
         System.out.println("########## [ARCADE] : people count ="+peopleCnt+" gameId: "+gameId+" sessionId: "+sessionId);
 
-        // 순서 매핑
-        Map<Integer, String> peopleMap = new HashMap<>();
-       
         // idx 순서 섞기. idx는 1부터!!!!! 뒤에서 get(0)하면 null 나옴!!!!!
         int[] idxArr = new int[peopleCnt];
         for (int i = 0; i < peopleCnt; i++) {
@@ -224,6 +223,7 @@ public class GameService {
             // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
             String detectiveStreamId = peopleOrder.get(1);
             String suspectStreamId = peopleOrder.get(2);
+
             System.out.println("########## [ARCADE] : START Guess!!");
             // 탐정과 범인 지정
             data.addProperty("detectiveStreamId", detectiveStreamId);
@@ -352,6 +352,5 @@ public class GameService {
                     ProtocolElements.PARTICIPANTSENDMESSAGE_METHOD, params);
         }
     }
-
 
 }
