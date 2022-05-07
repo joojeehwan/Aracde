@@ -15,11 +15,14 @@ import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
 import { display } from "@mui/system";
 
+
 const OPENVIDU_SERVER_URL = "https://k6a203.p.ssafy.io:5443";
 const OPENVIDU_SERVER_SECRET = "arcade";
 
+
 let localUserInit = new UserModel();
 let OV : any = undefined;
+
 
 const RoomContents = ({
   sessionName,
@@ -99,40 +102,6 @@ const RoomContents = ({
     };
   }, []);
 
-//   useEffect(() => {
-//     const nickname = subscribers.map((data) => {
-//       if (targetId === data.getStreamManager().stream.streamId) {
-//         return data.nickname;
-//       }
-//     });
-//     console.log(subscribers);
-//     console.log(targetId);
-//     setTargetNickName(nickname);
-//   }, [targetId]);
-
-//   useEffect(() => {
-//     console.log(subscribers);
-//     const nickname = subscribers.map((data) => {
-//       if (sirenTarget === data.getStreamManager().stream.streamId) {
-//         return data.nickname;
-//       }
-//     });
-//     setSirenTargetNickName(nickname);
-//   }, [sirenTarget]);
-
-//   useEffect(() => {
-//     const nickname = subscribers.map((data) => {
-//       if (correctPeopleId === data.getStreamManager().stream.streamId) {
-//         return data.nickname;
-//       }
-//     });
-//     setCorrectPeopleName(nickname);
-//   }, [correctPeopleId]);
-  // useEffect(()=> {
-  //   if(modalMode==="yousayForbidden") setModalMode("answerForbidden")
-  //   if(modalMode==="someonesayForbidden") setModalMode("answerForbidden")
-  // },[modalMode])
-
   useEffect(() => {
     console.log(session, sessionRef.current);
     setSessionId(sessionRef.current);
@@ -178,7 +147,7 @@ const RoomContents = ({
         });
         setSubscribers([...subscribersRef.current]);
       });
-
+      
       sessionRef.current.on("streamDestroyed", (event : any) => {
         setParticpantNum(participantNumRef.current - 1);
         deleteSubscriber(event.stream);
@@ -248,9 +217,7 @@ const RoomContents = ({
 
   const leaveSession = () => {
     const mySession = sessionRef.current;
-    //console.log(mySession);
     if (mySession) {
-      //console.log("leave");
       mySession.disconnect();
     }
     OV = null;
@@ -286,11 +253,8 @@ const RoomContents = ({
   };
 
   const onbeforeunload = (e : any) => {
-    //console.log("tlfgodehla");
     e.preventDefault();
     e.returnValue = "나가실껀가요?";
-    //console.log("dfsdfsdf");
-    // leaveSession();
   };
 
   const sendSignalUserChanged = (data : any) => {

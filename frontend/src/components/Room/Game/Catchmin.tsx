@@ -310,7 +310,6 @@ function Catchmind({initData, user} : MyProps) {
                     setAllimage([...imagesrc]);
                 }
                 else{
-                    const imagesrc = response.data.allImages.split('|');
                     setEnd(true);
                     setAllimage([...imagesrc]);
                 }
@@ -318,6 +317,7 @@ function Catchmind({initData, user} : MyProps) {
             else{
                 if(response.data.orderStatus === 0 || response.data.orderStatus === 1){
                     if(user.getStreamManager().stream.streamId === response.data.curStreamId){
+                        console.log(nextRef.current, "씨발");
                         if(nextRef.current){
                             console.log("???왜 안됨 제발 제발");
                             setMyturn(true);
@@ -375,6 +375,7 @@ function Catchmind({initData, user} : MyProps) {
                 backgroundColor : "white",
                 marginTop : "-10vh",
                 // overflow : "auto",
+                borderRadius : "10px"
             }}>
             {last === true ? (
                 <div style={{
@@ -390,37 +391,35 @@ function Catchmind({initData, user} : MyProps) {
                     }}>{lastTime}</div>
                     <img style={{
                         width : "60vw",
-                        height : "70vh",
-                        objectFit : "cover"
+                        height : "80vh",
+                        objectFit : "cover",
+                        borderRadius : "10px"
                     }} src={src}></img>
-                    <div style={{
-                        position : "absolute",
-                        width : "100%",
-                        height : "5vh",
-                        display : "flex",
-                        justifyContent : "center",
-                        left : "50%",
-                        right : "50%",
-                        transform : "translate(-50%, -50%)"
-                    }}>
-                        <input className={style.answerInputBox}
-                        onChange = {handleChangeValue} onKeyDown={handleKeyDownEnter} placeholder="정답을 입력해주세요"></input>
-                    </div>
+                    <input className={style.answerInputBox}
+                    onChange = {handleChangeValue} onKeyDown={handleKeyDownEnter} placeholder="정답을 입력해주세요"></input>
                 </div>
             ) : null}
             {myTurn === true? 
                 imgStatus === true ? 
                 (
-                    <>
+                    <div style={{
+                        position : "relative"
+                    }}>
                         <div style={{
-                            color : "black"
+                            position : "absolute",
+                            color : "red",
+                            fontSize : "2rem",
+                            right : 0,
+                            marginTop : "3vh",
+                            marginRight : "2vw"
                         }}>{imgTime}</div>
                         <img style={{
-                            width : "inherit",
-                            height : "inherit",
-                            objectFit : "cover"
+                            width : "60vw",
+                            height : "80vh",
+                            objectFit : "cover",
+                            borderRadius : "10px"
                         }} src={src}></img>
-                    </>
+                    </div>
                 ) 
                 : (<>
                     <div className={style.container}>
@@ -440,7 +439,8 @@ function Catchmind({initData, user} : MyProps) {
                     <canvas ref={canvasRef}
                     style={{
                         zIndex : 9999,
-                        backgroundColor : "white"
+                        backgroundColor : "white",
+                        borderRadius : "10px",
                         // position : "absolute"
                     }}
                     // width={700} height={700}
@@ -448,7 +448,24 @@ function Catchmind({initData, user} : MyProps) {
                 : 
                 (<> 
                     {nextTurn === true ? (<> 기다려 다음은 너다</>)
-                    : end === true ? (<>종료됨ㅎㅎ</>)
+                    : end === true ? (
+                    <>
+                        <div style={{
+                            width : "60vw",
+                            height : "inherit",
+                            display : "grid",
+                            gridTemplateColumns : "1fr 1fr 1fr",
+                            gridTemplateRows : "1fr 1fr",
+                        }}>
+                            {allImage.map((v : string, i : number) => {
+                                const idx = i;
+                                if(idx == allImage.length-1) return;
+                                return(
+                                        <img key={idx} src ={`${v}`} style={{width : "100%", height : "100%", objectFit : "cover"}}/>
+                                )
+                            })}
+                        </div>
+                    </>)
                     : last === true ? null : (<>기다려</>)}
                 </>)}
                     
