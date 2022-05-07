@@ -18,8 +18,8 @@ const CreateRoom = () => {
   const [isMic, setMic] = useState(true);
   const [isVideo, setVideo] = useState(true);
 
-  const [nickname, setNickname] = useState<any>(""); // 닉네임
-  const [code, setCode] = useState<any>(""); // 초대 코드
+  const [nickname, setNickname] = useState<any>(''); // 닉네임
+  const [code, setCode] = useState<any>(''); // 초대 코드
 
   const { enterRoom } = RoomApi;
 
@@ -40,7 +40,7 @@ const CreateRoom = () => {
   const handleEnter = async () => {
     const response = await enterRoom(code as string);
     if (response.status === 200) {
-      console.log("??????");
+      console.log('??????');
       window.localStorage.setItem('nickname', nickname);
       window.localStorage.setItem('invitecode', code);
       navigate('/room');
@@ -155,7 +155,9 @@ const CreateRoom = () => {
             <div>
               <div className={styles.form}>
                 <div className={styles.nickname}>
-                  <label style={{width : "40%"}} htmlFor="nickname">닉네임</label>
+                  <label style={{ width: '40%' }} htmlFor="nickname">
+                    닉네임
+                  </label>
                   <input
                     type="text"
                     id="nickname"
@@ -177,8 +179,8 @@ const CreateRoom = () => {
                   variant="contained"
                   color="secondary"
                   sx={{
-                    width: "40%",
-                    height: "10%",
+                    width: '40%',
+                    height: '10%',
                     fontSize: '32px',
                     m: 2,
                     p: 1,
@@ -192,8 +194,8 @@ const CreateRoom = () => {
                   variant="contained"
                   color="error"
                   sx={{
-                    width: "40%",
-                    height: "10%",
+                    width: '40%',
+                    height: '10%',
                     fontSize: '32px',
                     m: 2,
                     p: 1,

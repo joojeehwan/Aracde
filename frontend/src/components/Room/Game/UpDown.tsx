@@ -3,7 +3,7 @@ import styles from '../style/Chat.module.scss';
 
 import { ReactComponent as SendIcon } from '../../../assets/send.svg';
 
-const Chat = (props: any) => {
+function UpDown(props: any) {
   const [messageList, setMessageList] = useState<any>([]);
   const [answerList, setAnswerList] = useState<any>([]);
   const [message, setMessage] = useState<any>('');
@@ -43,6 +43,7 @@ const Chat = (props: any) => {
     console.log(props.sub, '실행');
     setSub([...sub, props.sub]);
   }, [props.sub]);
+
   useEffect(() => {
     console.log('실행 here');
     // console.log("chat render", initGame, continueGame);
@@ -395,6 +396,6 @@ const Chat = (props: any) => {
       </div>
     </>
   );
-};
+}
 
-export default Chat;
+export default UpDown;
