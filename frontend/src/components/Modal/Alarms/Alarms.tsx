@@ -12,19 +12,16 @@ import neg from '../../../assets/Modal/negative.png';
 const dummydata = [
   { key: '1', message: '박현우바보님이 친구 요청을 보냈습니다.' },
   { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
+  { key: '3', message: '박현우님이 방에 초대하셨습니다.' },
+  { key: '4', message: '박현우님이 방에 초대하셨습니다.' },
+  { key: '5', message: '박현우님이 방에 초대하셨습니다.' },
+  { key: '6', message: '박현우님이 방에 초대하셨습니다.' },
+  { key: '7', message: '박현우님이 방에 초대하셨습니다.' },
+  { key: '8', message: '박현우님이 방에 초대하셨습니다.' },
 ];
-type MyProps = {
-  open: boolean;
-  onClose: (e: any) => void;
-};
 
-function Alarms({ open, onClose }: MyProps) {
+
+function Alarms({ open, onClose, client }: any) {
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
   };

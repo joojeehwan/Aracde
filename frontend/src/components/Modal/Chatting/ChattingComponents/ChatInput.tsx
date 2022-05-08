@@ -22,4 +22,4 @@ function ChatInput({ publish, onChangeChat, chat }: Props) {
   );
 }
 
-export default ChatInput;
+export default React.memo(ChatInput);

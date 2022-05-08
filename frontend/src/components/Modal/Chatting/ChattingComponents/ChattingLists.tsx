@@ -5,6 +5,7 @@ import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import { modalStore } from "../../store/modal"
 import ChatApi from "../../../../common/api/ChatAPI"
+import dayjs from 'dayjs';
 
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -43,15 +44,20 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
 }));
 
 let subscription: any = 0;
-function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages, image, privateChats, setPrivateChats }: any) {
+function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages, image, privateChats, setPrivateChats, scrollbarRef, setIsShow, chat }: any) {
   const [isOnline, setIsOnline] = useState(true);
   const { romId, setRoomId, setHistory } = modalStore()
-
+  const [lastMessage, setLastMessage] = useState<string>(content)
   const { enterChatRoom } = ChatApi
 
   const enterChattingRoom = async () => {
     const result = await enterChatRoom(roomId)
+    scrollbarRef.current.scrollToBottom()
     setHistory(result)
+  }
+
+  const onClickSetShow = () => {
+    setIsShow(true)
   }
 
   let subList: any[] = [];
@@ -59,24 +65,28 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
 
   const subscribe = () => {
     subList.push(client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
-      setChatMessages((_chatMessages: any) => [..._chatMessages, JSON.parse(body)]);
+      const data = JSON.parse(body)
+      setLastMessage(data.content)
+      scrollbarRef.current.scrollToBottom()
     }));
   };
 
   const subscribeDef = () => {
     subscription = client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
       const payloadData = JSON.parse(body)
-      console.log(payloadData)
       if (privateChats.get(payloadData.chatRoomSeq)) {
         privateChats.get(payloadData.chatRoomSeq).push(payloadData)
         setPrivateChats(new Map(privateChats))
+        scrollbarRef.current.scrollToBottom()
       } else {
         let lst = []
         lst.push(payloadData)
         privateChats.set(payloadData.chatRoomSeq, lst)
         setPrivateChats(new Map(privateChats))
+        scrollbarRef.current.scrollToBottom()
       }
     });
+
   };
 
   const unsubscribe = () => {
@@ -87,21 +97,31 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
 
   useEffect(() => {
     subscribe();
+    console.log("이거 되냐?!")
+    window.document.getElementById("trigger")?.click()
     return () => {
       subList.forEach(topic => topic.unsubscribe());
       // client.current.unsubscribe();
     };
   }, [roomId]);
 
+
+
+  const newTime = dayjs(time)
+
   return (
     <div
+      id="trigger"
       className={styles.onFocus}
       style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
       onClick={() => {
+        console.log("이거 찍힌거지?!")
         unsubscribe()
         subscribeDef()
         enterChattingRoom()
         setRoomId(roomId)
+        scrollbarRef.current.scrollToBottom()
+        onClickSetShow()
       }}
     >
       <div style={{ marginLeft: '-35px' }}>
@@ -125,11 +145,11 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
       </div>
       <div>
         <div style={{ marginTop: '10px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
-        <div style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', maxWidth: '170px' }}>{content}</div>
+        <div style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', maxWidth: '170px' }}>{lastMessage}</div>
       </div>
       <div>
         <div style={{ position: 'absolute', marginLeft: '-1px' }}>
-          <div style={{ fontSize: '11px', color: '#B6A7A7' }}>{time}</div>
+          <div style={{ fontSize: '15px', color: '#B6A7A7' }}>{dayjs(newTime).format('MM월DD일 h:mm A')}</div>
           {/* <div className={styles.count}>{unreads}</div> */}
         </div>
       </div>

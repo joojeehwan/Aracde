@@ -10,7 +10,9 @@ import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
-import OnlineApi from '../../common/api/OnlineApi';
+// import OnlineApi from '../../common/api/OnlineApi';
+import useSWR from 'swr';
+import ChatAPI from '../../common/api/ChatAPI';
 
 import Chatting from '../Modal/Chatting';
 
@@ -26,10 +28,7 @@ function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
-  const { offline, online } = OnlineApi;
-
-  // const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
-  // const client = Stomp.over(sock);
+  // const { offline, online } = OnlineApi;
 
   const navigate = useNavigate();
 
@@ -38,7 +37,10 @@ function Main() {
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
+  //swr
+  const { data: chattingList } = useSWR("http://localhost:8080/apiv1/chat", url => fetchWithToken(url, getToken() as unknown as string))
   const client = useRef<any>({});
+  const { fetchWithToken, setOnlie } = ChatAPI;
 
   const handleOpenAlarms = useCallback(() => {
     setAlarmsIsOpen(true);
@@ -52,19 +54,6 @@ function Main() {
   );
 
   const handleOpensFriends = useCallback(() => {
-    // client.send(
-    //   '/pub/noti/2',
-    //   {},
-    //   JSON.stringify({
-    //     userSeq: window.localStorage.getItem('userSeq'),
-    //     name: '홍승기',
-    //     inviteCode: 'asdfasf',
-    //     type: 'friend',
-    //   }),
-    // );
-
-    // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
-
     setFriendsIsOpen(true);
   }, [friendsIsOpen]);
 
@@ -129,12 +118,12 @@ function Main() {
 
   // 모달 창 열리면 옆에 스크롤바 안보임
   useEffect(() => {
-    if (friendsIsOpen === true || alarmsIsOpen === true || open === true) {
+    if (friendsIsOpen === true || alarmsIsOpen === true || open === true || chattingIsOpen === true) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-  }, [friendsIsOpen, alarmsIsOpen, open]);
+  }, [friendsIsOpen, alarmsIsOpen, open, chattingIsOpen]);
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
@@ -150,9 +139,9 @@ function Main() {
     }
   }, []);
 
-  const connect = async () => {
+  const connect = () => {
     const token = getToken();
-    await online();
+    // await online();
     client.current = new StompJs.Client({
       brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
@@ -163,6 +152,7 @@ function Main() {
       heartbeatOutgoing: 4000,
       onConnect: () => {
         subscribe();
+        setOnlie()
       },
       onStompError: (frame) => {
         console.error(frame);
@@ -298,10 +288,10 @@ function Main() {
           </div>
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
-        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
+        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
-        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} /> : null}
+        {chattingIsOpen ? <Chatting chattingList={chattingList} open={chattingIsOpen} onClose={handleCloseChatting} client={client} /> : null}
       </div>
     </>
   );

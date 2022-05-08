@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars-2';
-
+import useSWR from 'swr';
+import dayjs from 'dayjs';
 //styles
 import { StickyHeader, Section, Button, Input, Label } from '../styles/ChattingStyles';
 import styles from '../styles/Chatting.module.scss';
@@ -16,18 +17,32 @@ import ChattingLists from './ChattingComponents/ChattingLists';
 import useInput from '../../../common/hooks/useInput';
 import ChatInvite from '../Chatting/ChattingComponents/ChatInvite';
 import { getToken } from '../../../common/api/jWT-Token';
+import makeSection from "./utils/makeSection"
 
 //api & store
 import ChatAPI from '../../../common/api/ChatAPI';
 import { modalStore } from "../../../components/Modal/store/modal"
 
-function Chatting({ open, onClose, client }: any) {
+interface IDM {
+  // DM 채팅
+  chatRoomSeq: number;
+  sender: number; // 보낸 사람 아이디 userSeq
+  name: string;
+  messageSeq: number;
+  modifiedDate: null;
+  createdDate: null;
+  profile: string;
+  content: string;
+  time: string;
+}
+
+function Chatting({ open, onClose, client, chattingList }: any) {
   const scrollbarRef = useRef<Scrollbars>(null);
   const [chat, onChangeChat, setChat] = useInput('');
   const [chatList, setChatList] = useState<any>([]);
   const [privateChats, setPrivateChats] = useState<any>(new Map())
   const [chatInvite, setChatInvite] = useState<boolean>(false);
-
+  const [isShow, setIsShow] = useState<boolean>(false)
   //api
   const { getChatList, createChatRoom } = ChatAPI;
 
@@ -80,22 +95,49 @@ function Chatting({ open, onClose, client }: any) {
     }
   };
 
+  console.log(chattingList)
+  console.log(romId)
   function islst(element: any) {
     if (element.chatRoomSeq === romId) {
       return true
     }
   }
 
-  const ChatHeader = chatList.find(islst)
+  let ChatHeader = chattingList.find(islst)
+  const test = chattingList.filter((value: any) => value.chatRoomSeq === romId)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     getAndgetChatList();
+    return () => {
+      console.log("실행되나?!")
+      setIsShow(false)
+      console.log(chatList)
+    }
   }, []);
 
-  // console.log(chatList)
-  // console.log(ChatHeader)
-  console.log(histoty)
-  // console.log(privateChats.get(romId))
+  // console.log(histoty?.data)
+  // const test = privateChats.get(romId)
+  // console.log(test)
+  // console.log(histotyLst)
+  // let sumChat
+  // useEffect(() => {
+  //   if (histotyLst !== undefined && test !== undefined) {
+  //     sumChat = (histotyLst ? (histotyLst).concat(...test) : test)
+  //   }
+  // }, [test])
+
+  // console.log(test)
+  // console.log(histotyLst)
+
+  const histotyLst: IDM[] = histoty?.data
+  const chatSections = makeSection(histotyLst ? ([] as IDM[]).concat(...histotyLst) : [])
+  console.log(ChatHeader)
+  console.log(test)
+  // console.log(chatSections)
+
+  // console.log(chattingList.length)
+  // console.log(romId)
+
 
   return (
     <div
@@ -125,11 +167,17 @@ function Chatting({ open, onClose, client }: any) {
               }}
               className={styles.chatList}
             >
+
+
               <div style={{ height: '600px', width: '400px' }}>
-                {chatList.length > 0 ? (
-                  chatList?.map((section: any) => {
+                {chattingList?.length > 0 ? (
+                  chattingList?.map((section: any) => {
                     return (
                       <ChattingLists
+                        chattingList={chattingList}
+                        chat={chat}
+                        setIsShow={setIsShow}
+                        scrollbarRef={scrollbarRef}
                         setPrivateChats={setPrivateChats}
                         privateChats={privateChats}
                         client={client}
@@ -157,7 +205,7 @@ function Chatting({ open, onClose, client }: any) {
                 onClick={handleOpenChatInvite}
               />
             </div>
-            {chatList.length > 0 ? (
+            {chattingList?.length > 0 ? (
               <div className={styles.chatContent}>
                 <header className={styles.chatHeader}>
                   <Avatar alt="사진" src={ChatHeader?.image} sx={{ width: 56, height: 56 }} />
@@ -165,19 +213,22 @@ function Chatting({ open, onClose, client }: any) {
                 </header>
                 <div className={styles.chatMessages}>
                   <Scrollbars autoHide ref={scrollbarRef}>
-                    <Section>
-                      <StickyHeader>
-                        <button>{date}</button>
-                      </StickyHeader>
-                      {/* 웹소켓 연결부분 */}
-                      {ChatHeader !== undefined ? histoty.data?.map((value: any) => {
-                        return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} content={value.content} image={value.profile} />
-                      }) : null}
-                      {privateChats.get(romId)?.map((value: any) => {
-                        return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} content={value.content} image={value.image} />
-                      })}
-
-                    </Section>
+                    {Object.entries(chatSections).map(([date, chats]) => {
+                      return (
+                        <Section>
+                          <StickyHeader>
+                            <button style={{ zIndex: "100" }}>{date}</button>
+                          </StickyHeader>
+                          {/* 웹소켓 연결부분 */}
+                          {ChatHeader !== undefined ? chats?.map((value: any) => {
+                            return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} time={value.time} content={value.content} userSeq={value.sender} image={value.profile} />
+                          }) : null}
+                        </Section>
+                      )
+                    })}
+                    {privateChats.get(romId)?.map((value: any) => {
+                      return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} time={value.time} content={value.content} userSeq={value.userSeq} image={value.image} />
+                    })}
                   </Scrollbars>
                 </div>
                 <ChatInput publish={publish} onChangeChat={onChangeChat} chat={chat} />

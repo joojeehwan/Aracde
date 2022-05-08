@@ -22,7 +22,8 @@ public class SendMessageRes {
     private Long chatRoomSeq;
     private Type type;
     private String time;
+    private Long userSeq;
     public enum Type{
-        CHAT, NOTI
+        CHAT, NOTI, CHATROOM
     }
 }
