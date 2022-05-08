@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactModal from 'react-modal';
+import AlarmApi from "../../../common/api/AlarmApi"
 
 //styles
 import style from '../styles/Alarms.module.scss';
@@ -9,23 +10,20 @@ import Char from '../../../assets/character.png';
 import pos from '../../../assets/Modal/positive.png';
 import neg from '../../../assets/Modal/negative.png';
 
-const dummydata = [
-  { key: '1', message: '박현우바보님이 친구 요청을 보냈습니다.' },
-  { key: '2', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '3', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '4', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '5', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '6', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '7', message: '박현우님이 방에 초대하셨습니다.' },
-  { key: '8', message: '박현우님이 방에 초대하셨습니다.' },
-];
+function Alarms({ open, onClose, client, AlarmsList }: any) {
 
-
-function Alarms({ open, onClose, client }: any) {
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
   };
 
+  const { deleteAlarm } = AlarmApi
+
+  const onClickDeleteAlarm = (notiSeq: any) => async () => {
+    console.log("뭐야")
+    await deleteAlarm(notiSeq)
+  }
+
+  console.log(AlarmsList)
   return (
     <div
       className={open ? `${style.openModal} ${style.modal}` : style.modal}
@@ -64,8 +62,8 @@ function Alarms({ open, onClose, client }: any) {
           </header>
           <main>
             <div className={style.configForm}>
-              {dummydata.map((value, i) => {
-                const idx = i;
+              {AlarmsList.map((value: any) => {
+                const idx = value.notiSeq;
                 return (
                   <div
                     style={{
@@ -82,7 +80,11 @@ function Alarms({ open, onClose, client }: any) {
                         marginRight: 10,
                       }}
                     >
-                      {value.message}
+                      {value.type === "Friend" ?
+                        value.name + "님이 친구 요청을 보냈습니다. " :
+                        value.name + "님이 방에 초대하셨습니다."
+                      }
+
                     </div>
                     <div
                       style={{
@@ -91,7 +93,7 @@ function Alarms({ open, onClose, client }: any) {
                       }}
                     >
                       <img style={{ marginRight: '10px' }} src={pos} alt="긍정" />
-                      <img src={neg} alt="부정" />
+                      <img src={neg} alt="부정" onClick={onClickDeleteAlarm(value.notiSeq)} />
                     </div>
                   </div>
                 );

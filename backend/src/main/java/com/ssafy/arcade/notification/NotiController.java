@@ -24,8 +24,8 @@ public class NotiController {
     }
     // 알림 읽음 처리
     @PostMapping
-    public ResponseEntity<String> readNotification(@RequestHeader("Authorization") String token, @RequestParam Long notiSeq) {
-        return new ResponseEntity<>(notiService.readNotification(token,notiSeq), HttpStatus.OK);
+    public ResponseEntity<String> readNotification(@RequestHeader("Authorization") String token) {
+        return new ResponseEntity<>(notiService.readNotification(token), HttpStatus.OK);
     }
     // 알림 삭제
     @DeleteMapping

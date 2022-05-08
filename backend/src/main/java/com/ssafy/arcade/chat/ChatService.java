@@ -233,7 +233,7 @@ public class ChatService {
     public List<Message> enterChattingRoom(Long chatRoomSeq) {
         // 읽지 않은 메시지를 전부 삭제하고 chatRoom에 보낸다.
         // chatRoomSeq에 저장된 메시지 전부 가져온다.
-        List<Message> messages = messageRepository.findAllByChatRoomSeqOrderByTime(chatRoomSeq).orElseThrow(() ->
+        List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByTime(chatRoomSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.WRONG_DATA));
         enterRoomDetail(chatRoomSeq);
         return messages;

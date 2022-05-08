@@ -80,7 +80,7 @@ const enterChatRoom = async (chatRoomSeq: number) => {
   return null;
 };
 
-//swr fetcher
+//swr fetcher get
 const fetchWithToken = (url: string, token: string) =>
   axios.get(`${url}`, {
     headers: {
@@ -89,55 +89,12 @@ const fetchWithToken = (url: string, token: string) =>
   })
     .then(result => result.data)
 
-// 온라인 api
-
-const setOnlie = async () => {
-  const token = getToken();
-  if (token !== null) {
-    const result = await axios
-      .post(`${BASE_URL}/create`, {}, { headers: { Authorization: token } })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.dir(err);
-        return err;
-      });
-    console.log(result);
-    return result;
-  }
-  return null;
-};
-
-// 오프라인 api
-
-const setOffline = async () => {
-  const token = getToken();
-  if (token !== null) {
-    const result = await axios
-      .post(`${BASE_URL}/create`, {}, { headers: { Authorization: token } })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.dir(err);
-        return err;
-      });
-    console.log(result);
-    return result;
-  }
-  return null;
-};
-
-
 const ChatAPI = {
   createChatRoom,
   enterChatRoom,
   getChatList,
   getChatSearchResult,
   fetchWithToken,
-  setOnlie,
-  setOffline
 };
 
 export default ChatAPI;

@@ -10,14 +10,12 @@ import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
-// import OnlineApi from '../../common/api/OnlineApi';
 import useSWR from 'swr';
+import OnlineApi from '../../common/api/OnlineApi';
 import ChatAPI from '../../common/api/ChatAPI';
+import AlarmApi from "../../common/api/AlarmApi"
 
 import Chatting from '../Modal/Chatting';
-
-// import { Stomp } from '@stomp/stompjs';
-
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
@@ -28,8 +26,6 @@ function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
-  // const { offline, online } = OnlineApi;
-
   const navigate = useNavigate();
 
   //지환 코드
@@ -37,13 +33,19 @@ function Main() {
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
-  //swr
+  const [alramsList, setAlarmsList] = useState<any[]>([])
+  //swr & api
+  const { fetchWithToken } = ChatAPI;
+  const { setOnlie, setOffline } = OnlineApi;
+  const { postReadAlarm, fetchAlarmWithToken } = AlarmApi
   const { data: chattingList } = useSWR("http://localhost:8080/apiv1/chat", url => fetchWithToken(url, getToken() as unknown as string))
+  const { data: AlarmsList } = useSWR("http://localhost:8080/apiv1/noti", url => fetchAlarmWithToken(url, getToken() as unknown as string))
   const client = useRef<any>({});
-  const { fetchWithToken, setOnlie } = ChatAPI;
 
-  const handleOpenAlarms = useCallback(() => {
+  const handleOpenAlarms = useCallback(async () => {
     setAlarmsIsOpen(true);
+    postReadAlarm()
+    // 무조건 무조건이야 알람 흰색 변화
   }, [alarmsIsOpen]);
 
   const handleCloseAlarms = useCallback(
@@ -95,6 +97,7 @@ function Main() {
   const handleClickLogout = (e: React.MouseEvent) => {
     deleteToken();
     // 여기서 로그아웃 api 추가
+    disconnect();
     setIsLogin(false);
   };
   // 임시 메서드
@@ -128,14 +131,6 @@ function Main() {
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
-      // client.connect({}, () => {
-      //   console.log("connection");
-      //   client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
-      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");
-      //     const content = JSON.parse(notiDTO.body);
-      //       console.log(content.name);
-      //   })
-      // })
     }
   }, []);
 
@@ -165,6 +160,8 @@ function Main() {
     client.current.activate();
   };
   const disconnect = () => {
+    // 여기다가 
+    setOffline()
     client.current.deactivate();
   }
 
@@ -179,19 +176,26 @@ function Main() {
 
   const subscribe = () => {
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
+      // 여기는 무조건 알림창 빨간색 처리 해야함.
+      // 알림창 누르면 알림 가져오기 api 호출. => 메인 가면 바로 알림 리스트 가져옴
       console.log(body);
+      const data: any = JSON.parse(body)
+      alramsList.push(data)
+      setAlarmsList([...data])
     });
   };
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       connect();
+
     }
     // unmount 될때 실행되는게 맞냐?
     return () => {
       disconnect();
     }
   }, []);
+  console.log(alramsList)
 
   return (
     <>
@@ -288,7 +292,7 @@ function Main() {
           </div>
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
-        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} /> : null}
+        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} AlarmsList={AlarmsList} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         {chattingIsOpen ? <Chatting chattingList={chattingList} open={chattingIsOpen} onClose={handleCloseChatting} client={client} /> : null}

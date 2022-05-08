@@ -3,6 +3,7 @@ import { getToken } from './jWT-Token';
 
 const BASE_URL = 'http://localhost:8080/apiv1/users';
 
+// 카카오 로그인
 const getKakaoLoginResult = async (code: string) => {
   const state = Math.random().toString(36).substring(2, 11);
   const result = await axios.get(`${BASE_URL}/login?code=${code}&&provider=KAKAO&&state=${state}`);
@@ -10,6 +11,7 @@ const getKakaoLoginResult = async (code: string) => {
   return result;
 };
 
+// 네이버 로그인
 const getNaverLoginResult = async (code: string) => {
   const state = Math.random().toString(36).substring(2, 11);
   const result = await axios.get(`${BASE_URL}/login?code=${code}&&provider=NAVER&&state=${state}`);
@@ -17,6 +19,7 @@ const getNaverLoginResult = async (code: string) => {
   return result;
 };
 
+// 구글 로그인
 const getGoogleLoginResult = async (code: string) => {
   const state = Math.random().toString(36).substring(2, 11);
   const result = await axios.get(`${BASE_URL}/login?code=${code}&&provider=GOOGLE&&state=${state}`);
@@ -24,6 +27,7 @@ const getGoogleLoginResult = async (code: string) => {
   return result;
 };
 
+//유저 검색 결과
 const getUserSearchResult = async (name: string) => {
   const token = getToken();
   if (token !== null) {
@@ -34,6 +38,9 @@ const getUserSearchResult = async (name: string) => {
   return null;
 };
 
+// 친구 검색은 api가 뭐지 저거?! 
+
+// 친구 요청 보내기
 const getAddFriendRequestResult = async (email: string) => {
   const token = getToken();
   const body = {
@@ -47,6 +54,30 @@ const getAddFriendRequestResult = async (email: string) => {
   return null;
 };
 
+
+// 친구 요청 수락 (친구 맺기)
+const patchAcceptFriendRequest = async (userSeq: number) => {
+  const token = getToken()
+  const body = {
+    userSeq
+  }
+  if (token !== null) {
+    const result = await axios.patch(`${BASE_URL}/friend`, { headers: { Authorization: token } })
+      .then((res) => {
+        console.log(res)
+        return res
+      })
+      .catch((err) => {
+        console.dir(err)
+        return err
+      })
+    return result
+  }
+  return null
+}
+
+
+// 친구 목록 불러오기
 const getFriendList = async () => {
   const token = getToken();
   if (token !== null) {
@@ -65,20 +96,21 @@ const getFriendList = async () => {
   return null;
 };
 
+//친구 삭제하기
 const deleteFriend = async (userSeq: number) => {
   const token = getToken();
-  const body = {
-    userSeq,
-  };
   if (token !== null) {
-    const result = await axios.post(`${BASE_URL}/friend`, body, { headers: { Authorization: token } });
+    const result = await axios.delete(`${BASE_URL}/friend`, {
+      headers: { Authorization: token },
+      data: {
+        userSeq: userSeq
+      }
+    });
     console.log(result);
     return result;
   }
   return null;
 };
-
-
 
 const UserApi = {
   getKakaoLoginResult,
@@ -88,6 +120,7 @@ const UserApi = {
   getAddFriendRequestResult,
   getFriendList,
   deleteFriend,
+  patchAcceptFriendRequest
 };
 
 export default UserApi;
