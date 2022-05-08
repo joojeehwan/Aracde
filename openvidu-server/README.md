@@ -14,4 +14,4 @@ openvidu-server
 
 - **Release**: [OpenVidu Artifacts](https://docs.openvidu.io/en/stable/releases/)
 
-[OpenViduLogo]: https://secure.gravatar.com/avatar/5daba1d43042f2e4e85849733c8e5702?s=120	"d"
+[OpenViduLogo]: https://secure.gravatar.com/avatar/5daba1d43042f2e4e85849733c8e5702?s=120
