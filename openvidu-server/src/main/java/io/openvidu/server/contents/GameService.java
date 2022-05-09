@@ -126,6 +126,10 @@ public class GameService {
         // 요청자 streamId
         String starterStreamId = participant.getPublisherStreamId();
         String sessionId = message.get("sessionId").getAsString();
+        if (!"".equals(starterMap.get(sessionId))) {
+            // 데이터가 존재하는 경우 지우고 새로 넣어야 한다.
+            starterMap.remove(sessionId);
+        }
         starterMap.put(sessionId, starterStreamId);
 
         data.addProperty("streamId", starterStreamId);
@@ -159,7 +163,7 @@ public class GameService {
         // 순서 매핑
         Map<Integer, String> peopleOrder = new HashMap<>();
 
-        System.out.println("########## [ARCADE] : idxArr: " + Arrays.toString(idxArr));
+        System.out.println("########## [ARCADE] : peopleOrder = " + peopleOrder);
 
         int idx1, idx2;
         for (int i = 0; i < peopleCnt; i++) {
@@ -473,7 +477,7 @@ public class GameService {
 
         // 게임 끝났으면 제외 시켜 준다.
         orderMap.remove(sessionId);
-        starterMap.remove(sessionId);
+
         switch (gameId) {
             case CATCHMIND:
                 System.out.println("########## [ARCADE] CATCH MIND IS OVER!!!");
@@ -498,7 +502,7 @@ public class GameService {
 
         }
 
-        data.addProperty("gameStatus", 3);
+
         params.add("data", data);
         for (Participant p : participants) {
             rpcNotificationService.sendNotification(p.getParticipantPrivateId(),
