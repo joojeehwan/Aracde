@@ -316,7 +316,7 @@ public class GameService {
                         }
                     }
                     System.out.printf("allImages: %s", allImages);
-                    data.addProperty("gameStatus", 3);
+                    data.addProperty("gameStatus", 2);
                     data.addProperty("allImages", allImages);
             // 마지막 사람 외에는, 이전사람 그림과, gameStatus값을 보내 줌
             } else {
@@ -365,7 +365,7 @@ public class GameService {
                     // 마지막 사람인 경우
                     if (index == peopleCnt) {
                         // 게임 끝낸다.
-                        data.addProperty("gameStatus", 3);
+                        data.addProperty("gameStatus", 2);
                     } else {
                         // 다음 사람으로 넘어간다.
                         data.addProperty("index", ++index);
@@ -385,7 +385,7 @@ public class GameService {
                 // 마지막 사람인 경우
                 if (index == peopleCnt) {
                     // 게임을 끝낸다.
-                    data.addProperty("gameStatus", 3);
+                    data.addProperty("gameStatus", 2);
                 } else {
                     // 다음 출제자와 답변을 보낸다.
                     data.addProperty("gameStatus", 2);
@@ -401,9 +401,9 @@ public class GameService {
             // 정답
             String answer = suspectMap.get(sessionId);
             if (answer.equals(tryAnswer)) {
-                System.out.println("########## [ARCADE] CHARADES : " + peopleOrder.get(index) + " Correct !!");
+                System.out.println("########## [ARCADE] GUESS : " + peopleOrder.get(index) + " Correct !!");
                 data.addProperty("answerYN", "Y");
-                data.addProperty("gameStatus", 3);
+                data.addProperty("gameStatus", 2);
             } else {
                 data.addProperty("answerYN", "N");
                 // 아직 기회 남은 경우
@@ -413,7 +413,7 @@ public class GameService {
                     // 남은 찬스
                     data.addProperty("chance", chance);
                 } else {
-                    data.addProperty("gameStatus", 3);
+                    data.addProperty("gameStatus", 2);
                 }
             }
 
@@ -426,7 +426,7 @@ public class GameService {
                 // 맞췄으니 게임 종료
                 System.out.println("########## [ARCADE] CHARADES : " + peopleOrder.get(index) + " Correct !!");
                 data.addProperty("answer", answer);
-                data.addProperty("gameStatus", 3);
+                data.addProperty("gameStatus", 2);
                 data.addProperty("answerYN", 0);
                 data.addProperty("answerStreamId", peopleOrder.get(index));
             } else {
