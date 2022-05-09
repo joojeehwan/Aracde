@@ -18,5 +18,5 @@ RUN chmod +x /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/discover_my_public_ip.sh
 
 EXPOSE 4443
-
+ENV TZ=Asia/Seoul
 CMD /usr/local/bin/entrypoint.sh
