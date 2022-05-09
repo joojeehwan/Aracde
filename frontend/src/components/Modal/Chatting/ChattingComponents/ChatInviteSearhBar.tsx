@@ -3,10 +3,9 @@ import style from '../../styles/Invite.module.scss';
 import Char from '../../../../assets/character.png';
 import magnifyingGlassInvite from '../../../../assets/Modal/magnifyingGlassInvite.png';
 
-
 interface MyProps {
   searchPeople: (name: string) => void;
-};
+}
 
 function ChatInviteSearhBar({ searchPeople }: MyProps) {
   const [input, setInput] = useState<string>('');
@@ -44,7 +43,13 @@ function ChatInviteSearhBar({ searchPeople }: MyProps) {
       </div>
       <div className={style.serachBar}>
         <img src={magnifyingGlassInvite} style={{ height: '43px', marginTop: '-30px', marginBottom: '-10px' }} />
-        <input className={style.input} id="nick" type="text" onChange={handleInput} onKeyDown={handleSearchPeople}></input>
+        <input
+          className={style.input}
+          id="nick"
+          type="text"
+          onChange={handleInput}
+          onKeyDown={handleSearchPeople}
+        ></input>
       </div>
     </header>
   );

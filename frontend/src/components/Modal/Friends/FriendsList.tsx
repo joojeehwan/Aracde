@@ -6,7 +6,7 @@ import Avatar from '@mui/material/Avatar';
 import styles from '../styles/Friends.module.scss';
 
 //api
-import UserApi from "../../../common/api/UserApi"
+import UserApi from '../../../common/api/UserApi';
 
 //mui
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
@@ -50,21 +50,24 @@ function FriendsList({ name, imgUrl }: any) {
   const [isOnline, setIsOnline] = useState(true);
 
   //api
-  const { deleteFriend } = UserApi
+  const { deleteFriend } = UserApi;
 
-  const userSeq = window.localStorage.getItem('useSeq')
-  console.log(userSeq)
+  const userSeq = window.localStorage.getItem('useSeq');
+  console.log(userSeq);
+
   const onClickdeleteFriend = useCallback(() => {
-    deleteFriend(userSeq as unknown as number)
-  }, [userSeq])
+    deleteFriend(userSeq as unknown as number);
+  }, [userSeq]);
 
   return (
-    <div style={{ 
-      display: 'flex',
-      justifyContent : 'space-evenly',
-      alignItems : 'center',
-      marginBottom : '15px',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        marginBottom: '15px',
+      }}
+    >
       <div>
         {isOnline ? (
           <StyledBadgeOnline
@@ -86,7 +89,9 @@ function FriendsList({ name, imgUrl }: any) {
       </div>
       <div>{name}</div>
       <div>
-        <button className={styles.button} onClick={onClickdeleteFriend}>친구 삭제</button>
+        <button className={styles.button} onClick={onClickdeleteFriend}>
+          친구 삭제
+        </button>
       </div>
     </div>
   );

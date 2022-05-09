@@ -11,9 +11,6 @@ interface MyProps {
   onClose: (e: any) => void;
 }
 
-
-
-
 function Friends({ open, onClose }: MyProps) {
   const [friend, setFriend] = useState<
     { userSeq: number; email: string; name: string; image: string; status: number }[]

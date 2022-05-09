@@ -1,5 +1,10 @@
 package com.ssafy.arcade.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ssafy.arcade.common.RedisSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -12,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -41,25 +47,36 @@ public class RedisConfig {
         return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 
-    // redisTemplate을 사용하기 위한 설정. CRUD 는 이거 안쓸거임
-//    @Bean
-//    public RedisTemplate<?, ?> redisTemplate() {
-//        RedisTemplate<?, ?> redisTemplate = new RedisTemplate<>();
-//        redisTemplate.setConnectionFactory(redisConnectionFactory());
-//        return redisTemplate;
-//    }
     @Bean
-    // redis의 pub/sub 을 사용하기 위한 설정
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(connectionFactory);
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
-        return redisTemplate;
-
+    public ObjectMapper objectMapper() {
+        var mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.registerModules(new JavaTimeModule(),new Jdk8Module());
+        return mapper;
     }
 
-//    @Bean
+    @Bean
+    // redis의 pub/sub 을 사용하기 위한 설정
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory,ObjectMapper objectMapper) {
+//        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+//        redisTemplate.setConnectionFactory(connectionFactory);
+//        redisTemplate.setKeySerializer(new StringRedisSerializer());
+//        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+//        return redisTemplate;
+
+        var serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+        var tpl = new RedisTemplate<String, Object>();
+        tpl.setConnectionFactory(connectionFactory);
+        tpl.setKeySerializer(new StringRedisSerializer());
+        tpl.setValueSerializer(serializer);
+        tpl.setHashKeySerializer(new StringRedisSerializer());
+        tpl.setHashValueSerializer(serializer);
+        return tpl;
+    }
+
+    //    @Bean
 //    MessageListenerAdapter messageListenerAdapter(RedisSubscriber redisSubscriber){
 //        return new MessageListenerAdapter(redisSubscriber);
 //    }

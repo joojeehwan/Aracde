@@ -6,6 +6,7 @@ import loadable from '@loadable/component';
 import { ToastContainer } from 'react-toastify';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import create from "zustand"
+import { getToken } from './common/api/jWT-Token';
 
 const Main = loadable(() => import('./components/Main/Main'));
 const Login = loadable(() => import('./components/Login/mainLogin'));
@@ -18,6 +19,10 @@ const Room = loadable(() => import('./components/Room/Room'));
 
 function App() {
 
+  const Token = getToken()
+  useEffect(() => {
+    console.log(Token)
+  }, [Token])
   return (
     <>
       <BrowserRouter>
