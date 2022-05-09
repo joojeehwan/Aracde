@@ -173,8 +173,8 @@ public class GameService {
         orderMap.put(sessionId, peopleOrder);
 
         if (gameId == CATCHMIND) {
-            System.out.println("########## [ARCADE] : START Catch Mind!!");
             // 이번 게임에서의 제시어를 미리 보내 줌
+            System.out.println("########## [ARCADE] : START Catch Mind!!");
             WordGameUtil wordGameUtil = new WordGameUtil();
             int category = data.get("category").getAsInt();
             ArrayList<String> randWord;
@@ -190,13 +190,14 @@ public class GameService {
             System.out.println("answer: " + answer);
             data.addProperty("answer", answer);
             answerMap.put(sessionId, answer);
-
             // 첫번째 순서
             String curStreamId = peopleOrder.get(1);
             // 두번째 순서
             String nextStreamId = peopleOrder.get(2);
             data.addProperty("curStreamId", curStreamId);
             data.addProperty("nextStreamId", nextStreamId);
+
+
 
             // 이미지 저장용 리스트 생성
             ArrayList<String> imageList = new ArrayList<>();
@@ -272,10 +273,9 @@ public class GameService {
             // 이미지 추가
             String imageUrl = data.get("imageUrl").getAsString();
             ArrayList<String> imageList = imageMap.get(sessionId);
-            imageList.add(imageUrl);
             // 마지막 순서는 imageUrl을 공백으로 보내주기 때문.
-            if ("".equals(imageUrl.trim())) {
-//                    imageList.add(imageUrl);
+            if (!"".equals(imageUrl.trim())) {
+                imageList.add(imageUrl);
                 imageMap.put(sessionId, imageList);
             }
             // 맞출 사람
@@ -289,29 +289,27 @@ public class GameService {
                     data.addProperty("answerYn", "N");
                 }
 
-                // 이미지 문자열 ( 프론트에서 | 으로 파싱)
-                String allImages = "";
+                    // 이미지 문자열 ( 프론트에서 | 으로 파싱)
+                    String allImages = "";
 
-                for (int i = 0; i < imageList.size(); i++) {
-                    String imgUrl = imageList.get(i);
-                    if (i == imageList.size() - 1) {
-                        allImages = allImages.concat(imgUrl);
-                    } else {
-                        allImages = allImages.concat(imgUrl).concat("|");
+                    for (int i = 0; i < imageList.size(); i++) {
+                        String imgUrl = imageList.get(i);
+                        if (i == imageList.size()-1) {
+                            allImages = allImages.concat(imgUrl);
+                        } else {
+                            allImages = allImages.concat(imgUrl).concat("|");
+                        }
                     }
+                    System.out.printf("allImages: %s", allImages);
+                    data.addProperty("allImages", allImages);
                 }
-                System.out.printf("allImages: %s", allImages);
-                data.addProperty("allImages", allImages);
-            }
-
-            // 다음 차례에게 그림 보내줌
-            String curStreamId = peopleOrder.get(++index);
-
-            // 다다음차례, 마지막 차례인 사람에게는 안보내줌
-            if (index < peopleCnt) {
-                String nextStreamId = peopleOrder.get(index + 1);
-                data.addProperty("nextStreamId", nextStreamId);
-            }
+                // 다음 차례
+                String curStreamId = peopleOrder.get(++index);
+                // 다다음차례, 마지막 차례인 사람에게는 안보내줌
+                if (index < peopleCnt) {
+                    String nextStreamId = peopleOrder.get(index + 1);
+                    data.addProperty("nextStreamId", nextStreamId);
+                }
 
             int orderStatus;
             // 다음차례가 마지막
@@ -415,7 +413,6 @@ public class GameService {
                 }
             }
         }
-
 
         params.add("data", data);
         System.out.println("########## [ARCADE] Data will be sent : " + data);
