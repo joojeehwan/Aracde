@@ -47,8 +47,8 @@ public class GameService {
 
     // params에 data를 추가해서 이 클래스를 통해 전달하는 형식
     static RpcNotificationService rpcNotificationService;
-    // 게임 스레드 관리용
-    protected ConcurrentHashMap<String, Thread> globalThread = new ConcurrentHashMap<>();
+    // 처음 게임 시작한 사람
+    protected ConcurrentHashMap<String, String> starterMap = new ConcurrentHashMap<>();
     // 순서
     protected ConcurrentHashMap<String, Map<Integer, String>> orderMap = new ConcurrentHashMap<>();
     // 그림 저장 <sessionId, [그림url, ...] }
@@ -123,10 +123,12 @@ public class GameService {
 
         System.out.println("########## [ARCADE] : PrepareGame is called by " + participant.getParticipantPublicId());
 
-        // 요청자 streamId (이 값이 맞는지는 테스트 해봐야 될 듯)
-        String streamId = participant.getPublisherStreamId();
+        // 요청자 streamId
+        String starterStreamId = participant.getPublisherStreamId();
+        String sessionId = message.get("sessionId").getAsString();
+        starterMap.put(sessionId, starterStreamId);
 
-        data.addProperty("streamId", streamId);
+        data.addProperty("streamId", starterStreamId);
         data.addProperty("gameStatus", 0);
         params.add("data", data);
         // 브로드 캐스팅
@@ -287,8 +289,13 @@ public class GameService {
             // 맞출 사람
             // 마지막 차례에는 지금까지의 모든 이미지를 str으로 만들어 전송해 줌
             if (index == peopleCnt) {
+                // 마지막. 처음 시작한 사람이 누구인지 알아야한다.
+                String startStreamId = starterMap.get(sessionId);
+                data.addProperty("startStreamId", startStreamId);
+                // 정답도 무엇이었는지 알려줘야 한다.
                 String answer = answerMap.get(sessionId);
                 data.addProperty("answer", answer);
+
                 String response = data.get("response").getAsString();
                 if (answer.equals(response)) {
                     data.addProperty("answerYn", "Y");
@@ -466,6 +473,7 @@ public class GameService {
 
         // 게임 끝났으면 제외 시켜 준다.
         orderMap.remove(sessionId);
+        starterMap.remove(sessionId);
         switch (gameId) {
             case CATCHMIND:
                 System.out.println("########## [ARCADE] CATCH MIND IS OVER!!!");
