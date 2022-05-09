@@ -25,6 +25,7 @@
     // height: 100%;
     font-size: 1.5rem;
     text-align: center;
+    padding-bottom: 10px;
     border: none;
     border-bottom: 1px solid;
     &:focus {
@@ -100,5 +101,42 @@
     transform: translate(-50%, -50%);
     &:hover {
         background-color: rgba($color: #9900F0, $alpha: 0.7);
+    }
+}
+.save{
+    width : 90px;
+    height : 35px;
+    margin-top : 15px;
+    background-color : #9900f0;
+    border : none;
+    border-radius : 5px;
+    color : white;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba($color: #9900f0, $alpha: 0.5);
+    }
+}
+.retryButton {
+    border : none;
+    border-radius : 5px;
+    width : 15vw;
+    height : 5vh;
+    background-color: #5552FF;
+    color : white;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba($color: #5552FF, $alpha: 0.7);
+    }
+}
+.endButton {
+    border : none;
+    border-radius : 5px;
+    width : 15vw;
+    height : 5vh;
+    background-color: #E03F1B;
+    color : white;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba($color: #E03F1B, $alpha: 0.7);
     }
 }

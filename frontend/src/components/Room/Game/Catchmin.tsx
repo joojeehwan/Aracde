@@ -1,14 +1,14 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
+import html2canvas from "html2canvas";
 import RoomApi from "../../../common/api/Room";
-
+import AnsInfo from "./Modal/AnsInfo";
 import style from '../style/Catchmind.module.scss';
 import Pen from '../../../assets/pen.png';
 import Eraser from '../../../assets/eraser.png';
 import Delete from '../../../assets/delete.png';
 import Undo from '../../../assets/undo.png';
-import { uptime } from "process";
 
 type MyProps = {
     initData : {answer : string, id : string, nextId : string} | undefined,
@@ -28,6 +28,7 @@ function Catchmind({initData, user} : MyProps) {
     const [imgTime, setImgTime] = useState<number>(5);
     const [init, setInit] = useState<boolean>(false);
     const [idx, setIdx] = useState<number>();
+    const [imLast, setImLast] = useState<boolean>(false);
     const [last, setLast] = useState<boolean>(false);
     const [lastTime, setLastTime] = useState<number>(300000000);
     const [inputData, setInputData] = useState<string>("");
@@ -39,6 +40,10 @@ function Catchmind({initData, user} : MyProps) {
     const [color, setColor] = useState<string>("#000000");
     const [undoArr, setUndoArr] = useState<any[]>([]);
     const [undoIdx, setUndoIdx] = useState<number>(-1);
+    const [ansNick, setAnsNick] = useState<string>("");
+    const [answer, setAnswer] = useState<string>("");
+    const [inputAns, setInputAns] = useState<string>("");
+    const [open, setOpen] = useState<boolean>(false);
     const [lineWidth, setLineWidth] = useState<{num : number , flag : boolean}[]>(
         [
             {num : 5, flag : true},
@@ -48,9 +53,9 @@ function Catchmind({initData, user} : MyProps) {
         ]
     );
     const [drawMode, setDrawMode] = useState<boolean>(false);
+    
 
-
-    const {getUploadImageResult} = RoomApi;
+    const {getUploadImageResult, getSaveMyFavoriteImageResult} = RoomApi;
 
     const undoArrRef = useRef(undoArr);
     undoArrRef.current = undoArr;
@@ -69,6 +74,40 @@ function Catchmind({initData, user} : MyProps) {
     const lastTimeRef = useRef(lastTime);
     lastTimeRef.current = lastTime;
 
+    const handleCloseModal = (e : React.MouseEvent) => {
+        e.preventDefault();
+        setOpen(false);
+    }
+
+    const handleSaveImg = async (idx : number) => {
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext('2d');
+        const img = document.getElementById(`image${idx}`) as HTMLImageElement;
+        const image = new Image();
+        image.crossOrigin = 'Anonymous';
+        image.src = img.src;
+        image.onload = function () {
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx?.drawImage(image, 0, 0);
+            console.log(canvas.toDataURL("image/jpeg"));
+            let link = document.createElement("a");
+            document.body.appendChild(link);
+            link.href = canvas.toDataURL("image/jpeg");
+            link.download = "내가찜한사진.jpg";
+            link.click();
+            document.body.removeChild(link);
+        }
+        if(window.localStorage.getItem('userSeq') !== null){
+            const data = {
+                userSeq : window.localStorage.getItem('userSeq'),
+                pictureUrl : img.src
+            }
+            const result = await getSaveMyFavoriteImageResult(data);
+            console.log(result);
+        }
+    }
     const handleResize = debounce(() => {
         if(!canvasRef.current) return;
         const canvas : HTMLCanvasElement = canvasRef.current;
@@ -122,7 +161,8 @@ function Catchmind({initData, user} : MyProps) {
         }     
     }
     const handleCtrlZ = (e : KeyboardEvent) => {
-        if(e.ctrlKey && (e.key === 'z' || e.key === 'Z')){
+        console.log("???", e.code);
+        if(e.ctrlKey && (e.code === 'KeyZ')){
             handleClickUndo();
         }
     }
@@ -271,7 +311,8 @@ function Catchmind({initData, user} : MyProps) {
             gameId : 1,
             index : idx,
             response : inputData,
-            imageUrl : ""
+            imageUrl : "",
+            nickname : user.getNickname()
         }
         user.getStreamManager().stream.session.signal({
             data : JSON.stringify(data),
@@ -410,8 +451,7 @@ function Catchmind({initData, user} : MyProps) {
         }, 10000);
         user.getStreamManager().stream.session.on("signal:game", (response : any) => {
             console.log(response.data, "여긴 게임 안이에요");
-            console.log(user.getStreamManager().stream.streamId, user.getStreamManager().stream.streamId === response.data.curStreamId);
-
+            //console.log(user.getStreamManager().stream.streamId, user.getStreamManager().stream.streamId === response.data.curStreamId);
             if(response.data.answerYn){
                 const imagesrc = response.data.allImages.split('|');
                 console.log(imagesrc);
@@ -419,11 +459,20 @@ function Catchmind({initData, user} : MyProps) {
                     setAnsFlag(true);
                     setEnd(true);
                     setAllimage([...imagesrc]);
+                    setAnsNick(response.data.nickname);
+                    setAnswer(response.data.answer);
+                    setInputAns(response.data.response);
+                    setOpen(true);
                 }
                 else{
                     setEnd(true);
                     setAllimage([...imagesrc]);
+                    setAnsNick(response.data.nickname);
+                    setAnswer(response.data.answer);
+                    setInputAns(response.data.response);
+                    setOpen(true);
                 }
+                
             }
             else{
                 if(response.data.orderStatus === 0 || response.data.orderStatus === 1){
@@ -440,17 +489,16 @@ function Catchmind({initData, user} : MyProps) {
                         }
                     }
                     if(user.getStreamManager().stream.streamId === response.data.nextStreamId){
-                        setNext(true);
+                        if(response.data.orderStatus === 1) setImLast(true);
+                        else setNext(true);
                     }
                 }
                 else if(response.data.orderStatus === 2){
                     if(user.getStreamManager().stream.streamId === response.data.curStreamId){
-                        if(nextRef.current){
-                            setNext(false);
-                            setIdx(response.data.index);
-                            setSrc(response.data.imageUrl);
-                            setLast(true);
-                        }
+                        setImLast(false);
+                        setIdx(response.data.index);
+                        setSrc(response.data.imageUrl);
+                        setLast(true);
                     }
                 }
             }
@@ -510,7 +558,7 @@ function Catchmind({initData, user} : MyProps) {
                         color : "black"
                     }}>{lastTime}</div>
                     <img style={{
-                        width : "60vw",
+                        width : "100%",
                         height : "80vh",
                         objectFit : "cover",
                         borderRadius : "10px"
@@ -534,7 +582,7 @@ function Catchmind({initData, user} : MyProps) {
                             marginRight : "2vw"
                         }}>{imgTime}</div>
                         <img style={{
-                            width : "60vw",
+                            width : "100%",
                             height : "80vh",
                             objectFit : "cover",
                             borderRadius : "10px"
@@ -741,29 +789,99 @@ function Catchmind({initData, user} : MyProps) {
                     ></canvas></>) 
                 : 
                 (<> 
-                    {nextTurn === true ? (<> 기다려 다음은 너다</>)
+                    {nextTurn === true ? (
+                    <div style={{
+                        borderRadius : "10px",
+                        display : "flex",
+                        flexDirection : "column",
+                        width : "100%",
+                        height : "100%",
+                        justifyContent : "center",
+                        alignItems : "center",
+                        fontSize : "2.5rem",
+                        color : "white",
+                        backgroundColor : "black"
+                    }}>
+                        <div>다음 차례 입니다!</div>
+                        <div style={{
+                            marginTop : "3vh"
+                        }}> 준비하세요!! 😀  </div>
+                    </div>)
                     : end === true ? (
                     <>
                         <div style={{
-                            width : "60vw",
-                            height : "inherit",
+                            width : "100%",
+                            height : "70vh",
                             display : "grid",
                             gridTemplateColumns : "1fr 1fr 1fr",
                             gridTemplateRows : "1fr 1fr",
                         }}>
                             {allImage.map((v : string, i : number) => {
                                 const idx = i;
-                                if(idx == allImage.length-1) return;
                                 return(
-                                        <img key={idx} src ={`${v}`} style={{width : "100%", height : "100%", objectFit : "cover"}}/>
+                                    <div key={idx} style={{
+                                        position : "relative",
+                                        display : "flex",
+                                        justifyContent : "center",
+                                        alignItems : "center",
+                                        flexDirection : "column"
+                                    }}>
+                                        <div style={{
+                                            position : "absolute",
+                                            top : "10%",
+                                            left : "2%"
+                                        }}>{idx+1}</div>
+                                        <img id={`image${idx}`} key={idx} src ={`${v}`} style={{width : "95%", height : "50%", objectFit : "cover", border : "1px dashed #d7d7d7", borderRadius : "5px"}}/>
+                                        <button className={style.save} onClick={() => handleSaveImg(idx)}>SAVE</button>
+                                    </div>
                                 )
                             })}
                         </div>
+                        <div style={{
+                            display : "flex",
+                            justifyContent : "space-evenly"
+                        }}>
+                            <button className={style.retryButton}>다시하기</button>
+                            <button className={style.endButton}>그만하기</button>
+                        </div>
                     </>)
-                    : last === true ? null : (<>기다려</>)}
+                    : last === true ? null 
+                    : imLast === true ? (
+                    <div style={{
+                        borderRadius : "10px",
+                        display : "flex",
+                        flexDirection : "column",
+                        width : "100%",
+                        height : "100%",
+                        justifyContent : "center",
+                        alignItems : "center",
+                        fontSize : "2.5rem",
+                        color : "white",
+                        backgroundColor : "black"
+                    }}>
+                        <div>당신은 마지막 순서입니다</div>
+                        <div style={{
+                            marginTop : "3vh"
+                        }}> 정답을 맞춰보세요!! 😆 </div>
+                    </div>)
+                    : (
+                    <div style={{
+                        borderRadius : "10px",
+                        display : "flex",
+                        width : "100%",
+                        height : "100%",
+                        justifyContent : "center",
+                        alignItems : "center",
+                        fontSize : "2.5rem",
+                        color : "white",
+                        backgroundColor : "black"
+                    }}>
+                        잠시만 기다려 주세요...😴
+                    </div>)}
                 </>)}
                     
                 </div>)}
+                {open ? (<AnsInfo open={open} onClose={handleCloseModal} nick={ansNick} ans={answer} input = {inputAns} ansYn ={ansFlag}></AnsInfo>) : null}
         </>
     )
 }
