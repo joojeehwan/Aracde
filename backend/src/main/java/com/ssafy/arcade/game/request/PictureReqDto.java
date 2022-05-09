@@ -13,5 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 public class PictureReqDto {
     private Long userSeq;
-    private List<String> pictureUrls;
+    private String pictureUrl;
+    private List<String> pictureUrlList;
 }
