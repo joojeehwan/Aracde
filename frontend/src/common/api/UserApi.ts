@@ -41,12 +41,13 @@ const getUserSearchResult = async (name: string) => {
 // 친구 검색은 api가 뭐지 저거?!
 
 // 친구 요청 보내기
-const getAddFriendRequestResult = async (email: string) => {
+const getAddFriendRequestResult = async (userSeq: string) => {
   const token = getToken();
   const body = {
-    email,
+    userSeq,
   };
   if (token !== null) {
+    console.log(userSeq)
     const result = await axios.post(`${BASE_URL}/friend`, body, { headers: { Authorization: token } });
     console.log(result);
     return result;
@@ -61,8 +62,10 @@ const patchAcceptFriendRequest = async (userSeq: number) => {
     userSeq,
   };
   if (token !== null) {
+    console.log(token)
+    console.log(userSeq)
     const result = await axios
-      .patch(`${BASE_URL}/friend`, { headers: { Authorization: token } })
+      .patch(`${BASE_URL}/friend`, body, { headers: { Authorization: token } })
       .then((res) => {
         console.log(res);
         return res;

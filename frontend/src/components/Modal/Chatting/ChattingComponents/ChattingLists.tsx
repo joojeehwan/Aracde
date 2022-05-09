@@ -48,6 +48,7 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
   const [isOnline, setIsOnline] = useState(true);
   const { romId, setRoomId, setHistory } = modalStore()
   const [lastMessage, setLastMessage] = useState<string>(content)
+  // const [lastTime, setLastTime] = useState<string>(time)
   const { enterChatRoom } = ChatApi
 
   const enterChattingRoom = async () => {
@@ -67,6 +68,7 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
     subList.push(client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
       const data = JSON.parse(body)
       setLastMessage(data.content)
+      // setLastTime(data.time);
       scrollbarRef.current.scrollToBottom()
     }));
   };

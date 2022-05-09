@@ -28,6 +28,9 @@ public class OnlineService {
     public void init() {
         channels = new HashMap<>();
     }
+    public Map<String, ChannelTopic> getChannels(){
+        return this.channels;
+    }
 
     // 로그인 했을때
     public ChannelTopic logined(Long userSeq) {
@@ -43,6 +46,7 @@ public class OnlineService {
 
     public String online(String token) {
         // 토큰으로 유저 찾기
+        System.out.println("online 실행");
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
         logined(user.getUserSeq());
@@ -54,6 +58,8 @@ public class OnlineService {
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
         if (getTopicName(user.getUserSeq()) != null) {
+            ChannelTopic topic = channels.get(getTopicName(user.getUserSeq()));
+            redisMessageListener.removeMessageListener(redisSubscriber, topic);
             channels.remove(getTopicName(user.getUserSeq()));
         }
         return "OK";

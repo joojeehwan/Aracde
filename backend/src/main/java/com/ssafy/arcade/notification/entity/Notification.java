@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.index.Indexed;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -17,7 +18,8 @@ import javax.persistence.GenerationType;
 @RedisHash("notification")// 레디스 db에 매핑하겠다.
 public class Notification extends BaseTimeEntity {
     @Id
-    private Long notiSeq;
+    @Indexed
+    private String notiSeq;
     @Indexed
     private Long userSeq; // 누가 보낸 알람인지
     @Indexed

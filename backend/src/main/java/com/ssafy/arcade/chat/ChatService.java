@@ -104,8 +104,6 @@ public class ChatService {
                 .user1(user).user2(target).build();
         // 채팅방 만들기
         chatRoomRepository.save(chatRoom);
-        // 해당 채팅방 토픽 생성
-        enterRoom(chatRoom.getChatRoomSeq());
 
         return "OK";
     }

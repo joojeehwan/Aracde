@@ -6,8 +6,9 @@ import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
-public interface NotiRepository extends CrudRepository<Notification, Long> {
+public interface NotiRepository extends CrudRepository<Notification, String> {
     Optional<List<Notification>> findAllByTypeAndUserSeqAndTargetSeq(String type, Long userSeq, Long targetSeq);
     Optional<List<Notification>> findAllByTargetSeq(Long targetSeq);
-    Optional<Notification> findByNotiSeq(Long notiSeq);
+    Optional<Notification> findByNotiSeq(String notiSeq);
+    Optional<Notification> deleteByNotiSeq(String notiSeq);
 }

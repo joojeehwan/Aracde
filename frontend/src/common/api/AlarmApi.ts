@@ -3,15 +3,24 @@ import { getToken } from './jWT-Token';
 
 const BASE_URL = process.env.REACT_APP_API_ROOT + '/noti';
 
-//swr fetcher 알람 목록 가져오기
-const fetchAlarmWithToken = (url: string, token: string) =>
-  axios
-    .get(`${url}`, {
-      headers: {
-        Authorization: token,
-      },
-    })
-    .then((result) => result.data);
+const getAlarmList = async () => {
+  const token = getToken();
+  if (token !== null) {
+    const result = await axios
+      .get(`${BASE_URL}`, { headers: { Authorization: token } })
+      .then((res) => {
+        console.log(res);
+        return res;
+      })
+      .catch((err) => {
+        console.dir(err);
+        return err;
+      });
+    return result;
+  }
+  return null;
+};
+
 
 // 알람 읽음 처리
 // 정리,,,
@@ -38,6 +47,7 @@ const postReadAlarm = async () => {
 const deleteAlarm = async (notiSeq: number) => {
   const token = getToken();
   if (token !== null) {
+    console.log("실행되는거니?! 삭제야?!")
     const result = await axios.delete(`${BASE_URL}?notiSeq=${notiSeq}`, {
       headers: { Authorization: token },
     });
@@ -48,7 +58,7 @@ const deleteAlarm = async (notiSeq: number) => {
 };
 
 const AlarmApi = {
-  fetchAlarmWithToken,
+  getAlarmList,
   deleteAlarm,
   postReadAlarm,
 };

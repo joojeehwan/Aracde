@@ -55,12 +55,14 @@ public class NotiService {
         return "OK";
     }
 
-    public String deleteNotification(String token, Long notiSeq) {
+    public String deleteNotification(String token, String notiSeq) {
         // 토큰으로 유저 찾기
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
         Notification notification = notiRepository.findByNotiSeq(notiSeq).orElseGet(Notification::new);
-//        if (notification.getNotiSeq() != null)
+        System.out.println("노티 시퀀스" + notiSeq);
+        System.out.println("진짜 노티 시퀀스"+notification.getNotiSeq());
+        if (notification.getNotiSeq() != null)
             notiRepository.delete(notification);
         return "OK";
     }

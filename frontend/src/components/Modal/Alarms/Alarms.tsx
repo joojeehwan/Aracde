@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactModal from 'react-modal';
 import AlarmApi from "../../../common/api/AlarmApi"
+import UserApi from "../../../common/api/UserApi"
 
 //styles
 import style from '../styles/Alarms.module.scss';
@@ -10,20 +11,53 @@ import Char from '../../../assets/character.png';
 import pos from '../../../assets/Modal/positive.png';
 import neg from '../../../assets/Modal/negative.png';
 
-function Alarms({ open, onClose, client, AlarmsList }: any) {
+function Alarms({ open, onClose, client }: any) {
 
+  const { getAlarmList } = AlarmApi;
+
+  const [alramsList, setAlarmsList] = useState<any>([]);
+  const [flag, setFlag] = useState(false)
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
   };
 
-  const { deleteAlarm } = AlarmApi
-
-  const onClickDeleteAlarm = (notiSeq: any) => async () => {
-    console.log("뭐야")
-    await deleteAlarm(notiSeq)
+  const getAndgetAlarmList = async () => {
+    const result = await getAlarmList()
+    if (result.status === 200) {
+      setAlarmsList([...result.data])
+    }
+    console.log(result)
+    if (flag === true) {
+      setFlag(false)
+    }
   }
 
-  console.log(AlarmsList)
+  useEffect(() => {
+    getAndgetAlarmList()
+  }, [flag])
+
+  const { deleteAlarm } = AlarmApi
+  const { patchAcceptFriendRequest, deleteFriend } = UserApi
+
+  const onClickDeleteAlarm = async (notiSeq: any, userSeq: any) => {
+    console.log("알람 삭제")
+    setFlag(true)
+    await deleteAlarm(notiSeq)
+    await deleteFriend(userSeq)
+  }
+
+  const onClickDelteFriend = (userSeq: any) => async () => {
+    console.log("친구 삭제")
+    await deleteFriend(userSeq)
+  }
+  const onClickAcceptRequest = (userSeq: any) => async () => {
+    console.log("친구 요청 수락")
+    setFlag(true)
+    await patchAcceptFriendRequest(userSeq)
+  }
+
+  console.log(alramsList)
+
   return (
     <div
       className={open ? `${style.openModal} ${style.modal}` : style.modal}
@@ -62,7 +96,7 @@ function Alarms({ open, onClose, client, AlarmsList }: any) {
           </header>
           <main>
             <div className={style.configForm}>
-              {AlarmsList.map((value: any) => {
+              {alramsList?.map((value: any) => {
                 const idx = value.notiSeq;
                 return (
                   <div
@@ -92,12 +126,13 @@ function Alarms({ open, onClose, client, AlarmsList }: any) {
                         alignItems: 'center',
                       }}
                     >
-                      <img style={{ marginRight: '10px' }} src={pos} alt="긍정" />
-                      <img src={neg} alt="부정" onClick={onClickDeleteAlarm(value.notiSeq)} />
+                      <img style={{ marginRight: '10px' }} src={pos} alt="긍정" onClick={onClickAcceptRequest(value.userSeq)} />
+                      <img src={neg} alt="부정" onClick={() => { onClickDeleteAlarm(value.notiSeq, value.userSeq) }} />
                     </div>
                   </div>
                 );
               })}
+
             </div>
           </main>
         </section>

@@ -21,6 +21,7 @@ function Friends({ open, onClose }: MyProps) {
   const [label, setLabel] = useState([]);
   const [number, setNum] = useState([]);
   const [tab, setTab] = useState(0);
+  const [isDelete, setIsDelete] = useState(false);
 
   const { getUserSearchResult, getFriendList } = UserApi;
 
@@ -39,6 +40,7 @@ function Friends({ open, onClose }: MyProps) {
     if (result?.status === 200) {
       setPeople([...result.data]);
     }
+
   };
 
   const getAndgetFriendList = async () => {
@@ -47,12 +49,16 @@ function Friends({ open, onClose }: MyProps) {
     if (result?.status === 200) {
       setFriend([...result.data])
     }
+    if (isDelete === true) {
+      setIsDelete(false)
+    }
   }
 
   useEffect(() => {
     getAndgetFriendList()
-  }, [tab])
+  }, [tab, isDelete])
 
+  console.log(friend)
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5) {
       console.log(value);
@@ -62,7 +68,7 @@ function Friends({ open, onClose }: MyProps) {
             <div className={styles.friendListContainer}>
               {friend.map((value, i) => {
                 const idx = i;
-                return <FriendsList key={idx} imgUrl={value.image} name={value.name} />;
+                return <FriendsList key={idx} imgUrl={value.image} name={value.name} userSeq={value.userSeq} setIsDelete={setIsDelete} />;
               })}
             </div>
           ) : (

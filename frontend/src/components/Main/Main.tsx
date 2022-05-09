@@ -6,6 +6,7 @@ import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
+import { ReactComponent as BellRed } from '../../assets/Modal/bellLight.svg';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
@@ -23,6 +24,7 @@ import { getToken } from '../../common/api/jWT-Token';
 import { WindowSharp } from '@mui/icons-material';
 
 function Main() {
+  const audio = new Audio("../../../mp3/alram2.mp3")
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
@@ -33,24 +35,30 @@ function Main() {
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
-  const [alramsList, setAlarmsList] = useState<any[]>([]);
   //swr & api
   const { fetchWithToken } = ChatAPI;
   const { setOnlie, setOffline } = OnlineApi;
-  const { postReadAlarm, fetchAlarmWithToken } = AlarmApi;
+  const { postReadAlarm, getAlarmList } = AlarmApi;
   const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
     fetchWithToken(url, getToken() as unknown as string),
   );
-  const { data: AlarmsList } = useSWR(process.env.REACT_APP_API_ROOT + '/noti', (url) =>
-    fetchAlarmWithToken(url, getToken() as unknown as string),
-  );
+  // const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
+  //   fetchWithToken(url, getToken() as unknown as string),
+  // );
+
   const client = useRef<any>({});
 
   const handleOpenAlarms = useCallback(async () => {
-    setAlarmsIsOpen(true);
-    postReadAlarm();
     // 무조건 무조건이야 알람 흰색 변화
+    //알람 모달을 킨다.
+    setAlarmsIsOpen(true);
+    // 모든 알람을 읽었다.
+    postReadAlarm();
+
+    // 알람 이모티콘 누름과 동시에 알람 리스트 가져옴(이전에 알람 기록들)
+
   }, [alarmsIsOpen]);
+
 
   const handleCloseAlarms = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -99,10 +107,10 @@ function Main() {
   };
 
   const handleClickLogout = (e: React.MouseEvent) => {
-    deleteToken();
     // 여기서 로그아웃 api 추가
     disconnect();
     setIsLogin(false);
+    deleteToken();
   };
   // 임시 메서드
   const handleClickLogin = (e: React.MouseEvent) => {
@@ -132,17 +140,27 @@ function Main() {
     }
   }, [friendsIsOpen, alarmsIsOpen, open, chattingIsOpen]);
 
-  useEffect(() => {
-    if (window.localStorage.getItem('token')) {
-      setIsLogin(true);
+  //정리
+  const getAndgetAlarmList = async () => {
+    const result = await getAlarmList()
+    console.log(result.data)
+    const checkAlarm: any[] = result.data
+    let flaginUnreads: boolean = checkAlarm.some(it => it.confirm === false)
+
+    if (flaginUnreads === true) {
+      console.log("빨간불 켜짐")
+    } else {
+      console.log("빨간불 꺼짐")
     }
-  }, []);
+
+  }
 
   const connect = () => {
     const token = getToken();
-    // await online();
+    audio.play()
+    setOnlie();
     client.current = new StompJs.Client({
-      brokerURL: 'wss://k6a203.p.ssafy.io/socket', // 웹소켓 서버로 직접 접속
+      brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
@@ -151,7 +169,6 @@ function Main() {
       heartbeatOutgoing: 4000,
       onConnect: () => {
         subscribe();
-        setOnlie();
       },
       onStompError: (frame) => {
         console.error(frame);
@@ -163,9 +180,10 @@ function Main() {
     });
     client.current.activate();
   };
-  const disconnect = () => {
+  const disconnect = async () => {
     // 여기다가
-    setOffline();
+    console.log("이거 맞아?!")
+    await setOffline();
     client.current.deactivate();
   };
 
@@ -174,31 +192,33 @@ function Main() {
     // to be used for each (re)connect
     client.current.webSocketFactory = function () {
       // Note that the URL is different from the WebSocket URL
-      return new SockJS('http://k6a203.p.ssafy.io/ws-stomp');
+      return new SockJS('http://localhost:8080/ws-stomp');
     };
   }
 
   const subscribe = () => {
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
       // 여기는 무조건 알림창 빨간색 처리 해야함.
-      // 알림창 누르면 알림 가져오기 api 호출. => 메인 가면 바로 알림 리스트 가져옴
-      console.log(body);
-      const data: any = JSON.parse(body);
-      alramsList.push(data);
-      setAlarmsList([...data]);
+      // 데이터 받는것도 아니고 그냥 빨간색 처리 함! 
+      console.log("빨간색")
+      audio.play();
+
     });
   };
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       connect();
+      setIsLogin(true);
+      getAndgetAlarmList()
+
+      // 렌더링 됐을때 맨 처음 실행. 
+      // 단순히 내가 확인하지 않은 알림이 있는지 없는지만 검사.
     }
-    // unmount 될때 실행되는게 맞냐?
     return () => {
       disconnect();
     };
   }, []);
-  console.log(alramsList);
 
   return (
     <>
@@ -220,7 +240,9 @@ function Main() {
                   marginRight: '2%',
                 }}
                 filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-              />
+              >
+              </Bell>
+
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}
@@ -296,12 +318,12 @@ function Main() {
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? (
-          <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} AlarmsList={AlarmsList} />
+          <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} />
         ) : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         {chattingIsOpen ? (
-          <Chatting chattingList={chattingList} open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
+          <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} chattingList={chattingList} />
         ) : null}
       </div>
     </>

@@ -1,4 +1,4 @@
-.scroll{
+.scroll {
   width: 100vw;
   height: 220vh;
   background-image: url('../../../assets/background.jpg');
@@ -7,6 +7,7 @@
   background-attachment: fixed;
   overflow-y: hidden;
 }
+
 .main {
   width: 100vw;
   height: 100vh;
@@ -16,33 +17,39 @@
   justify-content: center;
   // overflow-y: auto;
 }
+
 .dockbar {
   height: 100px;
   width: inherit;
   display: flex;
   justify-content: center;
 }
+
 .dock {
   position: relative;
   bottom: 4vh;
   transition: all ease 0.5s 0s;
 }
-.dock:hover{
+
+.dock:hover {
   transition: all ease 0.5s 0s;
   bottom: 80px;
 }
+
 .btn {
   background-color: #f3c522;
   margin: 0px auto 25px;
   border: none;
   border-radius: 99999px;
 }
+
 .contentbox {
   width: 100%;
   height: 120vh;
   // background-color: #111111;
 }
-.desc{
+
+.desc {
   // position: relative;
   margin: -10px auto;
   display: flex;
@@ -50,12 +57,14 @@
   justify-content: center;
   align-items: center;
   font-size: 35px;
-  color : white;
+  color: white;
   width: 500px;
 }
-.desc p{
+
+.desc p {
   margin: 0px 0px;
 }
+
 .nav {
   z-index: 1;
   position: absolute;
@@ -63,6 +72,7 @@
   color: white;
   z-index: 1;
 }
+
 .nav button {
   font-size: 28px;
   background: none;
@@ -73,6 +83,20 @@
   margin-top: 2%;
   margin-right: 2%;
 }
+
+.nav .redCircle {
+  background-color: red;
+  width: 10px;
+  height: 10px;
+  border-radius: 75px;
+  text-align: center;
+  margin: 0 auto;
+  font-size: 12px;
+  vertical-align: middle;
+  line-height: 150px;
+  z-index: 1;
+}
+
 .glass {
   width: 100vw;
   height: 220vh;
@@ -80,17 +104,21 @@
   background-color: rgba(0, 0, 0, 0.56);
   background-attachment: fixed;
 }
+
 @media (max-width: 800px) {
-  .glass{
+  .glass {
     height: 320vh;
   }
+
   .scroll {
     height: 320vh;
   }
+
   .contentbox {
     height: 220vh;
   }
 }
+
 .button {
   width: 200px;
   height: 34px;
@@ -102,11 +130,13 @@
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease 0s;
+
   &:hover {
     box-shadow: 0rem 1.5rem 2rem rgba($color: #f3c522, $alpha: 0.4);
     transform: translateY(-4px);
   }
 }
+
 .glitch {
   position: relative;
   color: white;
@@ -114,14 +144,17 @@
   margin-bottom: 30px;
   margin-top: 0px;
 }
+
 @keyframes noise-anim {
   $steps: 20;
+
   @for $i from 0 through $steps {
     #{percentage($i*(calc(1/$steps)))} {
       clip: rect(random(100) + px, 9999px, random(100) + px, 0);
     }
   }
 }
+
 .glitch:after {
   content: attr(data-text);
   position: absolute;
@@ -136,12 +169,14 @@
 
 @keyframes noise-anim-2 {
   $steps: 20;
+
   @for $i from 0 through $steps {
     #{percentage($i*(calc(1/$steps)))} {
       clip: rect(random(100) + px, 9999px, random(100) + px, 0);
     }
   }
 }
+
 .glitch:before {
   content: attr(data-text);
   position: absolute;
@@ -153,6 +188,7 @@
   clip: rect(0, 900px, 0, 0);
   animation: noise-anim-2 3s infinite linear alternate-reverse;
 }
+
 .glitch:before {
   content: attr(data-text);
   position: absolute;

@@ -50,8 +50,8 @@ function FriendsSearchResults({ seq, name, email, imgUrl, status }: any) {
 
   const { getAddFriendRequestResult } = UserApi;
 
-  const onClickAddFriends = async (email: string) => {
-    const result = await getAddFriendRequestResult(email);
+  const onClickAddFriends = async (seq: any) => {
+    const result = await getAddFriendRequestResult(seq);
     if (result?.status === 200) {
       setCurStatus(0);
     }
@@ -113,7 +113,7 @@ function FriendsSearchResults({ seq, name, email, imgUrl, status }: any) {
         {curStatus === 0 ? (
           <button className={styles.buttonYocheong}>요청됨</button>
         ) : (
-          <button className={styles.button} onClick={() => onClickAddFriends(email)}>
+          <button className={styles.button} onClick={() => onClickAddFriends(seq)}>
             친구 추가
           </button>
         )}
