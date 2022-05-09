@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +68,14 @@ public class GameController {
         gameService.handleInitGame(gameReqDto.getUserSeq(), gameReqDto.getCodeIdx());
         return new ResponseEntity<>("요청 성공", HttpStatus.OK);
     }
-    // 이어그리기 그림 추가
+
+    // 그림 S3 업로드
+    @PostMapping(value="/upload",consumes = {"multipart/form-data", "application/json"})
+    public ResponseEntity<String> uploadPicture(@RequestPart(value = "image") MultipartFile image) {
+        return new ResponseEntity<>(gameService.uploadPicture(image), HttpStatus.OK);
+    }
+
+    // 캐치마인드 끝나고 원하는 그림 추가
     @PostMapping(value="/picture")
     public ResponseEntity<String> savePicture(@RequestBody PictureReqDto pictureReqDto) {
 

@@ -44,7 +44,7 @@ public class UserController {
             // 2. 액세스 토큰으로 카카오 정보를 가져온다.
             KakaoProfile kakaoProfile = userService.getProfileByToken(accessToken);
             // 3. 카카오 정보로 회원인지 아닌지 검사한다.
-            user = userRepository.findByEmail(kakaoProfile.getKakao_account().getEmail()).orElseGet(User::new);
+            user = userRepository.findByEmailAndProvider(kakaoProfile.getKakao_account().getEmail(), provider).orElseGet(User::new);
             // 카카오 정보를 email, image, name에 각각 입력
             email = kakaoProfile.getKakao_account().getEmail();
             image = kakaoProfile.getKakao_account().getProfile().getProfile_image_url();
@@ -55,7 +55,7 @@ public class UserController {
 //            System.out.println(accessToken);
 //            System.out.println("================================================");
             NaverProfile naverProfile = naverLoginService.getProfileByToken(accessToken);
-            user = userRepository.findByEmail(naverProfile.getResponse().getEmail()).orElseGet(User::new);
+            user = userRepository.findByEmailAndProvider(naverProfile.getResponse().getEmail(), provider).orElseGet(User::new);
 
             email = naverProfile.getResponse().getEmail();
             image = naverProfile.getResponse().getProfile_image();
@@ -68,7 +68,7 @@ public class UserController {
             GoogleToken googleToken = googleLoginService.getGoogleToken(code);
             GoogleProfile googleProfile = googleLoginService.getProfileByToken(googleToken);
             System.out.println("googleProfile: " + googleProfile);
-            user = userRepository.findByEmail(googleProfile.getEmail()).orElseGet(User::new);
+            user = userRepository.findByEmailAndProvider(googleProfile.getEmail(), provider).orElseGet(User::new);
 
             email = googleProfile.getEmail();
             image = googleProfile.getPicture();
@@ -81,11 +81,11 @@ public class UserController {
         Map<String, Object> map = new HashMap<>();
         if (user.getUserSeq() == null) {
             // 회원가입 후 토큰 발급
-            user = userService.signUp(email,image,name);
+            user = userService.signUp(email,image,name,provider);
 
             // User 생성한 이후 바로 게임 DB 생성
             for (Code type : Code.values()) {
-                gameService.createGame(email, type);
+                gameService.createGame(user.getUserSeq(), type);
             }
         }
         // 4. 커스텀 토큰 발급
@@ -121,8 +121,8 @@ public class UserController {
     @PostMapping(value= "/friend")
     public ResponseEntity<String> requestFriend(@RequestHeader("Authorization") String token,
                                                 @RequestBody UserReqDto userReqDto) {
-        String userEmail = userReqDto.getEmail();
-        userService.requestFriend(token, userEmail);
+        Long userSeq = userReqDto.getUserSeq();
+        userService.requestFriend(token, userSeq);
         return new ResponseEntity<>("친구 요청 성공", HttpStatus.OK);
     }
 
@@ -130,8 +130,8 @@ public class UserController {
     @PatchMapping(value = "/friend")
     public ResponseEntity<String> approveFriend(@RequestHeader("Authorization") String token,
                                                 @RequestBody UserReqDto userReqDto) {
-        String userEmail = userReqDto.getEmail();
-        userService.approveFriend(token, userEmail);
+        Long userSeq = userReqDto.getUserSeq();
+        userService.approveFriend(token, userSeq);
         return new ResponseEntity<>("친구 수락 성공", HttpStatus.OK);
     }
 
@@ -139,8 +139,8 @@ public class UserController {
     @DeleteMapping(value = "/friend")
     public ResponseEntity<String> deleteFriend(@RequestHeader("Authorization") String token,
                                                @RequestBody UserReqDto userReqDto) {
-        String userEmail = userReqDto.getEmail();
-        userService.deleteFriend(token, userEmail);
+        Long userSeq = userReqDto.getUserSeq();
+        userService.deleteFriend(token, userSeq);
         return new ResponseEntity<>("친구 삭제 성공", HttpStatus.OK);
     }
 
@@ -169,7 +169,7 @@ public class UserController {
 
         return new ResponseEntity<>(profileResDto, HttpStatus.OK);
     }
-    // 저장된 그림들 불러오기
+
 
 
 }

@@ -10,5 +10,5 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 public class UserReqDto {
-    String email;
+    Long userSeq;
 }

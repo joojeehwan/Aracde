@@ -15,13 +15,13 @@ const Modal: FC<PropsWithChildren<Props>> = ({ show, children, onCloseModal }) =
     return null;
   }
   return (
-    <>gdgd</>
     // <CreateModal onClick={onCloseModal}>
     //   <div onClick={stopPropagation}>
     //     <CloseModalButton onClick={onCloseModal}>&times;</CloseModalButton>
     //     {children}
     //   </div>
     // </CreateModal>
+    <>아아아악 스타일 에러난다고!!!</>
   );
 };
 
