@@ -166,6 +166,9 @@ const RoomContents = ({
           setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
           setMode("game1");
         }
+        if(response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current === 'game1' && response.data.restart){
+          setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
+        }
       })
 
       getToken().then((token) => {
@@ -389,7 +392,6 @@ const RoomContents = ({
       gameStatus: 1,
       gameId : 1,
       category : 5,
-      count : 1
     };
     sessionRef.current.signal({
       type: "game",

@@ -4,6 +4,7 @@ import { debounce } from "lodash";
 import RoomApi from "../../../common/api/Room";
 
 import style from '../style/Catchmind.module.scss';
+import { margin } from "@mui/system";
 
 type MyProps = {
     initData : {answer : string, id : string, nextId : string} | undefined,
@@ -12,6 +13,7 @@ type MyProps = {
 
 function Catchmind({initData, user} : MyProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [first, setFirst] = useState<boolean>(false);
     const [mousePos, setMousePos] = useState<{x : number, y : number} | undefined>();
     const [isActive, setIsActive] = useState<boolean>(false);
     const [timeFlag, setTimeFlag] = useState<boolean>(false);
@@ -285,7 +287,9 @@ function Catchmind({initData, user} : MyProps) {
     }, [myTurn, imgStatus, startDraw, draw, exit]);
     
     useEffect(() => {
-        
+        if(user.getStreamManager().stream.streamId === initData?.id){
+            setFirst(true);
+        }
         setTimeout(()=>{
             setInit(true);
             setIdx(1);
@@ -296,7 +300,7 @@ function Catchmind({initData, user} : MyProps) {
             if(user.getStreamManager().stream.streamId === initData?.nextId){
                 setNext(true);
             }
-        }, 10000);
+        }, 10000000);
         user.getStreamManager().stream.session.on("signal:game", (response : any) => {
             console.log(response.data, "여긴 게임 안이에요");
             console.log(user.getStreamManager().stream.streamId, user.getStreamManager().stream.streamId === response.data.curStreamId);
@@ -353,20 +357,25 @@ function Catchmind({initData, user} : MyProps) {
             <div style={{
                 width : "60vw",
                 height : "80vh",
-                backgroundColor : "white",
+                backgroundColor : "black",
                 marginTop : "-10vh",
                 // overflow : "auto",
                 display : "flex",
                 flexDirection : "column",
                 justifyContent : "center",
-                alignItems : "flex-start"
+                borderRadius : 10
             }}>
-
-                <div>1. 첫 번째 사람은 제시어를 보고 제한시간안에 그림으로 묘사 해주세요</div>
-                <div>2. 다음 사람부터 전 사람이 그린 그림을 보고 최대한 유사하게 그림을 그려주세요</div>
-                <div>3. 마지막 사람은 최종 결과물을 보고 정답을 맞춰주세요</div>
-                <div>4. 게임 진행 순서는 모두 랜덤입니다! 긴장 풀지 마세요!</div>
-                
+                <h1 style={{color : "white", margin : "4vh auto"}}>캐치마인드 🤔</h1>
+                <ol className={style.desc}>
+                    <li>첫 번째 사람은 제시어를 보고 제한시간안에 그림으로 묘사 해주세요</li>
+                    <li>다음 사람부터 전 사람이 그린 그림을 보고 최대한 유사하게 그림을 그려주세요</li>
+                    <li>마지막 사람은 최종 결과물을 보고 정답을 맞춰주세요</li>
+                    <li>게임 진행 순서는 모두 랜덤입니다! 긴장 풀지 마세요!</li>
+                </ol>
+                {first ? (<div style={{
+                    color : "white",
+                    margin : "0 auto"
+            }}>당신은 첫번째 순서입니다.</div>) : null}
             </div>
         ): (
             <div id="parent" style={{
@@ -423,10 +432,10 @@ function Catchmind({initData, user} : MyProps) {
                 ) 
                 : (<>
                     <div className={style.container}>
-                        <div className={style.answerBox}>
+                        {first ? (<div className={style.answerBox}>
                             제시어
-                            <div className={style.answer}>홍승기</div>
-                        </div>
+                            <div className={style.answer}>{initData?.answer}</div>
+                        </div>) : null}
                         <div className={style.timer}
                             style={ time < 10 ? {
                                 color : "red"
