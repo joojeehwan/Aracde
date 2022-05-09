@@ -11,6 +11,7 @@ import {ReactComponent as Info} from '../../assets/info.svg';
 import {ReactComponent as People} from '../../assets/team.svg';
 import Chat from "./chat/Chat";
 import Catchmind from "./Game/Catchmin";
+import Charade from "./Game/Charade";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
 import { display } from "@mui/system";
@@ -497,7 +498,10 @@ const RoomContents = ({
       </div>
       {mode === "game1" ? (
             <Catchmind/>
-          ) : null}
+        ) : null}
+      {mode === "game2" ? (
+            <Charade />
+        ) : null}
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
         <div className={
           mode === "home"
