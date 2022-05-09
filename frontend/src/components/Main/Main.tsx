@@ -13,7 +13,7 @@ import Invite from '../Modal/Invite/Invite';
 import useSWR from 'swr';
 import OnlineApi from '../../common/api/OnlineApi';
 import ChatAPI from '../../common/api/ChatAPI';
-import AlarmApi from "../../common/api/AlarmApi"
+import AlarmApi from '../../common/api/AlarmApi';
 
 import Chatting from '../Modal/Chatting';
 import SockJS from 'sockjs-client/dist/sockjs';
@@ -33,18 +33,22 @@ function Main() {
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
-  const [alramsList, setAlarmsList] = useState<any[]>([])
+  const [alramsList, setAlarmsList] = useState<any[]>([]);
   //swr & api
   const { fetchWithToken } = ChatAPI;
   const { setOnlie, setOffline } = OnlineApi;
-  const { postReadAlarm, fetchAlarmWithToken } = AlarmApi
-  const { data: chattingList } = useSWR("http://localhost:8080/apiv1/chat", url => fetchWithToken(url, getToken() as unknown as string))
-  const { data: AlarmsList } = useSWR("http://localhost:8080/apiv1/noti", url => fetchAlarmWithToken(url, getToken() as unknown as string))
+  const { postReadAlarm, fetchAlarmWithToken } = AlarmApi;
+  const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
+    fetchWithToken(url, getToken() as unknown as string),
+  );
+  const { data: AlarmsList } = useSWR(process.env.REACT_APP_API_ROOT + '/noti', (url) =>
+    fetchAlarmWithToken(url, getToken() as unknown as string),
+  );
   const client = useRef<any>({});
 
   const handleOpenAlarms = useCallback(async () => {
     setAlarmsIsOpen(true);
-    postReadAlarm()
+    postReadAlarm();
     // 무조건 무조건이야 알람 흰색 변화
   }, [alarmsIsOpen]);
 
@@ -138,7 +142,7 @@ function Main() {
     const token = getToken();
     // await online();
     client.current = new StompJs.Client({
-      brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
+      brokerURL: 'wss://k6a203.p.ssafy.io/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
@@ -147,7 +151,7 @@ function Main() {
       heartbeatOutgoing: 4000,
       onConnect: () => {
         subscribe();
-        setOnlie()
+        setOnlie();
       },
       onStompError: (frame) => {
         console.error(frame);
@@ -160,17 +164,17 @@ function Main() {
     client.current.activate();
   };
   const disconnect = () => {
-    // 여기다가 
-    setOffline()
+    // 여기다가
+    setOffline();
     client.current.deactivate();
-  }
+  };
 
   if (typeof WebSocket !== 'function') {
     // For SockJS you need to set a factory that creates a new SockJS instance
     // to be used for each (re)connect
     client.current.webSocketFactory = function () {
       // Note that the URL is different from the WebSocket URL
-      return new SockJS('http://localhost:8080/ws-stomp');
+      return new SockJS('http://k6a203.p.ssafy.io/ws-stomp');
     };
   }
 
@@ -179,23 +183,22 @@ function Main() {
       // 여기는 무조건 알림창 빨간색 처리 해야함.
       // 알림창 누르면 알림 가져오기 api 호출. => 메인 가면 바로 알림 리스트 가져옴
       console.log(body);
-      const data: any = JSON.parse(body)
-      alramsList.push(data)
-      setAlarmsList([...data])
+      const data: any = JSON.parse(body);
+      alramsList.push(data);
+      setAlarmsList([...data]);
     });
   };
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       connect();
-
     }
     // unmount 될때 실행되는게 맞냐?
     return () => {
       disconnect();
-    }
+    };
   }, []);
-  console.log(alramsList)
+  console.log(alramsList);
 
   return (
     <>
@@ -292,10 +295,14 @@ function Main() {
           </div>
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
-        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} AlarmsList={AlarmsList} /> : null}
+        {alarmsIsOpen ? (
+          <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} AlarmsList={AlarmsList} />
+        ) : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
-        {chattingIsOpen ? <Chatting chattingList={chattingList} open={chattingIsOpen} onClose={handleCloseChatting} client={client} /> : null}
+        {chattingIsOpen ? (
+          <Chatting chattingList={chattingList} open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
+        ) : null}
       </div>
     </>
   );

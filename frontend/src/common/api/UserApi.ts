@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-const BASE_URL = 'http://localhost:8080/apiv1/users';
+const BASE_URL = process.env.REACT_APP_API_ROOT + '/users';
 
 // 카카오 로그인
 const getKakaoLoginResult = async (code: string) => {
@@ -38,7 +38,7 @@ const getUserSearchResult = async (name: string) => {
   return null;
 };
 
-// 친구 검색은 api가 뭐지 저거?! 
+// 친구 검색은 api가 뭐지 저거?!
 
 // 친구 요청 보내기
 const getAddFriendRequestResult = async (email: string) => {
@@ -54,28 +54,27 @@ const getAddFriendRequestResult = async (email: string) => {
   return null;
 };
 
-
 // 친구 요청 수락 (친구 맺기)
 const patchAcceptFriendRequest = async (userSeq: number) => {
-  const token = getToken()
+  const token = getToken();
   const body = {
-    userSeq
-  }
+    userSeq,
+  };
   if (token !== null) {
-    const result = await axios.patch(`${BASE_URL}/friend`, { headers: { Authorization: token } })
+    const result = await axios
+      .patch(`${BASE_URL}/friend`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res)
-        return res
+        console.log(res);
+        return res;
       })
       .catch((err) => {
-        console.dir(err)
-        return err
-      })
-    return result
+        console.dir(err);
+        return err;
+      });
+    return result;
   }
-  return null
-}
-
+  return null;
+};
 
 // 친구 목록 불러오기
 const getFriendList = async () => {
@@ -103,8 +102,8 @@ const deleteFriend = async (userSeq: number) => {
     const result = await axios.delete(`${BASE_URL}/friend`, {
       headers: { Authorization: token },
       data: {
-        userSeq: userSeq
-      }
+        userSeq: userSeq,
+      },
     });
     console.log(result);
     return result;
@@ -120,7 +119,7 @@ const UserApi = {
   getAddFriendRequestResult,
   getFriendList,
   deleteFriend,
-  patchAcceptFriendRequest
+  patchAcceptFriendRequest,
 };
 
 export default UserApi;
