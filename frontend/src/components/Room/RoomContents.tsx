@@ -11,7 +11,7 @@ import { ReactComponent as Info } from '../../assets/info.svg';
 import { ReactComponent as People } from '../../assets/team.svg';
 import Chat from './chat/Chat';
 import Catchmind from './Game/Catchmin';
-import UpDown from './Game/UpDown';
+import Charade from './Game/Charade';
 import StreamComponent from './stream/StreamComponent';
 import UserModel from '../Model/user-model';
 import { display } from '@mui/system';
@@ -45,6 +45,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
   const [mode, setMode] = useState<string>('home');
+  const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string }>();
 
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
@@ -57,6 +58,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
   const localUserRef = useRef(localUser);
   localUserRef.current = localUser;
+
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
 
   // console.log(localUserRef.current, sessionRef.current);
 
@@ -88,40 +92,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
       leaveSession();
     };
   }, []);
-
-  //   useEffect(() => {
-  //     const nickname = subscribers.map((data) => {
-  //       if (targetId === data.getStreamManager().stream.streamId) {
-  //         return data.nickname;
-  //       }
-  //     });
-  //     console.log(subscribers);
-  //     console.log(targetId);
-  //     setTargetNickName(nickname);
-  //   }, [targetId]);
-
-  //   useEffect(() => {
-  //     console.log(subscribers);
-  //     const nickname = subscribers.map((data) => {
-  //       if (sirenTarget === data.getStreamManager().stream.streamId) {
-  //         return data.nickname;
-  //       }
-  //     });
-  //     setSirenTargetNickName(nickname);
-  //   }, [sirenTarget]);
-
-  //   useEffect(() => {
-  //     const nickname = subscribers.map((data) => {
-  //       if (correctPeopleId === data.getStreamManager().stream.streamId) {
-  //         return data.nickname;
-  //       }
-  //     });
-  //     setCorrectPeopleName(nickname);
-  //   }, [correctPeopleId]);
-  // useEffect(()=> {
-  //   if(modalMode==="yousayForbidden") setModalMode("answerForbidden")
-  //   if(modalMode==="someonesayForbidden") setModalMode("answerForbidden")
-  // },[modalMode])
 
   useEffect(() => {
     console.log(session, sessionRef.current);
@@ -180,6 +150,20 @@ const RoomContents = ({ sessionName, userName }: any) => {
         console.warn(exception);
       });
 
+      sessionRef.current.on('signal:game', (response: any) => {
+        // console.log("여긴 룸 컨텐츠에용 씨발 제발 불리지 마세용");
+        console.log(response);
+        if (response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1') {
+          console.log('?실행', modeRef.current);
+          setCatchMindData({
+            answer: response.data.answer,
+            id: response.data.curStreamId,
+            nextId: response.data.nextStreamId,
+          });
+          setMode('game1');
+        }
+      });
+
       sessionRef.current.on('signal:game', (data: any) => {
         console.log(data);
       });
@@ -229,9 +213,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
   const leaveSession = () => {
     const mySession = sessionRef.current;
-    //console.log(mySession);
     if (mySession) {
-      //console.log("leave");
       mySession.disconnect();
     }
     OV = null;
@@ -265,11 +247,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
   };
 
   const onbeforeunload = (e: any) => {
-    //console.log("tlfgodehla");
     e.preventDefault();
     e.returnValue = '나가실껀가요?';
-    //console.log("dfsdfsdf");
-    // leaveSession();
   };
 
   const sendSignalUserChanged = (data: any) => {
@@ -381,14 +360,15 @@ const RoomContents = ({ sessionName, userName }: any) => {
     const data = {
       gameStatus: 1,
       gameId: 1,
+      category: 5,
+      count: 1,
     };
     sessionRef.current.signal({
       type: 'game',
       data: JSON.stringify(data),
     });
-    setMode('game1');
+    // setMode("game1");
   };
-
   const handleCopy = () => {
     let value = document.getElementById('code')?.innerHTML as string;
     navigator.clipboard.writeText(value).then(() => {
@@ -465,126 +445,121 @@ const RoomContents = ({ sessionName, userName }: any) => {
             })}
           </div>
         </div>
-        {mode === 'game1' ? <Catchmind /> : null}
-        {localUser !== undefined && localUser.getStreamManager() !== undefined && (
-          <div
-            className={
-              mode === 'home'
-                ? styles.etcbox
-                : mode === 'game1'
-                ? `${styles.etcbox} ${styles.catchmind}`
-                : styles.etcbox
-            }
-          >
-            {mode === 'home' ? (
-              <div
-                style={{
-                  display: 'flex',
-                  width: '85%',
-                }}
-              >
-                <div className={styles['chat-container']}>
-                  <>
-                    <Chat user={localUserRef.current} mode={mode} sub={subscribers} />
-                  </>
-                </div>
-                <div
-                  style={{
-                    width: '50%',
-                    height: '23.7vh',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gridTemplateRows: '1fr 1fr 1fr',
-                    // gap : "5% 2%"
-                    // gridColumn : "1 / span 2",
-                  }}
-                >
-                  <div
-                    style={{
-                      gridColumn: '1 / span 2',
-                      marginBottom: '2%',
-                      display: 'flex',
-                    }}
-                  >
-                    <button onClick={handleCopy}>COPY</button>
-
-                    <div
-                      id="code"
-                      style={{
-                        width: '100%',
-                        backgroundColor: '#C4C4C4',
-                        borderRadius: '0px 5px 5px 0px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        fontSize: 32,
-                      }}
-                    >
-                      {window.localStorage.getItem('invitecode')}
-                    </div>
-                  </div>
-
-                  <button
-                    className={styles.selectGame}
-                    style={{
-                      gridRow: '2 / span 3',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: '4%',
-                    }}
-                    onClick={selectGame}
-                  >
-                    <img src={Play} style={{ width: '30%', height: '55%' }}></img>게임 선택
-                  </button>
-                  <button
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginBottom: '2%',
-                    }}
-                    className={styles.infoGame}
-                  >
-                    <Info
-                      style={{
-                        width: '20%',
-                        height: '45%',
-                      }}
-                      filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
-                    />
-                    설명서
-                  </button>
-                  <button
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginTop: '2%',
-                    }}
-                    className={styles.inviteFriend}
-                  >
-                    <People
-                      style={{
-                        width: '20%',
-                        height: '45%',
-                      }}
-                      filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
-                    />
-                    친구 초대
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className={`${styles['chat-container']} ${styles.game}`}>
+      </div>
+      {mode === 'game1' ? <Catchmind initData={catchMindData} user={localUserRef.current} /> : null}
+      {mode === 'game2' ? <Charade /> : null}
+      {localUser !== undefined && localUser.getStreamManager() !== undefined && (
+        <div
+          className={
+            mode === 'home' ? styles.etcbox : mode === 'game1' ? `${styles.etcbox} ${styles.catchmind}` : styles.etcbox
+          }
+        >
+          {mode === 'home' ? (
+            <div
+              style={{
+                display: 'flex',
+                width: '85%',
+              }}
+            >
+              <div className={styles['chat-container']}>
                 <>
                   <Chat user={localUserRef.current} mode={mode} sub={subscribers} />
                 </>
               </div>
-            )}
-          </div>
-        )}
-      </div>
+              <div
+                style={{
+                  width: '50%',
+                  height: '23.7vh',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gridTemplateRows: '1fr 1fr 1fr',
+                  // gap : "5% 2%"
+                  // gridColumn : "1 / span 2",
+                }}
+              >
+                <div
+                  style={{
+                    gridColumn: '1 / span 2',
+                    marginBottom: '2%',
+                    display: 'flex',
+                  }}
+                >
+                  <div
+                    id="code"
+                    style={{
+                      width: '100%',
+                      backgroundColor: '#C4C4C4',
+                      borderRadius: '0px 5px 5px 0px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      fontSize: 32,
+                    }}
+                  >
+                    {window.localStorage.getItem('invitecode')}
+                  </div>
+                </div>
+
+                <button
+                  className={styles.selectGame}
+                  style={{
+                    gridRow: '2 / span 3',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: '4%',
+                  }}
+                  onClick={selectGame}
+                >
+                  <img src={Play} style={{ width: '30%', height: '55%' }}></img>게임 선택
+                </button>
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '2%',
+                  }}
+                  className={styles.infoGame}
+                >
+                  <Info
+                    style={{
+                      width: '20%',
+                      height: '45%',
+                    }}
+                    filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
+                  />
+                  설명서
+                </button>
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginTop: '2%',
+                  }}
+                  className={styles.inviteFriend}
+                >
+                  <People
+                    style={{
+                      width: '20%',
+                      height: '45%',
+                    }}
+                    filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
+                  />
+                  친구 초대
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className={`${styles['chat-container']} ${styles.game}`}>
+              <>
+                <Chat user={localUserRef.current} mode={mode} sub={subscribers} />
+              </>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
