@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-const BASE_URL = 'http://localhost:8080/apiv1/online';
+const BASE_URL = process.env.REACT_APP_API_ROOT + '/online';
 
 const online = async () => {
   const token = getToken();
   if (token !== null) {
-    const result = await axios.post(`${BASE_URL}/enter`, { headers: { Authorization: token } })
+    const result = await axios
+      .post(`${BASE_URL}/enter`, { headers: { Authorization: token } })
       .then((res) => {
         console.log(res);
         return res;
@@ -16,12 +17,12 @@ const online = async () => {
         return err;
       });
   }
-
-}
+};
 const offline = async () => {
   const token = getToken();
   if (token !== null) {
-    const result = await axios.post(`${BASE_URL}/out`, { headers: { Authorization: token } })
+    const result = await axios
+      .post(`${BASE_URL}/out`, { headers: { Authorization: token } })
       .then((res) => {
         console.log(res);
         return res;
@@ -31,8 +32,7 @@ const offline = async () => {
         return err;
       });
   }
-
-}
+};
 
 const OnlineApi = {
   online,

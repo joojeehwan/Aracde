@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-const BASE_URL = 'http://localhost:8080/apiv1/online';
+const BASE_URL = process.env.REACT_APP_API_ROOT + '/online';
 
 // 온라인 api
 
@@ -44,7 +44,7 @@ const setOffline = async () => {
 
 const OnlineApi = {
   setOnlie,
-  setOffline
+  setOffline,
 };
 
 export default OnlineApi;
