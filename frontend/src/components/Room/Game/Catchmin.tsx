@@ -6,7 +6,9 @@ import RoomApi from "../../../common/api/Room";
 import style from '../style/Catchmind.module.scss';
 import Pen from '../../../assets/pen.png';
 import Eraser from '../../../assets/eraser.png';
-
+import Delete from '../../../assets/delete.png';
+import Undo from '../../../assets/undo.png';
+import { uptime } from "process";
 
 type MyProps = {
     initData : {answer : string, id : string, nextId : string} | undefined,
@@ -35,6 +37,8 @@ function Catchmind({initData, user} : MyProps) {
     const [end, setEnd] = useState<boolean>(false);
     const [src, setSrc] = useState<string>("");
     const [color, setColor] = useState<string>("#000000");
+    const [undoArr, setUndoArr] = useState<any[]>([]);
+    const [undoIdx, setUndoIdx] = useState<number>(-1);
     const [lineWidth, setLineWidth] = useState<{num : number , flag : boolean}[]>(
         [
             {num : 5, flag : true},
@@ -47,6 +51,11 @@ function Catchmind({initData, user} : MyProps) {
 
 
     const {getUploadImageResult} = RoomApi;
+
+    const undoArrRef = useRef(undoArr);
+    undoArrRef.current = undoArr;
+    const undoIdxRef = useRef(undoIdx);
+    undoIdxRef.current = undoIdx;
 
     const startTimeRef = useRef(startTime);
     startTimeRef.current = startTime;
@@ -86,7 +95,37 @@ function Catchmind({initData, user} : MyProps) {
     const handleClickEraser = () => {
         setDrawMode(true);
     }
+    const handleClickClear = () => {
+        if(!canvasRef.current) return;
+        const canvas : HTMLCanvasElement = canvasRef.current;
+        const ctx = canvas.getContext('2d');
 
+        ctx?.clearRect(0,0,canvas.width, canvas.height);
+        ctx?.beginPath();
+        setUndoArr([]);
+    }
+    const handleClickUndo = () => {
+        if(!canvasRef.current) return;
+    
+        const canvas : HTMLCanvasElement = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        
+        ctx?.clearRect(0,0,canvas.width, canvas.height);
+        ctx?.beginPath();
+        
+        if(undoArrRef.current.length >= 1){
+            console.log(undoArrRef.current);
+            let undo = undoArr;
+            undo.pop();
+            if(undo[undo.length-1] instanceof ImageData) ctx?.putImageData(undo[undo.length-1],0,0);
+            setUndoArr([...undo]);
+        }     
+    }
+    const handleCtrlZ = (e : KeyboardEvent) => {
+        if(e.ctrlKey && (e.key === 'z' || e.key === 'Z')){
+            handleClickUndo();
+        }
+    }
     const handleClickLineWidth = (e : React.MouseEvent<HTMLButtonElement>) => {
         console.log(e.currentTarget.value);
         const target = +e.currentTarget.value;
@@ -130,8 +169,8 @@ function Catchmind({initData, user} : MyProps) {
             ctx.moveTo(original.x, original.y);
             ctx.lineTo(newpos.x, newpos.y);
             ctx.closePath();
-
             ctx.stroke();
+            
         }
 
     }
@@ -148,15 +187,30 @@ function Catchmind({initData, user} : MyProps) {
         e.stopPropagation();
 
         if(isActive){
-            console.log("?여기가 안될듯?");
             const newMousePos = getPosition(e);
             if(mousePos && newMousePos){
                 drawLine(mousePos, newMousePos);
                 setMousePos(newMousePos);
-            }   
+            }
+            else{
+                console.log("하하하하하하하하하하하ㅏ하하하");
+            }
+        }
+        else{
+            
+            
         }
     },[isActive, mousePos]);
     const exit = useCallback(() => {
+        if(!canvasRef.current){
+            return;
+        }
+        if(!canvasRef.current) return;
+        const canvas : HTMLCanvasElement = canvasRef.current;
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        let undo = undoArrRef.current;
+        undo.push(ctx.getImageData(0,0,canvas.width, canvas.height));
+        setUndoArr([...undo]);
         setIsActive(false);
     },[]);
 
@@ -316,14 +370,16 @@ function Catchmind({initData, user} : MyProps) {
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', exit);
-        canvas.addEventListener('mouseleave', exit);
+        window.addEventListener('keydown', handleCtrlZ);
 
-
+        // canvas.addEventListener('mouseleave', exit);
         return () => {
             canvas.removeEventListener('mousedown', startDraw);
             canvas.removeEventListener('mousemove', draw);
             canvas.removeEventListener('mouseup', exit);
-            canvas.removeEventListener('mouseleave', exit);
+            window.removeEventListener('keydown', handleCtrlZ);
+
+            // canvas.removeEventListener('mouseleave', exit);
         }
 
     }, [myTurn, imgStatus, startDraw, draw, exit]);
@@ -500,15 +556,21 @@ function Catchmind({initData, user} : MyProps) {
                         <div style={{
                             position : "absolute",
                             width : "8vw",
-                            height : "30vh",
-                            border : "1px solid black",
+                            height : "35vh",
+                            padding : "10px",
+                            backgroundColor : "white",
+                            borderRadius : "15px",
                             display : "flex",
                             flexDirection : "column",
+                            filter : "drop-shadow(0px 50px 60px rgba(0, 0, 0, 0.15))",
+                        
                             alignItems : "center",
                             top : "20vh",
                             right : "1vw",
                         }}>
-                            <input style={{width : "4vw", height : "4vw", margin : "2vh 0"}} type="color" onChange={handleChangeColor} defaultValue={color}></input>
+                            <div style={{border : "5px solid #999999",borderRadius : "99999px", width : "4vw", height : "4vw", margin : "2vh 0", overflow : "hidden"}}>
+                                <input style={{width : "200%", height : "200%", border : "none", transform: "translate(-25%, -25%)"}} type="color" onChange={handleChangeColor} defaultValue={color}></input>
+                            </div>
                             {/* <input type="text"></input> */}
                             <div style={{
                                 width : "100%",
@@ -521,14 +583,12 @@ function Catchmind({initData, user} : MyProps) {
                                 {
                                     width : "50%",
                                     border : "none",
-                                    // margin : "0 10px",
                                     borderBottom : "none"
                                 }
                                 : {
                                     width : "50%",
                                     border : "none",
                                     borderBottom : "2px solid #9900F0",
-                                    // margin : "0 10px"
                                 }}
                                     onClick = {handleClickPen}
                                 ><img style={{
@@ -539,12 +599,10 @@ function Catchmind({initData, user} : MyProps) {
                                     width : "50%",
                                     border : "none",
                                     borderBottom : "2px solid #9900F0",
-                                    // margin : "0 10px"
                                 }
                                 : {
                                     width : "50%",
                                     border : "none",
-                                    // margin : "0 10px",
                                     borderBottom : "none"
                                 }}
                                     onClick ={handleClickEraser}
@@ -563,20 +621,17 @@ function Catchmind({initData, user} : MyProps) {
                                     lineWidth[0].flag ? 
                                     {
                                         width : "50%",
-                                        height : 30,
+                                        height : "5vh",
                                         border : "none",
                                         borderBottom : "2px solid #9900F0",
-                                        // margin : "0 10px",
                                         fontSize : 16
                                     }
                                     :
                                     {
                                         width : "50%",
-                                        height : 30,
+                                        height : "5vh",
                                         border : "none",
                                         borderBottom : "none",
-
-                                        // margin : "0 10px",
                                         fontSize : 16
                                     }}
                                         value="5"
@@ -586,21 +641,15 @@ function Catchmind({initData, user} : MyProps) {
                                     lineWidth[1].flag ? 
                                     {
                                         width : "50%",
-                                        height : 30,
                                         border : "none",
                                         borderBottom : "2px solid #9900F0",
-
-                                        // margin : "0 10px",
                                         fontSize : 16
                                     }
                                     :
                                     {
                                         width : "50%",
-                                        height : 30,
                                         border : "none",
                                         borderBottom : "none",
-
-                                        // margin : "0 10px",
                                         fontSize : 16
                                     }}
                                         value="14"
@@ -617,21 +666,15 @@ function Catchmind({initData, user} : MyProps) {
                                     lineWidth[2].flag ? 
                                     {
                                         width : "50%",
-                                        height : 30,
                                         border : "none",
                                         borderBottom : "2px solid #9900F0",
-                                        
-                                        // margin : "0 10px",
                                         fontSize : 16
                                     }
                                     :
                                     {
                                         width : "50%",
-                                        height : 30,
                                         border : "none",
                                         borderBottom : "none",
-
-                                        // margin : "0 10px",
                                         fontSize : 16
                                     }}
                                         value="26"
@@ -640,28 +683,49 @@ function Catchmind({initData, user} : MyProps) {
                                     lineWidth[3].flag ? 
                                     {
                                         width : "50%",
-                                        height : 30,
                                         border : "none",
                                         borderBottom : "2px solid #9900F0",
-
-                                        // margin : "0 10px",
                                         fontSize : 16
                                     }
                                     :
                                     {
                                         width : "50%",
-                                        height : 30,
                                         border : "none",
                                         borderBottom : "none",
-
-                                        // margin : "0 10px",
                                         fontSize : 16
                                     }}
                                         value="42"
                                         onClick={handleClickLineWidth}>42px</button>
                             </div>
-                            <button>CLEAR</button>
-                            <button>UNDO</button>
+                            <div style={{
+                                width : "100%",
+                                display : "flex",
+                                justifyContent : "center",
+                                alignItems : "center",
+                                marginTop : "5px"
+                            }}>
+                                <button className={style.toolBox} style={ 
+                                {
+                                    width : "50%",
+                                    border : "none",
+                                    // margin : "0 10px",
+                                    borderBottom : "none"
+                                }}
+                                    onClick = {handleClickUndo}
+                                ><img style={{
+                                    width : "inherit"
+                                }}src={Undo}/></button>
+                                <button className={style.toolBox} style={ {
+                                    width : "50%",
+                                    border : "none",
+                                    // margin : "0 10px",
+                                    borderBottom : "none"
+                                }}
+                                    onClick ={handleClickClear}
+                                ><img style={{
+                                    width : "inherit"
+                                }} src={Delete}/></button>
+                            </div>
                         </div>
                     
                         <button className={style.submit} onClick={sendSignal}>제출</button>

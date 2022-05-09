@@ -3,7 +3,11 @@
 }
 .toolBox{
     border-radius: 5px;
+    height: 5vh;
     background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
     &:hover{
         background-color: rgba($color: #444444, $alpha: 0.2);
