@@ -31,7 +31,6 @@ function Main() {
   //지환 코드
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
-  const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
   const [alramsList, setAlarmsList] = useState<any[]>([]);
   //swr & api
@@ -67,21 +66,13 @@ function Main() {
     setFriendsIsOpen(false);
   }, [friendsIsOpen]);
 
-  const handleOpenTest = useCallback(() => {
-    setTest(true);
-  }, [test]);
-
-  const handleCloseTest = useCallback(() => {
-    setTest(false);
-  }, [test]);
-
   const handleOpenChatting = useCallback(() => {
     setChattingIsOpen(true);
-  }, [test]);
+  }, [chattingIsOpen]);
 
   const handleCloseChatting = useCallback(() => {
     setChattingIsOpen(false);
-  }, [test]);
+  }, [chattingIsOpen]);
 
   const handleOpenCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -299,7 +290,6 @@ function Main() {
           <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} AlarmsList={AlarmsList} />
         ) : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
-        {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         {chattingIsOpen ? (
           <Chatting chattingList={chattingList} open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
         ) : null}

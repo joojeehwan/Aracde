@@ -42,16 +42,16 @@ function Friends({ open, onClose }: MyProps) {
   };
 
   const getAndgetFriendList = async () => {
-    const result = await getFriendList()
-    console.log(result)
+    const result = await getFriendList();
+    console.log(result);
     if (result?.status === 200) {
-      setFriend([...result.data])
+      setFriend([...result.data]);
     }
-  }
+  };
 
   useEffect(() => {
-    getAndgetFriendList()
-  }, [tab])
+    getAndgetFriendList();
+  }, [tab]);
 
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5) {
@@ -106,6 +106,5 @@ function Friends({ open, onClose }: MyProps) {
     </div>
   );
 }
-
 
 export default Friends;
