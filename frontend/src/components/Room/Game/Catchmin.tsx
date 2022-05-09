@@ -1,7 +1,6 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
-import html2canvas from "html2canvas";
 import RoomApi from "../../../common/api/Room";
 import AnsInfo from "./Modal/AnsInfo";
 import style from '../style/Catchmind.module.scss';
@@ -40,6 +39,7 @@ function Catchmind({initData, user} : MyProps) {
     const [color, setColor] = useState<string>("#000000");
     const [undoArr, setUndoArr] = useState<any[]>([]);
     const [undoIdx, setUndoIdx] = useState<number>(-1);
+    const [imStart, setImStart] = useState<boolean>(false);
     const [ansNick, setAnsNick] = useState<string>("");
     const [answer, setAnswer] = useState<string>("");
     const [inputAns, setInputAns] = useState<string>("");
@@ -320,6 +320,17 @@ function Catchmind({initData, user} : MyProps) {
         });
         setLast(false);
     }
+    const sendExit = () => {
+        console.log("???여기 임 ???");
+        const data = {
+            gameStatus : 3,
+            gameId : 1,
+        }
+        user.getStreamManager().stream.session.signal({
+            type : "game",
+            data : JSON.stringify(data)
+        })
+    }
 
     useEffect(()=>{
         let countDown : any;
@@ -452,9 +463,13 @@ function Catchmind({initData, user} : MyProps) {
         user.getStreamManager().stream.session.on("signal:game", (response : any) => {
             console.log(response.data, "여긴 게임 안이에요");
             //console.log(user.getStreamManager().stream.streamId, user.getStreamManager().stream.streamId === response.data.curStreamId);
+            if(response.data.gameStatus === 3) return;
             if(response.data.answerYn){
                 const imagesrc = response.data.allImages.split('|');
                 console.log(imagesrc);
+                if(response.data.startStreamId === user.getStreamManager().stream.streamId){
+                    setImStart(true);
+                }
                 if(response.data.answerYn === 'Y') {
                     setAnsFlag(true);
                     setEnd(true);
@@ -831,7 +846,7 @@ function Catchmind({initData, user} : MyProps) {
                                             top : "10%",
                                             left : "2%"
                                         }}>{idx+1}</div>
-                                        <img id={`image${idx}`} key={idx} src ={`${v}`} style={{width : "95%", height : "50%", objectFit : "cover", border : "1px dashed #d7d7d7", borderRadius : "5px"}}/>
+                                        <img id={`image${idx}`} key={idx} src ={`${v}`} style={{width : "95%", height : "50%", objectFit : "contain", border : "1px dashed #d7d7d7", borderRadius : "5px"}}/>
                                         <button className={style.save} onClick={() => handleSaveImg(idx)}>SAVE</button>
                                     </div>
                                 )
@@ -841,8 +856,8 @@ function Catchmind({initData, user} : MyProps) {
                             display : "flex",
                             justifyContent : "space-evenly"
                         }}>
-                            <button className={style.retryButton}>다시하기</button>
-                            <button className={style.endButton}>그만하기</button>
+                            <button className={style.retryButton} disabled={!imStart}>다시하기</button>
+                            <button className={style.endButton} disabled={!imStart} onClick={sendExit}>그만하기</button>
                         </div>
                     </>)
                     : last === true ? null 

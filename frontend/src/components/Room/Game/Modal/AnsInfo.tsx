@@ -41,12 +41,12 @@ function AnsInfo({ open, onClose, nick, ans, input,ansYn }: MyProps) {
               {ansYn ? (
               <div>
                 <div>{nick}님이 정답을 맞추셨습니다!</div>
-                <div>{ans}</div>
+                <div style={{textAlign : "center"}}>정답 : {ans}</div>
               </div>) : (
                   <div>
                   <div>{nick}님 틀렸습니다!</div>
-                  <div>정답 : {ans}</div>
-                  <div>입력 : {input}</div>
+                  <div style={{textAlign : "center"}}>정답 : {ans}</div>
+                  <div style={{textAlign : "center"}}>입력 : {input}</div>
                 </div>
               )}
             </div>

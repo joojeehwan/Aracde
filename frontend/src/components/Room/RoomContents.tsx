@@ -14,6 +14,8 @@ import Catchmind from "./Game/Catchmin";
 import Charade from "./Game/Charade";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
+import SelectGame from "./Game/Modal/SelectGame";
+import Wait from "./Game/Modal/Wait";
 import { display } from "@mui/system";
 
 
@@ -52,7 +54,8 @@ const RoomContents = ({
   const [participantNum, setParticpantNum] = useState<any>(1);
   const [mode , setMode] = useState<string>("home");
   const [catchMindData, setCatchMindData] = useState<{answer : string, id : string, nextId : string}>();
-
+  const [open, setOpen] = useState<boolean>(false);
+  const [wait, setWait] = useState<boolean>(false);
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
 
@@ -79,7 +82,30 @@ const RoomContents = ({
     OV = new OpenVidu();
     setSession(OV.initSession());
   };
-
+  const handleCloseModal = (e : React.MouseEvent) => {
+    e.preventDefault();
+    const data = {
+      gameStatus : 0,
+      flag : false
+    }
+    sessionRef.current.signal({
+      type : "game",
+      data : JSON.stringify(data)
+    })
+    setOpen(false);
+  }
+  const handleOpenModal = (e : React.MouseEvent) => {
+    e.preventDefault();
+    const data = {
+      gameStatus : 0,
+      flag : true
+    }
+    sessionRef.current.signal({
+      type : "game",
+      data : JSON.stringify(data)
+    })
+    setOpen(true);
+  }
 
   useEffect(() => {
 
@@ -161,6 +187,14 @@ const RoomContents = ({
       sessionRef.current.on("signal:game", (response : any) => {
         // console.log("여긴 룸 컨텐츠에용 씨발 제발 불리지 마세용");
         console.log(response);
+        if(response.data.gameStatus === 0){
+          if(localUserRef.current.getStreamManager().stream.streamId !== response.data.streamId){
+            setWait(response.data.flag);
+          }
+        }
+        if(response.data.gameStatus === 3){
+          setMode("home");
+        }
         if(response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1'){
           console.log("?실행", modeRef.current);
           setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
@@ -386,17 +420,31 @@ const RoomContents = ({
         .catch((error) => reject(error));
     });
   };
-  const selectGame = () => {
-
-    const data = {
-      gameStatus: 1,
-      gameId : 1,
-      category : 5,
-    };
-    sessionRef.current.signal({
-      type: "game",
-      data: JSON.stringify(data),
-    });
+  const selectGame = (game : string, ctgy : string) => {
+    if(game === '3'){
+      const data = {
+        gameStatus: 1,
+        gameId : 3,
+        // category : 5,
+      };
+      sessionRef.current.signal({
+        type: "game",
+        data: JSON.stringify(data),
+      });
+    }
+    else{
+      console.log("???????여기 아님?");
+      const data = {
+        gameStatus: 1,
+        gameId : +game,
+        category : +ctgy,
+      };
+      sessionRef.current.signal({
+        type: "game",
+        data: JSON.stringify(data),
+      });
+    }
+    
     // setMode("game1");
   }
   const handleCopy = () => {
@@ -536,7 +584,7 @@ const RoomContents = ({
                 alignItems : "center",
                 justifyContent : "center",
                 marginRight : "4%"
-              }} onClick={selectGame}><img src={Play} style={{width : "30%", height : "55%"}}></img>게임 선택</button>
+              }} onClick={handleOpenModal}><img src={Play} style={{width : "30%", height : "55%"}}></img>게임 선택</button>
               <button style={{
                 display : "flex",
                 alignItems : "center",
@@ -572,7 +620,8 @@ const RoomContents = ({
           
       )}
     </div>
-    
+        {open ? (<SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame>) : null}
+        {wait ? (<Wait open={wait}></Wait>) : null}
     </div>
   );
 };
