@@ -4,7 +4,9 @@ import { debounce } from "lodash";
 import RoomApi from "../../../common/api/Room";
 
 import style from '../style/Catchmind.module.scss';
-import { margin } from "@mui/system";
+import Pen from '../../../assets/pen.png';
+import Eraser from '../../../assets/eraser.png';
+
 
 type MyProps = {
     initData : {answer : string, id : string, nextId : string} | undefined,
@@ -14,12 +16,13 @@ type MyProps = {
 function Catchmind({initData, user} : MyProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [first, setFirst] = useState<boolean>(false);
+    const [startTime, setStartTime] = useState<number>(10);
     const [mousePos, setMousePos] = useState<{x : number, y : number} | undefined>();
     const [isActive, setIsActive] = useState<boolean>(false);
     const [timeFlag, setTimeFlag] = useState<boolean>(false);
     const [myTurn, setMyturn] = useState<boolean>(false);
     const [nextTurn, setNext] = useState<boolean>(false);
-    const [time, setTime] = useState<number>(60);
+    const [time, setTime] = useState<number>(60000000000);
     const [imgTime, setImgTime] = useState<number>(5);
     const [init, setInit] = useState<boolean>(false);
     const [idx, setIdx] = useState<number>();
@@ -31,9 +34,22 @@ function Catchmind({initData, user} : MyProps) {
     const [ansFlag, setAnsFlag] = useState<boolean>(false);
     const [end, setEnd] = useState<boolean>(false);
     const [src, setSrc] = useState<string>("");
+    const [color, setColor] = useState<string>("#000000");
+    const [lineWidth, setLineWidth] = useState<{num : number , flag : boolean}[]>(
+        [
+            {num : 5, flag : true},
+            {num : 14, flag : false},
+            {num : 26, flag : false},
+            {num : 42, flag : false}
+        ]
+    );
+    const [drawMode, setDrawMode] = useState<boolean>(false);
+
 
     const {getUploadImageResult} = RoomApi;
 
+    const startTimeRef = useRef(startTime);
+    startTimeRef.current = startTime;
 
     const nextRef = useRef(nextTurn);
     nextRef.current = nextTurn;
@@ -60,6 +76,24 @@ function Catchmind({initData, user} : MyProps) {
         ctx?.putImageData(temp, 0, 0);
     }, 500);
 
+    const handleChangeColor = (e : React.ChangeEvent<HTMLInputElement>) => {
+        console.log(e.currentTarget.value);
+        setColor(e.currentTarget.value);
+    }
+    const handleClickPen = () => {
+        setDrawMode(false);
+    }
+    const handleClickEraser = () => {
+        setDrawMode(true);
+    }
+
+    const handleClickLineWidth = (e : React.MouseEvent<HTMLButtonElement>) => {
+        console.log(e.currentTarget.value);
+        const target = +e.currentTarget.value;
+        setLineWidth(lineWidth.map((v : {num : number, flag : boolean}, i : number) => v.num === target ? {...v, flag : true} : {...v, flag : false}));
+    }
+
+
     const getPosition = (e : MouseEvent) => {
         if(!canvasRef.current){
             return;
@@ -81,10 +115,17 @@ function Catchmind({initData, user} : MyProps) {
 
         if(ctx){
             console.log("?여긴 되누??");
-            ctx.strokeStyle = "red";
+            if(!drawMode) ctx.strokeStyle = color;
+            else ctx.strokeStyle = "#ffffff";
             ctx.lineJoin = 'round';
-            ctx.lineWidth = 5;
-            
+
+            for(let i = 0; i < lineWidth.length; i++){
+                if(lineWidth[i].flag){
+                    ctx.lineWidth = lineWidth[i].num;
+                    break;
+                }
+            }
+
             ctx.beginPath();
             ctx.moveTo(original.x, original.y);
             ctx.lineTo(newpos.x, newpos.y);
@@ -291,6 +332,15 @@ function Catchmind({initData, user} : MyProps) {
         if(user.getStreamManager().stream.streamId === initData?.id){
             setFirst(true);
         }
+        let countTime = setInterval(()=>{
+            console.log("왜 안될까용??", startTimeRef.current);
+            if(startTimeRef.current === 0){
+                clearInterval(countTime);
+            }
+            else{
+                setStartTime(startTimeRef.current-1);
+            }
+        },1000)
         setTimeout(()=>{
             setInit(true);
             setIdx(1);
@@ -301,7 +351,7 @@ function Catchmind({initData, user} : MyProps) {
             if(user.getStreamManager().stream.streamId === initData?.nextId){
                 setNext(true);
             }
-        }, 10000000);
+        }, 10000);
         user.getStreamManager().stream.session.on("signal:game", (response : any) => {
             console.log(response.data, "여긴 게임 안이에요");
             console.log(user.getStreamManager().stream.streamId, user.getStreamManager().stream.streamId === response.data.curStreamId);
@@ -375,8 +425,12 @@ function Catchmind({initData, user} : MyProps) {
                 </ol>
                 {first ? (<div style={{
                     color : "white",
-                    margin : "0 auto"
+                    margin : "1vh auto"
             }}>당신은 첫번째 순서입니다.</div>) : null}
+            <div style={{
+                color : "white",
+                margin : "1vh auto",
+            }}>{startTime}초 후 시작됩니다!</div>
             </div>
         ): (
             <div id="parent" style={{
@@ -443,9 +497,175 @@ function Catchmind({initData, user} : MyProps) {
                             } : { color : "black"}}>
                             {time}
                         </div>
+                        <div style={{
+                            position : "absolute",
+                            width : "8vw",
+                            height : "30vh",
+                            border : "1px solid black",
+                            display : "flex",
+                            flexDirection : "column",
+                            alignItems : "center",
+                            top : "20vh",
+                            right : "1vw",
+                        }}>
+                            <input style={{width : "4vw", height : "4vw", margin : "2vh 0"}} type="color" onChange={handleChangeColor} defaultValue={color}></input>
+                            {/* <input type="text"></input> */}
+                            <div style={{
+                                width : "100%",
+                                display : "flex",
+                                justifyContent : "center",
+                                alignItems : "center",
+                                marginBottom : "5px"
+                            }}>
+                                <button className={style.toolBox} style={ drawMode ? 
+                                {
+                                    width : "50%",
+                                    border : "none",
+                                    // margin : "0 10px",
+                                    borderBottom : "none"
+                                }
+                                : {
+                                    width : "50%",
+                                    border : "none",
+                                    borderBottom : "2px solid #9900F0",
+                                    // margin : "0 10px"
+                                }}
+                                    onClick = {handleClickPen}
+                                ><img style={{
+                                    width : "inherit"
+                                }}src={Pen}/></button>
+                                <button className={style.toolBox} style={ drawMode ? 
+                                {
+                                    width : "50%",
+                                    border : "none",
+                                    borderBottom : "2px solid #9900F0",
+                                    // margin : "0 10px"
+                                }
+                                : {
+                                    width : "50%",
+                                    border : "none",
+                                    // margin : "0 10px",
+                                    borderBottom : "none"
+                                }}
+                                    onClick ={handleClickEraser}
+                                ><img style={{
+                                    width : "inherit"
+                                }} src={Eraser}/></button>
+                            </div>
+                            <div style={{
+                                width : "100%",
+                                display : "flex",
+                                justifyContent : "center",
+                                alignItems : "center",
+                                marginBottom : "5px"
+                            }}>
+                                <button className={style.toolBox} style={
+                                    lineWidth[0].flag ? 
+                                    {
+                                        width : "50%",
+                                        height : 30,
+                                        border : "none",
+                                        borderBottom : "2px solid #9900F0",
+                                        // margin : "0 10px",
+                                        fontSize : 16
+                                    }
+                                    :
+                                    {
+                                        width : "50%",
+                                        height : 30,
+                                        border : "none",
+                                        borderBottom : "none",
+
+                                        // margin : "0 10px",
+                                        fontSize : 16
+                                    }}
+                                        value="5"
+                                        onClick={handleClickLineWidth}
+                                    >5px</button>
+                                <button className={style.toolBox} style={
+                                    lineWidth[1].flag ? 
+                                    {
+                                        width : "50%",
+                                        height : 30,
+                                        border : "none",
+                                        borderBottom : "2px solid #9900F0",
+
+                                        // margin : "0 10px",
+                                        fontSize : 16
+                                    }
+                                    :
+                                    {
+                                        width : "50%",
+                                        height : 30,
+                                        border : "none",
+                                        borderBottom : "none",
+
+                                        // margin : "0 10px",
+                                        fontSize : 16
+                                    }}
+                                        value="14"
+                                        onClick={handleClickLineWidth}
+                                    >14px</button>
+                            </div>
+                            <div style={{
+                                width : "100%",
+                                display : "flex",
+                                justifyContent : "center",
+                                alignItems : "center"
+                            }}>
+                                <button className={style.toolBox} style={
+                                    lineWidth[2].flag ? 
+                                    {
+                                        width : "50%",
+                                        height : 30,
+                                        border : "none",
+                                        borderBottom : "2px solid #9900F0",
+                                        
+                                        // margin : "0 10px",
+                                        fontSize : 16
+                                    }
+                                    :
+                                    {
+                                        width : "50%",
+                                        height : 30,
+                                        border : "none",
+                                        borderBottom : "none",
+
+                                        // margin : "0 10px",
+                                        fontSize : 16
+                                    }}
+                                        value="26"
+                                        onClick={handleClickLineWidth}>26px</button>
+                                <button className={style.toolBox} style={
+                                    lineWidth[3].flag ? 
+                                    {
+                                        width : "50%",
+                                        height : 30,
+                                        border : "none",
+                                        borderBottom : "2px solid #9900F0",
+
+                                        // margin : "0 10px",
+                                        fontSize : 16
+                                    }
+                                    :
+                                    {
+                                        width : "50%",
+                                        height : 30,
+                                        border : "none",
+                                        borderBottom : "none",
+
+                                        // margin : "0 10px",
+                                        fontSize : 16
+                                    }}
+                                        value="42"
+                                        onClick={handleClickLineWidth}>42px</button>
+                            </div>
+                            <button>CLEAR</button>
+                            <button>UNDO</button>
+                        </div>
+                    
                         <button className={style.submit} onClick={sendSignal}>제출</button>
                     </div>
-                    
                     <canvas ref={canvasRef}
                     style={{
                         zIndex : 9999,

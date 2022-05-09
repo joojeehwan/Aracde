@@ -1,7 +1,14 @@
 .container{
     position : relative;
 }
-
+.toolBox{
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba($color: #444444, $alpha: 0.2);
+    }
+}
 .answerInputBox {
     position : absolute;
     top : 75vh;
