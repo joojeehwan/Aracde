@@ -1,8 +1,7 @@
 package com.ssafy.arcade.notification.repository;
 
-import com.ssafy.arcade.notification.entity.Notification;
 import org.springframework.data.repository.CrudRepository;
-
+import com.ssafy.arcade.notification.entity.Notification;
 import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;

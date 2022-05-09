@@ -47,37 +47,32 @@ public class S3Service {
                 withRegion(this.region).build();
     }
 
-    public List<String> uploadImg(List<MultipartFile> files, String command) throws IOException {
-        List<String> imgList = new ArrayList<>();
-        for (MultipartFile file : files) {
-            String fileName = "static" + command + "/" + UUID.randomUUID() + file.getOriginalFilename();
-            System.out.println(fileName + " " + file.getInputStream());
-            //s3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), null).withCannedAcl(CannedAccessControlList.PublicRead));
-            java.util.Date expiration = new java.util.Date();
-            long expTime = expiration.getTime();
-            expTime += 1000 * 60 * 60;
-            expiration.setTime(expTime);
-            //presigned url 생성
-            GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName).withMethod(HttpMethod.PUT).withExpiration(expiration);
+    public String uploadImg(MultipartFile file) throws IOException {
+        String fileName = file.getOriginalFilename();
+        System.out.println(fileName+" "+file.getInputStream().toString());
+        //s3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), null).withCannedAcl(CannedAccessControlList.PublicRead));
+        java.util.Date expiration = new java.util.Date();
+        long expTime = expiration.getTime();
+        expTime += 1000*60*60;
+        expiration.setTime(expTime);
+        //presigned url 생성
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName).withMethod(HttpMethod.PUT).withExpiration(expiration);
 
-            URL url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
+        URL url = s3Client.generatePresignedUrl(generatePresignedUrlRequest);
 
-            // http connection으로 직접 put 한다. 버킷 접근 권한 제한 하고도 사용 가능 함 이제!
-            byte[] pic = file.getBytes();
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Content-Type", "image");
-            connection.setRequestMethod("PUT");
-            connection.getOutputStream().write(pic);
-            connection.getResponseCode();
-            System.out.println("HTTP response code is " + connection.getResponseCode());
-            if (connection.getResponseCode() != 200) {
-                return null;
-            }
-            imgList.add(s3Client.getUrl(bucket, fileName).toString());
+        // http connection으로 직접 put 한다. 버킷 접근 권한 제한 하고도 사용 가능 함 이제!
+        byte[] pic = file.getBytes();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type","image");
+        connection.setRequestMethod("PUT");
+        connection.getOutputStream().write(pic);
+        connection.getResponseCode();
+        System.out.println("HTTP response code is " + connection.getResponseCode());
+        if(connection.getResponseCode() != 200){
+            return null;
         }
 
-
-        return imgList;
+        return s3Client.getUrl(bucket, fileName).toString();
     }
 }

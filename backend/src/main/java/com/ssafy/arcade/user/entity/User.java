@@ -31,6 +31,9 @@ public class User extends BaseTimeEntity {
     private String name;
     @Column(nullable = false)
     private String image;
+    // 네이버, 다음, 구글
+    @Column(nullable = false)
+    private String provider;
 
     // 친구를 맺은 순간, 친구 신청건 쪽 - 친구요청 받은쪽이 Friend에 저장.
     // 나중에 조회할 때는 friendList || targetList 가 내 전체 친구리스트가 되는것!

@@ -111,6 +111,24 @@ const deleteFriend = async (userSeq: number) => {
   return null;
 };
 
+
+const getProfile = async () => {
+  const token = getToken();
+  if (token !== null) {
+    return await axios
+      .get(`${BASE_URL}/profile`, { headers: { Authorization: token } })
+      .then((response) => {
+        console.log(response);
+        return response;
+      })
+      .catch((error) => {
+        console.log(error);
+        return error;
+      });
+  } else {
+    console.log('AccessToken이 존재하지 않습니다.');
+  }
+};
 const UserApi = {
   getKakaoLoginResult,
   getNaverLoginResult,
@@ -119,6 +137,7 @@ const UserApi = {
   getAddFriendRequestResult,
   getFriendList,
   deleteFriend,
+  getProfile,
   patchAcceptFriendRequest,
 };
 

@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import styles from './style/Room.module.scss';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useStore } from './store';
-import { infoStore } from '../Store/info';
-import RoomContents from './RoomContents';
+import React, { useContext, useEffect, useRef, useState } from "react";
+import styles from "./style/Room.module.scss";
+import { useNavigate, useParams } from "react-router-dom";
+import { useStore } from "./store";
+import { infoStore } from "../Store/info";
+import RoomContents from "./RoomContents";
 // import LoadingSpinner from "../Modals/LoadingSpinner/LoadingSpinner";
 // import RoomApi from "../../api/RoomApi";
 
@@ -27,63 +27,59 @@ import RoomContents from './RoomContents';
 
 // const youtube = new Youtube(process.env.REACT_APP_YOUTUBE_API_KEY);
 
+
 const Room = () => {
-  const { sessionId, setSessionId } = useStore();
+  const {sessionId, setSessionId} = useStore();
   // const {nickname, invitecode, setNick} = infoStore();
-  //   const { setLoginStatus } = useContext(LoginStatusContext);
-  //   const { myVMstate } = useContext(VideoMicContext);
+//   const { setLoginStatus } = useContext(LoginStatusContext);
+//   const { myVMstate } = useContext(VideoMicContext);
   // const { myName } = useContext(NameContext);
   // const [myName, setMyName] = useState<string>(nickname);
-  const myName = window.localStorage.getItem('nickname');
-
-  const [mode, setMode] = useState('basic');
-  const [contentTitle, setContentTitle] = useState('');
+  const myName = window.localStorage.getItem("nickname");
+  
+  const [mode, setMode] = useState("basic");
+  const [contentTitle, setContentTitle] = useState("");
   const [onGameList, setOnGameList] = useState(false);
   const [onKaraokeList, setOnKaraokeList] = useState(false);
   const [onRegistMusic, setOnRegistMusic] = useState(false);
-  const [gameId, setGameId] = useState('');
+  const [gameId, setGameId] = useState("");
   const [singMode, setSingMode] = useState(1);
-  const [roomTitle, setRoomTitle] = useState('');
-  //   const { setbangZzang } = useContext(BangZzangContext);
+  const [roomTitle, setRoomTitle] = useState("");
+//   const { setbangZzang } = useContext(BangZzangContext);
 
   // const [roomseq, setRoomseq] = useState<string>(invitecode);
-  const roomseq = window.localStorage.getItem('invitecode');
+  const roomseq = window.localStorage.getItem("invitecode");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log('???왜 사라짐??');
-    if (myName === null) {
+  useEffect(()=>{
+    console.log("???왜 사라짐??");
+    if(myName === null){
       navigate('/');
     }
-    if (roomseq === null) {
+    if(roomseq === null){
       navigate('/');
     }
   }, []);
+
 
   return (
     <div className={styles.container}>
       {/* {loading ? <LoadingSpinner></LoadingSpinner> : null} */}
       <div className={styles.nav}>
-        {/* <button className={styles.link} onClick={onClickExit}>
+        <button className={styles.link}>
           EXIT
-        </button> */}
+        </button>
       </div>
       <div className={styles.innerContainer}>
         <div className={styles.contents}>
           <div className={styles.title}>
             <h1>{contentTitle}</h1>
           </div>
-          <div className={styles['main-contents']}>
+          <div className={styles["main-contents"]}>
             <RoomContents
               sessionName={roomseq}
               userName={myName}
-              //   media={myVMstate}
-              //   mode={mode}
-              //   singMode={singMode}
-              //   back={handleHomeClick}
-              //   goHome={goHome}
-              //   home={handleGoTitle}
             />
           </div>
         </div>

@@ -18,8 +18,8 @@ const CreateRoom = () => {
   const [isMic, setMic] = useState(true);
   const [isVideo, setVideo] = useState(true);
 
-  const [nickname, setNickname] = useState(''); // 닉네임
-  const [code, setCode] = useState(''); // 초대 코드
+  const [nickname, setNickname] = useState<any>(""); // 닉네임
+  const [code, setCode] = useState<any>(""); // 초대 코드
 
   const { enterRoom } = RoomApi;
 
