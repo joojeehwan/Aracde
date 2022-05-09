@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.arcade.common.RedisPublisher;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
 import com.ssafy.arcade.common.util.Code;
@@ -20,6 +21,8 @@ import com.ssafy.arcade.game.request.GameReqDto;
 import com.ssafy.arcade.game.request.GameResDto;
 import com.ssafy.arcade.game.response.PictureResDto;
 import com.ssafy.arcade.notification.dtos.NotiDTO;
+import com.ssafy.arcade.notification.entity.Notification;
+import com.ssafy.arcade.notification.repository.NotiRepository;
 import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.FriendRepository;
@@ -34,13 +37,17 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,6 +64,9 @@ public class UserService {
     private final GameService gameService;
     private final GameUserRepository gameUserRepository;
     private final PictureRepository pictureRepository;
+    private final NotiRepository notiRepository;
+    private final RedisPublisher redisPublisher;
+    private final SimpMessageSendingOperations messageTemplate;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -113,7 +123,7 @@ public class UserService {
         // Gson, Json Simple, ObjectMapper
         ObjectMapper objectMapper = new ObjectMapper();
         // 내가 필드로 선언한 데이터들만 파싱.
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         KakaoProfile kakaoProfile = null;
         try {
             kakaoProfile = objectMapper.readValue(response.getBody(), KakaoProfile.class);
@@ -124,6 +134,7 @@ public class UserService {
         }
         return kakaoProfile;
     }
+
     // 회원 가입
     public User signUp(String email, String image, String name, String provider) {
         User user = User.builder()
@@ -169,17 +180,15 @@ public class UserService {
                 continue;
             }
             Friend targetfriend = friendRepository.findByRequestAndTarget(me, user).orElse(null);
-            Friend reqfriend =  friendRepository.findByRequestAndTarget(user, me).orElse(null);
+            Friend reqfriend = friendRepository.findByRequestAndTarget(user, me).orElse(null);
 
             Friend friend = targetfriend == null ? reqfriend : targetfriend;
             Integer status;
             if (friend == null) {
                 status = -1;
-            }
-            else if (!friend.isApproved()) {
+            } else if (!friend.isApproved()) {
                 status = 0;
-            }
-            else {
+            } else {
                 status = 1;
             }
 
@@ -194,6 +203,7 @@ public class UserService {
         }
         return userResDtoList;
     }
+
     // 친구 제외 유저 검색
     public List<UserResDto> getUserByNameNoRelate(String token, String name) {
         User me = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
@@ -211,7 +221,7 @@ public class UserService {
                 continue;
             }
             Friend targetfriend = friendRepository.findByRequestAndTarget(me, user).orElse(null);
-            Friend reqfriend =  friendRepository.findByRequestAndTarget(user, me).orElse(null);
+            Friend reqfriend = friendRepository.findByRequestAndTarget(user, me).orElse(null);
 
             Friend friend = targetfriend == null ? reqfriend : targetfriend;
 
@@ -243,9 +253,12 @@ public class UserService {
         User targetUser = userRepository.findByUserSeq(targetUserSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        User user = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_OUR_USER));
+
 
         Friend targetFriend = friendRepository.findByRequestAndTarget(reqUser, targetUser).orElse(null);
-        Friend reqFriend =  friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
+        Friend reqFriend = friendRepository.findByRequestAndTarget(targetUser, reqUser).orElse(null);
 
         // 본인 친구추가 불가
         if (targetUser == reqUser) {
@@ -259,14 +272,27 @@ public class UserService {
             friend.setTarget(targetUser);
             friend.setApproved(false);
             friendRepository.save(friend);
-        }
-        else {
+        } else {
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
-        NotiDTO notiDTO = NotiDTO.builder()
-                .userSeq(reqUser.getUserSeq()).name(reqUser.getName())
-                .type("friend").build();
-        template.convertAndSend("/sub/noti" + targetUser.getUserSeq(), notiDTO);
+        // 알림 생성
+        notiRepository.save(Notification.builder()
+                .userSeq(user.getUserSeq()).type("Friend").targetSeq(targetUser.getUserSeq())
+                        .time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
+                .name(user.getName()).isConfirm(false).build());
+
+        // 두개 이상일수도 있음; 친구 요청을 두번 이상 보낼수도 있으니까
+        List<Notification> notifications = notiRepository.findAllByTypeAndUserSeqAndTargetSeq("Friend", user.getUserSeq(), targetUser.getUserSeq())
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_DATA));
+        // 리스트를 time 내림차순정렬
+        notifications.sort((o1, o2) -> -o1.getTime().compareTo(o2.getTime()));
+        // 가장 최근 noti 가져옴.
+        Notification notification = notifications.get(0);
+        // publish
+        messageTemplate.convertAndSend("/sub/" + targetUser.getUserSeq(), NotiDTO.builder()
+                .time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
+                .notiSeq(notification.getNotiSeq()).type("Friend").userSeq(user.getUserSeq()).name(user.getName())
+                .isConfirm(false).build());
     }
 
     // 친구 수락
@@ -291,8 +317,7 @@ public class UserService {
         // 요청한 친구관계가 없을떄
         if (targetFriend == null) {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        }
-        else {
+        } else {
             if (targetFriend.isApproved()) {
                 throw new CustomException(ErrorCode.ALREADY_ACCEPT);
             }
@@ -300,6 +325,7 @@ public class UserService {
             friendRepository.save(targetFriend);
         }
     }
+
     // 친구 삭제, (상대가 수락하기 전이라면 친구 요청 취소인것)
     public void deleteFriend(String token, Long userSeq) {
         User reqUser = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->
@@ -313,8 +339,7 @@ public class UserService {
         Friend friend = targetFriend == null ? reqFriend : targetFriend;
         if (friend == null) {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        }
-        else {
+        } else {
             friendRepository.delete(friend);
         }
     }
@@ -347,6 +372,7 @@ public class UserService {
         }
         return userResDtoList;
     }
+
     // 친구 검색
     public List<UserResDto> searchFriend(String token, String name) {
         User me = userRepository.findByUserSeq(getUserSeqByToken(token)).orElseThrow(() ->

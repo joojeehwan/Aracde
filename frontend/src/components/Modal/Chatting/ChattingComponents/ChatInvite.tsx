@@ -7,7 +7,7 @@ import ChatInviteSearhBar from '../ChattingComponents/ChatInviteSearhBar';
 import ChatInviteSearhResults from '../ChattingComponents/ChatInviteSearhResults';
 
 //api
-import ChatApi from "../../../../common/api/ChatAPI"
+import ChatApi from '../../../../common/api/ChatAPI';
 
 type MyProps = {
   open: boolean;
@@ -20,12 +20,9 @@ type MyProps = {
 // ];
 
 function ChatInvite({ open, onClose }: MyProps) {
+  const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string }[]>([]);
 
-  const [friend, setFriend] = useState<
-    { userSeq: number; name: string; canInvite: boolean; image: string }[]
-  >([]);
-
-  const { getChatSearchResult } = ChatApi
+  const { getChatSearchResult } = ChatApi;
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -37,9 +34,6 @@ function ChatInvite({ open, onClose }: MyProps) {
       setFriend([...result.data]);
     }
   };
-
-
-
 
   return (
     <div
@@ -59,7 +53,15 @@ function ChatInvite({ open, onClose }: MyProps) {
         >
           <ChatInviteSearhBar searchPeople={handleSearchPeople} />
           {friend.map((value) => {
-            return <ChatInviteSearhResults key={value.name} name={value.name} isInvite={value.canInvite} image={value.image} userSeq={value.userSeq} />;
+            return (
+              <ChatInviteSearhResults
+                key={value.name}
+                name={value.name}
+                isInvite={value.canInvite}
+                image={value.image}
+                userSeq={value.userSeq}
+              />
+            );
           })}
           <div className={style.CancelContainer}>
             <button onClick={onClose} className={style.cancel}>

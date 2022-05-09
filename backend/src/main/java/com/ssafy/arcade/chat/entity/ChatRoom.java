@@ -10,6 +10,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -17,7 +19,7 @@ import java.time.LocalDate;
 public class ChatRoom extends BaseTimeEntity { // 관계형 DB에 매핑
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ChatRoomSeq;
+    private Long chatRoomSeq;
     @ManyToOne
     @JoinColumn(name = "user1") // 외래키 매핑
     @JsonBackReference // 순환 참조 방어
@@ -29,9 +31,9 @@ public class ChatRoom extends BaseTimeEntity { // 관계형 DB에 매핑
     @Column
     private String lastContent;
     @Column
-    private LocalDate lastTime;
+    private String lastTime;
     @Builder
-    public ChatRoom(User user1, User user2, String lastContent, LocalDate lastTime) {
+    public ChatRoom(User user1, User user2, String lastContent, String lastTime) {
         this.user1 = user1;
         this.user2 = user2;
         this.lastContent = lastContent;
