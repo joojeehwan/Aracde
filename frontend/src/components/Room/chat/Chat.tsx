@@ -306,8 +306,16 @@ const Chat = (props : any) => {
 
   return (
     <>
-      <div className={styles.chatComponent}>
-        <div className={styles["message-wrap"]} ref={chatScroll}>
+      <div className={
+          props.mode !== "home" 
+          ? `${styles.chatComponent} ${styles.game}`
+          : styles.chatComponent
+        
+        }>
+        <div className={
+          props.mode !== "home"
+          ? `${styles["message-wrap"]} ${styles.game}`
+          : styles["message-wrap"]} ref={chatScroll}>
          {props.mode === "game3" ? (answerList.map((data : any, i : any) => 
             (<div
               key={i}
@@ -381,44 +389,24 @@ const Chat = (props : any) => {
           
         </div>
 
-        {props.mode==='game3' ? (<div className={styles.messageInput}>
-          {props.user.getStreamManager().stream.streamId === currnetInput ? (
-            <>
-            <input
-            className={styles.defaultinput}
-            placeholder="정답을 입력하세요"
-            id="chatInput"
-            value={message}
-            onChange={handleChange}
-            onKeyPress={handlePressKey}
-            autoComplete="off"
-            
-          />
-          <div className={styles.sendIcon}>
-            <SendIcon className={styles.sendButton} onClick={sendAnswer} />
-          </div>
-          </>
-          ) : (
-            <input
-            className={styles.disable}
-            placeholder="차례를 기다려주세요"
-            id="chatInput"
-            value={message}
-            onChange={handleChange}
-            onKeyPress={handlePressKey}
-            autoComplete="off"
-            disabled={true}
-          />
-          )}
-          
-          {/* <Tooltip title="전송"> */}
-          {/* <div className={styles.sendIcon}>
-            <SendIcon className={styles.sendButton} onClick={sendAnswer} />
-          </div> */}
-          {/* </Tooltip> */}
-        </div>):(<div className={styles.messageInput}>
+        {props.mode==='home' ? (
+          <div className={styles.messageInput}>
           <textarea
             className={styles.defaultinput}
+            placeholder="메세지를 입력하세요"
+            id="chatInput"
+            value={message}
+            onChange={handleChange}
+            onKeyPress={handlePressKey}
+            autoComplete="off"
+          />
+          <div className={styles.sendIcon}>
+            <SendIcon className={styles.sendButton} onClick={sendMessage} />
+          </div>
+        </div>):
+        (<div className={`${styles.messageInput} ${styles.game}`}>
+          <textarea
+            className={`${styles.defaultinput}`}
             placeholder="메세지를 입력하세요"
             id="chatInput"
             value={message}
