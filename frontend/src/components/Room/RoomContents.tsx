@@ -472,16 +472,11 @@ const RoomContents = ({
         </div>
       </div>
       {mode === "game1" ? (
-<<<<<<< HEAD
-            <Catchmind/>
+            <Catchmind initData = {catchMindData} user={localUserRef.current}/>
         ) : null}
       {mode === "game2" ? (
             <Charade />
         ) : null}
-=======
-            <Catchmind initData = {catchMindData} user={localUserRef.current}/>
-          ) : null}
->>>>>>> db3e12495c7566680d1216b57af4e3a771bc9e0c
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
         <div className={
           mode === "home"
