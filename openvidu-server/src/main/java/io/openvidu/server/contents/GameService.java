@@ -288,6 +288,7 @@ public class GameService {
             // 마지막 차례에는 지금까지의 모든 이미지를 str으로 만들어 전송해 줌
             if (index == peopleCnt) {
                 String answer = answerMap.get(sessionId);
+                data.addProperty("answer", answer);
                 String response = data.get("response").getAsString();
                 if (answer.equals(response)) {
                     data.addProperty("answerYn", "Y");
@@ -392,7 +393,7 @@ public class GameService {
             String tryAnswer = data.get("tryAnswer").getAsString();
             // 정답
             String answer = suspectMap.get(sessionId);
-            if (answer == tryAnswer) {
+            if (answer.equals(tryAnswer)) {
                 System.out.println("########## [ARCADE] CHARADES : " + peopleOrder.get(index) + " Correct !!");
                 data.addProperty("answerYN", "Y");
                 data.addProperty("gameStatus", 3);
