@@ -60,6 +60,8 @@ const RoomContents = ({
   participantNumRef.current = participantNum;
 
 
+  const catchMindDataRef = useRef(catchMindData);
+  catchMindDataRef.current = catchMindData;
 
   const sessionRef = useRef(session);
   sessionRef.current = session;
@@ -201,7 +203,8 @@ const RoomContents = ({
           setMode("game1");
         }
         if(response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current === 'game1' && response.data.restart){
-          setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
+            setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
+            setMode("game1");
         }
       })
 
@@ -522,7 +525,7 @@ const RoomContents = ({
         </div>
       </div>
       {mode === "game1" ? (
-            <Catchmind initData = {catchMindData} user={localUserRef.current}/>
+            <Catchmind initData = {catchMindDataRef.current} user={localUserRef.current}/>
         ) : null}
       {mode === "game2" ? (
             <Charade />

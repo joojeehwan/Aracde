@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { debounce } from "lodash";
 import RoomApi from "../../../common/api/Room";
 import AnsInfo from "./Modal/AnsInfo";
+import SelectCategory from "./Modal/SelectCategory";
 import style from '../style/Catchmind.module.scss';
 import Pen from '../../../assets/pen.png';
 import Eraser from '../../../assets/eraser.png';
@@ -44,6 +45,7 @@ function Catchmind({initData, user} : MyProps) {
     const [answer, setAnswer] = useState<string>("");
     const [inputAns, setInputAns] = useState<string>("");
     const [open, setOpen] = useState<boolean>(false);
+    const [category, setCategory] = useState<boolean>(false);
     const [lineWidth, setLineWidth] = useState<{num : number , flag : boolean}[]>(
         [
             {num : 5, flag : true},
@@ -77,6 +79,14 @@ function Catchmind({initData, user} : MyProps) {
     const handleCloseModal = (e : React.MouseEvent) => {
         e.preventDefault();
         setOpen(false);
+    }
+    const handleCloseCate = (e : React.MouseEvent) => {
+        e.preventDefault();
+        setCategory(false);
+    }
+    const handleOpenModal = (e : React.MouseEvent) => {
+        e.preventDefault();
+        setCategory(true);
     }
 
     const handleSaveImg = async (idx : number) => {
@@ -280,8 +290,9 @@ function Catchmind({initData, user} : MyProps) {
         for(let i = 0; i < blobBin.length; i++){
             array.push(blobBin.charCodeAt(i));
         }
+        const nday = new Date();
         const file = new Blob([new Uint8Array(array)], {type : "image/jpeg"});
-        const newFile = new File([file], `${user.getStreamManager().stream.streamId}.jpeg`);
+        const newFile = new File([file], `${user.getStreamManager().stream.streamId}${Date.now().toString()}.jpeg`);
         
         const formData = new FormData();
         formData.append("image", newFile);
@@ -320,18 +331,30 @@ function Catchmind({initData, user} : MyProps) {
         });
         setLast(false);
     }
-    const sendExit = () => {
+    const sendExit = async () => {
         console.log("???여기 임 ???");
         const data = {
             gameStatus : 3,
             gameId : 1,
+        }
+        await user.getStreamManager().stream.session.signal({
+            type : "game",
+            data : JSON.stringify(data)
+        })
+    }
+    const sendRetry = async (ctgy : string) => {
+        await sendExit();
+        const data = {
+            gameStatus : 1,
+            gameId : 1,
+            category : +ctgy,
+            restart : 1
         }
         user.getStreamManager().stream.session.signal({
             type : "game",
             data : JSON.stringify(data)
         })
     }
-
     useEffect(()=>{
         let countDown : any;
         if(last){
@@ -856,7 +879,7 @@ function Catchmind({initData, user} : MyProps) {
                             display : "flex",
                             justifyContent : "space-evenly"
                         }}>
-                            <button className={style.retryButton} disabled={!imStart}>다시하기</button>
+                            <button className={style.retryButton} disabled={!imStart} onClick={handleOpenModal}>다시하기</button>
                             <button className={style.endButton} disabled={!imStart} onClick={sendExit}>그만하기</button>
                         </div>
                     </>)
@@ -897,6 +920,7 @@ function Catchmind({initData, user} : MyProps) {
                     
                 </div>)}
                 {open ? (<AnsInfo open={open} onClose={handleCloseModal} nick={ansNick} ans={answer} input = {inputAns} ansYn ={ansFlag}></AnsInfo>) : null}
+                {category ? (<SelectCategory open={category} onClose={handleCloseCate} onSelect={sendRetry}></SelectCategory>) : null}
         </>
     )
 }
