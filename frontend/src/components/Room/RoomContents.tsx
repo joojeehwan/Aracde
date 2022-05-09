@@ -15,11 +15,14 @@ import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
 import { display } from "@mui/system";
 
+
 const OPENVIDU_SERVER_URL = "https://k6a203.p.ssafy.io:5443";
 const OPENVIDU_SERVER_SECRET = "arcade";
 
+
 let localUserInit = new UserModel();
 let OV : any = undefined;
+
 
 const RoomContents = ({
   sessionName,
@@ -47,7 +50,7 @@ const RoomContents = ({
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
   const [mode , setMode] = useState<string>("home");
-
+  const [catchMindData, setCatchMindData] = useState<{answer : string, id : string, nextId : string}>();
 
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
@@ -62,6 +65,9 @@ const RoomContents = ({
 
   const localUserRef = useRef(localUser);
   localUserRef.current = localUser;
+
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
 
   // console.log(localUserRef.current, sessionRef.current);
 
@@ -95,40 +101,6 @@ const RoomContents = ({
       leaveSession();
     };
   }, []);
-
-//   useEffect(() => {
-//     const nickname = subscribers.map((data) => {
-//       if (targetId === data.getStreamManager().stream.streamId) {
-//         return data.nickname;
-//       }
-//     });
-//     console.log(subscribers);
-//     console.log(targetId);
-//     setTargetNickName(nickname);
-//   }, [targetId]);
-
-//   useEffect(() => {
-//     console.log(subscribers);
-//     const nickname = subscribers.map((data) => {
-//       if (sirenTarget === data.getStreamManager().stream.streamId) {
-//         return data.nickname;
-//       }
-//     });
-//     setSirenTargetNickName(nickname);
-//   }, [sirenTarget]);
-
-//   useEffect(() => {
-//     const nickname = subscribers.map((data) => {
-//       if (correctPeopleId === data.getStreamManager().stream.streamId) {
-//         return data.nickname;
-//       }
-//     });
-//     setCorrectPeopleName(nickname);
-//   }, [correctPeopleId]);
-  // useEffect(()=> {
-  //   if(modalMode==="yousayForbidden") setModalMode("answerForbidden")
-  //   if(modalMode==="someonesayForbidden") setModalMode("answerForbidden")
-  // },[modalMode])
 
   useEffect(() => {
     console.log(session, sessionRef.current);
@@ -175,7 +147,7 @@ const RoomContents = ({
         });
         setSubscribers([...subscribersRef.current]);
       });
-
+      
       sessionRef.current.on("streamDestroyed", (event : any) => {
         setParticpantNum(participantNumRef.current - 1);
         deleteSubscriber(event.stream);
@@ -185,8 +157,14 @@ const RoomContents = ({
         console.warn(exception);
       });
       
-      sessionRef.current.on("signal:game", (data : any) => {
-        console.log(data);
+      sessionRef.current.on("signal:game", (response : any) => {
+        // console.log("여긴 룸 컨텐츠에용 씨발 제발 불리지 마세용");
+        console.log(response);
+        if(response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1'){
+          console.log("?실행", modeRef.current);
+          setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
+          setMode("game1");
+        }
       })
 
       getToken().then((token) => {
@@ -239,9 +217,7 @@ const RoomContents = ({
 
   const leaveSession = () => {
     const mySession = sessionRef.current;
-    //console.log(mySession);
     if (mySession) {
-      //console.log("leave");
       mySession.disconnect();
     }
     OV = null;
@@ -277,11 +253,8 @@ const RoomContents = ({
   };
 
   const onbeforeunload = (e : any) => {
-    //console.log("tlfgodehla");
     e.preventDefault();
     e.returnValue = "나가실껀가요?";
-    //console.log("dfsdfsdf");
-    // leaveSession();
   };
 
   const sendSignalUserChanged = (data : any) => {
@@ -414,12 +387,14 @@ const RoomContents = ({
     const data = {
       gameStatus: 1,
       gameId : 1,
+      category : 5,
+      count : 1
     };
     sessionRef.current.signal({
       type: "game",
       data: JSON.stringify(data),
     });
-    setMode("game1");
+    // setMode("game1");
   }
   const handleCopy = () => {
     let value = document.getElementById("code")?.innerHTML as string;
@@ -496,7 +471,7 @@ const RoomContents = ({
         </div>
       </div>
       {mode === "game1" ? (
-            <Catchmind/>
+            <Catchmind initData = {catchMindData} user={localUserRef.current}/>
           ) : null}
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
         <div className={

@@ -49,104 +49,104 @@ const Chat = (props : any) => {
     // console.log("chat render", initGame, continueGame);
       
     //   console.log("chat render", initGame, continueGame);
-        props.user.getStreamManager().stream.session.on("signal:game", (event : any) => {
-          const data = event.data;
+        // props.user.getStreamManager().stream.session.on("signal:game", (event : any) => {
+        //   const data = event.data;
 
-          let messageListData = answerList;
+        //   let messageListData = answerList;
 
           
-          console.log("실행되고 있니?", data.streamId, props.user.getStreamManager(), data, props.sub, messageListData);
-          if(data.gameStatus === 3 && data.updown === undefined){
-            console.log("여기가 실행 되니?");
-            props.exitgame();
-          }
+        //   console.log("실행되고 있니?", data.streamId, props.user.getStreamManager(), data, props.sub, messageListData);
+        //   if(data.gameStatus === 3 && data.updown === undefined){
+        //     console.log("여기가 실행 되니?");
+        //     props.exitgame();
+        //   }
 
 
-          if(data.updown){
-            console.log("???????????????????????????????????실행");
-            // messageListData.length = 0;
-            messageListData.push({
-              connectionId: data.curStreamId,
-              nickname : data.nickname,
-              message : data.number
-            })
-            messageListData.push({
-              connectionId : "SYSTEM",
-              nickname : "SYSTEM",
-              message : data.updown === "same" ? `${data.nickname}님 정답입니다!` 
-                                                  : data.updown === "up" ? "틀렸습니다! UP!"
-                                                      : "틀렸습니다! DOWN!",
-            })
-            if(data.updown === "same"){
-              console.log("실행되니 여기는?");
-              messageListData.push({
-                connectionId : "SYSTEM",
-                nickname : "SYSTEM",
-                message : "이어서 하시겠습니까 ? (Y/N)"
-              })
-              setContinueGame(true);
-              setAnswerList([...messageListData])
-              scrollToBottom();
-              return;
-            }
-            if(props.user.getStreamManager().stream.streamId === data.nextStreamId){
-              console.log("실ㅇ행실행")
-              messageListData.push({
-                connectionId: "SYSTEM",
-                nickname : "SYSTEM",
-                message : `${props.user.getNickname()}님 입력 차례입니다.`
-              })
-            }
-            else{
-              messageListData.push({
-                connectionId: "SYSTEM",
-                nickname : "SYSTEM",
-                message : `다른 유저가 입력 중 입니다. 기다려주세요`
-              })
-            }
+        //   if(data.updown){
+        //     console.log("???????????????????????????????????실행");
+        //     // messageListData.length = 0;
+        //     messageListData.push({
+        //       connectionId: data.curStreamId,
+        //       nickname : data.nickname,
+        //       message : data.number
+        //     })
+        //     messageListData.push({
+        //       connectionId : "SYSTEM",
+        //       nickname : "SYSTEM",
+        //       message : data.updown === "same" ? `${data.nickname}님 정답입니다!` 
+        //                                           : data.updown === "up" ? "틀렸습니다! UP!"
+        //                                               : "틀렸습니다! DOWN!",
+        //     })
+        //     if(data.updown === "same"){
+        //       console.log("실행되니 여기는?");
+        //       messageListData.push({
+        //         connectionId : "SYSTEM",
+        //         nickname : "SYSTEM",
+        //         message : "이어서 하시겠습니까 ? (Y/N)"
+        //       })
+        //       setContinueGame(true);
+        //       setAnswerList([...messageListData])
+        //       scrollToBottom();
+        //       return;
+        //     }
+        //     if(props.user.getStreamManager().stream.streamId === data.nextStreamId){
+        //       console.log("실ㅇ행실행")
+        //       messageListData.push({
+        //         connectionId: "SYSTEM",
+        //         nickname : "SYSTEM",
+        //         message : `${props.user.getNickname()}님 입력 차례입니다.`
+        //       })
+        //     }
+        //     else{
+        //       messageListData.push({
+        //         connectionId: "SYSTEM",
+        //         nickname : "SYSTEM",
+        //         message : `다른 유저가 입력 중 입니다. 기다려주세요`
+        //       })
+        //     }
               
             
-            scrollToBottom();
-              setAnswerList([...messageListData])
-              setCurrentInput(data.nextStreamId);
-              setIdx(data.index);
-          }
-          else{
-            console.log("??????????????????????????????????????????????여기ㄷ가 실행이라고?");
-            messageListData.length = 0;
-            messageListData.push({
-              connectionId: "SYSTEM",
-              nickname : "SYSTEM",
-              message : "UP DOWN 게임 시작!!"
-            })
-            if(props.user.getStreamManager().stream.streamId === data.streamId){
-              messageListData.push({
-                connectionId: "SYSTEM",
-                nickname : "SYSTEM",
-                message : `${props.user.getNickname()}님 입력 차례입니다.`
-              })
-            }
-            else{
-              for(let i = 0; i < props.sub.length; i++){
-                if(props.sub[i].getStreamManager().stream.streamId === data.streamId){
-                  messageListData.push({
-                    connectionId: "SYSTEM",
-                    nickname : "SYSTEM",
-                    message : `${props.sub[i].getNickname()}님 입력 차례입니다.`
-                  })
-                  break;
-                }
-              }
-            }
-            console.log(messageListData);
-            setAnswerList([...messageListData]);
-            setCurrentInput(data.streamId);
-            setIdx(data.index);
-            setContinueGame(false);
-          }
+        //     scrollToBottom();
+        //       setAnswerList([...messageListData])
+        //       setCurrentInput(data.nextStreamId);
+        //       setIdx(data.index);
+        //   }
+        //   else{
+        //     console.log("??????????????????????????????????????????????여기ㄷ가 실행이라고?");
+        //     messageListData.length = 0;
+        //     messageListData.push({
+        //       connectionId: "SYSTEM",
+        //       nickname : "SYSTEM",
+        //       message : "UP DOWN 게임 시작!!"
+        //     })
+        //     if(props.user.getStreamManager().stream.streamId === data.streamId){
+        //       messageListData.push({
+        //         connectionId: "SYSTEM",
+        //         nickname : "SYSTEM",
+        //         message : `${props.user.getNickname()}님 입력 차례입니다.`
+        //       })
+        //     }
+        //     else{
+        //       for(let i = 0; i < props.sub.length; i++){
+        //         if(props.sub[i].getStreamManager().stream.streamId === data.streamId){
+        //           messageListData.push({
+        //             connectionId: "SYSTEM",
+        //             nickname : "SYSTEM",
+        //             message : `${props.sub[i].getNickname()}님 입력 차례입니다.`
+        //           })
+        //           break;
+        //         }
+        //       }
+        //     }
+        //     console.log(messageListData);
+        //     setAnswerList([...messageListData]);
+        //     setCurrentInput(data.streamId);
+        //     setIdx(data.index);
+        //     setContinueGame(false);
+        //   }
               
           
-        });
+        // });
       
     
 
