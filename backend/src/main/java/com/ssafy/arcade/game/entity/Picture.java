@@ -26,8 +26,6 @@ public class Picture extends BaseTimeEntity {
     private String pictureUrl;
     @Column(nullable = false)
     private boolean delYn;
-    @CreatedDate
-    private LocalDateTime createdDate;
 
     @ManyToOne
     @JoinColumn(name="user_seq")
