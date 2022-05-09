@@ -3,13 +3,15 @@ import { getToken } from './jWT-Token';
 
 const BASE_URL = 'http://localhost:8080/apiv1/online';
 
-const online = async () => {
+// 온라인 api
+
+const setOnlie = async () => {
   const token = getToken();
   if (token !== null) {
-    const result = await axios.post(`${BASE_URL}/enter`, {}, { headers: { Authorization: token } })
+    const result = await axios
+      .post(`${BASE_URL}/enter`, {}, { headers: { Authorization: token } })
       .then((res) => {
         console.log(res);
-        return res;
       })
       .catch((err) => {
         console.dir(err);
@@ -17,28 +19,32 @@ const online = async () => {
       });
     return result;
   }
+  return null;
+};
 
-}
-const offline = async () => {
+// 오프라인 api
+
+const setOffline = async () => {
   const token = getToken();
   if (token !== null) {
-    const result = await axios.post(`${BASE_URL}/out`, {}, { headers: { Authorization: token } })
+    const result = await axios
+      .post(`${BASE_URL}/out`, {}, { headers: { Authorization: token } })
       .then((res) => {
         console.log(res);
-        return res;
       })
       .catch((err) => {
         console.dir(err);
         return err;
       });
+    console.log(result);
     return result;
   }
-
-}
+  return null;
+};
 
 const OnlineApi = {
-  online,
-  offline,
+  setOnlie,
+  setOffline
 };
 
 export default OnlineApi;

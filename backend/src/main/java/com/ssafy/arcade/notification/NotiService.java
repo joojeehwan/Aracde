@@ -39,15 +39,18 @@ public class NotiService {
     }
 
     // 알림 읽음 처리
-    public String readNotification(String token, Long notiSeq) {
+    public String readNotification(String token) {
         // 토큰으로 유저 찾기
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
-        Notification notification = notiRepository.findByNotiSeq(notiSeq).orElseGet(Notification::new);
+        List<Notification> notifications = notiRepository.findAllByTargetSeq(user.getUserSeq()).orElseThrow(()->
+                new CustomException(ErrorCode.DATA_NOT_FOUND));
         // 읽음 처리 후 저장
 //        if (notification.getNotiSeq() != null) {
+        for (Notification notification : notifications){
             notification.setConfirm(true);
             notiRepository.save(notification);
+        }
 //        }
         return "OK";
     }

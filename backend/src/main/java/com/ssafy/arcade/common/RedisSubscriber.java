@@ -34,6 +34,10 @@ public class RedisSubscriber implements MessageListener {
                 // 구독자들에게 Dto 보내기
                 messageTemplate.convertAndSend("/sub/chat/room/detail/"+sendMessageRes.getChatRoomSeq(), sendMessageRes);
             }
+            else if(sendMessageRes.getType() == SendMessageRes.Type.CHATROOM){
+                log.info("[채팅방 내용] : {}", sendMessageRes.getContent());
+                messageTemplate.convertAndSend("/sub/chat/room/"+sendMessageRes.getChatRoomSeq(), sendMessageRes);
+            }
             // 알림
             // 원래 통합 DTO로 구현했어야 했는데 나의 귀여운 실수로 알림은 onMessage를 안쓰게 되었다.
             else{

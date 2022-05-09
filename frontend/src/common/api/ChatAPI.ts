@@ -80,26 +80,21 @@ const enterChatRoom = async (chatRoomSeq: number) => {
   return null;
 };
 
-//swr fetcher
-const fetcher = async (url: string) => {
-  const token = getToken()
-  if (token !== null) {
-    const result = await axios.get(`${BASE_URL}`, {
-      headers: {
-        Authorization: token
-      }
-    })
-    return result
-  }
-  return null
-}
+//swr fetcher get
+const fetchWithToken = (url: string, token: string) =>
+  axios.get(`${url}`, {
+    headers: {
+      Authorization: token
+    },
+  })
+    .then(result => result.data)
 
 const ChatAPI = {
   createChatRoom,
   enterChatRoom,
   getChatList,
   getChatSearchResult,
-  fetcher
+  fetchWithToken,
 };
 
 export default ChatAPI;
