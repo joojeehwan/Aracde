@@ -124,7 +124,7 @@ public class GameService {
         System.out.println("########## [ARCADE] : PrepareGame is called by " + participant.getParticipantPublicId());
 
         // 요청자 streamId (이 값이 맞는지는 테스트 해봐야 될 듯)
-        String streamId = participant.getParticipantPublicId();
+        String streamId = participant.getPublisherStreamId();
 
         data.addProperty("streamId", streamId);
         data.addProperty("gameStatus", 0);
