@@ -50,16 +50,9 @@ function FriendsSearchResults({ seq, name, email, imgUrl, status }: any) {
 
   const { getAddFriendRequestResult } = UserApi;
 
-  // const onClickAddFriends = useCallback(() => {
-  //   // setIsClicked(true);
-
-  // }, [isClicked]);
   const onClickAddFriends = async (email: string) => {
     const result = await getAddFriendRequestResult(email);
-    if(result?.status === 200){
-      // console.log(result, client);
-      // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
-
+    if (result?.status === 200) {
       setCurStatus(0);
     }
   };

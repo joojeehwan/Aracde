@@ -13,6 +13,7 @@ import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
 import com.ssafy.arcade.messege.entity.Message;
 import com.ssafy.arcade.messege.repository.MessageRepository;
+import com.ssafy.arcade.user.OnlineService;
 import com.ssafy.arcade.user.UserService;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
@@ -23,6 +24,9 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +42,7 @@ public class ChatService {
     private final RedisPublisher redisPublisher;
     private final RedisSubscriber redisSubscriber;
     private final MessageRepository messageRepository;
+    private final OnlineService onlineService;
 
     private Map<String, ChannelTopic> channels;
 
@@ -48,25 +53,29 @@ public class ChatService {
 
     // 해당 채팅방에 접속했을때
     public ChannelTopic enterRoomDetail(Long chatRoomSeq) {
-        ChannelTopic topic = channels.get("/chat/room/detail/" + chatRoomSeq);
+        ChannelTopic topic = channels.get("/sub/chat/room/detail/" + chatRoomSeq);
         // 토픽이 없으면 만든다.
         if (topic == null) {
-            topic = new ChannelTopic("/chat/room/detail/" + chatRoomSeq);
+            topic = new ChannelTopic("/sub/chat/room/detail/" + chatRoomSeq);
             redisMessageListener.addMessageListener(redisSubscriber, topic);
-            channels.put("/chat/room/detail/" + chatRoomSeq, topic);
+            channels.put("/sub/chat/room/detail/" + chatRoomSeq, topic);
         }
+
+
         return topic;
     }
 
-    // 채팅방 아이콘을 클릭했을 때
     public ChannelTopic enterRoom(Long chatRoomSeq) {
-        ChannelTopic topic = channels.get("/chat/room/" + chatRoomSeq);
+        ChannelTopic topic = channels.get("/sub/chat/room/" + chatRoomSeq);
         // 토픽이 없으면 만든다.
         if (topic == null) {
-            topic = new ChannelTopic("/chat/room/" + chatRoomSeq);
+            topic = new ChannelTopic("/sub/chat/room/" + chatRoomSeq);
             redisMessageListener.addMessageListener(redisSubscriber, topic);
-            channels.put("/chat/room/" + chatRoomSeq, topic);
+            channels.put("/sub/chat/room/" + chatRoomSeq, topic);
         }
+
+
+
         return topic;
     }
 
@@ -115,17 +124,30 @@ public class ChatService {
         //  3-1.
         // topic을 만든다. 이미 존재하면 그냥 그 토픽으로 들어감.
         ChannelTopic channel = enterRoomDetail(sendMessageReq.getChatRoomSeq());
-        SendMessageRes sendMessageRes = SendMessageRes.builder()
-                .name(user.getName()).image(user.getImage())
+        SendMessageRes sendMessageRes = SendMessageRes.builder().userSeq(user.getUserSeq())
+                .name(user.getName()).image(user.getImage()).time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
                 .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).type(SendMessageRes.Type.CHAT).build();
         redisPublisher.publish(channel, sendMessageRes);
         // redis에 저장하기
-        messageRepository.save(sendMessageReq.toEntity(user.getImage(), user.getName(), user.getUserSeq()));
+        messageRepository.save(message);
+        // 채팅방 최근 메시지랑 최근 시간 변경하기
+        ChatRoom chatRoom = chatRoomRepository.findByChatRoomSeq(sendMessageReq.getChatRoomSeq()).orElseThrow(()->
+                new CustomException(ErrorCode.DATA_NOT_FOUND));
+        chatRoom.setLastContent(sendMessageReq.getContent());
+        chatRoom.setLastTime(message.getTime());
+        chatRoomRepository.save(chatRoom);
+        // 현재 구독중인 왼쪽 채팅방 리스트에도 뿌려준다.
+        ChannelTopic topic = getTopic(chatRoom.getChatRoomSeq());
+        // pub url을 바꾸기 위해 타입을 바꿔준다.
+        SendMessageRes res = SendMessageRes.builder()
+                .chatRoomSeq(chatRoom.getChatRoomSeq()).type(SendMessageRes.Type.CHATROOM)
+                .content(chatRoom.getLastContent()).time(chatRoom.getLastContent()).build();
+        redisPublisher.publish(topic, res);
         return "OK";
     }
 
     public ChannelTopic getTopic(Long chatRoomSeq) {
-        return channels.get("/chat/room/" + chatRoomSeq);
+        return channels.get("/sub/chat/room/" + chatRoomSeq);
     }
 
     public List<ChatRoomListDTO> getChattingRoom(String token) {
@@ -138,24 +160,30 @@ public class ChatService {
             if (chatRoom.getUser1().getUserSeq() == user.getUserSeq()) {
                 // 상대방 이름, 상대방 이미지, 채팅방 마지막 메시지, 마지막 시간
                 User target = chatRoom.getUser2();
+                ChannelTopic topic = onlineService.getOnlineTopic(target.getUserSeq());
+                boolean flag = topic != null;
                 list.add(ChatRoomListDTO.builder()
+                                .login(flag)
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
-                        .lastTime(chatRoom.getTime()).build());
+                        .lastTime(chatRoom.getLastTime()).build());
             } else if (chatRoom.getUser2().getUserSeq() == user.getUserSeq()) {
                 User target = chatRoom.getUser1();
-                list.add(ChatRoomListDTO.builder()
+                ChannelTopic topic = channels.get("/sub/" + target.getUserSeq());
+                boolean flag = topic != null;
+                list.add(ChatRoomListDTO.builder().login(flag)
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
-                        .lastTime(chatRoom.getTime()).build());
+                        .lastTime(chatRoom.getLastTime()).build());
             }
         }
         // topic 발행
         for (ChatRoomListDTO chatRoomListDTO : list) {
             enterRoom(chatRoomListDTO.getChatRoomSeq());
         }
+
         return list;
     }
 
@@ -203,7 +231,11 @@ public class ChatService {
     }
 
     public List<Message> enterChattingRoom(Long chatRoomSeq) {
-        return messageRepository.findAllByChatRoomSeq(chatRoomSeq).orElseThrow(() ->
+        // 읽지 않은 메시지를 전부 삭제하고 chatRoom에 보낸다.
+        // chatRoomSeq에 저장된 메시지 전부 가져온다.
+        List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByTime(chatRoomSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.WRONG_DATA));
+        enterRoomDetail(chatRoomSeq);
+        return messages;
     }
 }

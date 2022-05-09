@@ -1,19 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import style from '../../styles/Invite.module.scss';
 import Char from '../../../../assets/character.png';
-import ChatApi from "../../../../common/api/ChatAPI"
+import ChatApi from '../../../../common/api/ChatAPI';
 
 function ChatInviteSearhResults({ name, isInvite, userSeq, canInvite }: any) {
+  const { createChatRoom } = ChatApi;
 
-  const { createChatRoom } = ChatApi
-
-  console.log()
+  console.log();
   const onClickCreateChatRoom = useCallback(() => {
-    console.log(userSeq)
-    const body = { targetUserSeq: userSeq }
-    const result = createChatRoom(body)
-  }, [])
-
+    console.log(userSeq);
+    const body = { targetUserSeq: userSeq };
+    const result = createChatRoom(body);
+  }, []);
 
   return (
     <>
