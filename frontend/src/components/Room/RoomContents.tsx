@@ -10,13 +10,12 @@ import Play from '../../assets/play.png';
 import {ReactComponent as Info} from '../../assets/info.svg';
 import {ReactComponent as People} from '../../assets/team.svg';
 import Chat from "./chat/Chat";
-import Catchmind from "./Game/Catchmin";
+import Catchmind from "./Game/Catchmind";
 import Charade from "./Game/Charade";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
 import SelectGame from "./Game/Modal/SelectGame";
 import Wait from "./Game/Modal/Wait";
-import { display } from "@mui/system";
 
 
 const OPENVIDU_SERVER_URL = "https://k6a203.p.ssafy.io:5443";
