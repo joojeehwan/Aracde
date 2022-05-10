@@ -9,6 +9,7 @@ import Pen from '../../../assets/pen.png';
 import Eraser from '../../../assets/eraser.png';
 import Delete from '../../../assets/delete.png';
 import Undo from '../../../assets/undo.png';
+import { toast } from 'react-toastify';
 
 type MyProps = {
     initData : {answer : string, id : string, nextId : string} | undefined,
@@ -86,7 +87,28 @@ function Catchmind({initData, user} : MyProps) {
     }
     const handleOpenModal = (e : React.MouseEvent) => {
         e.preventDefault();
-        setCategory(true);
+        if(imStart){
+            setCategory(true);
+        }
+        else{
+            toast.error(
+                <div style={{
+                    display : "flex",
+                    justifyContent : "center",
+                    flexDirection : "column",
+                    alignItems : "center"
+                }}>
+                <div style={{ width: 'inherit', fontSize: '14px' }}>
+                    게임을 시작한 사람만
+                </div>
+                <div style={{ width: 'inherit', fontSize: '14px' }}>
+                    클릭 가능합니다.
+                </div>
+                </div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+            });
+        }
     }
 
     const handleSaveImg = async (idx : number) => {
@@ -333,27 +355,57 @@ function Catchmind({initData, user} : MyProps) {
     }
     const sendExit = async () => {
         console.log("???여기 임 ???");
-        const data = {
-            gameStatus : 3,
-            gameId : 1,
+        if(imStart){
+            const data = {
+                gameStatus : 3,
+                gameId : 1,
+            }
+            await user.getStreamManager().stream.session.signal({
+                type : "game",
+                data : JSON.stringify(data)
+            })
         }
-        await user.getStreamManager().stream.session.signal({
-            type : "game",
-            data : JSON.stringify(data)
-        })
+        else{
+            toast.error(
+                <div style={{
+                    display : "flex",
+                    justifyContent : "center",
+                    flexDirection : "column",
+                    alignItems : "center"
+                }}>
+                <div style={{ width: 'inherit', fontSize: '14px' }}>
+                    게임을 시작한 사람만
+                </div>
+                <div style={{ width: 'inherit', fontSize: '14px' }}>
+                    클릭 가능합니다.
+                </div>
+                </div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+            });
+        }
+        
     }
     const sendRetry = async (ctgy : string) => {
-        await sendExit();
-        const data = {
-            gameStatus : 1,
-            gameId : 1,
-            category : +ctgy,
-            restart : 1
+        if(imStart){
+            await sendExit();
+            const data = {
+                gameStatus : 1,
+                gameId : 1,
+                category : +ctgy,
+                restart : 1
+            }
+            user.getStreamManager().stream.session.signal({
+                type : "game",
+                data : JSON.stringify(data)
+            })
         }
-        user.getStreamManager().stream.session.signal({
-            type : "game",
-            data : JSON.stringify(data)
-        })
+        else{
+            toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>게임을 시작한 사람만 클릭 가능합니다.</div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+            });
+        }
     }
     useEffect(()=>{
         let countDown : any;
@@ -879,8 +931,8 @@ function Catchmind({initData, user} : MyProps) {
                             display : "flex",
                             justifyContent : "space-evenly"
                         }}>
-                            <button className={style.retryButton} disabled={!imStart} onClick={handleOpenModal}>다시하기</button>
-                            <button className={style.endButton} disabled={!imStart} onClick={sendExit}>그만하기</button>
+                            <button className={style.retryButton} onClick={handleOpenModal}>다시하기</button>
+                            <button className={style.endButton} onClick={sendExit}>그만하기</button>
                         </div>
                     </>)
                     : last === true ? null 

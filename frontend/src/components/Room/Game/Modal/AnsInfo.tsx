@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import style from './AnsInfo.module.scss';
-import Char from '../../../assets/character.png';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+
 
 
 type MyProps = {
