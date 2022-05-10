@@ -60,8 +60,6 @@ public class NotiService {
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
         Notification notification = notiRepository.findByNotiSeq(notiSeq).orElseGet(Notification::new);
-        System.out.println("노티 시퀀스" + notiSeq);
-        System.out.println("진짜 노티 시퀀스"+notification.getNotiSeq());
         if (notification.getNotiSeq() != null)
             notiRepository.delete(notification);
         return "OK";

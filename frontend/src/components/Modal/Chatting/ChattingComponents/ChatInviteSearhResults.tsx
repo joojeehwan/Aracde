@@ -3,14 +3,14 @@ import style from '../../styles/Invite.module.scss';
 import Char from '../../../../assets/character.png';
 import ChatApi from '../../../../common/api/ChatAPI';
 
-function ChatInviteSearhResults({ name, isInvite, userSeq, canInvite }: any) {
+function ChatInviteSearhResults({ name, isInvite, userSeq, canInvite, onClose }: any) {
+
   const { createChatRoom } = ChatApi;
 
-  console.log();
-  const onClickCreateChatRoom = useCallback(() => {
-    console.log(userSeq);
+  const onClickCreateChatRoom = useCallback(async () => {
     const body = { targetUserSeq: userSeq };
-    const result = createChatRoom(body);
+    await createChatRoom(body);
+    onClose()
   }, []);
 
   return (

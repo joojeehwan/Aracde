@@ -27,14 +27,31 @@ public class Message extends BaseTimeEntity {
     private String profile;
     private String name;
     private String time;
+    @Indexed
+    private String realTime;
 
     @Builder
-    public Message(Long chatRoomSeq, Long sender, String content, String profile, String name,String time) {
+    public Message(Long chatRoomSeq, Long sender, String content, String profile, String name,String time,String realTime) {
         this.chatRoomSeq = chatRoomSeq;
         this.sender = sender;
         this.content = content;
         this.profile = profile;
         this.name = name;
         this.time=time;
+        this.realTime = realTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "messageSeq=" + messageSeq +
+                ", chatRoomSeq=" + chatRoomSeq +
+                ", sender=" + sender +
+                ", content='" + content + '\'' +
+                ", profile='" + profile + '\'' +
+                ", name='" + name + '\'' +
+                ", time='" + time + '\'' +
+                ", realTime='" + realTime + '\'' +
+                '}';
     }
 }

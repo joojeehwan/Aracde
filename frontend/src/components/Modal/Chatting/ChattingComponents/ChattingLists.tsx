@@ -43,9 +43,9 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-let subscription: any = 0;
-function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages, image, privateChats, setPrivateChats, scrollbarRef, setIsShow, chat }: any) {
-  const [isOnline, setIsOnline] = useState(true);
+let subscription: any;
+function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages, image, privateChats, setPrivateChats, scrollbarRef, setIsShow, chat, login }: any) {
+  const [isOnline, setIsOnline] = useState(login);
   const { romId, setRoomId, setHistory } = modalStore()
   const [lastMessage, setLastMessage] = useState<string>(content)
   // const [lastTime, setLastTime] = useState<string>(time)
@@ -63,7 +63,6 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
 
   let subList: any[] = [];
   // 리스트 분리하자
-
   const subscribe = () => {
     subList.push(client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
       const data = JSON.parse(body)
@@ -93,22 +92,22 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
 
   const unsubscribe = () => {
     if (subscription !== 0) {
-      subscription.unsubscribe();
+      // subscription.unsubscribe();
+
     }
   };
 
   useEffect(() => {
+    console.log("구독과 동시에 해당 컴포넌트 채팅 리스트 클릭?!")
     subscribe();
-    console.log("이거 되냐?!")
-    window.document.getElementById("trigger")?.click()
+    // window.document.getElementById("trigger")?.click()
     return () => {
       subList.forEach(topic => topic.unsubscribe());
-      // client.current.unsubscribe();
     };
   }, [roomId]);
 
 
-
+  console.log(subscription)
   const newTime = dayjs(time)
 
   return (
@@ -117,7 +116,8 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
       className={styles.onFocus}
       style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
       onClick={() => {
-        console.log("이거 찍힌거지?!")
+
+        console.log("좌측 채팅 리스트 중에 하나 클릭")
         unsubscribe()
         subscribeDef()
         enterChattingRoom()

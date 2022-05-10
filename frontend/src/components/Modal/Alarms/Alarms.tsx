@@ -39,6 +39,7 @@ function Alarms({ open, onClose, client }: any) {
   const { deleteAlarm } = AlarmApi
   const { patchAcceptFriendRequest, deleteFriend } = UserApi
 
+  // 정리
   const onClickDeleteAlarm = async (notiSeq: any, userSeq: any) => {
     console.log("알람 삭제")
     setFlag(true)
@@ -50,9 +51,11 @@ function Alarms({ open, onClose, client }: any) {
     console.log("친구 삭제")
     await deleteFriend(userSeq)
   }
-  const onClickAcceptRequest = (userSeq: any) => async () => {
+
+  const onClickAcceptRequest = async (notiSeq: any, userSeq: any) => {
     console.log("친구 요청 수락")
     setFlag(true)
+    await deleteAlarm(notiSeq)
     await patchAcceptFriendRequest(userSeq)
   }
 
@@ -126,7 +129,7 @@ function Alarms({ open, onClose, client }: any) {
                         alignItems: 'center',
                       }}
                     >
-                      <img style={{ marginRight: '10px' }} src={pos} alt="긍정" onClick={onClickAcceptRequest(value.userSeq)} />
+                      <img style={{ marginRight: '10px' }} src={pos} alt="긍정" onClick={() => { onClickAcceptRequest(value.notiSeq, value.userSeq) }} />
                       <img src={neg} alt="부정" onClick={() => { onClickDeleteAlarm(value.notiSeq, value.userSeq) }} />
                     </div>
                   </div>

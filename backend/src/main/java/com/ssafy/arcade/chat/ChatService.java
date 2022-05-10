@@ -122,7 +122,7 @@ public class ChatService {
         //  3-1.
         // topic을 만든다. 이미 존재하면 그냥 그 토픽으로 들어감.
         ChannelTopic channel = enterRoomDetail(sendMessageReq.getChatRoomSeq());
-        SendMessageRes sendMessageRes = SendMessageRes.builder().userSeq(user.getUserSeq())
+        SendMessageRes sendMessageRes = SendMessageRes.builder().userSeq(user.getUserSeq()).realTime(String.valueOf(LocalDateTime.now()))
                 .name(user.getName()).image(user.getImage()).time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
                 .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).type(SendMessageRes.Type.CHAT).build();
         redisPublisher.publish(channel, sendMessageRes);
@@ -137,7 +137,7 @@ public class ChatService {
         // 현재 구독중인 왼쪽 채팅방 리스트에도 뿌려준다.
         ChannelTopic topic = getTopic(chatRoom.getChatRoomSeq());
         // pub url을 바꾸기 위해 타입을 바꿔준다.
-        SendMessageRes res = SendMessageRes.builder()
+        SendMessageRes res = SendMessageRes.builder().realTime(String.valueOf(LocalDateTime.now()))
                 .chatRoomSeq(chatRoom.getChatRoomSeq()).type(SendMessageRes.Type.CHATROOM)
                 .content(chatRoom.getLastContent()).time(chatRoom.getLastContent()).build();
         redisPublisher.publish(topic, res);
@@ -231,7 +231,7 @@ public class ChatService {
     public List<Message> enterChattingRoom(Long chatRoomSeq) {
         // 읽지 않은 메시지를 전부 삭제하고 chatRoom에 보낸다.
         // chatRoomSeq에 저장된 메시지 전부 가져온다.
-        List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByTime(chatRoomSeq).orElseThrow(() ->
+        List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByRealTime(chatRoomSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.WRONG_DATA));
         enterRoomDetail(chatRoomSeq);
         return messages;

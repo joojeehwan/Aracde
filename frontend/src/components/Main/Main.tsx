@@ -24,7 +24,6 @@ import { getToken } from '../../common/api/jWT-Token';
 import { WindowSharp } from '@mui/icons-material';
 
 function Main() {
-  const audio = new Audio("../../../mp3/alram2.mp3")
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
@@ -35,6 +34,7 @@ function Main() {
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
+  const [isBell, setIsBell] = useState(false)
   //swr & api
   const { fetchWithToken } = ChatAPI;
   const { setOnlie, setOffline } = OnlineApi;
@@ -50,6 +50,7 @@ function Main() {
 
   const handleOpenAlarms = useCallback(async () => {
     // 무조건 무조건이야 알람 흰색 변화
+    setIsBell(false)
     //알람 모달을 킨다.
     setAlarmsIsOpen(true);
     // 모든 알람을 읽었다.
@@ -149,15 +150,18 @@ function Main() {
 
     if (flaginUnreads === true) {
       console.log("빨간불 켜짐")
+      setIsBell(true)
     } else {
       console.log("빨간불 꺼짐")
+      setIsBell(false)
     }
 
   }
 
   const connect = () => {
+
     const token = getToken();
-    audio.play()
+
     setOnlie();
     client.current = new StompJs.Client({
       brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
@@ -201,7 +205,7 @@ function Main() {
       // 여기는 무조건 알림창 빨간색 처리 해야함.
       // 데이터 받는것도 아니고 그냥 빨간색 처리 함! 
       console.log("빨간색")
-      audio.play();
+      setIsBell(true)
 
     });
   };
@@ -228,21 +232,35 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
-              {/* <button onClick={handleOpenTest}>test</button> */}
-              <Bell
-                className={styles.button}
-                onClick={handleOpenAlarms}
-                style={{
-                  width: 28,
-                  height: 28,
-                  float: 'right',
-                  marginTop: '2%',
-                  marginRight: '2%',
-                }}
-                filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-              >
-              </Bell>
-
+              {isBell === false ?
+                (
+                  <Bell
+                    className={styles.button}
+                    onClick={handleOpenAlarms}
+                    style={{
+                      width: 30,
+                      height: 28,
+                      float: 'right',
+                      marginTop: '2%',
+                      marginRight: '2%',
+                      position: "relative",
+                    }}
+                    filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+                  />) :
+                (<Bell
+                  className={styles.button}
+                  onClick={handleOpenAlarms}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    float: 'right',
+                    marginTop: '2%',
+                    marginRight: '2%',
+                    position: "relative",
+                  }}
+                  filter="invert(11%) sepia(100%) saturate(6216%) hue-rotate(280deg) brightness(94%) contrast(116%)"
+                />)
+              }
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}

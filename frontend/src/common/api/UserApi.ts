@@ -86,7 +86,6 @@ const getFriendList = async () => {
     const result = await axios
       .get(`${BASE_URL}/friendList`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {

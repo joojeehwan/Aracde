@@ -56,6 +56,7 @@ function ChatInvite({ open, onClose }: MyProps) {
             return (
               <ChatInviteSearhResults
                 key={value.name}
+                onClose={onClose}
                 name={value.name}
                 isInvite={value.canInvite}
                 image={value.image}

@@ -6,6 +6,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.arcade.chat.dtos.response.ChatRoomListDTO;
+import com.ssafy.arcade.chat.entity.ChatRoom;
+import com.ssafy.arcade.chat.repository.ChatRoomRepository;
 import com.ssafy.arcade.common.RedisPublisher;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
@@ -20,6 +23,8 @@ import com.ssafy.arcade.game.repositroy.PictureRepository;
 import com.ssafy.arcade.game.request.GameReqDto;
 import com.ssafy.arcade.game.request.GameResDto;
 import com.ssafy.arcade.game.response.PictureResDto;
+import com.ssafy.arcade.messege.entity.Message;
+import com.ssafy.arcade.messege.repository.MessageRepository;
 import com.ssafy.arcade.notification.dtos.NotiDTO;
 import com.ssafy.arcade.notification.entity.Notification;
 import com.ssafy.arcade.notification.repository.NotiRepository;
@@ -67,6 +72,8 @@ public class UserService {
     private final NotiRepository notiRepository;
     private final RedisPublisher redisPublisher;
     private final SimpMessageSendingOperations messageTemplate;
+    private final ChatRoomRepository chatRoomRepository;
+    private final MessageRepository messageRepository;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -278,7 +285,7 @@ public class UserService {
         // 알림 생성
         notiRepository.save(Notification.builder()
                 .userSeq(user.getUserSeq()).type("Friend").targetSeq(targetUser.getUserSeq())
-                        .time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
+                .time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
                 .name(user.getName()).isConfirm(false).build());
 
         // 두개 이상일수도 있음; 친구 요청을 두번 이상 보낼수도 있으니까
@@ -302,7 +309,7 @@ public class UserService {
         User reqUser = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        System.out.println("reqUser: " + reqUser +  "targetUser: " + targetUser);
+        System.out.println("reqUser: " + reqUser + "targetUser: " + targetUser);
         if (targetUser == reqUser) {
             throw new CustomException(ErrorCode.CANNOT_FOLLOW_MYSELF);
         }
@@ -341,6 +348,25 @@ public class UserService {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         } else {
             friendRepository.delete(friend);
+            System.out.println("나 : " + reqUser.getUserSeq());
+            System.out.println("쟤 : " + targetUser.getUserSeq());
+            // 친구 삭제시 채팅방, 메시지 모두 삭제
+            List<ChatRoom> list = new ArrayList<>();
+            list.add(chatRoomRepository.findByUser1AndUser2(reqUser, targetUser));
+            list.add(chatRoomRepository.findByUser1AndUser2(targetUser, reqUser));
+            for (ChatRoom chatRoom : list) {
+                System.out.println(chatRoom.getUser1() + " " + chatRoom.getUser2());
+            }
+            System.out.println("채팅방 개수 : " + list.size());
+            for (ChatRoom chatRoom : list) {
+                // 메시지 모두 삭제
+                List<Message> messages = messageRepository.findAllByChatRoomSeq(chatRoom.getChatRoomSeq()).orElse(null);
+                assert messages != null;
+                System.out.println("메시지 개수 : " + messages.size());
+                messageRepository.deleteAll(messages);
+                // 채팅방 삭제
+                chatRoomRepository.delete(chatRoom);
+            }
         }
     }
 
@@ -441,7 +467,7 @@ public class UserService {
         List<PictureResDto> pictureResDtos = new ArrayList<>();
         List<Picture> pictureList = pictureRepository.findAllByUserAndDelYn(user, false).orElse(null);
         // 있을때만 추가
-        if (pictureList != null){
+        if (pictureList != null) {
             for (Picture picture : pictureList) {
                 PictureResDto pictureResDto = new PictureResDto();
                 pictureResDto.setPictureUrl(picture.getPictureUrl());

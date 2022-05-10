@@ -36,6 +36,8 @@ interface IDM {
   time: string;
 }
 
+let nowChatRoomSeq: number;
+
 function Chatting({ open, onClose, client, chattingList }: any) {
   const scrollbarRef = useRef<Scrollbars>(null);
   const [chat, onChangeChat, setChat] = useInput('');
@@ -85,8 +87,6 @@ function Chatting({ open, onClose, client, chattingList }: any) {
     e.stopPropagation();
   };
 
-  const date = '2022-04-30'; // dummy data => section 나누기 필요
-
   const getAndgetChatList = async () => {
     const result = await getChatList();
     console.log(result)
@@ -95,23 +95,30 @@ function Chatting({ open, onClose, client, chattingList }: any) {
     }
   };
 
-  console.log(chattingList)
-  console.log(romId)
+
+
+  //ver1
   function islst(element: any) {
     if (element.chatRoomSeq === romId) {
       return true
     }
   }
-
   let ChatHeader = chattingList.find(islst)
+  //ver2
   const test = chattingList.filter((value: any) => value.chatRoomSeq === romId)
 
   useEffect(() => {
+    nowChatRoomSeq = 0;
     getAndgetChatList();
+
     return () => {
-      console.log("실행되나?!")
       setIsShow(false)
       console.log(chatList)
+      if (ChatHeader !== undefined) {
+
+      }
+      // detail 구독 취소.
+      // 근데 detail이 없을수도 있잖아. 아무 방도 클릭 안했을 경우.
     }
   }, []);
 
@@ -126,19 +133,8 @@ function Chatting({ open, onClose, client, chattingList }: any) {
   //   }
   // }, [test])
 
-  // console.log(test)
-  // console.log(histotyLst)
-
   const histotyLst: IDM[] = histoty?.data
   const chatSections = makeSection(histotyLst ? ([] as IDM[]).concat(...histotyLst) : [])
-  console.log(ChatHeader)
-  console.log(test)
-  // console.log(chatSections)
-
-  // console.log(chattingList.length)
-  // console.log(romId)
-
-
   return (
     <div
       className={open ? `${styles.openModal} ${styles.modal}` : styles.modal}
@@ -167,8 +163,6 @@ function Chatting({ open, onClose, client, chattingList }: any) {
               }}
               className={styles.chatList}
             >
-
-
               <div style={{ height: '600px', width: '400px' }}>
                 {chattingList?.length > 0 ? (
                   chattingList?.map((section: any) => {
@@ -181,6 +175,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                         setPrivateChats={setPrivateChats}
                         privateChats={privateChats}
                         client={client}
+                        login={section.login}
                         key={section.chatRoomSeq}
                         roomId={section.chatRoomSeq}
                         name={section.name}
@@ -221,7 +216,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                           </StickyHeader>
                           {/* 웹소켓 연결부분 */}
                           {ChatHeader !== undefined ? chats?.map((value: any) => {
-                            return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} time={value.time} content={value.content} userSeq={value.sender} image={value.profile} />
+                            return <ChatEach key={Math.random().toString(36).substr(2, 5) + value.time} name={value.name} time={value.time} content={value.content} userSeq={value.sender} image={value.profile} />
                           }) : null}
                         </Section>
                       )
