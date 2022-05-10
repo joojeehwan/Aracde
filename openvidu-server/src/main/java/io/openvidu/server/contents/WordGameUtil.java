@@ -42,8 +42,8 @@ public class WordGameUtil {
     };
     // index - array 매핑
     private Map<Integer, String[]> category = Map.of(
-            0, proverb, 1, movie, 2, game, 3, life, 4, character, 5, music);
 
+            0, proverb, 1, movie, 2, game, 3, life, 4, character, 5, music);
 
     // 카테고리별
     public ArrayList<String> takeWord(int categoryIdx, int count) {
