@@ -12,6 +12,7 @@ import {ReactComponent as People} from '../../assets/team.svg';
 import Chat from "./chat/Chat";
 import Catchmind from "./Game/Catchmin";
 import Charade from "./Game/Charade";
+import Guess from "./Game/Guess";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
 import { display } from "@mui/system";
@@ -165,6 +166,10 @@ const RoomContents = ({
           console.log("?실행", modeRef.current);
           setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
           setMode("game1");
+        }
+
+        if(response.data.gameId === 3 && response.data.gameStatus === 3 && modeRef.current !== 'game3'){
+          console.log("hha");
         }
       })
 
@@ -412,6 +417,7 @@ const RoomContents = ({
     <div style={{
       width : "100vw"
     }}>
+    {/* 캐치마인드 레이아웃 */}
     <div className={
       mode === "home"
       ? styles["contents-container"] 
@@ -476,6 +482,9 @@ const RoomContents = ({
         ) : null}
       {mode === "game2" ? (
             <Charade />
+        ) : null}
+      {mode === "game3" ? (
+            <Guess />
         ) : null}
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
         <div className={
