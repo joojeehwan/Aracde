@@ -1,0 +1,102 @@
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 99;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modalForm {
+  height: 300px;
+}
+.modal button {
+  font-family: 'neodgm';
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  width: 100px;
+  height: 32px;
+  font-size: 14px;
+  margin: auto 10px;
+}
+.modal > section {
+  width: 250px;
+  border-radius: 10px;
+  background-color: #ffff;
+  /* 팝업이 열릴때 스르륵 열리는 효과 */
+  animation: modal-show 0.3s;
+  overflow: hidden;
+}
+.configForm {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 20px auto 20px;
+  position: relative;
+}
+.configForm div{
+  margin-top: 15px;
+}
+.nickname {
+  font-size: 20px;
+  margin-left: 20px;
+  font-family: 'neodgm';
+  border-style: none none solid none;
+}
+.btnbox {
+  text-align: center;
+}
+.confirm {
+  background-color: #9900f0;
+  color: white;
+  &:hover {
+    background-color: rgba($color: #9900f0, $alpha: 0.7);
+  }
+}
+.modal.openModal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 팝업이 열릴때 스르륵 열리는 효과 */
+  animation: modal-bg-show 0.3s;
+}
+.gameListBorder {
+  display: flex;
+  flex-direction: column;
+  height: 50%;
+  // justify-content: center;
+  // align-items: center;
+  width: 60%;
+  margin: 5px auto;
+}
+.game {
+  // margin: 3px 0px 3px 0px;
+  margin: 0px 0px 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  // font-weight: bold;
+}
+@keyframes modal-show {
+  from {
+    opacity: 0;
+    margin-top: -50px;
+  }
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
+}
+@keyframes modal-bg-show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
