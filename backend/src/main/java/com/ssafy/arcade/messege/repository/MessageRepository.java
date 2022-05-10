@@ -7,5 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MessageRepository extends CrudRepository<Message, Long> {
-    Optional<List<Message>> findAllByChatRoomSeq(Long chatRoomSeq);
+//    Optional<List<Message>> findAllByChatRoomSeq(Long chatRoomSeq);
+    Optional<List<Message>> findTop20ByChatRoomSeqOrderByTime(Long chatRoomSeq);
+//    Iterable<List<Message>> findAllByChatRoomSeq(Long chatRoomSeq);
 }

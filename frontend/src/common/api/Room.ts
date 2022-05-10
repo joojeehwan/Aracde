@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { getToken } from './jWT-Token';
 
-const BASE_URL = 'http://k6a203.p.ssafy.io:8080/apiv1/game';
+const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/game';
 
 const createRoom = async () => {
   const response = await axios.post(`${BASE_URL}/room`);
@@ -15,15 +16,23 @@ const enterRoom = async (code: string) => {
 };
 
 const exitRoom = async (code: string) => {
-  const response = await axios.get(`${BASE_URL}/rooms/exit/inviteCode=${code}`);
+  const response = await axios.patch(`${BASE_URL}/game/exit`, { inviteCode: code });
   console.log(response);
   return response;
 };
+
+const getUploadImageResult = async (data : FormData) => {
+  const response = await axios.post(`${BASE_URL}/upload`, data);
+  return response;
+
+}
+
 
 const RoomApi = {
   createRoom,
   enterRoom,
   exitRoom,
+  getUploadImageResult
 };
 
 export default RoomApi;

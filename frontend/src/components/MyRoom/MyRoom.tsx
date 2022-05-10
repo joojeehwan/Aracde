@@ -1,25 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../common/navbar/Navbar';
 import styles from './style/MyRoom.module.scss';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-
+import UserApi from '../../common/api/UserApi';
 const MyRoom = () => {
-  const [activeTab, setActiveTab] = useState(0);
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [count, setCount] = useState(0);
-  const [answer, setAnswer] = useState(0);
+  const { getProfile } = UserApi;
 
-  // const clickHandler = (id: number) => {
-  //   setActiveTab(id);
-  // };
+  const [activeTab, setActiveTab] = useState<any>(0);
+  const [email, setEmail] = useState<any>('');
+  const [name, setName] = useState<any>('');
+  const [image, setImage] = useState<any>('');
+  const [gameResDtos, setGameResDtos] = useState<any>([]); // 참여한 모든 게임 정보
+  const [gameCode, setGameCode] = useState<any>(''); // 참여한 게임 코드
+  const [gameCnt, setGameCnt] = useState<any>(0); // 게임 참여 횟수
+  const [vicCnt, setVicCnt] = useState<any>(0); // 맞춘 정답 개수
+
+  const clickHandler = (id: number) => {
+    setActiveTab(id);
+  };
+
+  const getProfileInfo = async () => {
+    const response = await getProfile();
+    if (response.status === 200) {
+      setEmail(response.data.email);
+      setName(response.data.name);
+      setImage(response.data.image);
+      setGameResDtos(response.data.gameResDtos);
+      setGameCnt(response.data.totalGameCnt);
+      setVicCnt(response.data.totalVicCnt);
+    }
+  };
+
+  useEffect(() => {
+    getProfileInfo();
+  }, []);
 
   return (
     <div className={styles.body}>
       <Navbar />
-      {/* <div className={styles.wrapper}>
+      <div className={styles.wrapper}>
         <div className={styles.tab}>
           <Button
             variant="contained"
@@ -48,29 +69,31 @@ const MyRoom = () => {
         </div>
         <div className={styles.content}>
           <div className={styles.profileImg}>
-            <Avatar src="" alt="profile img" sx={{ width: 150, height: 150 }} />
+            <Avatar src={image} alt="profile img" sx={{ width: 150, height: 150 }} />
           </div>
           <div className={styles.profile}>
             <table className={styles.table}>
-              <tr>
-                <th>이메일</th>
-                <td>{email}</td>
-              </tr>
-              <tr>
-                <th>이 름</th>
-                <td>{name}</td>
-              </tr>
+              <tbody>
+                <tr>
+                  <th>이메일</th>
+                  <td>{email}</td>
+                </tr>
+                <tr>
+                  <th>이 름</th>
+                  <td>{name}</td>
+                </tr>
+              </tbody>
             </table>
           </div>
 
           <div className={styles.profileGameInfo}>
             <div className={styles.count}>
               <h1>게임 참여 횟수</h1>
-              <h1>{count} 번</h1>
+              <h1>{gameCnt} 번</h1>
             </div>
             <div className={styles.answer}>
               <h1>정답 맞춘 개수</h1>
-              <h1>{answer} 개</h1>
+              <h1>{vicCnt} 개</h1>
             </div>
 
             <div className={styles.mvp}>
@@ -78,7 +101,7 @@ const MyRoom = () => {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };

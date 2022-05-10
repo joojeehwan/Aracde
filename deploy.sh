@@ -49,14 +49,13 @@ echo "+++++++++++++++++++++++++++++++++++"
 # 3. 기존에 있던 폴더를 지운다.
 echo "++++++++++기존의 opt/openvidu 에 있는 프론트 빌드 파일 제거"
 
-sudo rm -f /opt/openvidu/front_build/index.html
-sudo rm -rf /opt/openvidu/front_build/assets
+
+sudo rm -rf /opt/openvidu/front_build/build
 echo "+++++++++++++++++++++++++++++++++++"
 # 4. 빌드한 결과물을 복사한다.
 echo "+++++++++++++++++++++++++++++++++++"
 echo "++++++++++프론트 빌드한 결과물 복사"
-sudo cp dist/index.html /opt/openvidu/front_build
-sudo cp -r dist/assets /opt/openvidu/front_build
+sudo cp -r build /opt/openvidu/front_build
 echo "+++++++++++++++++++++++++++++++++++"
 
 # --- openvidu ----

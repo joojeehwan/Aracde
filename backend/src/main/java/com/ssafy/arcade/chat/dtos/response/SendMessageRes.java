@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -20,13 +21,9 @@ public class SendMessageRes {
     private String image;
     private Long chatRoomSeq;
     private Type type;
+    private String time;
+    private Long userSeq;
     public enum Type{
-        CHAT, NOTI
-    }
-
-    public Message toEntity(Long chatRoomSeq, String image, String name, Long sender){
-        return Message.builder().chatRoomSeq(chatRoomSeq).content(content)
-                .profile(image).name(name)
-                .sender(sender).build();
+        CHAT, NOTI, CHATROOM
     }
 }

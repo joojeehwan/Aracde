@@ -1,9 +1,6 @@
 package io.openvidu.server.contents;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class WordGameUtil {
@@ -34,37 +31,41 @@ public class WordGameUtil {
             "아이유", "소녀시대", "유노윤호", "SG워너비", "홍진호", "페이커", "메시", "윤도현", "임요환", "기안84", "박나래",
             "유세윤", "조로", "베지터", "헤르미온느", "김연경"
     };
-
-    private Map<String, String[]> category = Map.of(
-            "속담", proverb, "영화", movie, "게임", game, "생물", life, "인물", character);
-
-
-    private enum Keyword {
-        porverb,
-        movie,
-        game,
-        life,
-        character;
-    }
+    // index - array 매핑
+    private Map<Integer, String[]> category = Map.of(
+            0, proverb, 1, movie, 2, game, 3, life, 4, character);
 
 
-    // 키워드별 (카테고리별로 퀴즈)
-    public List<String> takeWord(String keyword) {
+    // 카테고리별
+    public ArrayList<String> takeWord(int categoryIdx, int count) {
+        // 카테고리에 맞는 단어 목록 가져오고 랜덤으로 섞음
+        List<String> categoryWords = Arrays.asList(category.get(categoryIdx));
+        Collections.shuffle(categoryWords);
 
-        String[] categ = category.get(keyword);
-
-        return Arrays.asList(categ);
-
-    }
-
-    // 모든 단어 (그냥 랜덤)
-    public List<String> takeAllWord() {
-        List<String> allWord = new ArrayList<>();
-
-        for (Keyword keyword : Keyword.values()) {
-           List<String> categWords = takeWord(keyword.toString());
-           allWord.addAll(categWords);
+        // 반환해줄 단어 목록
+        ArrayList<String> pickedWords = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            pickedWords.add(categoryWords.get(i));
         }
-        return allWord;
+        return pickedWords;
+    }
+
+    // 모든 단어
+    public ArrayList<String> takeAllWord(int count) {
+
+        List<String> allWords = new ArrayList<>();
+        // 5개 카테고리의 모든 단어를 가져온다.
+        for (int i = 0; i < 5; i++) {
+            allWords.addAll(Arrays.asList(category.get(i)));
+        }
+        // 섞는다.
+        Collections.shuffle(allWords);
+
+        // 반환해줄 단어 목록
+        ArrayList<String> pickedWords = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            pickedWords.add(allWords.get(i));
+        }
+        return pickedWords;
     }
 }
