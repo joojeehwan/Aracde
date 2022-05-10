@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import style from '../../styles/Invite.module.scss';
-import Char from '../../../../assets/character.png';
-import ChatApi from '../../../../common/api/ChatAPI';
+import style from '../../../styles/Invite.module.scss';
+import Char from '../../../../../assets/character.png';
+import ChatApi from '../../../../../common/api/ChatAPI';
 
-function ChatInviteSearhResults({ name, isInvite, userSeq, canInvite, onClose }: any) {
+function ChatInviteSearhResults({ name, isInvite, userSeq, onClose }: any) {
 
-  const { createChatRoom } = ChatApi;
+  const { createChatRoom, getChatList } = ChatApi;
 
   const onClickCreateChatRoom = useCallback(async () => {
     const body = { targetUserSeq: userSeq };
-    await createChatRoom(body);
+    await createChatRoom(body).then(() => {
+      getChatList()
+    });
     onClose()
   }, []);
 
@@ -21,8 +23,8 @@ function ChatInviteSearhResults({ name, isInvite, userSeq, canInvite, onClose }:
         </div>
         <div style={{ marginTop: '5px', paddingLeft: '50px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
         <div style={{ paddingLeft: '18px' }}>
-          {canInvite ? (
-            <button className={style.buttonClicked}>!?</button>
+          {isInvite === false ? (
+            <button className={style.buttonClicked}>대화중</button>
           ) : (
             <button onClick={onClickCreateChatRoom} className={style.button}>
               대화하기

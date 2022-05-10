@@ -121,11 +121,10 @@ public class ChatService {
         // 3. 다른 사람이 채팅방에 존재하지 않는 경우
         //  3-1.
         // topic을 만든다. 이미 존재하면 그냥 그 토픽으로 들어감.
-        ChannelTopic channel = enterRoomDetail(sendMessageReq.getChatRoomSeq());
         SendMessageRes sendMessageRes = SendMessageRes.builder().userSeq(user.getUserSeq()).realTime(String.valueOf(LocalDateTime.now()))
                 .name(user.getName()).image(user.getImage()).time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
                 .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).type(SendMessageRes.Type.CHAT).build();
-        redisPublisher.publish(channel, sendMessageRes);
+        redisPublisher.publish(getTopicDetail(sendMessageReq.getChatRoomSeq()), sendMessageRes);
         // redis에 저장하기
         messageRepository.save(message);
         // 채팅방 최근 메시지랑 최근 시간 변경하기
@@ -146,6 +145,9 @@ public class ChatService {
 
     public ChannelTopic getTopic(Long chatRoomSeq) {
         return channels.get("/sub/chat/room/" + chatRoomSeq);
+    }
+    public ChannelTopic getTopicDetail(Long chatRoomSeq) {
+        return channels.get("/sub/chat/room/detail/" + chatRoomSeq);
     }
 
     public List<ChatRoomListDTO> getChattingRoom(String token) {

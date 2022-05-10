@@ -348,25 +348,16 @@ public class UserService {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         } else {
             friendRepository.delete(friend);
-            System.out.println("나 : " + reqUser.getUserSeq());
-            System.out.println("쟤 : " + targetUser.getUserSeq());
             // 친구 삭제시 채팅방, 메시지 모두 삭제
-            List<ChatRoom> list = new ArrayList<>();
-            list.add(chatRoomRepository.findByUser1AndUser2(reqUser, targetUser));
-            list.add(chatRoomRepository.findByUser1AndUser2(targetUser, reqUser));
-            for (ChatRoom chatRoom : list) {
-                System.out.println(chatRoom.getUser1() + " " + chatRoom.getUser2());
-            }
-            System.out.println("채팅방 개수 : " + list.size());
-            for (ChatRoom chatRoom : list) {
-                // 메시지 모두 삭제
-                List<Message> messages = messageRepository.findAllByChatRoomSeq(chatRoom.getChatRoomSeq()).orElse(null);
-                assert messages != null;
-                System.out.println("메시지 개수 : " + messages.size());
-                messageRepository.deleteAll(messages);
-                // 채팅방 삭제
-                chatRoomRepository.delete(chatRoom);
-            }
+            ChatRoom chatRoom;
+            chatRoom = chatRoomRepository.findByUser1AndUser2(reqUser, targetUser);
+            if(chatRoom == null) chatRoom = chatRoomRepository.findByUser1AndUser2(targetUser, reqUser);
+            // 메시지 모두 삭제
+            List<Message> messages = messageRepository.findAllByChatRoomSeq(chatRoom.getChatRoomSeq()).orElse(null);
+            assert messages != null;
+            messageRepository.deleteAll(messages);
+            // 채팅방 삭제
+            chatRoomRepository.delete(chatRoom);
         }
     }
 

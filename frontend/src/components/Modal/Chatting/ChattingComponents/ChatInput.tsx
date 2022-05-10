@@ -10,6 +10,7 @@ interface Props {
 }
 
 function ChatInput({ publish, onChangeChat, chat }: Props) {
+
   return (
     <div className={styles.sendMessage}>
       <form className={styles.form} onSubmit={publish} >
@@ -22,4 +23,4 @@ function ChatInput({ publish, onChangeChat, chat }: Props) {
   );
 }
 
-export default React.memo(ChatInput);
+export default ChatInput;

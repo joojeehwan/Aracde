@@ -22,6 +22,7 @@ import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
 import { getToken } from '../../common/api/jWT-Token';
 import { WindowSharp } from '@mui/icons-material';
+import alarmSound from '../../mp3/alram.mp3';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -32,7 +33,6 @@ function Main() {
   //지환 코드
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
-  const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
   const [isBell, setIsBell] = useState(false)
   //swr & api
@@ -42,24 +42,16 @@ function Main() {
   const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
     fetchWithToken(url, getToken() as unknown as string),
   );
-  // const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
-  //   fetchWithToken(url, getToken() as unknown as string),
-  // );
+
 
   const client = useRef<any>({});
-
   const handleOpenAlarms = useCallback(async () => {
     // 무조건 무조건이야 알람 흰색 변화
     setIsBell(false)
-    //알람 모달을 킨다.
     setAlarmsIsOpen(true);
     // 모든 알람을 읽었다.
     postReadAlarm();
-
-    // 알람 이모티콘 누름과 동시에 알람 리스트 가져옴(이전에 알람 기록들)
-
   }, [alarmsIsOpen]);
-
 
   const handleCloseAlarms = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -76,21 +68,13 @@ function Main() {
     setFriendsIsOpen(false);
   }, [friendsIsOpen]);
 
-  const handleOpenTest = useCallback(() => {
-    setTest(true);
-  }, [test]);
-
-  const handleCloseTest = useCallback(() => {
-    setTest(false);
-  }, [test]);
-
   const handleOpenChatting = useCallback(() => {
     setChattingIsOpen(true);
-  }, [test]);
+  }, [chattingIsOpen]);
 
   const handleCloseChatting = useCallback(() => {
     setChattingIsOpen(false);
-  }, [test]);
+  }, [chattingIsOpen]);
 
   const handleOpenCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -104,7 +88,6 @@ function Main() {
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
     navigate('/entrance');
-    console.log('눌렸음');
   };
 
   const handleClickLogout = (e: React.MouseEvent) => {
@@ -115,7 +98,6 @@ function Main() {
   };
   // 임시 메서드
   const handleClickLogin = (e: React.MouseEvent) => {
-    console.log('here');
     // navigate login page here
     navigate(`/login`);
     setIsLogin(true);
@@ -123,9 +105,9 @@ function Main() {
 
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
-    console.log('hererererererere');
   };
 
+  //바로 위로 스므스하게 올라감
   const handleClickTop = (e: React.MouseEvent) => {
     if (divRef.current !== null) {
       window.scrollBy({ top: divRef.current.getBoundingClientRect().top, behavior: 'smooth' });
@@ -143,16 +125,15 @@ function Main() {
 
   //정리
   const getAndgetAlarmList = async () => {
+    // 단순히 내가 확인하지 않은 알림이 있는지 없는지만 검사.
     const result = await getAlarmList()
-    console.log(result.data)
     const checkAlarm: any[] = result.data
+    // 객체 오브젝트안에 내가 찾고자 하는 값을 구별해내는 js 
     let flaginUnreads: boolean = checkAlarm.some(it => it.confirm === false)
 
     if (flaginUnreads === true) {
-      console.log("빨간불 켜짐")
       setIsBell(true)
     } else {
-      console.log("빨간불 꺼짐")
       setIsBell(false)
     }
 
@@ -161,12 +142,11 @@ function Main() {
   const connect = () => {
 
     const token = getToken();
-
     setOnlie();
     client.current = new StompJs.Client({
       brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
-        console.log(str);
+        console.log(str)
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
@@ -177,16 +157,12 @@ function Main() {
       onStompError: (frame) => {
         console.error(frame);
       },
-      // onDisconnect: () => {
-      //   console.log("나간다")
-      //   client.current.deactivate();
-      // }
+
     });
     client.current.activate();
   };
   const disconnect = async () => {
-    // 여기다가
-    console.log("이거 맞아?!")
+
     await setOffline();
     client.current.deactivate();
   };
@@ -202,22 +178,22 @@ function Main() {
 
   const subscribe = () => {
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
-      // 여기는 무조건 알림창 빨간색 처리 해야함.
-      // 데이터 받는것도 아니고 그냥 빨간색 처리 함! 
-      console.log("빨간색")
+      // 데이터 받자마자 빨간색 처리
       setIsBell(true)
-
+      bellSound()
     });
   };
+  const bellSound = () => {
+    let audio = new Audio(alarmSound)
+
+    audio.play()
+  }
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       connect();
       setIsLogin(true);
       getAndgetAlarmList()
-
-      // 렌더링 됐을때 맨 처음 실행. 
-      // 단순히 내가 확인하지 않은 알림이 있는지 없는지만 검사.
     }
     return () => {
       disconnect();
@@ -339,7 +315,6 @@ function Main() {
           <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} />
         ) : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
-        {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         {chattingIsOpen ? (
           <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} chattingList={chattingList} />
         ) : null}

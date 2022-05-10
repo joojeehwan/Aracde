@@ -45,7 +45,6 @@ function Friends({ open, onClose }: MyProps) {
 
   const getAndgetFriendList = async () => {
     const result = await getFriendList()
-    console.log(result)
     if (result?.status === 200) {
       setFriend([...result.data])
     }
@@ -58,10 +57,8 @@ function Friends({ open, onClose }: MyProps) {
     getAndgetFriendList()
   }, [tab, isDelete])
 
-  console.log(friend)
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5) {
-      console.log(value);
       return (
         <div className={styles.friendList}>
           {value === 0 ? (

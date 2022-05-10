@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from '../../styles/Chatting.module.scss';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
@@ -35,6 +35,7 @@ const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
     },
   },
 }));
+
 const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
     backgroundColor: '#f8f8f8',
@@ -43,72 +44,91 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-let subscription: any;
-function ChattingLists({ name, content, time, chatChange, roomId, client, setChatMessages, image, privateChats, setPrivateChats, scrollbarRef, setIsShow, chat, login }: any) {
+function ChattingLists({ name, content, time, roomId, client, image, privateChats, setPrivateChats, scrollbarRef, setIsShow, login, handleSubscribe, unsub }: any) {
+  const [subList, setSubList] = useState<any>([]);
+  const subListRef = useRef(subList);
+  subListRef.current = subList;
+  const [newTime, setNewTime] = useState(dayjs(time))
   const [isOnline, setIsOnline] = useState(login);
   const { romId, setRoomId, setHistory } = modalStore()
   const [lastMessage, setLastMessage] = useState<string>(content)
-  // const [lastTime, setLastTime] = useState<string>(time)
   const { enterChatRoom } = ChatApi
 
   const enterChattingRoom = async () => {
+    console.log("채팅방 들어가기 실행")
     const result = await enterChatRoom(roomId)
-    scrollbarRef.current.scrollToBottom()
+    console.log(scrollbarRef.current)
+    if (scrollbarRef.current) {
+      scrollbarRef.current.scrollToBottom()
+    }
     setHistory(result)
   }
 
   const onClickSetShow = () => {
+    if (scrollbarRef.current) {
+      scrollbarRef.current.scrollToBottom()
+    }
     setIsShow(true)
   }
 
-  let subList: any[] = [];
-  // 리스트 분리하자
   const subscribe = () => {
-    subList.push(client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
+    const list = []
+    list.push(client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
       const data = JSON.parse(body)
       setLastMessage(data.content)
-      // setLastTime(data.time);
-      scrollbarRef.current.scrollToBottom()
+      setNewTime(data.realTime)
+      console.log(data)
+      if (scrollbarRef.current) {
+        scrollbarRef.current.scrollToBottom()
+      }
     }));
+    // 정리 // 불변성유지, subList안의 배열 유지하면서, 새롭게 list를 추가
+    setSubList([...subListRef.current, list])
   };
 
-  const subscribeDef = () => {
-    subscription = client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
+  const subscribeDef = async () => {
+    //정리
+    // 내가 했던 고민,,?! 다른 걸 클릭하면 그 이전에 가리키고 있는건 사라질텐데
+    // 이전에 담긴것을 어떻게 지우나?!
+    // subscrption은 하나의 값만 담기게 된다. so subscribeDef를 누름가 동시에 index(부모)에 
+    // 있는 subscrption은의 값을 지우는 메서드를 실행
+    // unsub하고 다시 클릭하면 새로운걸 구독하게 되니깐,,,! 클릭한번으로 구취 구독을 같이 할 수 있게 된다.
+    // 클릭(구취 => 구독 => 구독의 정보 저장)
+    unsub()
+    let res
+    console.log("여기 실행되냐?!")
+    res = await client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
       const payloadData = JSON.parse(body)
+      console.log(payloadData)
       if (privateChats.get(payloadData.chatRoomSeq)) {
         privateChats.get(payloadData.chatRoomSeq).push(payloadData)
         setPrivateChats(new Map(privateChats))
-        scrollbarRef.current.scrollToBottom()
+        if (scrollbarRef.current) {
+          scrollbarRef.current.scrollToBottom()
+        }
       } else {
         let lst = []
         lst.push(payloadData)
         privateChats.set(payloadData.chatRoomSeq, lst)
         setPrivateChats(new Map(privateChats))
-        scrollbarRef.current.scrollToBottom()
+        if (scrollbarRef.current) {
+          scrollbarRef.current.scrollToBottom()
+        }
       }
     });
-
-  };
-
-  const unsubscribe = () => {
-    if (subscription !== 0) {
-      // subscription.unsubscribe();
-
-    }
+    handleSubscribe(res)
+    console.log("detail 클릭 후 : ", client.current)
   };
 
   useEffect(() => {
-    console.log("구독과 동시에 해당 컴포넌트 채팅 리스트 클릭?!")
     subscribe();
-    // window.document.getElementById("trigger")?.click()
+    console.log(client.current)
     return () => {
-      subList.forEach(topic => topic.unsubscribe());
+      subListRef.current.forEach((topic: any, i: number) => {
+        topic[i].unsubscribe();
+      })
     };
   }, [roomId]);
-
-
-  console.log(subscription)
-  const newTime = dayjs(time)
 
   return (
     <div
@@ -116,13 +136,9 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
       className={styles.onFocus}
       style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
       onClick={() => {
-
-        console.log("좌측 채팅 리스트 중에 하나 클릭")
-        unsubscribe()
         subscribeDef()
         enterChattingRoom()
         setRoomId(roomId)
-        scrollbarRef.current.scrollToBottom()
         onClickSetShow()
       }}
     >
@@ -145,9 +161,9 @@ function ChattingLists({ name, content, time, chatChange, roomId, client, setCha
           </StyledBadgeOffline>
         )}
       </div>
-      <div>
+      <div style={{ maxWidth: "90px" }}>
         <div style={{ marginTop: '10px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
-        <div style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', maxWidth: '170px' }}>{lastMessage}</div>
+        <span className={styles.lastMessage} style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px', }}>{lastMessage}</span>
       </div>
       <div>
         <div style={{ position: 'absolute', marginLeft: '-1px' }}>

@@ -15,7 +15,7 @@ import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
 import ChattingLists from './ChattingComponents/ChattingLists';
 import useInput from '../../../common/hooks/useInput';
-import ChatInvite from '../Chatting/ChattingComponents/ChatInvite';
+import ChatInvite from '../Chatting/ChattingComponents/ChatSearch/ChatInvite';
 import { getToken } from '../../../common/api/jWT-Token';
 import makeSection from "./utils/makeSection"
 
@@ -35,8 +35,11 @@ interface IDM {
   content: string;
   time: string;
 }
-
-let nowChatRoomSeq: number;
+//정리// 콘솔 찍어보고 맞는 함수 타입 설정,,! 
+interface subObject {
+  id: string;
+  unsubscribe: () => void;
+}
 
 function Chatting({ open, onClose, client, chattingList }: any) {
   const scrollbarRef = useRef<Scrollbars>(null);
@@ -45,8 +48,22 @@ function Chatting({ open, onClose, client, chattingList }: any) {
   const [privateChats, setPrivateChats] = useState<any>(new Map())
   const [chatInvite, setChatInvite] = useState<boolean>(false);
   const [isShow, setIsShow] = useState<boolean>(false)
+  const [subscribeDetail, setSubscribeDetail] = useState<subObject>()
+
+  // 정리 useRef 객체를 이용하는 결정적인 이유,,?! 외부라이브러리의 객체를 사용 => ref를 통해 관리하는게 좋음
+  // 컴포넌트의 전 생명주기를 통해 유지되는 값이라는 의미이며, 
+  // 순수한 자바스크립트 객체를 생성 및 유지시켜주기 때문에 
+  // 동시성을 유지하기 위함!
+
+  const subscribeRef = useRef(subscribeDetail)
+  subscribeRef.current = subscribeDetail
+
+  //정리 set함수를 props보낼때 함수에 싸서 보내는구먼,,! 
+  const handleSubscribeDetail = (data: any) => {
+    setSubscribeDetail(data)
+  }
   //api
-  const { getChatList, createChatRoom } = ChatAPI;
+  const { getChatList } = ChatAPI;
 
   const handleOpenChatInvite = useCallback(() => {
     setChatInvite(true);
@@ -65,6 +82,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
       return;
     }
     evt.preventDefault()
+    console.log(chat)
     const SendMessageReq = {
       chatRoomSeq: romId,
       content: chat,
@@ -78,7 +96,6 @@ function Chatting({ open, onClose, client, chattingList }: any) {
 
     setChat(" ")
     if (scrollbarRef.current) {
-      console.log("scroolToBottom!", scrollbarRef.current?.getValues())
       scrollbarRef.current.scrollToBottom()
     }
   };
@@ -89,13 +106,16 @@ function Chatting({ open, onClose, client, chattingList }: any) {
 
   const getAndgetChatList = async () => {
     const result = await getChatList();
-    console.log(result)
     if (result?.status === 200) {
       setChatList([...result.data]);
     }
   };
 
-
+  const unsub = () => {
+    if (!subscribeRef.current) return
+    const value = subscribeRef.current
+    value.unsubscribe()
+  }
 
   //ver1
   function islst(element: any) {
@@ -108,33 +128,26 @@ function Chatting({ open, onClose, client, chattingList }: any) {
   const test = chattingList.filter((value: any) => value.chatRoomSeq === romId)
 
   useEffect(() => {
-    nowChatRoomSeq = 0;
     getAndgetChatList();
-
     return () => {
+      // 채팅창 닫아도 sub/detail 모두 구취 해야 함
+      unsub()
       setIsShow(false)
-      console.log(chatList)
-      if (ChatHeader !== undefined) {
-
-      }
-      // detail 구독 취소.
-      // 근데 detail이 없을수도 있잖아. 아무 방도 클릭 안했을 경우.
+      console.log(subscribeRef.current)
     }
   }, []);
 
-  // console.log(histoty?.data)
-  // const test = privateChats.get(romId)
-  // console.log(test)
-  // console.log(histotyLst)
-  // let sumChat
-  // useEffect(() => {
-  //   if (histotyLst !== undefined && test !== undefined) {
-  //     sumChat = (histotyLst ? (histotyLst).concat(...test) : test)
-  //   }
-  // }, [test])
+  useEffect(() => {
+    // setPrivateChats(new Map())
+    console.log(privateChats)
+    setTimeout(() => {
+      scrollbarRef.current?.scrollToBottom()
+    }, 1)
+  }, [subscribeRef.current])
 
   const histotyLst: IDM[] = histoty?.data
   const chatSections = makeSection(histotyLst ? ([] as IDM[]).concat(...histotyLst) : [])
+  console.log(privateChats)
   return (
     <div
       className={open ? `${styles.openModal} ${styles.modal}` : styles.modal}
@@ -169,8 +182,8 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                     return (
                       <ChattingLists
                         chattingList={chattingList}
-                        chat={chat}
                         setIsShow={setIsShow}
+                        chat={chat}
                         scrollbarRef={scrollbarRef}
                         setPrivateChats={setPrivateChats}
                         privateChats={privateChats}
@@ -182,8 +195,11 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                         image={section.image}
                         content={section.lastMessage}
                         time={section.lastTime}
+                        handleSubscribe={handleSubscribeDetail}
+                        unsub={unsub}
                       />
                     );
+
                   })
                 ) : (
                   <div style={{ width: '250px', textAlign: 'end' }}>채팅이 없습니다.</div>
@@ -200,7 +216,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                 onClick={handleOpenChatInvite}
               />
             </div>
-            {chattingList?.length > 0 ? (
+            {isShow ? (
               <div className={styles.chatContent}>
                 <header className={styles.chatHeader}>
                   <Avatar alt="사진" src={ChatHeader?.image} sx={{ width: 56, height: 56 }} />
@@ -210,11 +226,10 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                   <Scrollbars autoHide ref={scrollbarRef}>
                     {Object.entries(chatSections).map(([date, chats]) => {
                       return (
-                        <Section>
+                        <Section key={date}>
                           <StickyHeader>
-                            <button style={{ zIndex: "100" }}>{date}</button>
+                            <button>{date}</button>
                           </StickyHeader>
-                          {/* 웹소켓 연결부분 */}
                           {ChatHeader !== undefined ? chats?.map((value: any) => {
                             return <ChatEach key={Math.random().toString(36).substr(2, 5) + value.time} name={value.name} time={value.time} content={value.content} userSeq={value.sender} image={value.profile} />
                           }) : null}
@@ -222,7 +237,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                       )
                     })}
                     {privateChats.get(romId)?.map((value: any) => {
-                      return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} time={value.time} content={value.content} userSeq={value.userSeq} image={value.image} />
+                      return <ChatEach key={Math.random().toString(36).substr(2, 5) + value.content} name={value.name} time={value.time} content={value.content} userSeq={value.userSeq} image={value.image} />
                     })}
                   </Scrollbars>
                 </div>

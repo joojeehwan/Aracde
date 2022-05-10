@@ -26,7 +26,6 @@ function Alarms({ open, onClose, client }: any) {
     if (result.status === 200) {
       setAlarmsList([...result.data])
     }
-    console.log(result)
     if (flag === true) {
       setFlag(false)
     }
@@ -41,25 +40,21 @@ function Alarms({ open, onClose, client }: any) {
 
   // 정리
   const onClickDeleteAlarm = async (notiSeq: any, userSeq: any) => {
-    console.log("알람 삭제")
     setFlag(true)
     await deleteAlarm(notiSeq)
     await deleteFriend(userSeq)
   }
 
   const onClickDelteFriend = (userSeq: any) => async () => {
-    console.log("친구 삭제")
     await deleteFriend(userSeq)
   }
 
   const onClickAcceptRequest = async (notiSeq: any, userSeq: any) => {
-    console.log("친구 요청 수락")
     setFlag(true)
     await deleteAlarm(notiSeq)
     await patchAcceptFriendRequest(userSeq)
   }
 
-  console.log(alramsList)
 
   return (
     <div

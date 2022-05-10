@@ -11,7 +11,6 @@ const setOnlie = async () => {
     const result = await axios
       .post(`${BASE_URL}/enter`, {}, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
       })
       .catch((err) => {
         console.dir(err);
@@ -27,11 +26,9 @@ const setOnlie = async () => {
 const setOffline = async () => {
   const token = getToken();
   if (token !== null) {
-    console.log("setOffline");
     const result = await axios
       .post(`${BASE_URL}/out`, {}, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
       })
       .catch((err) => {
         console.dir(err);

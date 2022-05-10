@@ -9,7 +9,6 @@ const getAlarmList = async () => {
     const result = await axios
       .get(`${BASE_URL}`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {
@@ -31,7 +30,6 @@ const postReadAlarm = async () => {
     const result = await axios
       .post(`${BASE_URL}`, {}, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
       })
       .catch((err) => {
         console.dir(err);
@@ -47,11 +45,9 @@ const postReadAlarm = async () => {
 const deleteAlarm = async (notiSeq: number) => {
   const token = getToken();
   if (token !== null) {
-    console.log("실행되는거니?! 삭제야?!")
     const result = await axios.delete(`${BASE_URL}?notiSeq=${notiSeq}`, {
       headers: { Authorization: token },
     });
-    console.log(result);
     return result;
   }
   return null;

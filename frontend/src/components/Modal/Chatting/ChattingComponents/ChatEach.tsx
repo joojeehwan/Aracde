@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import style from '../../../Modal/styles/Chatting.module.scss';
 import dayjs from 'dayjs';
 import { ChatWrapper } from '../../styles/ChattingStyles';
@@ -7,9 +7,9 @@ import SockJS from 'sockjs-client/dist/sockjs'
 
 function ChatEach({ name, content, time, image, userSeq }: any) {
 
-  const chatSeq = userSeq;
-  const loginUserSeq = Number(window.localStorage.getItem("userSeq"));
-  const newTime = dayjs(time)
+  const [chatSeq, setChatSeq] = useState<number>(userSeq)
+  const [loginUserSeq, setLoginUserSeq] = useState(Number(window.localStorage.getItem("userSeq")))
+  const [newTime, setNewTime] = useState(dayjs(time))
 
   return (
     <ChatWrapper style={{ zIndex: "-100" }} className={`${chatSeq === loginUserSeq && style.self}`}>

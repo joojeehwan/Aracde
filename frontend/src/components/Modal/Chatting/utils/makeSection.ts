@@ -14,7 +14,7 @@ interface IDM {
   time: string;
 }
 
-// 날짜 별로 분기해서 채팅창에 선 긋기
+// 날짜 별로 분기해서 section 나눠주기
 export default function makeSection<T extends IDM>(chatList: T[]) {
   const sections: { [key: string]: T[] } = {};
   chatList.forEach((chat) => {
