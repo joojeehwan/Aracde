@@ -199,6 +199,7 @@ function Catchmind({initData, user} : MyProps) {
         }
         else{
             clearInterval(countDown);
+            
         }
     }, [last])
 

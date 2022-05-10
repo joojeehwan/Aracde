@@ -28,6 +28,8 @@ public class UserController {
     private final NaverLoginService naverLoginService;
     private final GoogleLoginService googleLoginService;
     private final GameService gameService;
+    private final OnlineService onlineService;
+
 
     // 카카오 로그인
     // 인가코드를 받아온 후 부터 진행
@@ -94,6 +96,8 @@ public class UserController {
         map.put("email", user.getEmail());
         map.put("image", user.getImage());
         map.put("userSeq", user.getUserSeq());
+        // 5. 로그인 토픽에 추가
+        onlineService.logined(user.getUserSeq());
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 

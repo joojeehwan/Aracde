@@ -26,6 +26,8 @@ dependencies {
 	implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 	// xml 변환
 	implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-xml', version: '2.13.2'
+	// 위 버전 jackson을 호환
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.2'
 
 	// file upload
 	implementation 'commons-io:commons-io:2.6'
