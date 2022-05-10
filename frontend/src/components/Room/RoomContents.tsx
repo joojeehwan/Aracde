@@ -43,6 +43,9 @@ const RoomContents = ({
   const [session, setSession] = useState<any>(undefined);
   const [localUser, setLocalUser] = useState<any>(undefined);
   const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [findsub, setFindsub] = useState<any[]>([]);
+  const findsubRef = useRef(findsub);
+  findsubRef.current = findsub;
   const [publisher, setPublisher] = useState<any>(undefined);
   const subscribersRef = useRef(subscribers);
   subscribersRef.current = subscribers;
@@ -55,6 +58,7 @@ const RoomContents = ({
   const [catchMindData, setCatchMindData] = useState<{answer : string, id : string, nextId : string}>();
   const [open, setOpen] = useState<boolean>(false);
   const [wait, setWait] = useState<boolean>(false);
+  const [speaking, setSpeaking] = useState<boolean>(false);
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
 
@@ -81,6 +85,12 @@ const RoomContents = ({
 
   const joinSession = () => {
     OV = new OpenVidu();
+    OV.setAdvancedConfiguration({
+      publisherSpeakingEventsOptions: {
+          interval: 100,   // Frequency of the polling of audio streams in ms (default 100)
+          threshold: -50  // Threshold volume in dB (default -50)
+      }
+  });
     setSession(OV.initSession());
   };
   const handleCloseModal = (e : React.MouseEvent) => {
@@ -180,13 +190,31 @@ const RoomContents = ({
         setParticpantNum(participantNumRef.current - 1);
         deleteSubscriber(event.stream);
       });
+      sessionRef.current.on('publisherStartSpeaking', (event : any) => {
+        console.log('User ' + event.connection.connectionId + ' start speaking');
+        subscribersRef.current.map(v => {
+          if(v.getConnectionId() === event.connection.connectionId){
+            v.setSpeaking(true);
+          }
+        })
+        setSubscribers([...subscribersRef.current]);
+      });
+    
+      sessionRef.current.on('publisherStopSpeaking', (event : any) => {
+          console.log('User ' + event.connection.connectionId + ' stop speaking');
+          subscribersRef.current.map(v => {
+            if(v.getConnectionId() === event.connection.connectionId){
+              v.setSpeaking(false);
+            }
+          })
+          setSubscribers([...subscribersRef.current]);
+        });
 
       sessionRef.current.on("exception", (exception : any) => {
         console.warn(exception);
       });
       
       sessionRef.current.on("signal:game", (response : any) => {
-        // console.log("여긴 룸 컨텐츠에용 씨발 제발 불리지 마세용");
         console.log(response);
         if(response.data.gameStatus === 0){
           if(localUserRef.current.getStreamManager().stream.streamId !== response.data.streamId){
@@ -205,6 +233,12 @@ const RoomContents = ({
             setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
             setMode("game1");
         }
+        if(response.data.gameId === 3 && response.data.gameStatus === 2 && modeRef.current !== 'game3'){
+          console.log("?실행", response.data);
+          
+          setMode("game3");
+        }
+
       })
 
       getToken().then((token) => {

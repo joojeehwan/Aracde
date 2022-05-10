@@ -3,6 +3,7 @@ class UserModel {
     audioActive;
     videoActive;
     // screenShareActive;
+    speaking;
     nickname;
     streamManager : any;
     type : string; // 'remote' | 'local'
@@ -11,6 +12,7 @@ class UserModel {
       this.connectionId = "";
       this.audioActive = true;
       this.videoActive = true;
+      this.speaking = false;
       this.nickname = "";
       this.streamManager = null;
       this.type = "local";
@@ -23,7 +25,9 @@ class UserModel {
     isVideoActive() {
       return this.videoActive;
     }
-  
+    isSpeaking(){
+      return this.speaking;
+    }
     getConnectionId() {
       return this.connectionId;
     }
@@ -53,7 +57,9 @@ class UserModel {
     setStreamManager(streamManager : any) {
       this.streamManager = streamManager;
     }
-  
+    setSpeaking(payload : any) {
+      this.speaking = payload;
+    }
     setConnectionId(conecctionId : any ) {
       this.connectionId = conecctionId;
     }

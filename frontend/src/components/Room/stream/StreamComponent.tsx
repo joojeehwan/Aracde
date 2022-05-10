@@ -133,6 +133,9 @@ function StreamComponent({
           ? `${styles["video-innerContainer"]} ${styles.snapshotMode}`
           : styles["video-innerContainer"]
       }
+      style={user.isSpeaking() ? {
+        border : "1px solid red"
+      } : {}}
     >
       <div className={styles.nickname}>
         <span id={styles.nickname}>{user.getNickname()}</span>
@@ -140,8 +143,7 @@ function StreamComponent({
       {user !== undefined && user.getStreamManager() !== undefined ? (
         <div
           className={styles.streamComponent}
-          // onMouseEnter={handleChangeControlBox}
-          // onMouseLeave={handleChangeControlBox}
+          
         >
           <OvVideoComponent user={user} mutedSound={mutedSound} />
             <>
