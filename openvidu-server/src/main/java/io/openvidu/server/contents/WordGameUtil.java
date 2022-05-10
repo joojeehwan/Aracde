@@ -31,9 +31,10 @@ public class WordGameUtil {
             "아이유", "소녀시대", "유노윤호", "SG워너비", "홍진호", "페이커", "메시", "윤도현", "임요환", "기안84", "박나래",
             "유세윤", "조로", "베지터", "헤르미온느", "김연경"
     };
+    static String[] 노래 = { .... }
     // index - array 매핑
     private Map<Integer, String[]> category = Map.of(
-            0, proverb, 1, movie, 2, game, 3, life, 4, character);
+            0, proverb, 1, movie, 2, game, 3, life, 4, character, 5, 노래);
 
 
     // 카테고리별
