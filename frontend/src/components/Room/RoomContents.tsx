@@ -12,6 +12,7 @@ import {ReactComponent as People} from '../../assets/team.svg';
 import Chat from "./chat/Chat";
 import Catchmind from "./Game/Catchmind";
 import Charade from "./Game/Charade";
+import FindPerson from "./Game/FindPerson";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
 import SelectGame from "./Game/Modal/SelectGame";
@@ -58,7 +59,11 @@ const RoomContents = ({
   const [catchMindData, setCatchMindData] = useState<{answer : string, id : string, nextId : string}>();
   const [open, setOpen] = useState<boolean>(false);
   const [wait, setWait] = useState<boolean>(false);
-  const [speaking, setSpeaking] = useState<boolean>(false);
+
+  const [imDetect, setImDetect] = useState<string>("");
+  const [imPerson, setImPerson] = useState<string>("");
+  const [imPersonNick, setImPersonNick] = useState<string>("");
+
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
 
@@ -236,7 +241,28 @@ const RoomContents = ({
         if(response.data.gameId === 3 && response.data.gameStatus === 2 && modeRef.current !== 'game3'){
           console.log("?실행", response.data);
           
-          setMode("game3");
+          if(response.data.playYn === "Y"){
+            console.log(response.data);
+            let curUsers = [];
+            curUsers.push(localUserRef.current);
+            curUsers.push(...subscribersRef.current);
+            curUsers.sort(() => Math.random() - 0.5);
+            if(localUserRef.current.getStreamManager().stream.streamId === response.data.detectiveStreamId){
+              localUserRef.current.setImDetect(true);
+              setImDetect(response.data.detectiveStreamId);
+            }
+            else{
+              subscribersRef.current.map(v => {
+                if(v.getStreamManager().stream.streamId === response.data.detectiveStreamId){
+                  v.setImDetect(true);
+                }
+              })
+            }
+            // console.log()
+            setImPerson(response.data.suspectStreamId);
+            setFindsub(curUsers);
+            setMode("game3");
+          }
         }
 
       })
@@ -499,75 +525,82 @@ const RoomContents = ({
       width : "100vw"
     }}>
     <div className={
-      mode === "home"
-      ? styles["contents-container"] 
-      : mode === "game1"
-      ? `${styles["contents-container"]} ${styles.catchmind}`
-      : styles["contents-container"] 
-    }>
-      <div className={
-        mode === "home" 
-        ? styles["user-videos-container"]
-        : mode === "game1"
-        ? `${styles["user-videos-container"]} ${styles.catchmind}`
-        : styles["user-videos-container"]
+          mode === "home"
+          ? styles["contents-container"] 
+          : mode === "game1" || mode === "game3"
+          ? `${styles["contents-container"]} ${styles.catchmind}`
+          : styles["contents-container"] 
       }>
-        <div
-          id="user-video"
-          className={
-            mode === "home"
-              ? `${styles["video-container"]}`
-              : mode === "game1"
-              ? `${styles["video-container"]} ${styles.catchmind}`
-              : participantNumRef.current > 4
-              ? `${styles["video-container"]} ${styles.twoXthree}`
-              : participantNumRef.current > 2
-              ? `${styles["video-container"]} ${styles.twoXtwo}`
-              : styles["video-container"]
-          }
-        >
-          {localUserRef.current !== undefined &&
-            localUserRef.current.getStreamManager() !== undefined && (
-              <StreamComponent
-                user={localUserRef.current}
-                sessionId={mySessionId}
-                camStatusChanged={camStatusChanged}
-                micStatusChanged={micStatusChanged}
-                subscribers={subscribers}
-                mode={mode}
-                // openKeywordInputModal={openKeywordInputModal}
-              />
-            )}
-
-
-          {subscribersRef.current.map((sub, i) => {
-            return (
-              <StreamComponent
-                key={i}
-                user={sub}
-                targetSubscriber={targetSubscriber}
-                subscribers={subscribers}
-                mode={mode}
-                nickname={nickname}
-                correctNickname={correctNickname}
-                // sirenWingWing={sirenWingWing}
-                correctPeopleName={correctPeopleName}
-              />
-            );
-          })}
-        </div>
-      </div>
       {mode === "game1" ? (
             <Catchmind initData = {catchMindDataRef.current} user={localUserRef.current}/>
         ) : null}
       {mode === "game2" ? (
             <Charade />
         ) : null}
+      {mode === "game3" ? (
+        <FindPerson users = {findsub} detect = {imDetect} suspect = {imPerson} mySession = {mySessionId} camChange={camStatusChanged} micChange={micStatusChanged}/>
+      ) : (
+  
+          <div className={
+            mode === "home" 
+            ? styles["user-videos-container"]
+            : mode === "game1"
+            ? `${styles["user-videos-container"]} ${styles.catchmind}`
+            : styles["user-videos-container"]
+          }>
+            <div
+              id="user-video"
+              className={
+                mode === "home"
+                  ? `${styles["video-container"]}`
+                  : mode === "game1"
+                  ? `${styles["video-container"]} ${styles.catchmind}`
+                  : participantNumRef.current > 4
+                  ? `${styles["video-container"]} ${styles.twoXthree}`
+                  : participantNumRef.current > 2
+                  ? `${styles["video-container"]} ${styles.twoXtwo}`
+                  : styles["video-container"]
+              }
+            >
+              {localUserRef.current !== undefined &&
+              localUserRef.current.getStreamManager() !== undefined && (
+                <StreamComponent
+                  user={localUserRef.current}
+                  sessionId={mySessionId}
+                  camStatusChanged={camStatusChanged}
+                  micStatusChanged={micStatusChanged}
+                  subscribers={subscribers}
+                  mode={mode}
+                  // openKeywordInputModal={openKeywordInputModal}
+                />
+              )}
+  
+  
+            {subscribersRef.current.map((sub, i) => {
+              return (
+                <StreamComponent
+                  key={i}
+                  user={sub}
+                  targetSubscriber={targetSubscriber}
+                  subscribers={subscribers}
+                  mode={mode}
+                  nickname={nickname}
+                  correctNickname={correctNickname}
+                  // sirenWingWing={sirenWingWing}
+                  correctPeopleName={correctPeopleName}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+
+      )}
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
         <div className={
           mode === "home"
           ? styles.etcbox
-          : mode === "game1"
+          : mode === "game1" || mode === "game3"
           ? `${styles.etcbox} ${styles.catchmind}`
           : styles.etcbox
         }>
@@ -655,7 +688,7 @@ const RoomContents = ({
         </div>
           
       )}
-    </div>
+      </div>
         {open ? (<SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame>) : null}
         {wait ? (<Wait open={wait}></Wait>) : null}
     </div>

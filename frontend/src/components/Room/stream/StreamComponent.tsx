@@ -21,6 +21,7 @@ function StreamComponent({
   nickname,
   correctNickname,
   sirenWingWing,
+  imDetect,
 } : any) {
   console.log(user);
   const [mutedSound, setMuted] = useState(false);
@@ -145,7 +146,12 @@ function StreamComponent({
           className={styles.streamComponent}
           
         >
-          <OvVideoComponent user={user} mutedSound={mutedSound} />
+          {mode === "game3" ?(
+            <OvVideoComponent user={user} mutedSound={mutedSound} mode = {mode} />
+          ) 
+          : (
+            <OvVideoComponent user={user} mutedSound={mutedSound} mode = {""}/>
+          )}
             <>
               <div
                 className={
