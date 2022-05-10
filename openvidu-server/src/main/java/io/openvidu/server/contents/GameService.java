@@ -47,8 +47,8 @@ public class GameService {
 
     // params에 data를 추가해서 이 클래스를 통해 전달하는 형식
     static RpcNotificationService rpcNotificationService;
-    // 게임 스레드 관리용
-    protected ConcurrentHashMap<String, Thread> globalThread = new ConcurrentHashMap<>();
+    // 처음 게임 시작한 사람
+    protected ConcurrentHashMap<String, String> starterMap = new ConcurrentHashMap<>();
     // 순서
     protected ConcurrentHashMap<String, Map<Integer, String>> orderMap = new ConcurrentHashMap<>();
     // 그림 저장 <sessionId, [그림url, ...] }
@@ -58,8 +58,9 @@ public class GameService {
     // 몸으로 말해요 단어 저장(중복 방지용)
     protected ConcurrentHashMap<String, ArrayList<String>> charadesWordMap = new ConcurrentHashMap<>();
     // 맞출사람, 범인 저장
-    protected ConcurrentHashMap<String, String> dectectMap = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, String> detectMap = new ConcurrentHashMap<>();
     protected ConcurrentHashMap<String, String> suspectMap = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, Integer> chanceMap = new ConcurrentHashMap<>();
     // 업다운 게임
     protected ConcurrentHashMap<String, Integer> updownMap = new ConcurrentHashMap<>();
 
@@ -122,10 +123,16 @@ public class GameService {
 
         System.out.println("########## [ARCADE] : PrepareGame is called by " + participant.getParticipantPublicId());
 
-        // 요청자 streamId (이 값이 맞는지는 테스트 해봐야 될 듯)
-        String streamId = participant.getParticipantPublicId();
+        // 요청자 streamId
+        String starterStreamId = participant.getPublisherStreamId();
+        String sessionId = message.get("sessionId").getAsString();
+        if (!"".equals(starterMap.get(sessionId))) {
+            // 데이터가 존재하는 경우 지우고 새로 넣어야 한다.
+            starterMap.remove(sessionId);
+        }
+        starterMap.put(sessionId, starterStreamId);
 
-        data.addProperty("streamId", streamId);
+        data.addProperty("streamId", starterStreamId);
         data.addProperty("gameStatus", 0);
         params.add("data", data);
         // 브로드 캐스팅
@@ -136,7 +143,7 @@ public class GameService {
     }
 
     /**
-     *  게임 선택
+     *  게임 선택 (재시작 포함)
      *  gameStatus: 1
      * */
     public void selectGame(Participant participant, Set<Participant> participants,
@@ -156,7 +163,7 @@ public class GameService {
         // 순서 매핑
         Map<Integer, String> peopleOrder = new HashMap<>();
 
-        System.out.println("########## [ARCADE] : idxArr: " + Arrays.toString(idxArr));
+        System.out.println("########## [ARCADE] : peopleOrder = " + peopleOrder);
 
         int idx1, idx2;
         for (int i = 0; i < peopleCnt; i++) {
@@ -228,6 +235,11 @@ public class GameService {
             String detectiveStreamId = peopleOrder.get(1);
             String suspectStreamId = peopleOrder.get(2);
 
+            detectMap.put(sessionId, detectiveStreamId);
+            suspectMap.put(sessionId, suspectStreamId);
+            // 기회는 4명까지는 1번, 5명 부터는 2번
+            int chance = Math.round(peopleCnt/3);
+            chanceMap.put(sessionId, chance);
             System.out.println("########## [ARCADE] : START Guess!!");
             // 탐정과 범인 지정
             data.addProperty("detectiveStreamId", detectiveStreamId);
@@ -281,10 +293,17 @@ public class GameService {
             // 맞출 사람
             // 마지막 차례에는 지금까지의 모든 이미지를 str으로 만들어 전송해 줌
             if (index == peopleCnt) {
+                // 마지막. 처음 시작한 사람이 누구인지 알아야한다.
+                String startStreamId = starterMap.get(sessionId);
+                data.addProperty("startStreamId", startStreamId);
+                // 정답도 무엇이었는지 알려줘야 한다.
                 String answer = answerMap.get(sessionId);
+                data.addProperty("answer", answer);
+
                 String response = data.get("response").getAsString();
                 if (answer.equals(response)) {
                     data.addProperty("answerYn", "Y");
+
                 } else {
                     data.addProperty("answerYn", "N");
                 }
@@ -301,15 +320,20 @@ public class GameService {
                         }
                     }
                     System.out.printf("allImages: %s", allImages);
+                    data.addProperty("gameStatus", 2);
                     data.addProperty("allImages", allImages);
-                }
-                // 다음 차례
-                String curStreamId = peopleOrder.get(++index);
-                // 다다음차례, 마지막 차례인 사람에게는 안보내줌
-                if (index < peopleCnt) {
-                    String nextStreamId = peopleOrder.get(index + 1);
-                    data.addProperty("nextStreamId", nextStreamId);
-                }
+            // 마지막 사람 외에는, 이전사람 그림과, gameStatus값을 보내 줌
+            } else {
+                data.addProperty("gameStatus", 2);
+                data.addProperty("imageUrl", imageUrl);
+            }
+            // 다음 차례
+            String curStreamId = peopleOrder.get(++index);
+            // 다다음차례, 마지막 차례인 사람에게는 안보내줌
+            if (index < peopleCnt) {
+                String nextStreamId = peopleOrder.get(index + 1);
+                data.addProperty("nextStreamId", nextStreamId);
+            }
 
             int orderStatus;
             // 다음차례가 마지막
@@ -322,9 +346,7 @@ public class GameService {
             }
             data.addProperty("orderStatus", orderStatus);
             data.addProperty("curStreamId", curStreamId);
-            data.addProperty("imageUrl", imageUrl);
             data.addProperty("index", index);
-            data.addProperty("gameStatus", 2);
         } else if (gameId == CHARADES) {
             System.out.println("########## [ARCADE] : " + sessionId + " doing CHARADES!");
 
@@ -347,7 +369,7 @@ public class GameService {
                     // 마지막 사람인 경우
                     if (index == peopleCnt) {
                         // 게임 끝낸다.
-                        data.addProperty("gameStatus", 3);
+                        data.addProperty("gameStatus", 2);
                     } else {
                         // 다음 사람으로 넘어간다.
                         data.addProperty("index", ++index);
@@ -367,7 +389,7 @@ public class GameService {
                 // 마지막 사람인 경우
                 if (index == peopleCnt) {
                     // 게임을 끝낸다.
-                    data.addProperty("gameStatus", 3);
+                    data.addProperty("gameStatus", 2);
                 } else {
                     // 다음 출제자와 답변을 보낸다.
                     data.addProperty("gameStatus", 2);
@@ -377,6 +399,27 @@ public class GameService {
                 }
             }
         } else if (gameId == GUESS) {
+            System.out.println("########## [ARCADE] : " + sessionId + " doing GUESS!");
+            int chance = chanceMap.get(sessionId);
+            String tryAnswer = data.get("tryAnswer").getAsString();
+            // 정답
+            String answer = suspectMap.get(sessionId);
+            if (answer.equals(tryAnswer)) {
+                System.out.println("########## [ARCADE] GUESS : " + peopleOrder.get(index) + " Correct !!");
+                data.addProperty("answerYN", "Y");
+                data.addProperty("gameStatus", 2);
+            } else {
+                data.addProperty("answerYN", "N");
+                // 아직 기회 남은 경우
+                chance--;
+                if (chance > 0) {
+                    data.addProperty("gameStatus", 2);
+                    // 남은 찬스
+                    data.addProperty("chance", chance);
+                } else {
+                    data.addProperty("gameStatus", 2);
+                }
+            }
 
         } else if (gameId == UPDOWN) {
             System.out.println("########## [ARCADE] : " + sessionId + " doing UPDOWN!");
@@ -387,7 +430,7 @@ public class GameService {
                 // 맞췄으니 게임 종료
                 System.out.println("########## [ARCADE] CHARADES : " + peopleOrder.get(index) + " Correct !!");
                 data.addProperty("answer", answer);
-                data.addProperty("gameStatus", 3);
+                data.addProperty("gameStatus", 2);
                 data.addProperty("answerYN", 0);
                 data.addProperty("answerStreamId", peopleOrder.get(index));
             } else {
@@ -434,6 +477,7 @@ public class GameService {
 
         // 게임 끝났으면 제외 시켜 준다.
         orderMap.remove(sessionId);
+
         switch (gameId) {
             case CATCHMIND:
                 System.out.println("########## [ARCADE] CATCH MIND IS OVER!!!");
@@ -447,6 +491,9 @@ public class GameService {
                 break;
             case GUESS:
                 System.out.println("########## [ARCADE] GUESS IS OVER!!!");
+                detectMap.remove(sessionId);
+                suspectMap.remove(sessionId);
+                chanceMap.remove(sessionId);
                 break;
             case UPDOWN:
                 System.out.println("########## [ARCADE] UPDOWN IS OVER!!!");
@@ -455,7 +502,7 @@ public class GameService {
 
         }
 
-        data.addProperty("gameStatus", 3);
+
         params.add("data", data);
         for (Participant p : participants) {
             rpcNotificationService.sendNotification(p.getParticipantPrivateId(),

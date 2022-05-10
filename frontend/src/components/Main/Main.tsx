@@ -142,7 +142,7 @@ function Main() {
     const token = getToken();
     // await online();
     client.current = new StompJs.Client({
-      brokerURL: 'wss://k6a203.p.ssafy.io/ws-stomp', // 웹소켓 서버로 직접 접속
+      brokerURL: 'wss://k6a203.p.ssafy.io/socket', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
