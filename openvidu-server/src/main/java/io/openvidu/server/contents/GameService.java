@@ -61,6 +61,7 @@ public class GameService {
     protected ConcurrentHashMap<String, String> detectMap = new ConcurrentHashMap<>();
     protected ConcurrentHashMap<String, String> suspectMap = new ConcurrentHashMap<>();
     protected ConcurrentHashMap<String, Integer> chanceMap = new ConcurrentHashMap<>();
+    protected ConcurrentHashMap<String, Map<Integer, String>> guessOrderMap = new ConcurrentHashMap<>();
     // 업다운 게임
     protected ConcurrentHashMap<String, Integer> updownMap = new ConcurrentHashMap<>();
 
@@ -243,16 +244,27 @@ public class GameService {
                 playYn = "Y";
                 String detectiveStreamId = peopleOrder.get(1);
                 String suspectStreamId = peopleOrder.get(2);
-
+                String speakStreamId;
+                if (peopleCnt == 2) {
+                    speakStreamId = suspectStreamId;
+                } else{
+                    // 거꾸로 시작
+                    speakStreamId = peopleOrder.get(peopleCnt);
+                }
                 detectMap.put(sessionId, detectiveStreamId);
                 suspectMap.put(sessionId, suspectStreamId);
                 // 기회는 4명까지는 1번, 5명 부터는 2번
                 int chance = Math.round(peopleCnt/3);
                 chanceMap.put(sessionId, chance);
+                peopleOrder.remove(1);
+                // guess용 OrderMap(아예 맞춰야하는 사람은 제외)
+                guessOrderMap.put(sessionId, peopleOrder);
                 System.out.println("########## [ARCADE] : START Guess!!");
                 // 탐정과 범인 지정
                 data.addProperty("detectiveStreamId", detectiveStreamId);
                 data.addProperty("suspectStreamId", suspectStreamId);
+                // 첫번째 발언권
+                data.addProperty("speakStreamId", speakStreamId);
             }
             data.addProperty("playYn", playYn);
         } else if (gameId == UPDOWN) {
@@ -418,20 +430,31 @@ public class GameService {
         } else if (gameId == GUESS) {
             System.out.println("########## [ARCADE] : " + sessionId + " doing GUESS!");
             int chance = chanceMap.get(sessionId);
-
+            // guess는 맞추는사람은 아예 제외하고 체크
+            int guessCnt = peopleCnt-1;
+            String lastYn = data.get("lastYn").getAsString();
             String tryAnswer = data.get("tryAnswer").getAsString();
             // 정답
             String answer = suspectMap.get(sessionId);
             String detectStreamId = detectMap.get(sessionId);
-            // 현재 차례
-            String curStreamId = peopleOrder.get(++index);
-            // 마지막 이전 차례까지는 nextStreamID를 보내줌
-            if (index < peopleCnt) {
-                String nextStreamId = peopleOrder.get(index+1);
-                data.addProperty("nextStreamId", nextStreamId);
+            // 인덱스값이 초과난 경우 처리
+            if (index > guessCnt) {
+                index -= guessCnt;
+            }
+            // 현재 발언권 차례, 거꾸로 간다.
+            index++;
+            String curStreamId = peopleOrder.get(guessCnt+1-index);
+
+            // 다다음차례
+            String nextStreamId;
+            if (index < guessCnt) {
+                nextStreamId = peopleOrder.get(guessCnt-index);
+            // 한바퀴 돌고나면 다시 처음차례로
+            } else {
+                nextStreamId = peopleOrder.get(guessCnt);
             }
             // 맞추는 사람
-            if (index == peopleCnt) {
+            if (lastYn == "Y") {
                 if (answer == tryAnswer) {
                     System.out.println("########## [ARCADE] CHARADES : " + detectStreamId + " Correct !!");
                     data.addProperty("answerYN", "Y");
@@ -451,6 +474,7 @@ public class GameService {
             }
             data.addProperty("index", index);
             data.addProperty("curStreamId", curStreamId);
+            data.addProperty("nextStreamId", nextStreamId);
 
         } else if (gameId == UPDOWN) {
             System.out.println("########## [ARCADE] : " + sessionId + " doing UPDOWN!");
