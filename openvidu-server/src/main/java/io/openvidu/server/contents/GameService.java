@@ -202,6 +202,7 @@ public class GameService {
                 String nextStreamId = peopleOrder.get(2);
                 data.addProperty("curStreamId", curStreamId);
                 data.addProperty("nextStreamId", nextStreamId);
+                data.addProperty("time", 60);
                 ArrayList<String> imageList = new ArrayList<>();
                 imageMap.put(sessionId, imageList);
             }
@@ -341,10 +342,12 @@ public class GameService {
             } else if (index == peopleCnt - 1) {
                 orderStatus = 1;
                 time = 15;
+                data.addProperty("time", time);
             } else {
                 orderStatus = 0;
                 // 10초씩 감소
                 time = (60 - (index-1)*10);
+                data.addProperty("time", time);
             }
             data.addProperty("orderStatus", orderStatus);
             data.addProperty("curStreamId", curStreamId);
@@ -409,7 +412,7 @@ public class GameService {
             String answer = suspectMap.get(sessionId);
             String detectStreamId = detectMap.get(sessionId);
             // 현재 차례
-            String curStreamId = peopleOrder.get(index);
+            String curStreamId = peopleOrder.get(++index);
             // 마지막 이전 차례까지는 nextStreamID를 보내줌
             if (index < peopleCnt) {
                 String nextStreamId = peopleOrder.get(index+1);
@@ -434,7 +437,7 @@ public class GameService {
                     }
                 }
             }
-            data.addProperty("index", ++index);
+            data.addProperty("index", index);
             data.addProperty("curStreamId", curStreamId);
 
         } else if (gameId == UPDOWN) {
