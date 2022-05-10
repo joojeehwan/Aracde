@@ -387,7 +387,7 @@ public class GameService {
                 // 맞췄으니 게임 종료
                 System.out.println("########## [ARCADE] CHARADES : " + peopleOrder.get(index) + " Correct !!");
                 data.addProperty("answer", answer);
-                data.addProperty("gameStatus", 3);
+                data.addProperty("gameStatus", 2);
                 data.addProperty("answerYN", 0);
                 data.addProperty("answerStreamId", peopleOrder.get(index));
             } else {
