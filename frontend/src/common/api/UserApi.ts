@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-const BASE_URL = process.env.REACT_APP_API_ROOT + '/users';
+// const BASE_URL = process.env.REACT_APP_API_ROOT + '/users';
+const BASE_URL = 'http://localhost:8080/apiv1/users';
 
 // 카카오 로그인
 const getKakaoLoginResult = async (code: string) => {
@@ -12,8 +13,8 @@ const getKakaoLoginResult = async (code: string) => {
 };
 
 // 네이버 로그인
-const getNaverLoginResult = async (code: string) => {
-  const state = Math.random().toString(36).substring(2, 11);
+const getNaverLoginResult = async (code: string, state: String) => {
+  // const state = Math.random().toString(36).substring(2, 11);
   const result = await axios.get(`${BASE_URL}/login?code=${code}&&provider=NAVER&&state=${state}`);
   console.log(result);
   return result;
