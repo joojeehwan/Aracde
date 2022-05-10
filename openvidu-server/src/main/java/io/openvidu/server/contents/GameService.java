@@ -191,8 +191,8 @@ public class GameService {
                 WordGameUtil wordGameUtil = new WordGameUtil();
                 int category = data.get("category").getAsInt();
                 ArrayList<String> randWord;
-                // category == 5 => all
-                if (category == 5) {
+                // category == 6 => all
+                if (category == 6) {
                     randWord = wordGameUtil.takeAllWord(1);
                     // 나머지는 카테고리 선택한 경우
                 } else {
@@ -222,8 +222,8 @@ public class GameService {
             WordGameUtil wordGameUtil = new WordGameUtil();
             int category = data.get("category").getAsInt();
             ArrayList<String> randWords;
-            // category == 5 => all
-            if (category == 5) {
+            // category == 6 => all
+            if (category == 6) {
                 randWords = wordGameUtil.takeAllWord(peopleCnt);
                 // 나머지는 카테고리 선택한 경우
             } else {
@@ -301,7 +301,7 @@ public class GameService {
         String sessionId = message.get("sessionId").getAsString();
         // 이번 세션의 사람 index 순서 저장해둔 맵
         Map<Integer, String> peopleOrder = orderMap.get(sessionId);
-        System.out.println("########## [ARCADE] : " + sessionId + " Start Game => " + gameId);
+        System.out.println("########## [ARCADE] : " + sessionId + " Playing Game => " + gameId);
 
 
         if (gameId == CATCHMIND) {
@@ -319,11 +319,13 @@ public class GameService {
                 // 마지막. 처음 시작한 사람이 누구인지 알아야한다.
                 String startStreamId = starterMap.get(sessionId);
                 data.addProperty("startStreamId", startStreamId);
-                // 정답도 무엇이었는지 알려줘야 한다.
-                String answer = answerMap.get(sessionId);
+                // 정답도 무엇이었는지 알려줘야 한다. 공백은 제거한다.
+                String answer = answerMap.get(sessionId).replaceAll("\\s", "");
                 data.addProperty("answer", answer);
 
-                String response = data.get("response").getAsString();
+                // 응답 값에도 공백들은 다 지운다.
+                String response = data.get("response").getAsString().replaceAll("\\s", "");
+
                 if (answer.equals(response)) {
                     data.addProperty("answerYn", "Y");
 
@@ -386,14 +388,17 @@ public class GameService {
 
             if ("N".equals(timeout)) {
                 // 시간 내에 정답을 맞추려고 시도했다.
-                String keyword = data.get("keyword").getAsString();
+                // 뭐라고 시도했는지 저장. 공백은 다 제거한다.
+                String keyword = data.get("keyword").getAsString().replaceAll("\\s", "");
                 System.out.println("########## [ARCADE] CHARADES : Is it Answer? " + keyword);
 
-                String nowAnswer = charadesAnswers.get(index);
+                String nowAnswer = charadesAnswers.get(index).replaceAll("\\s", "");
                 if (nowAnswer.equals(keyword)) {
                     // 정답이다.
-                    System.out.println("########## [ARCADE] CHARADES : Correct !!");
                     data.addProperty("answerYN", "Y");
+                    // 정답 맞춘 사람
+                    data.addProperty("answerStreamId", participant.getPublisherStreamId());
+                    System.out.println("########## [ARCADE] CHARADES : "+ participant.getPublisherStreamId() + " is Correct !!");
 
                     // 마지막 사람인 경우
                     if (index == peopleCnt) {
