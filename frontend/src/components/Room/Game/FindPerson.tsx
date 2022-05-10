@@ -1,31 +1,56 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from '../style/RoomContents.module.scss';
 import StreamComponent from "../stream/StreamComponent";
+import FindInit from "./Modal/FindInit";
+import FirstStep from "./Modal/FirstStep";
 
 type MyProps = {
+    my : any,
     users : any[],
     detect : string,
     suspect : string,
     mySession : string,
+    imSpeak : string,
     camChange : () => void,
-    micChange : () => void,
+    micChange : (value : any) => void,
 }
 
 
 
-function FindPerson({users , detect, suspect, mySession, camChange, micChange} : MyProps){
+function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, micChange} : MyProps){
 
+    const [init, setInit] = useState<boolean>(true);
+    const [idx, setIdx] = useState<number>(1);
+    const [step1, setStep1] = useState<boolean>(false);
     const [findNick, setFindNick] = useState<string>("");
     const [imDetect, setImDetect] = useState<boolean>(false);
+    const [now, setNow] = useState<boolean>(false);
+    const [speakTime, setSpeakTime] = useState<number | undefined>();
+    const [time, setTime] = useState<number>(60);
+    
+    const speakTimeRef = useRef(speakTime);
+    speakTimeRef.current = speakTime;
 
-
+    const nowRef = useRef(now);
+    nowRef.current = now;
 
     useEffect(()=>{
         users.map((v) => {
             if(v.isImDetect() && v.getStreamManager().stream.streamId === detect){
                 setImDetect(true);
             }
-        })
+        });
+        setTimeout(()=>{
+            console.log("???");
+            setInit(false);
+            setStep1(true);
+            if(imSpeak === my.getStreamManager().stream.streamId){
+                setNow(true);
+            }
+        }, 10000);
+        // my.getStreamManager().stream.on("signal:game", (response : any) => {
+
+        // });
     },[]);
     useEffect(()=>{
         console.log("??? 왜 실행이 안될까용");
@@ -36,7 +61,36 @@ function FindPerson({users , detect, suspect, mySession, camChange, micChange} :
                 setFindNick(v.getNickname());
             }
         })
-    }, [imDetect])
+    }, [imDetect]);
+    useEffect(()=>{
+        if(step1){
+            setTimeout(()=>{
+                setStep1(false);
+                setSpeakTime(10);
+            }, 5000)
+        }
+    }, [step1])
+    useEffect(()=>{
+        let countDown : any;
+        if(speakTime !== undefined){
+            setTimeout(()=>{
+                console.log("????????? 되는거야??");
+                setSpeakTime(undefined);
+                if(now){
+                    setNow(false);
+                }
+            }, 10000);
+        }
+    }, [speakTime]);
+
+    useEffect(()=>{
+        if(nowRef.current){
+            micChange(nowRef.current);
+        }
+        else{
+            micChange(nowRef.current);
+        }
+    },[now])
 
     return(
         <>
@@ -53,7 +107,7 @@ function FindPerson({users , detect, suspect, mySession, camChange, micChange} :
                     {users.map((v,i) => {
                         const idx = i;
                         console.log(v);
-                        if(v.isImDetect()){
+                        if(v.isImDetect() && v.getStreamManager().stream.streamId === detect){
                             return(
                                     <StreamComponent
                                         key={idx}
@@ -66,6 +120,19 @@ function FindPerson({users , detect, suspect, mySession, camChange, micChange} :
                                         mode="game3"
                                     />)
                         }
+                        else if(v.isImDetect()){
+                            return(
+                                <StreamComponent
+                                        key={idx}
+                                        user={v}
+                                        camStatusChanged={camChange}
+                                        micStatusChanged={micChange}
+                                        // subscribers={subscribers}
+                                        // imDetect = {imDetect}
+                                        mode="game3"
+                                />
+                            )
+                        }
                     })}
                     {users.map((v,i) => {
                         const idx = i;
@@ -76,9 +143,10 @@ function FindPerson({users , detect, suspect, mySession, camChange, micChange} :
                                 user={v}
                                 mode="game3"
                                 // sessionId={mySession}
-                                // camStatusChanged={camChange}
-                                // micStatusChanged={micChange}
+                                camStatusChanged={camChange}
+                                micStatusChanged={micChange}
                                 // imDetect = {imDetect}
+                                now={nowRef.current}
                             />)
                         }
                     })}
@@ -111,6 +179,8 @@ function FindPerson({users , detect, suspect, mySession, camChange, micChange} :
                     </div>
                 )}
             </div>
+            {init ? (<FindInit open={init} imDetect = {imDetect} nick = {findNick}></FindInit>) : null}
+            {step1 ? (<FirstStep open={step1} now = {now}></FirstStep>) : null}
         </>
     );
 }

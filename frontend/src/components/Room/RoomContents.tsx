@@ -57,6 +57,7 @@ const RoomContents = ({
   const [participantNum, setParticpantNum] = useState<any>(1);
   const [mode , setMode] = useState<string>("home");
   const [catchMindData, setCatchMindData] = useState<{answer : string, id : string, nextId : string}>();
+  const [firstSpeak, setFirstSpeak] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
   const [wait, setWait] = useState<boolean>(false);
 
@@ -258,7 +259,7 @@ const RoomContents = ({
                 }
               })
             }
-            // console.log()
+            setFirstSpeak(response.data.speakStreamId);
             setImPerson(response.data.suspectStreamId);
             setFindsub(curUsers);
             setMode("game3");
@@ -378,14 +379,25 @@ const RoomContents = ({
     sendSignalUserChanged({ isVideoActive: localUserInit.isVideoActive() });
   };
 
-  const micStatusChanged = () => {
+  const micStatusChanged = (flag : any) => {
     //console.log("마이크 상태 변경!!!");
-    localUserInit.setAudioActive(!localUserInit.isAudioActive());
-    localUserInit
-      .getStreamManager()
-      .publishAudio(localUserInit.isAudioActive());
-    sendSignalUserChanged({ isAudioActive: localUserInit.isAudioActive() });
-    setLocalUser(localUserInit);
+    console.log(flag, );
+    if(flag.type !== "click"){
+      localUserInit.setAudioActive(flag);
+      localUserInit
+        .getStreamManager()
+        .publishAudio(localUserInit.isAudioActive());
+      sendSignalUserChanged({ isAudioActive: localUserInit.isAudioActive() });
+      setLocalUser(localUserInit);
+    }
+    else{
+      localUserInit.setAudioActive(!localUserInit.isAudioActive());
+      localUserInit
+        .getStreamManager()
+        .publishAudio(localUserInit.isAudioActive());
+      sendSignalUserChanged({ isAudioActive: localUserInit.isAudioActive() });
+      setLocalUser(localUserInit);
+    }
   };
 
   const sendSignalCameraStart = () => {
@@ -538,7 +550,7 @@ const RoomContents = ({
             <Charade />
         ) : null}
       {mode === "game3" ? (
-        <FindPerson users = {findsub} detect = {imDetect} suspect = {imPerson} mySession = {mySessionId} camChange={camStatusChanged} micChange={micStatusChanged}/>
+        <FindPerson my={localUserRef.current} users = {findsub} detect = {imDetect} suspect = {imPerson} mySession = {mySessionId} imSpeak={firstSpeak} camChange={camStatusChanged} micChange={micStatusChanged}/>
       ) : (
   
           <div className={

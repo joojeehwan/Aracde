@@ -22,6 +22,7 @@ function StreamComponent({
   correctNickname,
   sirenWingWing,
   imDetect,
+  now
 } : any) {
   console.log(user);
   const [mutedSound, setMuted] = useState(false);
@@ -120,6 +121,9 @@ function StreamComponent({
     setBgothercolor(color[bgotherindex]);
   }, []);
 
+  useEffect(() => {
+    if(!now) return;
+  }, [now]);
 //   const handleSiren = (target) => {
 //     sirenWingWing(target);
 //   };
