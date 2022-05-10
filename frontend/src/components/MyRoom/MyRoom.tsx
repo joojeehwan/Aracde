@@ -5,8 +5,9 @@ import styles from './style/MyRoom.module.scss';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import UserApi from '../../common/api/UserApi';
-import DoughnutChart from './chart/DoughnutChart';
-
+import GameDoughnutChart from './chart/GameDoughnutChart';
+import WinDoughnutChart from './chart/WinDoughnutChart';
+import MyPicture from "./MyPicture";
 
 const MyRoom = () => {
   const { getProfile } = UserApi;
@@ -20,6 +21,7 @@ const MyRoom = () => {
   const [gameCnts, setGameCnts] = useState<number[]>([]);
   const [totalVicCnt, setTotalVicCnt] = useState<number>(0); // 맞춘 총 정답 개수
   const [vicCnts, setVicCnts] = useState<number[]>([]);
+  const [pictures, setPictures] = useState<String[]>([]);
 
   const clickHandler = (id: number) => {
     setActiveTab(id);
@@ -33,20 +35,25 @@ const MyRoom = () => {
       setImage(response.data.image);
       setTotalGameCnt(response.data.totalGameCnt);
       setTotalVicCnt(response.data.totalVicCnt);
-      
+      const pictures = response.data.pictureResDtos;
       const gameRes = response.data.gameResDtos;
-      gameRes.map((x:any) => {
+      gameRes.forEach((x:any) => {
         const game = x["gameCnt"]
         const vic = x["vicCnt"]
         setGameCnts((current) => [game, ...current]);
         setVicCnts((current) => [vic, ...current]);
-      })
+      });
+      pictures.forEach((x:any) => {
+        const picture = x.pictureUrl
+        setPictures((current) => [picture, ...current]);
+      });
     }
   };
 
   useEffect(() => {
     getProfileInfo();
   }, []);
+
   return (
     <div className={styles.body}>
       <Navbar />
@@ -97,27 +104,32 @@ const MyRoom = () => {
               </table>
             </div>
           </div>
-
-          <div className={styles.profileGameInfo}>
-            <div className={styles.count}>
-              <h1>게임 참여 횟수</h1>
-              <h1>{totalGameCnt} 번</h1>
-              <DoughnutChart 
-                gameCnt={gameCnts}
-                totalGame={totalGameCnt} 
-                vicCnts={vicCnts}
-                totalVic={totalVicCnt} />
+          { activeTab === 0 ? (
+            <div className={styles.profileGameInfo}>
+              <div className={styles.count}>
+                <h2>총 게임 참여 횟수: {totalGameCnt}</h2>
+                {totalGameCnt !== 0 ? (
+                  <GameDoughnutChart 
+                    gameCnt={gameCnts}
+                    totalGame={totalGameCnt}
+                    />): (
+                  <h4>아직 참여한 게임이 없어요</h4>
+                  )}
+              </div>
+              <div className={styles.answer}>
+                <h2>정답 맞춘 개수: {totalVicCnt}</h2>
+                {totalVicCnt !== 0 ? (
+                  <WinDoughnutChart
+                    vicCnt={vicCnts}
+                    totalVic={totalVicCnt} 
+                    />): (
+                  <h4>아직 승리한 이력이 없어요</h4>
+                  )}
+              </div>
             </div>
-            <div className={styles.answer}>
-              <h1>정답 맞춘 개수</h1>
-              <h1>{totalVicCnt} 개</h1>
-              <DoughnutChart
-                gameCnt={gameCnts}
-                totalGame={totalGameCnt} 
-                vicCnts={vicCnts}
-                totalVic={totalVicCnt} /> 
-            </div>
-          </div>
+            ) : (
+              <MyPicture pictures={pictures} />
+            )}
         </div>
       </div>
     </div>
