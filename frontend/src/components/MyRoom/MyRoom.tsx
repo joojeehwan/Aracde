@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../common/navbar/Navbar';
 import styles from './style/MyRoom.module.scss';
@@ -8,6 +8,7 @@ import UserApi from '../../common/api/UserApi';
 import GameDoughnutChart from './chart/GameDoughnutChart';
 import WinDoughnutChart from './chart/WinDoughnutChart';
 import MyPicture from "./MyPicture";
+
 
 const MyRoom = () => {
   const { getProfile } = UserApi;
@@ -36,6 +37,7 @@ const MyRoom = () => {
       setTotalGameCnt(response.data.totalGameCnt);
       setTotalVicCnt(response.data.totalVicCnt);
       const pictures = response.data.pictureResDtos;
+      // [{}, {}, {}]
       const gameRes = response.data.gameResDtos;
       gameRes.forEach((x:any) => {
         const game = x["gameCnt"]
@@ -107,7 +109,7 @@ const MyRoom = () => {
           { activeTab === 0 ? (
             <div className={styles.profileGameInfo}>
               <div className={styles.count}>
-                <h2>총 게임 참여 횟수: {totalGameCnt}</h2>
+                <h2>게임 참여 횟수: 총 {totalGameCnt} 회</h2>
                 {totalGameCnt !== 0 ? (
                   <GameDoughnutChart 
                     gameCnt={gameCnts}
@@ -117,7 +119,7 @@ const MyRoom = () => {
                   )}
               </div>
               <div className={styles.answer}>
-                <h2>정답 맞춘 개수: {totalVicCnt}</h2>
+                <h2>정답 맞춘 개수: 총 {totalVicCnt} 회</h2>
                 {totalVicCnt !== 0 ? (
                   <WinDoughnutChart
                     vicCnt={vicCnts}
@@ -128,7 +130,12 @@ const MyRoom = () => {
               </div>
             </div>
             ) : (
-              <MyPicture pictures={pictures} />
+              <div>
+                <h3 style={{textAlign:"center"}}>내가 저장한 그림들</h3>
+                <div>
+                  <MyPicture pictures={pictures} />
+                </div>
+              </div>
             )}
         </div>
       </div>

@@ -26,7 +26,6 @@
   font-family: 'neodgm';
   display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 .profileContent {
   display: flex;
@@ -69,14 +68,18 @@
   clear: both;
 }
 
-.pictureContent{
-  height: 50vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
+.container {
+  height: 25vw;
 }
-
-.picture img{
-  height: 12vh;
+.picture img {
+  margin: 20px;
+  height: 200px;
+  width: 300px;
+  border-radius: 10px;
+  border-style: solid;
+  border-color:#231557;
+  cursor: pointer;
+}
+.picture img:hover {
+  transform: scale(1.05, 1.05);
 }
