@@ -221,19 +221,21 @@ public class GameService {
             // 카테고리에 맞는 단어 가져오기
             WordGameUtil wordGameUtil = new WordGameUtil();
             int category = data.get("category").getAsInt();
-            ArrayList<String> randWords;
+            ArrayList<String> randWords = new ArrayList<>();
+            randWords.add("index");
             // category == 6 => all
             if (category == 6) {
-                randWords = wordGameUtil.takeAllWord(peopleCnt);
+                randWords.addAll(wordGameUtil.takeAllWord(peopleCnt));
                 // 나머지는 카테고리 선택한 경우
             } else {
-                randWords = wordGameUtil.takeWord(category, peopleCnt);
+                randWords.addAll(wordGameUtil.takeWord(category, peopleCnt));
             }
             // 가져온 단어 정답 리스트에 저장
             charadesWordMap.put(sessionId, randWords);
             // 현재 제출할 사람과 답변
             data.addProperty("curStreamId", peopleOrder.get(1));
-            data.addProperty("answer", randWords.get(0));
+            data.addProperty("answer", randWords.get(1));
+            System.out.println("########## [ARCADE] : answerList" + randWords);
 
         } else if (gameId == GUESS) {
             // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
@@ -393,6 +395,7 @@ public class GameService {
                 System.out.println("########## [ARCADE] CHARADES : Is it Answer? " + keyword);
 
                 String nowAnswer = charadesAnswers.get(index).replaceAll("\\s", "");
+                System.out.println("########## [ARCADE] CHARADES : index = " + index + " & answer = " + nowAnswer);
                 if (nowAnswer.equals(keyword)) {
                     // 정답이다.
                     data.addProperty("answerYN", "Y");
