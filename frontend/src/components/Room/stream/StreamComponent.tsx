@@ -142,9 +142,19 @@ function StreamComponent({
         border : "1px solid red"
       } : {}}
     >
-      <div className={styles.nickname}>
-        <span id={styles.nickname}>{user.getNickname()}</span>
-      </div>
+      {mode === "game3" ?
+        user.isImDetect() ? (
+          <div className={styles.nickname}>
+            <span id={styles.nickname}>{user.getNickname()}</span>
+          </div>
+        )
+        : 
+          null
+        : (
+            <div className={styles.nickname}>
+              <span id={styles.nickname}>{user.getNickname()}</span>
+            </div>
+      )}
       {user !== undefined && user.getStreamManager() !== undefined ? (
         <div
           className={styles.streamComponent}
