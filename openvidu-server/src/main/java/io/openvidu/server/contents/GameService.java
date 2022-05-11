@@ -501,7 +501,7 @@ public class GameService {
                 data.addProperty("nextStreamId", nextStreamId);
             }
             data.addProperty("gameStatus", 2);
-            data.addProperty("index", index);
+            data.addProperty("index", index+1);
         }
         else if (gameId == UPDOWN) {
             System.out.println("########## [ARCADE] : " + sessionId + " doing UPDOWN!");
