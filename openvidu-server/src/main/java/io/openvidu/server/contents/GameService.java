@@ -504,10 +504,7 @@ public class GameService {
                     index++;
                     curStreamId = peopleOrder.get(index);
                 }
-
-                String nextStreamId = peopleOrder.get(index+1);
                 data.addProperty("curStreamId", curStreamId);
-                data.addProperty("nextStreamId", nextStreamId);
             }
             data.addProperty("gameStatus", 2);
             data.addProperty("index", index+1);
