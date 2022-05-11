@@ -259,7 +259,7 @@ const RoomContents = ({
                 }
               })
             }
-            setFirstSpeak(response.data.speakStreamId);
+            setFirstSpeak(response.data.curStreamId);
             setImPerson(response.data.suspectStreamId);
             setFindsub(curUsers);
             setMode("game3");
@@ -543,9 +543,7 @@ const RoomContents = ({
           ? `${styles["contents-container"]} ${styles.catchmind}`
           : styles["contents-container"] 
       }>
-      {mode === "game1" ? (
-            <Catchmind initData = {catchMindDataRef.current} user={localUserRef.current}/>
-        ) : null}
+
       {mode === "game2" ? (
             <Charade />
         ) : null}
@@ -608,6 +606,9 @@ const RoomContents = ({
 
 
       )}
+      {mode === "game1" ? (
+            <Catchmind initData = {catchMindDataRef.current} user={localUserRef.current}/>
+      ) : null}
       {localUser !== undefined && localUser.getStreamManager() !== undefined && (
         <div className={
           mode === "home"

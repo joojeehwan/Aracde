@@ -58,8 +58,23 @@ function OvVideo({ user, mutedSound, mode } : MyProps) {
                 />
             ) : (
                 <>
-                <img src={Thinking}></img>
+                <div style={{
+                        zIndex : "98",
+                        position : "absolute",
+                        display : "flex",
+                        justifyContent : "center",
+                        alignItems : "center",
+                        width : "100%",
+                        height : "100%",
+                        backgroundColor : "black"
+                    }}>
+                <img style={{width : "15vw", height : "15vw"}} src={Thinking}></img>
+                </div>
+                    
                 <video
+                    style={{
+                        display : "none"
+                    }}
                     autoPlay={true}
                     ref={videoRef}
                     muted={mutedSound}
