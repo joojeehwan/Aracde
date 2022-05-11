@@ -1,0 +1,33 @@
+.body{
+  color: white;
+  font-family: 'neodgm';
+  font-size: 16px;
+}
+.alarm{
+  display: inline-block;
+  width: 100%;
+  text-align: right;
+  font-size: 32px;
+}
+.video{
+  height: 100%;
+}
+.inputWrapper{
+  height: 50px;
+  width: 100%;
+}
+.input{
+  border-radius: 15px;
+  font-size: 32px;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+.answer{
+  background-color: #F3C522;
+  border-radius: 15px;
+  font-size: 32px;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
