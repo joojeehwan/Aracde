@@ -70,7 +70,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
             console.log(response.data, "여긴 게임 안이에용~~~~~~");
 
             setIdx(response.data.index);
-            if(!response.data.finshPR && response.data.gameStatus === 2 && response.data.gameId === 3){
+            if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
                 console.log("여긴 됨?? in finish");
                 if(my.getStreamManager().stream.stremId === response.data.curStreamId){
                     console.log("여긴 됨?? in if");
