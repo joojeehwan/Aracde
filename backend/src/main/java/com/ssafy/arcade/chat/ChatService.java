@@ -75,7 +75,6 @@ public class ChatService {
         }
 
 
-
         return topic;
     }
 
@@ -126,9 +125,10 @@ public class ChatService {
                 .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).type(SendMessageRes.Type.CHAT).build();
         redisPublisher.publish(getTopicDetail(sendMessageReq.getChatRoomSeq()), sendMessageRes);
         // redis에 저장하기
+        System.out.println("메시지를 보냈습니다 : " + message);
         messageRepository.save(message);
         // 채팅방 최근 메시지랑 최근 시간 변경하기
-        ChatRoom chatRoom = chatRoomRepository.findByChatRoomSeq(sendMessageReq.getChatRoomSeq()).orElseThrow(()->
+        ChatRoom chatRoom = chatRoomRepository.findByChatRoomSeq(sendMessageReq.getChatRoomSeq()).orElseThrow(() ->
                 new CustomException(ErrorCode.DATA_NOT_FOUND));
         chatRoom.setLastContent(sendMessageReq.getContent());
         chatRoom.setLastTime(message.getTime());
@@ -146,6 +146,7 @@ public class ChatService {
     public ChannelTopic getTopic(Long chatRoomSeq) {
         return channels.get("/sub/chat/room/" + chatRoomSeq);
     }
+
     public ChannelTopic getTopicDetail(Long chatRoomSeq) {
         return channels.get("/sub/chat/room/detail/" + chatRoomSeq);
     }
@@ -163,7 +164,7 @@ public class ChatService {
                 ChannelTopic topic = onlineService.getOnlineTopic(target.getUserSeq());
                 boolean flag = topic != null;
                 list.add(ChatRoomListDTO.builder()
-                                .login(flag)
+                        .login(flag)
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
@@ -207,15 +208,15 @@ public class ChatService {
         // 2. 대화방이 없는 애들로만 거름.
         for (UserResDto userResDto : temp) {
             User target = userRepository.findByUserSeq(userResDto.getUserSeq()).orElseGet(User::new);
-            ChatRoom chatRoom = chatRoomRepository.findByUser1AndUser2(user, target);
-            if (chatRoom != null) {
+            ChatRoom chatRoom = chatRoomRepository.findByUser1AndUser2(user, target).orElseGet(ChatRoom::new);
+            if (chatRoom.getChatRoomSeq() != null) {
                 list.add(SearchFriendRes.builder()
                         .canInvite(false).image(target.getImage()).name(target.getName())
                         .userSeq(target.getUserSeq()).build());
                 continue;
             }
-            chatRoom = chatRoomRepository.findByUser1AndUser2(target, user);
-            if (chatRoom != null) {
+            chatRoom = chatRoomRepository.findByUser1AndUser2(target, user).orElseGet(ChatRoom::new);
+            if (chatRoom.getChatRoomSeq() != null) {
                 list.add(SearchFriendRes.builder()
                         .canInvite(false).image(target.getImage()).name(target.getName())
                         .userSeq(target.getUserSeq()).build());
@@ -236,6 +237,8 @@ public class ChatService {
         List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByRealTime(chatRoomSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.WRONG_DATA));
         enterRoomDetail(chatRoomSeq);
+        System.out.println("해당 채팅방 메시지 수 : "+messages.size());
+        System.out.println("마지막 저장된 메시지 : " + messages.get(messages.size() - 1));
         return messages;
     }
 }

@@ -46,10 +46,10 @@ public class OnlineService {
 
     public String online(String token) {
         // 토큰으로 유저 찾기
-        System.out.println("online 실행");
         User user = userRepository.findByUserSeq(userService.getUserSeqByToken(token)).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
         logined(user.getUserSeq());
+        System.out.println("online 현재 유저 수 : "+channels.size());
         return "OK";
     }
 
@@ -61,6 +61,7 @@ public class OnlineService {
             ChannelTopic topic = channels.get(getTopicName(user.getUserSeq()));
             redisMessageListener.removeMessageListener(redisSubscriber, topic);
             channels.remove(getTopicName(user.getUserSeq()));
+            System.out.println("offline 현재 유저 수 : "+channels.size());
         }
         return "OK";
     }

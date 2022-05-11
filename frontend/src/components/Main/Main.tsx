@@ -24,6 +24,9 @@ import { getToken } from '../../common/api/jWT-Token';
 import { WindowSharp } from '@mui/icons-material';
 import alarmSound from '../../mp3/alram.mp3';
 
+import { useStore } from "../../../src/components/Room/store";
+
+
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
@@ -31,6 +34,8 @@ function Main() {
   const navigate = useNavigate();
 
   //지환 코드
+  const { setClientt, clientt } = useStore();
+
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
@@ -39,10 +44,10 @@ function Main() {
   const { fetchWithToken } = ChatAPI;
   const { setOnlie, setOffline } = OnlineApi;
   const { postReadAlarm, getAlarmList } = AlarmApi;
-  const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
-    fetchWithToken(url, getToken() as unknown as string),
-  );
 
+  useEffect(() => {
+    console.log(clientt, "클라이언트 티티!")
+  }, [clientt])
 
   const client = useRef<any>({});
   const handleOpenAlarms = useCallback(async () => {
@@ -141,8 +146,7 @@ function Main() {
 
   const connect = () => {
 
-    const token = getToken();
-    setOnlie();
+    // setOnlie();
     client.current = new StompJs.Client({
       brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
@@ -153,6 +157,7 @@ function Main() {
       heartbeatOutgoing: 4000,
       onConnect: () => {
         subscribe();
+
       },
       onStompError: (frame) => {
         console.error(frame);
@@ -161,10 +166,13 @@ function Main() {
     });
     client.current.activate();
   };
+
   const disconnect = async () => {
 
-    await setOffline();
+    // await setOffline();
+    // clientRef.current.deactivate();
     client.current.deactivate();
+
   };
 
   if (typeof WebSocket !== 'function') {
@@ -191,12 +199,17 @@ function Main() {
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
+      setOnlie();
       connect();
+      setClientt(client)
       setIsLogin(true);
       getAndgetAlarmList()
     }
     return () => {
-      disconnect();
+
+      // back에서 없어지나 test
+      // disconnect()
+      // window.removeEventListener("unload", disconnect);
     };
   }, []);
 
@@ -240,18 +253,6 @@ function Main() {
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}
-                style={{
-                  width: 28,
-                  height: 28,
-                  float: 'right',
-                  marginTop: '2%',
-                  marginRight: '2%',
-                }}
-                filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-              />
-              <Chatt
-                className={styles.button}
-                onClick={handleOpenChatting}
                 style={{
                   width: 28,
                   height: 28,
@@ -316,9 +317,25 @@ function Main() {
         ) : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {chattingIsOpen ? (
-          <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} chattingList={chattingList} />
+          <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
         ) : null}
       </div>
+      {
+        window.localStorage.getItem("token") !== null &&
+        < Chatt
+          className={styles.button}
+          onClick={handleOpenChatting}
+          style={{
+            margin: "20px",
+            width: 60,
+            height: 60,
+            position: "fixed",
+            right: "0px",
+            bottom: "0px"
+          }}
+          filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+        />
+      }
     </>
   );
 }

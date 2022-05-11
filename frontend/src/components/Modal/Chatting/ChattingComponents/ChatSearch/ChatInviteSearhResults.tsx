@@ -5,13 +5,11 @@ import ChatApi from '../../../../../common/api/ChatAPI';
 
 function ChatInviteSearhResults({ name, isInvite, userSeq, onClose }: any) {
 
-  const { createChatRoom, getChatList } = ChatApi;
+  const { createChatRoom } = ChatApi;
 
   const onClickCreateChatRoom = useCallback(async () => {
     const body = { targetUserSeq: userSeq };
-    await createChatRoom(body).then(() => {
-      getChatList()
-    });
+    await createChatRoom(body)
     onClose()
   }, []);
 

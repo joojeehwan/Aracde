@@ -41,10 +41,10 @@ interface subObject {
   unsubscribe: () => void;
 }
 
-function Chatting({ open, onClose, client, chattingList }: any) {
+function Chatting({ open, onClose, client }: any) {
   const scrollbarRef = useRef<Scrollbars>(null);
   const [chat, onChangeChat, setChat] = useInput('');
-  const [chatList, setChatList] = useState<any>([]);
+  // const [chatList, setChatList] = useState<any>([]);
   const [privateChats, setPrivateChats] = useState<any>(new Map())
   const [chatInvite, setChatInvite] = useState<boolean>(false);
   const [isShow, setIsShow] = useState<boolean>(false)
@@ -54,6 +54,12 @@ function Chatting({ open, onClose, client, chattingList }: any) {
   // 컴포넌트의 전 생명주기를 통해 유지되는 값이라는 의미이며, 
   // 순수한 자바스크립트 객체를 생성 및 유지시켜주기 때문에 
   // 동시성을 유지하기 위함!
+  const { fetchWithToken, getChatList } = ChatAPI;
+
+  const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
+    fetchWithToken(url, getToken() as unknown as string), {
+    refreshInterval: 1,
+  });
 
   const subscribeRef = useRef(subscribeDetail)
   subscribeRef.current = subscribeDetail
@@ -63,8 +69,6 @@ function Chatting({ open, onClose, client, chattingList }: any) {
     setSubscribeDetail(data)
   }
   //api
-  const { getChatList } = ChatAPI;
-
   const handleOpenChatInvite = useCallback(() => {
     setChatInvite(true);
   }, [chatInvite]);
@@ -75,6 +79,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
 
   //zustand
   const { romId, histoty } = modalStore()
+  const [history, setHistory] = useState(histoty)
 
   const publish = (evt: any) => {
 
@@ -107,7 +112,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
   const getAndgetChatList = async () => {
     const result = await getChatList();
     if (result?.status === 200) {
-      setChatList([...result.data]);
+      // setChatList([...result.data]);
     }
   };
 
@@ -123,12 +128,14 @@ function Chatting({ open, onClose, client, chattingList }: any) {
       return true
     }
   }
-  let ChatHeader = chattingList.find(islst)
+  let ChatHeader = chattingList?.find(islst)
   //ver2
-  const test = chattingList.filter((value: any) => value.chatRoomSeq === romId)
+  const test = chattingList?.filter((value: any) => value.chatRoomSeq === romId)
 
   useEffect(() => {
+    console.log("채팅방 useEffect")
     getAndgetChatList();
+    console.log(client, "클라이언트 tt 채팅 인덱스")
     return () => {
       // 채팅창 닫아도 sub/detail 모두 구취 해야 함
       unsub()
@@ -138,7 +145,6 @@ function Chatting({ open, onClose, client, chattingList }: any) {
   }, []);
 
   useEffect(() => {
-    // setPrivateChats(new Map())
     console.log(privateChats)
     setTimeout(() => {
       scrollbarRef.current?.scrollToBottom()
@@ -147,7 +153,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
 
   const histotyLst: IDM[] = histoty?.data
   const chatSections = makeSection(histotyLst ? ([] as IDM[]).concat(...histotyLst) : [])
-  console.log(privateChats)
+
   return (
     <div
       className={open ? `${styles.openModal} ${styles.modal}` : styles.modal}
@@ -158,7 +164,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
     >
       {open ? (
         <section
-          id={chatList.length < 0 ? styles.test : ''}
+          // id={chatList.length < 0 ? styles.test : ''}
           className={styles.modalForm}
           onClick={handleStopEvent}
           onKeyDown={handleStopEvent}
@@ -181,7 +187,6 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                   chattingList?.map((section: any) => {
                     return (
                       <ChattingLists
-                        chattingList={chattingList}
                         setIsShow={setIsShow}
                         chat={chat}
                         scrollbarRef={scrollbarRef}
@@ -224,9 +229,10 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                 </header>
                 <div className={styles.chatMessages}>
                   <Scrollbars autoHide ref={scrollbarRef}>
-                    {Object.entries(chatSections).map(([date, chats]) => {
+                    {Object.entries(chatSections).map(([date, chats], i: number) => {
+                      const key = i
                       return (
-                        <Section key={date}>
+                        <Section key={key}>
                           <StickyHeader>
                             <button>{date}</button>
                           </StickyHeader>
@@ -237,7 +243,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                       )
                     })}
                     {privateChats.get(romId)?.map((value: any) => {
-                      return <ChatEach key={Math.random().toString(36).substr(2, 5) + value.content} name={value.name} time={value.time} content={value.content} userSeq={value.userSeq} image={value.image} />
+                      return <ChatEach key={value.realTime} name={value.name} time={value.time} content={value.content} userSeq={value.userSeq} image={value.image} />
                     })}
                   </Scrollbars>
                 </div>

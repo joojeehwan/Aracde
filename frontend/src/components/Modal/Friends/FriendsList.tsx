@@ -1,3 +1,4 @@
+/*eslint no-unused-expressions: "error"*/
 import React, { useState, useCallback } from 'react';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';

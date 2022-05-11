@@ -6,6 +6,9 @@ import Avatar from '@mui/material/Avatar';
 import { modalStore } from "../../store/modal"
 import ChatApi from "../../../../common/api/ChatAPI"
 import dayjs from 'dayjs';
+import useSWR from 'swr';
+import { getToken } from '../../../../common/api/jWT-Token';
+
 
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-badge': {
@@ -52,16 +55,25 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
   const [isOnline, setIsOnline] = useState(login);
   const { romId, setRoomId, setHistory } = modalStore()
   const [lastMessage, setLastMessage] = useState<string>(content)
-  const { enterChatRoom } = ChatApi
+  const { enterChatRoom, fetchWithToken } = ChatApi
+
+  const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
+    fetchWithToken(url, getToken() as unknown as string), {
+    refreshInterval: 1,
+  });
 
   const enterChattingRoom = async () => {
     console.log("채팅방 들어가기 실행")
     const result = await enterChatRoom(roomId)
-    console.log(scrollbarRef.current)
+    console.log(result)
     if (scrollbarRef.current) {
       scrollbarRef.current.scrollToBottom()
     }
     setHistory(result)
+  }
+
+  const savePrivateChats = (data: any) => {
+    setPrivateChats(data)
   }
 
   const onClickSetShow = () => {
@@ -73,6 +85,7 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
 
   const subscribe = () => {
     const list = []
+    console.log(client.current, "여기는 채팅리스트 클라이언트커런트")
     list.push(client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
       const data = JSON.parse(body)
       setLastMessage(data.content)
@@ -95,14 +108,16 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
     // unsub하고 다시 클릭하면 새로운걸 구독하게 되니깐,,,! 클릭한번으로 구취 구독을 같이 할 수 있게 된다.
     // 클릭(구취 => 구독 => 구독의 정보 저장)
     unsub()
+
+    //정리 렌더링 두번 해결,, 현우박 대단하다,,,
+    setPrivateChats(new Map());
     let res
-    console.log("여기 실행되냐?!")
     res = await client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
       const payloadData = JSON.parse(body)
       console.log(payloadData)
       if (privateChats.get(payloadData.chatRoomSeq)) {
         privateChats.get(payloadData.chatRoomSeq).push(payloadData)
-        setPrivateChats(new Map(privateChats))
+        savePrivateChats(new Map(privateChats))
         if (scrollbarRef.current) {
           scrollbarRef.current.scrollToBottom()
         }
@@ -110,7 +125,7 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
         let lst = []
         lst.push(payloadData)
         privateChats.set(payloadData.chatRoomSeq, lst)
-        setPrivateChats(new Map(privateChats))
+        savePrivateChats(new Map(privateChats))
         if (scrollbarRef.current) {
           scrollbarRef.current.scrollToBottom()
         }
@@ -129,6 +144,8 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
       })
     };
   }, [roomId]);
+
+  console.log(lastMessage)
 
   return (
     <div
@@ -167,7 +184,8 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
       </div>
       <div>
         <div style={{ position: 'absolute', marginLeft: '-1px' }}>
-          <div style={{ fontSize: '15px', color: '#B6A7A7' }}>{dayjs(newTime).format('MM월DD일 h:mm A')}</div>
+          {time === null ? null : <div style={{ fontSize: '15px', color: '#B6A7A7' }}>{dayjs(newTime).format('MM월DD일 h:mm A')}</div>}
+          {/* <div style={{ fontSize: '15px', color: '#B6A7A7' }}>{dayjs(newTime).format('MM월DD일 h:mm A')}</div> */}
           {/* <div className={styles.count}>{unreads}</div> */}
         </div>
       </div>

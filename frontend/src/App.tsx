@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef, useLayoutEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import 'react-toastify/dist/ReactToastify.css';
 import loadable from '@loadable/component';
 import { ToastContainer } from 'react-toastify';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import create from "zustand"
-import { getToken } from './common/api/jWT-Token';
-import { ReactComponent as Chatt } from './assets/chat.svg';
+import OnlineApi from '../src/common/api/OnlineApi';
 
 const Main = loadable(() => import('./components/Main/Main'));
 const Login = loadable(() => import('./components/Login/mainLogin'));
@@ -20,20 +18,13 @@ const Room = loadable(() => import('./components/Room/Room'));
 
 function App() {
 
-  const Token = getToken()
+  const { setOffline } = OnlineApi;
+
   useEffect(() => {
-  }, [Token])
-
-  const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
-
-  const handleOpenChatting = useCallback(() => {
-    setChattingIsOpen(true);
-  }, [chattingIsOpen]);
-
-  const handleCloseChatting = useCallback(() => {
-    setChattingIsOpen(false);
-  }, [chattingIsOpen]);
-
+    return () => {
+      setOffline();
+    }
+  }, []);
   return (
     <>
       <BrowserRouter>
@@ -52,8 +43,6 @@ function App() {
     </>
   );
 }
-
-
 
 export default App;
 

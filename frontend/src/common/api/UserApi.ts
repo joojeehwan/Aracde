@@ -38,7 +38,24 @@ const getUserSearchResult = async (name: string) => {
   return null;
 };
 
-// 친구 검색은 api가 뭐지 저거?!
+// 친구 검색 (게임 초대 요청)
+const getSearchUserResultForGame = async (name: any) => {
+  const token = getToken();
+  if (token !== null) {
+    console.log("친구 검색 게임 초대 요청 name : ", name)
+    const result = await axios
+      .get(`${BASE_URL}/friend/search?name=${name}`, { headers: { Authorization: token } })
+      .then((res) => {
+        return res;
+      })
+      .catch((err) => {
+        console.dir(err);
+        return err;
+      });
+    return result;
+  }
+  return null;
+};
 
 // 친구 요청 보내기
 const getAddFriendRequestResult = async (userSeq: string) => {
@@ -141,6 +158,7 @@ const UserApi = {
   deleteFriend,
   getProfile,
   patchAcceptFriendRequest,
+  getSearchUserResultForGame
 };
 
 export default UserApi;

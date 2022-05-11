@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import style from '../styles/Invite.module.scss';
 import { toast } from 'react-toastify';
-
+import UserApi from "../../../common/api/UserApi"
 //components
 import InviteSearchBar from '../Invite/InviteSearch/InviteSearhBar';
 import InviteSearhResults from '../Invite/InviteSearch/InviteSearhResults';
@@ -11,14 +11,21 @@ type MyProps = {
   onClose: (e: any) => void;
 };
 
-const dummydata = [
-  { name: '홍승기', isInvite: true },
-  { name: '주지환', isInvite: false },
-];
-
 function Invite({ open, onClose }: MyProps) {
+
+  const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string }[]>([]);
+
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
+  };
+
+  const { getSearchUserResultForGame } = UserApi;
+
+  const handleSearchPeople = async (name: string) => {
+    const result = await getSearchUserResultForGame(name);
+    if (result?.status === 200) {
+      setFriend([...result.data]);
+    }
   };
 
   return (
@@ -37,9 +44,9 @@ function Invite({ open, onClose }: MyProps) {
           role="button"
           tabIndex={0}
         >
-          <InviteSearchBar />
-          {dummydata.map((value) => {
-            return <InviteSearhResults key={value.name} name={value.name} isInvite={value.isInvite} />;
+          <InviteSearchBar searchPeople={handleSearchPeople} />
+          {friend.map((value) => {
+            return <InviteSearhResults key={value.name} name={value.name} isInvite={value.canInvite} targetUserSeq={value.userSeq} />;
           })}
           <div className={style.CancelContainer}>
             <button onClick={onClose} className={style.cancel}>

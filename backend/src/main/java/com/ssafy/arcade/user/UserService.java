@@ -347,17 +347,25 @@ public class UserService {
         if (friend == null) {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         } else {
+            // 이미 친구인 경우에만 채팅방, 메시지 삭제
+            if(friend.isApproved()){
+                // 친구 삭제시 채팅방, 메시지 모두 삭제
+                ChatRoom chatRoom = chatRoomRepository.findByUser1AndUser2(reqUser, targetUser).orElseGet(ChatRoom::new);
+                if (chatRoom.getChatRoomSeq() == null) chatRoom = chatRoomRepository.findByUser1AndUser2(targetUser, reqUser).orElseGet(ChatRoom::new);
+                List<Message> messages = new ArrayList<>();
+                // 메시지 모두 삭제
+                if(chatRoom.getChatRoomSeq() != null)
+                messages = messageRepository.findAllByChatRoomSeq(chatRoom.getChatRoomSeq());
+                if(messages.size()>0) {
+                    messageRepository.deleteAll(messages);
+                }
+
+                // 채팅방 삭제
+                if(chatRoom.getChatRoomSeq() != null) {
+                    chatRoomRepository.delete(chatRoom);
+                }
+            }
             friendRepository.delete(friend);
-            // 친구 삭제시 채팅방, 메시지 모두 삭제
-            ChatRoom chatRoom;
-            chatRoom = chatRoomRepository.findByUser1AndUser2(reqUser, targetUser);
-            if(chatRoom == null) chatRoom = chatRoomRepository.findByUser1AndUser2(targetUser, reqUser);
-            // 메시지 모두 삭제
-            List<Message> messages = messageRepository.findAllByChatRoomSeq(chatRoom.getChatRoomSeq()).orElse(null);
-            assert messages != null;
-            messageRepository.deleteAll(messages);
-            // 채팅방 삭제
-            chatRoomRepository.delete(chatRoom);
         }
     }
 

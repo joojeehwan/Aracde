@@ -45,7 +45,6 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
 
 function FriendsSearchResults({ seq, name, email, imgUrl, status }: any) {
   const [isOnline, setIsOnline] = useState(true);
-  const [isClicked, setIsClicked] = useState(false);
   const [curStatus, setCurStatus] = useState<number>(status);
 
   const { getAddFriendRequestResult } = UserApi;
