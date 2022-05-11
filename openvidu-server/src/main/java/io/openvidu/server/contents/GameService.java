@@ -493,11 +493,18 @@ public class GameService {
                 // index가 0이면 받은 그대로 보내줄 수 있도록
                 String curStreamId = peopleOrder.get(index);
                 String detectStreamId = detectMap.get(sessionId);
+                String spokenStreamId = data.get("spokenStreamId").getAsString();
                 if (detectStreamId.equals(curStreamId)) {
                     // 지금 말할사람이 탐정이면 넘어가
                     index++;
                     curStreamId = peopleOrder.get(index);
                 }
+
+                if (curStreamId.equals(spokenStreamId)) {
+                    index++;
+                    curStreamId = peopleOrder.get(index);
+                }
+
                 String nextStreamId = peopleOrder.get(index+1);
                 data.addProperty("curStreamId", curStreamId);
                 data.addProperty("nextStreamId", nextStreamId);
