@@ -19,7 +19,6 @@ function MyPicture({ pictures } : pictureProps) {
         pagination={{
           clickable: true,
         }}
-        loop={true}
         modules={[Pagination]}
         className="mySwiper"
       >
