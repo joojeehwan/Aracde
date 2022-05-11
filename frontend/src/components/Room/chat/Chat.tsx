@@ -316,7 +316,7 @@ const Chat = (props : any) => {
           props.mode !== "home"
           ? `${styles["message-wrap"]} ${styles.game}`
           : styles["message-wrap"]} ref={chatScroll}>
-         {props.mode === "game3" ? (answerList.map((data : any, i : any) => 
+         {props.mode === "game4" ? (answerList.map((data : any, i : any) => 
             (<div
               key={i}
               id="remoteUsers"

@@ -45,9 +45,9 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
     const idxRef = useRef(idx);
     idxRef.current = idx;
 
-    const sendSignal = () => {
-        console.log("여긴 제대로 나오니?", idxRef.current);
-    }
+    // const sendSignal = () => {
+    //     console.log("여긴 제대로 나오니?", idxRef.current);
+    // }
 
     useEffect(()=>{
         
@@ -115,7 +115,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                 setSpeakTime(undefined);
                 console.log(nowRef.current);
                 if(nowRef.current){
-                    sendSignal();
+                    //sendSignal();
                     setNow(false);  
                     
                     if(idx !== undefined && idx <= users.length){
@@ -124,6 +124,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                             gameStatus : 2,
                             gameId : 3,
                             index : idx,
+                            spokenStreamId : my.getStreamManager().stream.streamId
                         }
                         my.getStreamManager().stream.session.signal({
                             data : JSON.stringify(data),
@@ -169,8 +170,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                                         sessionId={mySession}
                                         camStatusChanged={camChange}
                                         micStatusChanged={micChange}
-                                        // subscribers={subscribers}
-                                        // imDetect = {imDetect}
                                         mode="game3"
                                     />)
                         }
@@ -181,8 +180,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                                         user={v}
                                         camStatusChanged={camChange}
                                         micStatusChanged={micChange}
-                                        // subscribers={subscribers}
-                                        // imDetect = {imDetect}
                                         mode="game3"
                                 />
                             )
@@ -196,10 +193,8 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                                 key={idx}
                                 user={v}
                                 mode="game3"
-                                // sessionId={mySession}
                                 camStatusChanged={camChange}
                                 micStatusChanged={micChange}
-                                // imDetect = {imDetect}
                                 now={nowRef.current}
                             />)
                         }
