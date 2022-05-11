@@ -72,7 +72,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
             setIdx(response.data.index);
             if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
                 console.log("여긴 됨?? in finish");
-                if(my.getStreamManager().stream.stremId === response.data.curStreamId){
+                if(my.getStreamManager().stream.streamId === response.data.curStreamId){
                     console.log("여긴 됨?? in if");
                     setImNext(true);
                 }
