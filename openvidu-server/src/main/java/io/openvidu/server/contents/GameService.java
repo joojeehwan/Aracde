@@ -135,6 +135,8 @@ public class GameService {
             // 데이터가 존재하는 경우 지우고 새로 넣어야 한다.
             starterMap.remove(sessionId);
         }
+        log.info("sessionId : " + sessionId + " | starterId : " + starterStreamId);
+        log.info("starterMap : " + starterMap);
         starterMap.put(sessionId, starterStreamId);
 
         data.addProperty("streamId", starterStreamId);
