@@ -110,7 +110,17 @@ function SelectGame({ open, onClose, onSelect }: MyProps) {
                         onChange={handleChange}
                     />
                 </div>
-                
+                {game === "2" ? (
+                <select style={{marginTop : "-10px", marginBottom : "10px", textAlign : "center", height : "20px"}} onChange={handleChangeCategory}>
+                    <option value="">카테고리 선택</option>
+                    <option value="0">속담</option>
+                    <option value="1">영화</option>
+                    <option value="2">게임</option>
+                    <option value="3">생물</option>
+                    <option value="4">캐릭터</option>
+                    <option value="5">전체</option>
+                </select>
+                ) : null}
                 <div className={style.game}>
                     범인을 잡아라
                     <input
