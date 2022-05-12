@@ -498,18 +498,27 @@ public class GameService {
                 if (curStreamId.equals(spokenStreamId)) {
                     log.info("########## [아케이드] 너의 목소리가 들려 : 이미 말했던 사람이니 다음 사람으로 넘어갑니다.");
                     index++;
-                    curStreamId = peopleOrder.get(index);
+                    if (index > peopleCnt) {
+                        data.addProperty("finishPR", "Y");
+                    } else {
+                        curStreamId = peopleOrder.get(index);
+                    }
                 }
                 // 지금 말할사람이 탐정이면 넘어가
                 if (detectStreamId.equals(curStreamId)) {
                     log.info("########## [아케이드] 너의 목소리가 들려 : 탐정은 발언 기회가 필요 없습니다.");
                     index++;
-                    curStreamId = peopleOrder.get(index);
-                    // 지금 말한 사람을 또 골라줄거면 넘어가
-                    if (curStreamId.equals(spokenStreamId)) {
-                        log.info("########## [아케이드] 너의 목소리가 들려 : 탐정 다음 사람은 말했던 사람이라 넘어갑니다.");
-                        index++;
+                    if (index > peopleCnt) {
+                        data.addProperty("finishPR", "Y");
+                    }
+                    else {
                         curStreamId = peopleOrder.get(index);
+                        // 지금 말한 사람을 또 골라줄거면 넘어가
+                        if (curStreamId.equals(spokenStreamId)) {
+                            log.info("########## [아케이드] 너의 목소리가 들려 : 탐정 다음 사람은 말했던 사람이라 넘어갑니다.");
+                            index++;
+                            curStreamId = peopleOrder.get(index);
+                        }
                     }
                 }
                 data.addProperty("curStreamId", curStreamId);
