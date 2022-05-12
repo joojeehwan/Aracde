@@ -14,9 +14,8 @@ type MyProps = {
   onClose: (e: any) => void;
 };
 
-function ChatInvite({ open, onClose }: MyProps) {
+function ChatInvite({ open, onClose, handleFlag }: any) {
   const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string }[]>([]);
-
   const { getChatSearchResult } = ChatApi;
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -56,6 +55,7 @@ function ChatInvite({ open, onClose }: MyProps) {
                 isInvite={value.canInvite}
                 image={value.image}
                 userSeq={value.userSeq}
+                handleFlag={handleFlag}
               />
             );
           })}

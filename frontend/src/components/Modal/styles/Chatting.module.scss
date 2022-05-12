@@ -26,6 +26,21 @@
   display: flex;
 }
 
+.plusOn {
+  height: 64px;
+  width: 64px;
+  display: block;
+  margin: 0px 80px;
+}
+
+.plusOff {
+  left: 200px;
+  height: 64px;
+  width: 64px;
+  // margin: 0px 80px;
+  margin-left: 160px;
+}
+
 .self {
   float: right;
 }

@@ -27,10 +27,7 @@ import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -125,7 +122,6 @@ public class ChatService {
                 .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).type(SendMessageRes.Type.CHAT).build();
         redisPublisher.publish(getTopicDetail(sendMessageReq.getChatRoomSeq()), sendMessageRes);
         // redis에 저장하기
-        System.out.println("메시지를 보냈습니다 : " + message);
         messageRepository.save(message);
         // 채팅방 최근 메시지랑 최근 시간 변경하기
         ChatRoom chatRoom = chatRoomRepository.findByChatRoomSeq(sendMessageReq.getChatRoomSeq()).orElseThrow(() ->
@@ -169,15 +165,17 @@ public class ChatService {
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
                         .lastTime(chatRoom.getLastTime()).build());
+                System.out.println("로그인 했냐? "+ flag);
             } else if (chatRoom.getUser2().getUserSeq() == user.getUserSeq()) {
                 User target = chatRoom.getUser1();
-                ChannelTopic topic = channels.get("/sub/" + target.getUserSeq());
+                ChannelTopic topic = onlineService.getOnlineTopic(target.getUserSeq());
                 boolean flag = topic != null;
                 list.add(ChatRoomListDTO.builder().login(flag)
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
                         .lastTime(chatRoom.getLastTime()).build());
+                System.out.println("로그인 했냐? "+ flag);
             }
         }
         // topic 발행
@@ -234,11 +232,23 @@ public class ChatService {
     public List<Message> enterChattingRoom(Long chatRoomSeq) {
         // 읽지 않은 메시지를 전부 삭제하고 chatRoom에 보낸다.
         // chatRoomSeq에 저장된 메시지 전부 가져온다.
-        List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByRealTime(chatRoomSeq).orElseThrow(() ->
-                new CustomException(ErrorCode.WRONG_DATA));
         enterRoomDetail(chatRoomSeq);
-        System.out.println("해당 채팅방 메시지 수 : "+messages.size());
-        System.out.println("마지막 저장된 메시지 : " + messages.get(messages.size() - 1));
+//        List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByRealTime(chatRoomSeq).orElseThrow(() ->
+//                new CustomException(ErrorCode.WRONG_DATA));
+        List<Message> list = messageRepository.findAllByChatRoomSeqOrderByRealTime(chatRoomSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.WRONG_DATA));
+        // redis에서 sort가 정상 작동하지 않는다.
+        // spring에서 sort 하여 처리.
+        list.sort((o1, o2) -> -o1.getRealTime().compareTo(o2.getRealTime()));
+        ArrayList<Message> messages = new ArrayList<>();
+        Stack<Message> s = new Stack<>();
+        for(int i = 0; i < list.size() ; i++){
+            if(i >= 20 ) break;
+            s.push(list.get(i));
+        }
+        while (!s.isEmpty()) {
+            messages.add(s.pop());
+        }
         return messages;
     }
 }

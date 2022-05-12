@@ -57,19 +57,12 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
   const [lastMessage, setLastMessage] = useState<string>(content)
   const { enterChatRoom, fetchWithToken } = ChatApi
 
-  const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
-    fetchWithToken(url, getToken() as unknown as string), {
-    refreshInterval: 1,
-  });
-
   const enterChattingRoom = async () => {
-    console.log("채팅방 들어가기 실행")
     const result = await enterChatRoom(roomId)
-    console.log(result)
     if (scrollbarRef.current) {
       scrollbarRef.current.scrollToBottom()
     }
-    setHistory(result)
+    setHistory(result.data)
   }
 
   const savePrivateChats = (data: any) => {
@@ -85,12 +78,10 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
 
   const subscribe = () => {
     const list = []
-    console.log(client.current, "여기는 채팅리스트 클라이언트커런트")
     list.push(client.current.subscribe(`/sub/chat/room/${roomId}`, ({ body }: any) => {
       const data = JSON.parse(body)
       setLastMessage(data.content)
       setNewTime(data.realTime)
-      console.log(data)
       if (scrollbarRef.current) {
         scrollbarRef.current.scrollToBottom()
       }
@@ -114,10 +105,10 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
     let res
     res = await client.current.subscribe(`/sub/chat/room/detail/${roomId}`, ({ body }: any) => {
       const payloadData = JSON.parse(body)
-      console.log(payloadData)
       if (privateChats.get(payloadData.chatRoomSeq)) {
         privateChats.get(payloadData.chatRoomSeq).push(payloadData)
         savePrivateChats(new Map(privateChats))
+        console.log(payloadData)
         if (scrollbarRef.current) {
           scrollbarRef.current.scrollToBottom()
         }
@@ -132,12 +123,10 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
       }
     });
     handleSubscribe(res)
-    console.log("detail 클릭 후 : ", client.current)
   };
 
   useEffect(() => {
     subscribe();
-    console.log(client.current)
     return () => {
       subListRef.current.forEach((topic: any, i: number) => {
         topic[i].unsubscribe();
@@ -145,7 +134,6 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
     };
   }, [roomId]);
 
-  console.log(lastMessage)
 
   return (
     <div
@@ -185,7 +173,6 @@ function ChattingLists({ name, content, time, roomId, client, image, privateChat
       <div>
         <div style={{ position: 'absolute', marginLeft: '-1px' }}>
           {time === null ? null : <div style={{ fontSize: '15px', color: '#B6A7A7' }}>{dayjs(newTime).format('MM월DD일 h:mm A')}</div>}
-          {/* <div style={{ fontSize: '15px', color: '#B6A7A7' }}>{dayjs(newTime).format('MM월DD일 h:mm A')}</div> */}
           {/* <div className={styles.count}>{unreads}</div> */}
         </div>
       </div>

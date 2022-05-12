@@ -2,8 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import ReactModal from 'react-modal';
 import AlarmApi from "../../../common/api/AlarmApi"
 import UserApi from "../../../common/api/UserApi"
-// import infoStore from "../../../components/Store/info"
-
+import { infoStore } from "../../../components/Store/info"
+import { useNavigate } from 'react-router-dom';
 //styles
 import style from '../styles/Alarms.module.scss';
 import '../styles/styles.css';
@@ -15,7 +15,8 @@ import neg from '../../../assets/Modal/negative.png';
 function Alarms({ open, onClose, client }: any) {
 
   const { getAlarmList } = AlarmApi;
-  // const { setInviteCode } = infoStore
+  const navigate = useNavigate()
+  const { setInviteCode } = infoStore()
   const [alramsList, setAlarmsList] = useState<any>([]);
   const [flag, setFlag] = useState(false)
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -44,25 +45,26 @@ function Alarms({ open, onClose, client }: any) {
   const onClickDeleteAlarm = async (notiSeq: any, userSeq: any, type: any) => {
     setFlag(true)
     if (type === "Friend") {
+      await deleteAlarm(notiSeq)
       await deleteFriend(userSeq)
+    } else {
       await deleteAlarm(notiSeq)
     }
-    await deleteAlarm(notiSeq)
   }
 
-  const onClickDelteFriend = (userSeq: any) => async () => {
-    await deleteFriend(userSeq)
-  }
-
-  const onClickAcceptRequest = async (notiSeq: any, userSeq: any, type: any) => {
+  const onClickAcceptRequest = async (notiSeq: any, userSeq: any, type: any, inviteCode: any) => {
     setFlag(true)
+    console.log(type, typeof type)
     if (type === "Friend") {
-      await patchAcceptFriendRequest(userSeq)
       await deleteAlarm(notiSeq)
+      await patchAcceptFriendRequest(userSeq)
+    } else {
+      console.log(inviteCode)
+      setInviteCode(inviteCode)
+      navigate("/entrance")
     }
   }
 
-  console.log(alramsList)
   return (
     <div
       className={open ? `${style.openModal} ${style.modal}` : style.modal}
@@ -131,7 +133,7 @@ function Alarms({ open, onClose, client }: any) {
                         alignItems: 'center',
                       }}
                     >
-                      <img style={{ marginRight: '10px' }} src={pos} alt="긍정" onClick={() => { onClickAcceptRequest(value.notiSeq, value.userSeq, value.type) }} />
+                      <img style={{ marginRight: '10px' }} src={pos} alt="긍정" onClick={() => { onClickAcceptRequest(value.notiSeq, value.userSeq, value.type, value.inviteCode) }} />
                       <img src={neg} alt="부정" onClick={() => { onClickDeleteAlarm(value.notiSeq, value.userSeq, value.type) }} />
                     </div>
                   </div>

@@ -19,10 +19,15 @@ const Room = loadable(() => import('./components/Room/Room'));
 function App() {
 
   const { setOffline } = OnlineApi;
+  const offline = async () => {
+    await setOffline()
+    // 새로고침이나 창을 닫을 때 실행
 
+  }
   useEffect(() => {
+    window.addEventListener("unload", offline)
     return () => {
-      setOffline();
+      window.removeEventListener("unload", offline);
     }
   }, []);
   return (

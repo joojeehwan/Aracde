@@ -25,7 +25,7 @@ import { WindowSharp } from '@mui/icons-material';
 import alarmSound from '../../mp3/alram.mp3';
 
 import { useStore } from "../../../src/components/Room/store";
-
+import { infoStore } from "../../../src/components/Store/info"
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -49,6 +49,7 @@ function Main() {
     console.log(clientt, "클라이언트 티티!")
   }, [clientt])
 
+  const { setInviteCode } = infoStore()
   const client = useRef<any>({});
   const handleOpenAlarms = useCallback(async () => {
     // 무조건 무조건이야 알람 흰색 변화
@@ -92,6 +93,7 @@ function Main() {
   };
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
+    setInviteCode("")
     navigate('/entrance');
   };
 
@@ -157,7 +159,6 @@ function Main() {
       heartbeatOutgoing: 4000,
       onConnect: () => {
         subscribe();
-
       },
       onStompError: (frame) => {
         console.error(frame);
@@ -169,7 +170,7 @@ function Main() {
 
   const disconnect = async () => {
 
-    // await setOffline();
+    await setOffline();
     // clientRef.current.deactivate();
     client.current.deactivate();
 

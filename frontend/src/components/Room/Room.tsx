@@ -7,6 +7,9 @@ import RoomContents from "./RoomContents";
 //chat
 import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
 import Chatting from "../Modal/Chatting";
+import useSWR from 'swr';
+import { getToken } from '../../../src/common/api/jWT-Token';
+import ChatAPI from '../../common/api/ChatAPI';
 
 // import LoadingSpinner from "../Modals/LoadingSpinner/LoadingSpinner";
 // import RoomApi from "../../api/RoomApi";
@@ -58,6 +61,7 @@ const Room = () => {
 
   //chat
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
+  const { fetchWithToken } = ChatAPI
 
   const handleOpenChatting = useCallback(() => {
     setChattingIsOpen(true);
@@ -83,19 +87,22 @@ const Room = () => {
     <div className={styles.container}>
       {/* {loading ? <LoadingSpinner></LoadingSpinner> : null} */}
       <div className={styles.nav}>
-        <Chatt
-          className={styles.link}
-          onClick={handleOpenChatting}
-          style={{
-            margin: "20px",
-            width: 60,
-            height: 60,
-            position: "fixed",
-            right: "0px",
-            // bottom: "0px"
-          }}
-          filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-        />
+        {
+          window.localStorage.getItem("token") &&
+          <Chatt
+            className={styles.link}
+            onClick={handleOpenChatting}
+            style={{
+              margin: "20px",
+              width: 60,
+              height: 60,
+              position: "fixed",
+              right: "0px",
+              // bottom: "0px"
+            }}
+            filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+          />
+        }
         <button className={styles.link}>
           EXIT
         </button>
