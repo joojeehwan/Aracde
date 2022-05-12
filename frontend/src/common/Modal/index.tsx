@@ -21,7 +21,7 @@ const Modal: FC<PropsWithChildren<Props>> = ({ show, children, onCloseModal }) =
     //     {children}
     //   </div>
     // </CreateModal>
-    <>아아아악 스타일 에러난다고!!!</>
+    <><h1>ㅎㅇㅎㅇ</h1></>
   );
 };
 
