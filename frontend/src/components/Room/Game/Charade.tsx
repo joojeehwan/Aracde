@@ -1,46 +1,74 @@
-import { ControlPointSharp } from '@mui/icons-material';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../style/Charade.module.scss';
 import StreamComponent from '../stream/StreamComponent';
 import AlarmIcon from '@mui/icons-material/Alarm';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Charade = (props: any) => {
-  const [nickname, setNickname] = useState<any>('');
   const [answer, setAnswer] = useState<any>('');
   const [streamId, setStreamId] = useState<any>('');
   const [index, setIndex] = useState<any>(1);
 
-  const [timeout, setTimeout] = useState<any>(60);
-
-  const [sub, setSub] = useState<any>([]);
-  const [grade, setGrade] = useState<any>(0);
-
+  const [time, setTime] = useState<any>(60);
+  const [timeFlag, setTimeFlag] = useState<any>(false);
   const [message, setMessage] = useState<any>('');
 
-  const [entryOrder, setEntryOrder] = useState<any>([]);
+  const [userData, setUserData] = useState<any>([{ streamId: '', nickname: '', score: 0 }]);
   const [presenter, setPresenter] = useState<any>('');
-  const [correctAnswer, setCorrectAnswer] = useState<any>('');
 
-  const rendering = () => {
-    const result = [];
-    for (let i = 0; i < sub.length; i++) {
-      result.push(<span key={i}>{sub[i] + ' '}</span>);
-    }
-    return result;
-  };
+  const [idx, setIdx] = useState<any>(0);
+  const [answerStreamId, setAnswerStreamId] = useState<any>('');
+
+  const [gameFlag, setGameFlag] = useState<any>(false);
 
   const handleChange = (e: any) => {
     setMessage(e.target.value);
   };
 
-  const onKeyPress = (e: any) => {
-    if (e.key === 'Enter') {
-      sendMessage(e.target.value);
+  const setScore = () => {
+    for (let i = 0; i < userData.length; i++) {
+      if (userData[i].streamId === answerStreamId) {
+        userData[i].score++;
+        setAnswerStreamId('');
+      }
     }
   };
 
+  const getScore = () => {
+    const result = [];
+    for (let i = 0; i < userData.length; i++) {
+      result.push(
+        <span key={i} className={styles.span}>
+          {userData[i].nickname + ' : ' + userData[i].score + '개 '}
+        </span>,
+      );
+    }
+    return result;
+  };
+
+  const onKeyPress = (e: any) => {
+    if (e.key === 'Enter') {
+      sendMessage(e.target.value);
+      sendGameData(e.target.value);
+    }
+  };
+
+  const sendGameData = (msg: string) => {
+    const gameData = {
+      gameStatus: 2,
+      gameId: 2,
+      index: index,
+      timeout: time <= 0 ? 'Y' : 'N',
+      keyword: msg,
+    };
+
+    props.user.getStreamManager().stream.session.signal({
+      data: JSON.stringify(gameData),
+      type: 'game',
+    });
+  };
   const sendMessage = (msg: string) => {
-    console.log('정답 : ' + props.charadeData.answer);
     if (props.user && msg) {
       let messageData = msg.replace(/ +(?= )/g, '');
       if (messageData !== '' && messageData !== ' ') {
@@ -49,20 +77,9 @@ const Charade = (props: any) => {
           nickname: props.user.getNickname(),
           streamId: props.user.getStreamManager().stream.streamId,
         };
-        const gameData = {
-          gameStatus: 2,
-          gameId: 2,
-          index: index,
-          timeout: timeout <= 0 ? 'Y' : 'N',
-          keyword: answer,
-        };
         props.user.getStreamManager().stream.session.signal({
           data: JSON.stringify(chatData),
           type: 'chat',
-        });
-        props.user.getStreamManager().stream.session.signal({
-          data: JSON.stringify(gameData),
-          type: 'game',
         });
       }
     }
@@ -85,97 +102,148 @@ const Charade = (props: any) => {
     });
   };
 
+  const sendCountdown = () => {
+    const data = {
+      gameStatus: 2,
+      gameId: 2,
+      index: index,
+      timeout: 'Y',
+    };
+    props.user.getStreamManager().stream.session.signal({
+      type: 'game',
+      data: JSON.stringify(data),
+    });
+  };
+
+  useEffect(() => {
+    toast("5초 후 몸으로 말해요 게임을 시작하겠습니다.");
+    setTimeout(() => {
+      setGameFlag(true);
+      setTimeFlag(true);
+    }, 5000);
+    return () => {
+      clearTimeout();
+    };
+  }, []);
+
   useEffect(() => {
     const countdown = setInterval(() => {
-      if (parseInt(timeout) > 0) {
-        setTimeout(parseInt(timeout) - 1);
+      if (timeFlag) {
+        if (parseInt(time) === 0) {
+          clearInterval(countdown);
+          sendCountdown();
+          setTimeFlag(false);
+        } else {
+          setTime(parseInt(time) - 1);
+        }
       }
-      if (parseInt(timeout) === 0) {
-        const data = {
-          gameStatus: 2,
-          gameId: 2,
-          index: index,
-          timeout: 'Y'
-        };
-        props.user.getStreamManager().stream.session.signal({
-          type: 'game',
-          data: JSON.stringify(data),
-        });
-        clearInterval(countdown);
-      }
-
     }, 1000);
     return () => clearInterval(countdown);
-  })
+  }, [time, timeFlag]);
 
   useEffect(() => {
-    console.log(props.user)
     setPresenter(props.charadeData.id);
     setAnswer(props.charadeData.answer);
-    setNickname(props.user.getNickname());
     setStreamId(props.user.getStreamManager().stream.streamId);
-  }, [presenter]);
 
-  useEffect(() => {
-    console.log(props.sub, '실행');
-    setSub([...sub, props.sub]);
-  }, [props.sub]);
+    let array = [];
+    array.push({
+      streamId: props.user.getStreamManager().stream.streamId,
+      nickname: props.user.nickname,
+      score: 0,
+    });
+    for (let i = 0; i < props.sub.length; i++) {
+      array.push({
+        streamId: props.sub[i].getStreamManager().stream.streamId,
+        nickname: props.sub[i].nickname,
+        score: 0,
+      });
+    }
+
+    setUserData(array);
+    for (let i = 0; i < props.sub.length; i++) {
+      if (streamId === props.sub[i].getStreamManager().stream.streamId) {
+        setIdx(i);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     props.user.getStreamManager().stream.session.on('signal:game', (response: any) => {
-      console.log('여기밑에가 api 받는 데이터입니다.');
-      console.log(response);
       if (response.data.gameId === 2) {
         if (response.data.gameStatus === 3) {
-          console.log('종료야');
+          console.log('게임 종료');
           exitGame();
+          return;
         }
         // 문제를 맞췄을 때
         if (response.data.gameStatus === 2 && response.data.answerYN === 'Y') {
-          console.log('맞췄어');
-          sendMessage('정답입니다.');
+          sendMessage('정답입니다');
           setIndex(response.data.index);
           setAnswer(response.data.answer);
           setPresenter(response.data.curStreamId);
-          if (streamId === response.data.answerStreamId) {
-          }
+          setAnswerStreamId(response.data.answerStreamId);
+          setTime(60);
+          return;
         }
         // 문제를 맞춰서 게임이 끝난 경우
         if (response.data.gameStatus === 2 && response.data.answerYN === 'Y' && !response.data.curStreamId) {
-          console.log("게임 끝났어");
-          if (streamId === response.data.answerStreamId) {
-          }
+          sendMessage('게임이 끝났습니다.');
+          setAnswerStreamId(response.data.answerStreamId);
+          setTime(60);
+          setGameFlag(false);
+          setTimeFlag(false);
+          return;
         }
         // 문제를 틀렸을 때
         if (response.data.gameStatus === 2 && response.data.answerYN === 'N') {
           console.log('틀렸어');
+          return;
         }
 
         // 시간이 지났을 때
         if (response.data.gameStatus === 2 && response.data.timeout === 'Y') {
-          console.log('시간 끝났어');
+          console.log('시간 초과');
           setIndex(response.data.index);
           setAnswer(response.data.answer);
           setPresenter(response.data.curStreamId);
+          setTime(60);
+          return;
         }
 
         // 시간이 지났는데 게임이 끝난 경우
         if (response.data.gameStatus === 2 && response.data.timeout === 'Y' && !response.data.curStreamId) {
-          console.log("게임 끝났어");
+          console.log('게임 끝났어');
+          setTime(60);
+          setGameFlag(false);
+          setTimeFlag(false);
+          return;
         }
       }
     });
-  });
+  }, []);
 
+  useEffect(() => {
+    setScore();
+  });
   return (
     <>
       <div className={styles.body}>
-        <div>
+        <div className={styles.wrapper}>
           <span className={styles.alarm}>
-            <AlarmIcon /> {timeout}
+            <AlarmIcon /> {time}
           </span>
           <div className={styles.video}>
-            <StreamComponent sessionId={props.sessionId} user={props.user} subscribers={props.subscribers} />
+            {streamId === presenter ? (
+              <StreamComponent sessionId={props.sessionId} user={props.user} subscribers={props.subscribers} />
+            ) : (
+              <StreamComponent
+                sessionId={props.sessionId}
+                user={props.sub[idx]}
+                targetSubscriber={props.targetSubscriber}
+                subscribers={props.subscribers}
+              />
+            )}
           </div>
         </div>
 
@@ -188,19 +256,17 @@ const Charade = (props: any) => {
               className={styles.input}
               value={message}
               onChange={handleChange}
-              placeholder="정답을 맞춰보세요 !"
+              placeholder="정답을 입력해 주세요 !"
               onKeyPress={onKeyPress}
             />
           )}
         </div>
-        <div>
-          <h1>정답 맞춘 개수</h1>
-          <p>
-            {/* {rendering()} */}
-            <span>
-              {nickname} : {grade} 개
-            </span>
-          </p>
+
+        <div className={styles.scoreWrapper}>
+          <div className={styles.score}>
+            <h1>정답 맞춘 개수</h1>
+            {getScore()}
+          </div>
         </div>
       </div>
     </>

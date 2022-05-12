@@ -18,7 +18,6 @@ import SelectGame from './Game/Modal/SelectGame';
 import Wait from './Game/Modal/Wait';
 import { display } from '@mui/system';
 
-
 const OPENVIDU_SERVER_URL = 'https://k6a203.p.ssafy.io:5443';
 const OPENVIDU_SERVER_SECRET = 'arcade';
 
@@ -500,7 +499,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
                 : styles['video-container']
             }
           >
-            {localUserRef.current !== undefined && localUserRef.current.getStreamManager() !== undefined && (
+            {localUserRef.current !== undefined && localUserRef.current.getStreamManager() !== undefined && mode!=="game2" && (
               <StreamComponent
                 user={localUserRef.current}
                 sessionId={mySessionId}
@@ -533,7 +532,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
         {mode === 'game1' ? <Catchmind initData={catchMindDataRef.current} user={localUserRef.current} /> : null}
         {mode === 'game2' ? (
           <div>
-            <Charade sessionId={mySessionId} user={localUserRef.current} subscribers={subscribers} charadeData={charadeData} />
+            <Charade
+              sessionId={mySessionId}
+              sub={subscribersRef.current}
+              user={localUserRef.current}
+              subscribers={subscribers}
+              charadeData={charadeData}
+            />
           </div>
         ) : null}
 
