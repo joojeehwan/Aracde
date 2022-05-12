@@ -25,13 +25,13 @@ function Catchmind({initData, user} : MyProps) {
     const [timeFlag, setTimeFlag] = useState<boolean>(false);
     const [myTurn, setMyturn] = useState<boolean>(false);
     const [nextTurn, setNext] = useState<boolean>(false);
-    const [time, setTime] = useState<number>(60000000000);
+    const [time, setTime] = useState<number>(60);
     const [imgTime, setImgTime] = useState<number>(5);
     const [init, setInit] = useState<boolean>(false);
     const [idx, setIdx] = useState<number>();
     const [imLast, setImLast] = useState<boolean>(false);
     const [last, setLast] = useState<boolean>(false);
-    const [lastTime, setLastTime] = useState<number>(300000000);
+    const [lastTime, setLastTime] = useState<number>(30);
     const [inputData, setInputData] = useState<string>("");
     const [imgStatus, setImgStatus] = useState<boolean>(false);
     const [allImage, setAllimage] = useState<string[]>([]);

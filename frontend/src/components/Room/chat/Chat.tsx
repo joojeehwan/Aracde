@@ -22,23 +22,23 @@ const Chat = (props : any) => {
   reset.current = messageList;
   console.log("chat render", props.mode);
   console.log(props.user,"실행");
-  if(props.mode === "game3" && mode !== "game3"){
-    // const data2 = {
-    //   gameStatus : 1,
-    //   gameId : 3,
-    //   index : 1
-    // }
-    // props.user.getStreamManager().stream.session.signal({
-    //   data : JSON.stringify(data2),
-    //   type : "game"
-    // });
-    setMode("game3");
-  }
-  else if(props.mode !== mode){
-    // console.log("실행 입니다 초기화 제발 되라고 제발", messageList);
+  // if(props.mode === "game3" && mode !== "game3"){
+  //   // const data2 = {
+  //   //   gameStatus : 1,
+  //   //   gameId : 3,
+  //   //   index : 1
+  //   // }
+  //   // props.user.getStreamManager().stream.session.signal({
+  //   //   data : JSON.stringify(data2),
+  //   //   type : "game"
+  //   // });
+  //   setMode("game3");
+  // }
+  // else if(props.mode !== mode){
+  //   // console.log("실행 입니다 초기화 제발 되라고 제발", messageList);
 
-    setMode(props.mode);
-  }
+  //   setMode(props.mode);
+  // }
   
   useEffect(()=>{
     console.log(props.sub,"실행");
@@ -181,10 +181,10 @@ const Chat = (props : any) => {
 
   const handlePressKey = (event : any) => {
     
-    if (event.key === "Enter" && props.mode === "game3") {
+    if (event.key === "Enter" && props.mode === "game4") {
       sendAnswer();
     }
-    else if(event.key === "Enter" && props.mode != "game3"){
+    else if(event.key === "Enter" && props.mode != "game4"){
       event.preventDefault();  
       sendMessage();
     }
@@ -316,7 +316,7 @@ const Chat = (props : any) => {
           props.mode !== "home"
           ? `${styles["message-wrap"]} ${styles.game}`
           : styles["message-wrap"]} ref={chatScroll}>
-         {props.mode === "game3" ? (answerList.map((data : any, i : any) => 
+         {props.mode === "game4" ? (answerList.map((data : any, i : any) => 
             (<div
               key={i}
               id="remoteUsers"

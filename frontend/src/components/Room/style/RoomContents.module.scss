@@ -5,7 +5,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 15vh;
+    margin-top: 13vh;
 
   }
   .contents-container.catchmind {
@@ -19,6 +19,14 @@
     // overflow-y: scroll;
   }
 
+  .contents-container.charade {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    margin-top: 0;
+  }
+
   .user-videos-container {
     width: 85%;
     height: 100%;
@@ -29,7 +37,21 @@
     margin-left: 5vw;
     margin-right: 3vw;
   }
+  .user-videos-container.findperson {
+    width: 80%;
+    height: 70%;
+    margin-left: 5vw;
+    margin-right: 3vw;
+    margin-top: -20vh;
+  }
   
+
+  .user-videos-container.charade {
+    width: 20vw;
+    height: 90%;
+    margin-left: 8vw;
+    margin-right: 3vw;
+  }
   .video-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -47,6 +69,14 @@
     height: 100%;
     // overflow-y: scroll;
   }
+  .video-container.charade{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    height: 95%;
+  }
   .videoplayer {
     grid-column: 2 / 4;
     grid-row: 1 / 3;
@@ -62,6 +92,11 @@
     height: 90vh;
     // display: inline;
 
+  }
+  .etcbox.charade{
+    color : white;
+    width: 30vw;
+    height: 90vh;
   }
   .chat-container {
     // margin-top: 10px;
