@@ -10,17 +10,17 @@ import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import RoomApi from '../../common/api/Room';
-
+import { infoStore } from "../../components/Store/info"
 const CreateRoom = () => {
   const navigate = useNavigate();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMic, setMic] = useState(true);
   const [isVideo, setVideo] = useState(true);
-
+  const { invitecode } = infoStore()
   const [nickname, setNickname] = useState<any>(""); // 닉네임
-  const [code, setCode] = useState<any>(""); // 초대 코드
-
+  const [code, setCode] = useState<any>(invitecode); // 초대 코드
+  console.log(invitecode)
   const { enterRoom } = RoomApi;
 
   const handleMic = () => {

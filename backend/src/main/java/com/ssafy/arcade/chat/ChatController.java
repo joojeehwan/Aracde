@@ -41,6 +41,8 @@ public class ChatController {
     public ResponseEntity<List<SearchFriendRes>> searchFriend(@RequestParam("name") String name, @RequestHeader("Authorization") String token) {
         return new ResponseEntity<>(chatService.searchFriend(token,name), HttpStatus.OK);
     }
+    // 5. 채팅방 topic 삭제하기.
+
 //    // 2. 채팅방에 메시지 전송하기
 //    @PostMapping("/message")
 //    public ResponseEntity<String> sendMessage(@RequestHeader("Authorization") String token, @RequestBody SendMessageReq sendMessageReq) {

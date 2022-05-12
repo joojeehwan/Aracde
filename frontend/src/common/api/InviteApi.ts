@@ -9,7 +9,6 @@ const online = async () => {
     const result = await axios
       .post(`${BASE_URL}/enter`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {
@@ -24,7 +23,6 @@ const offline = async () => {
     const result = await axios
       .post(`${BASE_URL}/out`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {

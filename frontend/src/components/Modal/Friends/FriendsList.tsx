@@ -1,3 +1,4 @@
+/*eslint no-unused-expressions: "error"*/
 import React, { useState, useCallback } from 'react';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
@@ -46,17 +47,16 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsList({ name, imgUrl }: any) {
+function FriendsList({ name, imgUrl, userSeq, setIsDelete }: any) {
   const [isOnline, setIsOnline] = useState(true);
 
   //api
-  const { deleteFriend } = UserApi;
-
-  const userSeq = window.localStorage.getItem('useSeq');
+  const { deleteFriend, getFriendList } = UserApi;
   console.log(userSeq);
 
-  const onClickdeleteFriend = useCallback(() => {
-    deleteFriend(userSeq as unknown as number);
+  const onClickdeleteFriend = useCallback(async () => {
+    setIsDelete(true)
+    await deleteFriend(userSeq as unknown as number)
   }, [userSeq]);
 
   return (

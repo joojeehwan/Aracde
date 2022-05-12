@@ -15,7 +15,7 @@ import ChatEach from './ChattingComponents/ChatEach';
 import ChatInput from './ChattingComponents/ChatInput';
 import ChattingLists from './ChattingComponents/ChattingLists';
 import useInput from '../../../common/hooks/useInput';
-import ChatInvite from '../Chatting/ChattingComponents/ChatInvite';
+import ChatInvite from '../Chatting/ChattingComponents/ChatSearch/ChatInvite';
 import { getToken } from '../../../common/api/jWT-Token';
 import makeSection from "./utils/makeSection"
 
@@ -35,17 +35,40 @@ interface IDM {
   content: string;
   time: string;
 }
+//정리// 콘솔 찍어보고 맞는 함수 타입 설정,,! 
+interface subObject {
+  id: string;
+  unsubscribe: () => void;
+}
 
-function Chatting({ open, onClose, client, chattingList }: any) {
+function Chatting({ open, onClose, client }: any) {
   const scrollbarRef = useRef<Scrollbars>(null);
   const [chat, onChangeChat, setChat] = useInput('');
   const [chatList, setChatList] = useState<any>([]);
   const [privateChats, setPrivateChats] = useState<any>(new Map())
   const [chatInvite, setChatInvite] = useState<boolean>(false);
   const [isShow, setIsShow] = useState<boolean>(false)
-  //api
-  const { getChatList, createChatRoom } = ChatAPI;
+  const [subscribeDetail, setSubscribeDetail] = useState<subObject>()
+  const [flag, setFlag] = useState(false)
 
+  const handleFlag = () => {
+    setFlag(true)
+  }
+
+  // 정리 useRef 객체를 이용하는 결정적인 이유,,?! 외부라이브러리의 객체를 사용 => ref를 통해 관리하는게 좋음
+  // 컴포넌트의 전 생명주기를 통해 유지되는 값이라는 의미이며, 
+  // 순수한 자바스크립트 객체를 생성 및 유지시켜주기 때문에 
+  // 동시성을 유지하기 위함!
+  const { getChatList } = ChatAPI;
+
+  const subscribeRef = useRef(subscribeDetail)
+  subscribeRef.current = subscribeDetail
+
+  //정리 set함수를 props보낼때 함수에 싸서 보내는구먼,,! 
+  const handleSubscribeDetail = (data: any) => {
+    setSubscribeDetail(data)
+  }
+  //api
   const handleOpenChatInvite = useCallback(() => {
     setChatInvite(true);
   }, [chatInvite]);
@@ -62,6 +85,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
     if (!client.current.connected) {
       return;
     }
+
     evt.preventDefault()
     const SendMessageReq = {
       chatRoomSeq: romId,
@@ -76,7 +100,6 @@ function Chatting({ open, onClose, client, chattingList }: any) {
 
     setChat(" ")
     if (scrollbarRef.current) {
-      console.log("scroolToBottom!", scrollbarRef.current?.getValues())
       scrollbarRef.current.scrollToBottom()
     }
   };
@@ -85,60 +108,54 @@ function Chatting({ open, onClose, client, chattingList }: any) {
     e.stopPropagation();
   };
 
-  const date = '2022-04-30'; // dummy data => section 나누기 필요
-
   const getAndgetChatList = async () => {
     const result = await getChatList();
-    console.log(result)
     if (result?.status === 200) {
+
       setChatList([...result.data]);
+    }
+    if (flag === true) {
+      setFlag(false)
     }
   };
 
-  console.log(chattingList)
-  console.log(romId)
+  useEffect(() => {
+    getAndgetChatList()
+  }, [flag])
+
+  const unsub = () => {
+    if (!subscribeRef.current) return
+    const value = subscribeRef.current
+    value.unsubscribe()
+  }
+
+  //정리 리스트 안의 객체에서 특정값 있는지 여부 확인
+  //ver1
   function islst(element: any) {
     if (element.chatRoomSeq === romId) {
       return true
     }
   }
-
-  let ChatHeader = chattingList.find(islst)
-  const test = chattingList.filter((value: any) => value.chatRoomSeq === romId)
+  let ChatHeader = chatList?.find(islst)
+  //ver2
+  const test = chatList?.filter((value: any) => value.chatRoomSeq === romId)
 
   useEffect(() => {
-    getAndgetChatList();
+
     return () => {
-      console.log("실행되나?!")
+      // 채팅창 닫아도 sub/detail 모두 구취 해야 함
+      unsub()
       setIsShow(false)
-      console.log(chatList)
     }
   }, []);
 
-  // console.log(histoty?.data)
-  // const test = privateChats.get(romId)
-  // console.log(test)
-  // console.log(histotyLst)
-  // let sumChat
-  // useEffect(() => {
-  //   if (histotyLst !== undefined && test !== undefined) {
-  //     sumChat = (histotyLst ? (histotyLst).concat(...test) : test)
-  //   }
-  // }, [test])
+  useEffect(() => {
+    setTimeout(() => {
+      scrollbarRef.current?.scrollToBottom()
+    }, 1)
+  }, [subscribeRef.current])
 
-  // console.log(test)
-  // console.log(histotyLst)
-
-  const histotyLst: IDM[] = histoty?.data
-  const chatSections = makeSection(histotyLst ? ([] as IDM[]).concat(...histotyLst) : [])
-  console.log(ChatHeader)
-  console.log(test)
-  // console.log(chatSections)
-
-  // console.log(chattingList.length)
-  // console.log(romId)
-
-
+  // const chatSections = makeSection(history ? ([] as IDM[]).concat(history) : [])
   return (
     <div
       className={open ? `${styles.openModal} ${styles.modal}` : styles.modal}
@@ -149,7 +166,6 @@ function Chatting({ open, onClose, client, chattingList }: any) {
     >
       {open ? (
         <section
-          id={chatList.length < 0 ? styles.test : ''}
           className={styles.modalForm}
           onClick={handleStopEvent}
           onKeyDown={handleStopEvent}
@@ -167,26 +183,26 @@ function Chatting({ open, onClose, client, chattingList }: any) {
               }}
               className={styles.chatList}
             >
-
-
               <div style={{ height: '600px', width: '400px' }}>
-                {chattingList?.length > 0 ? (
-                  chattingList?.map((section: any) => {
+                {chatList?.length > 0 ? (
+                  chatList?.map((section: any) => {
                     return (
                       <ChattingLists
-                        chattingList={chattingList}
-                        chat={chat}
                         setIsShow={setIsShow}
+                        chat={chat}
                         scrollbarRef={scrollbarRef}
                         setPrivateChats={setPrivateChats}
                         privateChats={privateChats}
                         client={client}
+                        login={section.login}
                         key={section.chatRoomSeq}
                         roomId={section.chatRoomSeq}
                         name={section.name}
                         image={section.image}
                         content={section.lastMessage}
                         time={section.lastTime}
+                        handleSubscribe={handleSubscribeDetail}
+                        unsub={unsub}
                       />
                     );
                   })
@@ -194,18 +210,15 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                   <div style={{ width: '250px', textAlign: 'end' }}>채팅이 없습니다.</div>
                 )}
               </div>
-              <img
-                src={plus}
-                style={{
-                  height: '64px',
-                  width: '64px',
-                  display: 'block',
-                  margin: '0px 80px',
-                }}
-                onClick={handleOpenChatInvite}
-              />
+              <div>
+                <img
+                  className={isShow ? styles.plusOn : styles.plusOff}
+                  src={plus}
+                  onClick={handleOpenChatInvite}
+                />
+              </div>
             </div>
-            {chattingList?.length > 0 ? (
+            {isShow ? (
               <div className={styles.chatContent}>
                 <header className={styles.chatHeader}>
                   <Avatar alt="사진" src={ChatHeader?.image} sx={{ width: 56, height: 56 }} />
@@ -213,21 +226,25 @@ function Chatting({ open, onClose, client, chattingList }: any) {
                 </header>
                 <div className={styles.chatMessages}>
                   <Scrollbars autoHide ref={scrollbarRef}>
-                    {Object.entries(chatSections).map(([date, chats]) => {
+                    {/* {Object.entries(chatSections).map(([date, chats], i: number) => {
+                      const key = i
                       return (
-                        <Section>
+                        <Section key={key}>
                           <StickyHeader>
-                            <button style={{ zIndex: "100" }}>{date}</button>
+                            <button>{date}</button>
                           </StickyHeader>
-                          {/* 웹소켓 연결부분 */}
                           {ChatHeader !== undefined ? chats?.map((value: any) => {
-                            return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} time={value.time} content={value.content} userSeq={value.sender} image={value.profile} />
+                            return <ChatEach key={Math.random().toString(36).substr(2, 5) + value.time} name={value.name} time={value.time} content={value.content} userSeq={value.sender} image={value.profile} />
                           }) : null}
                         </Section>
                       )
-                    })}
+                    })} */}
+                    {histoty?.map((value: any) => {
+                      return <ChatEach key={Math.random().toString(36).substr(2, 5) + value.time} name={value.name} time={value.time} content={value.content} userSeq={value.sender} image={value.profile} />
+                    })
+                    }
                     {privateChats.get(romId)?.map((value: any) => {
-                      return <ChatEach key={Math.random().toString(36).substr(2, 5)} name={value.name} time={value.time} content={value.content} userSeq={value.userSeq} image={value.image} />
+                      return <ChatEach key={value.realTime} name={value.name} time={value.time} content={value.content} userSeq={value.userSeq} image={value.image} />
                     })}
                   </Scrollbars>
                 </div>
@@ -236,7 +253,7 @@ function Chatting({ open, onClose, client, chattingList }: any) {
             ) : null}
           </div>
 
-          {chatInvite ? <ChatInvite open={chatInvite} onClose={handleCloseChatInvite} /> : null}
+          {chatInvite ? <ChatInvite open={chatInvite} onClose={handleCloseChatInvite} handleFlag={handleFlag} /> : null}
         </section>
       ) : null}
     </div>

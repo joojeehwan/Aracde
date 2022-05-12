@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/game';
+const BASE_URL = process.env.REACT_APP_API_ROOT + '/game';
 
 const createRoom = async () => {
   const response = await axios.post(`${BASE_URL}/room`);
@@ -10,7 +10,7 @@ const createRoom = async () => {
 };
 
 const enterRoom = async (code: string) => {
-  const response = await axios.patch(`${BASE_URL}/room`,{inviteCode : code});
+  const response = await axios.patch(`${BASE_URL}/room`, { inviteCode: code });
   console.log(response);
   return response;
 };
@@ -21,18 +21,50 @@ const exitRoom = async (code: string) => {
   return response;
 };
 
-const getUploadImageResult = async (data : FormData) => {
+const getUploadImageResult = async (data: FormData) => {
   const response = await axios.post(`${BASE_URL}/upload`, data);
   return response;
-
+}
+const getSaveMyFavoriteImageResult = async (data: { userSeq: string | number | null, pictureUrl: string }) => {
+  if (data.userSeq !== null) {
+    data.userSeq = +data.userSeq;
+    const response = await axios.post(`${BASE_URL}/picture`, data);
+    return response
+  }
+  else return null;
 }
 
+//게임 초대 
+const postInviteFriendAlarm = async (userSeq: any, inviteCode: any, targetUserSeq: any) => {
+  const token = getToken();
+  const body = {
+    inviteCode,
+    userSeq,
+    targetSeq: targetUserSeq
+  };
+  if (token !== null) {
+    console.log(body)
+    const result = await axios.post(`${BASE_URL}/invite`, body, { headers: { Authorization: token } })
+      .then((res) => {
+        console.log(res)
+        return res;
+      })
+      .catch((err) => {
+        console.dir(err);
+        return err;
+      });
+    return result;
+  }
+  return null;
+};
 
 const RoomApi = {
   createRoom,
   enterRoom,
   exitRoom,
-  getUploadImageResult
+  getUploadImageResult,
+  postInviteFriendAlarm,
+  getSaveMyFavoriteImageResult
 };
 
 export default RoomApi;

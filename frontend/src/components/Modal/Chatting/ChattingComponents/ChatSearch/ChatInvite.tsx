@@ -1,27 +1,21 @@
 import React, { useCallback, useState } from 'react';
-import style from '../../styles/Invite.module.scss';
+import style from '../../../styles/Invite.module.scss';
 import { toast } from 'react-toastify';
 
 //components
-import ChatInviteSearhBar from '../ChattingComponents/ChatInviteSearhBar';
-import ChatInviteSearhResults from '../ChattingComponents/ChatInviteSearhResults';
+import ChatInviteSearhBar from '../../ChattingComponents/ChatSearch/ChatInviteSearhBar';
+import ChatInviteSearhResults from '../../ChattingComponents/ChatSearch/ChatInviteSearhResults';
 
 //api
-import ChatApi from '../../../../common/api/ChatAPI';
+import ChatApi from '../../../../../common/api/ChatAPI';
 
 type MyProps = {
   open: boolean;
   onClose: (e: any) => void;
 };
 
-// const dummydata = [
-//   { name: '홍승기', isInvite: true },
-//   { name: '주지환', isInvite: false },
-// ];
-
-function ChatInvite({ open, onClose }: MyProps) {
+function ChatInvite({ open, onClose, handleFlag }: any) {
   const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string }[]>([]);
-
   const { getChatSearchResult } = ChatApi;
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -56,10 +50,12 @@ function ChatInvite({ open, onClose }: MyProps) {
             return (
               <ChatInviteSearhResults
                 key={value.name}
+                onClose={onClose}
                 name={value.name}
                 isInvite={value.canInvite}
                 image={value.image}
                 userSeq={value.userSeq}
+                handleFlag={handleFlag}
               />
             );
           })}

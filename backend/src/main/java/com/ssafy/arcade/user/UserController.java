@@ -157,10 +157,10 @@ public class UserController {
     }
 
     // 친구 검색
-    @GetMapping(value = "/friend/search", params = "userEmail")
+    @GetMapping(value = "/friend/search")
     public ResponseEntity<List<UserResDto>> friendSearch(@RequestHeader("Authorization") String token,
-                                                         @RequestParam String userEmail) {
-        List<UserResDto> userResDtoList = userService.searchFriend(token, userEmail);
+                                                         @RequestParam String name) {
+        List<UserResDto> userResDtoList = userService.searchFriend(token, name);
 
         return new ResponseEntity<>(userResDtoList, HttpStatus.OK);
     }

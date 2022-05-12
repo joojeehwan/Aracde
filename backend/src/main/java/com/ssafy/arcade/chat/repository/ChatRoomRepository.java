@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
-    ChatRoom findByUser1AndUser2(User user1, User user2);
+    Optional<ChatRoom> findByUser1AndUser2(User user1, User user2);
     Optional<ChatRoom> findByChatRoomSeq(Long chatRoomSeq);
 }

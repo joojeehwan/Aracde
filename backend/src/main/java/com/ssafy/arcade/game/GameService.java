@@ -12,14 +12,23 @@ import com.ssafy.arcade.game.repositroy.GameRepository;
 import com.ssafy.arcade.game.repositroy.GameRoomRepository;
 import com.ssafy.arcade.game.repositroy.GameUserRepository;
 import com.ssafy.arcade.game.repositroy.PictureRepository;
+import com.ssafy.arcade.game.request.InviteReq;
 import com.ssafy.arcade.game.response.PictureResDto;
+import com.ssafy.arcade.notification.NotiService;
+import com.ssafy.arcade.notification.dtos.NotiDTO;
+import com.ssafy.arcade.notification.entity.Notification;
+import com.ssafy.arcade.notification.repository.NotiRepository;
+import com.ssafy.arcade.user.OnlineService;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
@@ -33,6 +42,8 @@ public class GameService {
     private final UserRepository userRepository;
     private final PictureRepository pictureRepository;
     private final S3Service s3Service;
+    private final NotiRepository notiRepository;
+    private final SimpMessageSendingOperations messageTemplate;
 
     // Room 생성
     public String createInviteCode() {
@@ -239,4 +250,33 @@ public class GameService {
         }
         return new String(temp);
     }
+
+    public String inviteFriend(InviteReq inviteReq) {
+        User user = userRepository.findByUserSeq(inviteReq.getUserSeq()).orElseThrow(()->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+        User targetUser = userRepository.findByUserSeq(inviteReq.getTargetSeq()).orElseThrow(()->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+        // 알림 저장
+        notiRepository.save(Notification.builder()
+                .userSeq(user.getUserSeq()).type("Game").targetSeq(targetUser.getUserSeq())
+                .time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
+                        .inviteCode(inviteReq.getInviteCode())
+                .name(user.getName()).isConfirm(false).build());
+
+        // 알림 보내기
+        // 두개 이상일수도 있음; 게임 요청을 두번 이상 보낼수도 있으니까
+        List<Notification> notifications = notiRepository.findAllByTypeAndUserSeqAndTargetSeq("Game", user.getUserSeq(), targetUser.getUserSeq())
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_DATA));
+        // 리스트를 time 내림차순정렬
+        notifications.sort((o1, o2) -> -o1.getTime().compareTo(o2.getTime()));
+        // 가장 최근 noti 가져옴.
+        Notification notification = notifications.get(0);
+        // pub
+        messageTemplate.convertAndSend("/sub/" + targetUser.getUserSeq(), NotiDTO.builder()
+                .time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
+                .notiSeq(notification.getNotiSeq()).type("Game").userSeq(user.getUserSeq()).name(user.getName())
+                .isConfirm(false).build());
+        return "OK";
+    }
+
 }

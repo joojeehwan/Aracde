@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useRef } from "react";
+/*eslint no-unused-expressions: "error"*/
+import React, { useContext, useEffect, useRef, useCallback } from "react";
 import { useState } from "react";
 import { OpenVidu } from "openvidu-browser";
 import axios from "axios";
@@ -7,14 +8,17 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useStore } from "./store";
 import Play from '../../assets/play.png';
-import {ReactComponent as Info} from '../../assets/info.svg';
-import {ReactComponent as People} from '../../assets/team.svg';
+import { ReactComponent as Info } from '../../assets/info.svg';
+import { ReactComponent as People } from '../../assets/team.svg';
 import Chat from "./chat/Chat";
-import Catchmind from "./Game/Catchmin";
+import Catchmind from "./Game/Catchmind";
 import Charade from "./Game/Charade";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
-import { display } from "@mui/system";
+// import { display } from "@mui/system";
+import Invite from "../Modal/Invite/Invite"
+import SelectGame from "./Game/Modal/SelectGame";
+import Wait from "./Game/Modal/Wait";
 
 
 const OPENVIDU_SERVER_URL = "https://k6a203.p.ssafy.io:5443";
@@ -22,19 +26,19 @@ const OPENVIDU_SERVER_SECRET = "arcade";
 
 
 let localUserInit = new UserModel();
-let OV : any = undefined;
+let OV: any = undefined;
 
 
 const RoomContents = ({
   sessionName,
   userName,
-} : any) => {
+}: any) => {
   const navigate = useNavigate();
-//   const { setRoomSnapshotResult } = RoomApi;
-//   const { getImgUploadResult } = ImgApi;
+  //   const { setRoomSnapshotResult } = RoomApi;
+  //   const { getImgUploadResult } = ImgApi;
   const { setSessionId } = useStore();
-//   const { loginStatus, setLoginStatus } = useContext(LoginStatusContext);
-//   const { myName } = useContext(NameContext);
+  //   const { loginStatus, setLoginStatus } = useContext(LoginStatusContext);
+  //   const { myName } = useContext(NameContext);
   //console.log(loginStatus, myName);
   console.log("room content render");
   const [mySessionId, setMySessionId] = useState<string>(sessionName);
@@ -50,13 +54,28 @@ const RoomContents = ({
   const [correctNickname, setCorrectNickname] = useState<any[]>([]);
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
-  const [mode , setMode] = useState<string>("home");
-  const [catchMindData, setCatchMindData] = useState<{answer : string, id : string, nextId : string}>();
-
+  const [mode, setMode] = useState<string>("home");
+  const [catchMindData, setCatchMindData] = useState<{ answer: string, id: string, nextId: string }>();
+  const [open, setOpen] = useState<boolean>(false);
+  const [wait, setWait] = useState<boolean>(false);
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
 
 
+  //게임 초대 모달
+
+  const [inviteIsOpen, setInviteIsOpen] = useState<boolean>(false);
+
+
+  const handleOpensInvite = useCallback(() => {
+    setInviteIsOpen(true);
+  }, [inviteIsOpen]);
+
+  const handleCloseInvite = useCallback(() => {
+    setInviteIsOpen(false);
+  }, [inviteIsOpen])
+  const catchMindDataRef = useRef(catchMindData);
+  catchMindDataRef.current = catchMindData;
 
   const sessionRef = useRef(session);
   sessionRef.current = session;
@@ -79,7 +98,30 @@ const RoomContents = ({
     OV = new OpenVidu();
     setSession(OV.initSession());
   };
-
+  const handleCloseModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const data = {
+      gameStatus: 0,
+      flag: false
+    }
+    sessionRef.current.signal({
+      type: "game",
+      data: JSON.stringify(data)
+    })
+    setOpen(false);
+  }
+  const handleOpenModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const data = {
+      gameStatus: 0,
+      flag: true
+    }
+    sessionRef.current.signal({
+      type: "game",
+      data: JSON.stringify(data)
+    })
+    setOpen(true);
+  }
 
   useEffect(() => {
 
@@ -97,8 +139,8 @@ const RoomContents = ({
     return () => {
       window.removeEventListener("beforeunload", onbeforeunload);
       window.removeEventListener("popstate", preventGoBack);
-    //   window.removeEventListener("unload", handleleaveRoom);
-    //   handleleaveRoom();
+      //   window.removeEventListener("unload", handleleaveRoom);
+      //   handleleaveRoom();
       leaveSession();
     };
   }, []);
@@ -109,8 +151,8 @@ const RoomContents = ({
     if (sessionRef.current) {
       console.log(sessionRef.current);
       // 상대방이 들어왔을 때 실행
-        console.log("AS?DAS?DASDFKLASDFHNLS:DKFHNBVKLSJ:DVFHBNSHKDJ:FVHBNSAJKDFHBNASDKF");
-      sessionRef.current.on("streamCreated", (event : any) => {
+      console.log("AS?DAS?DASDFKLASDFHNLS:DKFHNBVKLSJ:DVFHBNSHKDJ:FVHBNSAJKDFHBNASDKF");
+      sessionRef.current.on("streamCreated", (event: any) => {
         console.log("?AS?DAS?D?ASD?ASFVSJKDLVHNBSDKJVHBNSDKJVHBSDKLJFCHGBADSKLJFHASKJLFDHKLJADSFHSDIUFHSDUIFHGSDLJKF");
         setParticpantNum(participantNumRef.current + 1);
         let subscriber = sessionRef.current.subscribe(event.stream, undefined);
@@ -133,7 +175,7 @@ const RoomContents = ({
       });
 
       // 상대방이 상태를 변경했을 때 실행 (카메라 / 마이크 등)
-      sessionRef.current.on("signal:userChanged", (event : any) => {
+      sessionRef.current.on("signal:userChanged", (event: any) => {
         console.log(sessionRef.current);
         subscribersRef.current.forEach((user) => {
           if (user.getConnectionId() === event.from.connectionId) {
@@ -148,22 +190,34 @@ const RoomContents = ({
         });
         setSubscribers([...subscribersRef.current]);
       });
-      
-      sessionRef.current.on("streamDestroyed", (event : any) => {
+
+      sessionRef.current.on("streamDestroyed", (event: any) => {
         setParticpantNum(participantNumRef.current - 1);
         deleteSubscriber(event.stream);
       });
 
-      sessionRef.current.on("exception", (exception : any) => {
+      sessionRef.current.on("exception", (exception: any) => {
         console.warn(exception);
       });
-      
-      sessionRef.current.on("signal:game", (response : any) => {
+
+      sessionRef.current.on("signal:game", (response: any) => {
         // console.log("여긴 룸 컨텐츠에용 씨발 제발 불리지 마세용");
         console.log(response);
-        if(response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1'){
+        if (response.data.gameStatus === 0) {
+          if (localUserRef.current.getStreamManager().stream.streamId !== response.data.streamId) {
+            setWait(response.data.flag);
+          }
+        }
+        if (response.data.gameStatus === 3) {
+          setMode("home");
+        }
+        if (response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1') {
           console.log("?실행", modeRef.current);
-          setCatchMindData({answer : response.data.answer, id : response.data.curStreamId, nextId : response.data.nextStreamId});
+          setCatchMindData({ answer: response.data.answer, id: response.data.curStreamId, nextId: response.data.nextStreamId });
+          setMode("game1");
+        }
+        if (response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current === 'game1' && response.data.restart) {
+          setCatchMindData({ answer: response.data.answer, id: response.data.curStreamId, nextId: response.data.nextStreamId });
           setMode("game1");
         }
       })
@@ -200,7 +254,7 @@ const RoomContents = ({
             setPublisher(publisherTemp);
             setLocalUser(localUserInit);
           })
-          .catch((error : any) => {
+          .catch((error: any) => {
             console.log(
               "There was an error connecting to the session:",
               error.code,
@@ -230,7 +284,7 @@ const RoomContents = ({
     setLocalUser(undefined);
   };
 
-  const deleteSubscriber = (stream : any) => {
+  const deleteSubscriber = (stream: any) => {
     console.log(stream);
     console.log(subscribersRef.current);
     console.log(subscribers);
@@ -253,12 +307,12 @@ const RoomContents = ({
     console.log(subscribersRef.current);
   };
 
-  const onbeforeunload = (e : any) => {
+  const onbeforeunload = (e: any) => {
     e.preventDefault();
     e.returnValue = "나가실껀가요?";
   };
 
-  const sendSignalUserChanged = (data : any) => {
+  const sendSignalUserChanged = (data: any) => {
     //console.log("시그널 보내 시그널 보내");
     const signalOptions = {
       data: JSON.stringify(data),
@@ -306,7 +360,7 @@ const RoomContents = ({
     );
   };
 
-  const createSession = (sessionId : any) => {
+  const createSession = (sessionId: any) => {
     return new Promise((resolve, reject) => {
       let data = JSON.stringify({ customSessionId: sessionId });
       axios
@@ -329,16 +383,16 @@ const RoomContents = ({
             ////console.log(error);
             console.warn(
               "No connection to OpenVidu Server. This may be a certificate error at " +
-                OPENVIDU_SERVER_URL
+              OPENVIDU_SERVER_URL
             );
             if (
               window.confirm(
                 'No connection to OpenVidu Server. This may be a certificate error at "' +
-                  OPENVIDU_SERVER_URL +
-                  '"\n\nClick OK to navigate and accept it. ' +
-                  'If no certificate warning is shown, then check that your OpenVidu Server is up and running at "' +
-                  OPENVIDU_SERVER_URL +
-                  '"'
+                OPENVIDU_SERVER_URL +
+                '"\n\nClick OK to navigate and accept it. ' +
+                'If no certificate warning is shown, then check that your OpenVidu Server is up and running at "' +
+                OPENVIDU_SERVER_URL +
+                '"'
               )
             ) {
               window.location.assign(
@@ -350,7 +404,7 @@ const RoomContents = ({
     });
   };
 
-  const createToken = (sessionId : any) => {
+  const createToken = (sessionId: any) => {
     let jsonBody = {
       role: "PUBLISHER",
       kurentoOptions: {},
@@ -364,9 +418,9 @@ const RoomContents = ({
       axios
         .post(
           OPENVIDU_SERVER_URL +
-            "/openvidu/api/sessions/" +
-            sessionId +
-            "/connection",
+          "/openvidu/api/sessions/" +
+          sessionId +
+          "/connection",
           data,
           {
             headers: {
@@ -383,18 +437,31 @@ const RoomContents = ({
         .catch((error) => reject(error));
     });
   };
-  const selectGame = () => {
+  const selectGame = (game: string, ctgy: string) => {
+    if (game === '3') {
+      const data = {
+        gameStatus: 1,
+        gameId: 3,
+        // category : 5,
+      };
+      sessionRef.current.signal({
+        type: "game",
+        data: JSON.stringify(data),
+      });
+    }
+    else {
+      console.log("???????여기 아님?");
+      const data = {
+        gameStatus: 1,
+        gameId: +game,
+        category: +ctgy,
+      };
+      sessionRef.current.signal({
+        type: "game",
+        data: JSON.stringify(data),
+      });
+    }
 
-    const data = {
-      gameStatus: 1,
-      gameId : 1,
-      category : 5,
-      count : 1
-    };
-    sessionRef.current.signal({
-      type: "game",
-      data: JSON.stringify(data),
-    });
     // setMode("game1");
   }
   const handleCopy = () => {
@@ -409,168 +476,229 @@ const RoomContents = ({
     );
   }
   return (
-    <div style={{
-      width : "100vw"
-    }}>
-    <div className={
-      mode === "home"
-      ? styles["contents-container"] 
-      : mode === "game1"
-      ? `${styles["contents-container"]} ${styles.catchmind}`
-      : styles["contents-container"] 
-    }>
-      <div className={
-        mode === "home" 
-        ? styles["user-videos-container"]
-        : mode === "game1"
-        ? `${styles["user-videos-container"]} ${styles.catchmind}`
-        : styles["user-videos-container"]
-      }>
-        <div
-          id="user-video"
-          className={
-            mode === "home"
-              ? `${styles["video-container"]}`
-              : mode === "game1"
-              ? `${styles["video-container"]} ${styles.catchmind}`
-              : participantNumRef.current > 4
-              ? `${styles["video-container"]} ${styles.twoXthree}`
-              : participantNumRef.current > 2
-              ? `${styles["video-container"]} ${styles.twoXtwo}`
-              : styles["video-container"]
-          }
-        >
-          {localUserRef.current !== undefined &&
-            localUserRef.current.getStreamManager() !== undefined && (
-              <StreamComponent
-                user={localUserRef.current}
-                sessionId={mySessionId}
-                camStatusChanged={camStatusChanged}
-                micStatusChanged={micStatusChanged}
-                subscribers={subscribers}
-                mode={mode}
-                // openKeywordInputModal={openKeywordInputModal}
-              />
-            )}
-
-
-          {subscribersRef.current.map((sub, i) => {
-            return (
-              <StreamComponent
-                key={i}
-                user={sub}
-                targetSubscriber={targetSubscriber}
-                subscribers={subscribers}
-                mode={mode}
-                nickname={nickname}
-                correctNickname={correctNickname}
-                // sirenWingWing={sirenWingWing}
-                correctPeopleName={correctPeopleName}
-              />
-            );
-          })}
-        </div>
-      </div>
-      {mode === "game1" ? (
-            <Catchmind initData = {catchMindData} user={localUserRef.current}/>
-        ) : null}
-      {mode === "game2" ? (
-            <Charade />
-        ) : null}
-      {localUser !== undefined && localUser.getStreamManager() !== undefined && (
-        <div className={
-          mode === "home"
-          ? styles.etcbox
-          : mode === "game1"
-          ? `${styles.etcbox} ${styles.catchmind}`
-          : styles.etcbox
-        }>
-          {mode === "home" ? (<div style={{
-            display : "flex",
-            width : "85%"
-          }}>
-            <div className={styles["chat-container"]}>
-                <>
-                  <Chat
+    <div
+      style={{
+        width: '100vw',
+      }}
+    >
+      <div
+        className={
+          mode === 'home'
+            ? styles['contents-container']
+            : mode === 'game1' || mode === 'game3'
+              ? `${styles['contents-container']} ${styles.catchmind}`
+              : mode === 'game2'
+                ? `${styles['contents-container']} ${styles.charade}`
+                : styles['contents-container']
+        }
+      >
+        {mode === 'game3' ? (
+          // <FindPerson
+          //   my={localUserRef.current}
+          //   users={findsub}
+          //   detect={imDetect}
+          //   suspect={imPerson}
+          //   mySession={mySessionId}
+          //   imSpeak={firstSpeak}
+          //   detectNick={detectNick}
+          //   camChange={camStatusChanged}
+          //   micChange={micStatusChanged}
+          // />
+          null
+        ) : (
+          <div
+            className={
+              mode === 'home'
+                ? styles['user-videos-container']
+                : mode === 'game1'
+                  ? `${styles['user-videos-container']} ${styles.catchmind}`
+                  : mode === 'game2'
+                    ? `${styles['user-videos-container']} ${styles.charade}`
+                    : styles['user-videos-container']
+            }
+          >
+            <div
+              id="user-video"
+              className={
+                mode === 'home'
+                  ? `${styles['video-container']}`
+                  : mode === 'game1'
+                    ? `${styles['video-container']} ${styles.catchmind}`
+                    : mode === 'game2'
+                      ? `${styles['video-container']} ${styles.charade}`
+                      : styles['video-container']
+              }
+            >
+              {localUserRef.current !== undefined &&
+                localUserRef.current.getStreamManager() !== undefined &&
+                mode !== 'game2' && (
+                  <StreamComponent
                     user={localUserRef.current}
+                    sessionId={mySessionId}
+                    camStatusChanged={camStatusChanged}
+                    micStatusChanged={micStatusChanged}
+                    subscribers={subscribers}
                     mode={mode}
-                    sub={subscribers}
+                  // openKeywordInputModal={openKeywordInputModal}
                   />
-                </>
-            </div>
-            <div style={{
-              width : "50%",
-              height : "23.7vh",
-              display : "grid",
-              gridTemplateColumns : "1fr 1fr",
-              gridTemplateRows : "1fr 1fr 1fr",
-              // gap : "5% 2%"
-              // gridColumn : "1 / span 2",
-            }}>
-              <div style={{
-                  gridColumn : "1 / span 2",
-                  marginBottom : "2%",
-                  display : "flex",
+                )}
 
-                }}>
-                  <button onClick={handleCopy}>COPY</button>
-                
-                <div id="code" style={{
-                  width : "100%",
-                  backgroundColor : "#C4C4C4",
-                  borderRadius : "0px 5px 5px 0px",
-                  display : "flex",
-                  justifyContent : "center",
-                  alignItems : "center",
-                  fontSize : 32
-                }}>
-                  {window.localStorage.getItem("invitecode")}
+              {subscribersRef.current.map((sub, i) => {
+                return (
+                  <StreamComponent
+                    key={i}
+                    user={sub}
+                    targetSubscriber={targetSubscriber}
+                    subscribers={subscribers}
+                    mode={mode}
+                    nickname={nickname}
+                    correctNickname={correctNickname}
+                    // sirenWingWing={sirenWingWing}
+                    correctPeopleName={correctPeopleName}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {mode === 'game1' ? <Catchmind initData={catchMindDataRef.current} user={localUserRef.current} /> : null}
+        {mode === 'game2' ? (
+          // <div>
+          //   <Charade
+          //     sessionId={mySessionId}
+          //     sub={subscribersRef.current}
+          //     user={localUserRef.current}
+          //     subscribers={subscribers}
+          //     charadeData={charadeData}
+          //   />
+          // </div>
+          null
+        ) : null}
+        {localUser !== undefined && localUser.getStreamManager() !== undefined && (
+          <div
+            className={
+              mode === 'home'
+                ? styles.etcbox
+                : mode === 'game1' || mode === 'game3'
+                  ? `${styles.etcbox} ${styles.catchmind}`
+                  : mode === 'game2'
+                    ? `${styles.etcbox} ${styles.charade}`
+                    : styles.etcbox
+            }
+          >
+            {mode === 'home' ? (
+              <div
+                style={{
+                  display: 'flex',
+                  width: '85%',
+                }}
+              >
+                <div className={styles['chat-container']}>
+                  <>
+                    <Chat user={localUserRef.current} mode={mode} sub={subscribers} />
+                  </>
+                </div>
+                <div
+                  style={{
+                    width: '50%',
+                    height: '23.7vh',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gridTemplateRows: '1fr 1fr 1fr',
+                    // gap : "5% 2%"
+                    // gridColumn : "1 / span 2",
+                  }}
+                >
+                  <div
+                    style={{
+                      gridColumn: '1 / span 2',
+                      marginBottom: '2%',
+                      display: 'flex',
+                    }}
+                  >
+                    <button onClick={handleCopy}>COPY</button>
+
+                    <div
+                      id="code"
+                      style={{
+                        width: '100%',
+                        backgroundColor: '#C4C4C4',
+                        borderRadius: '0px 5px 5px 0px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        fontSize: 32,
+                      }}
+                    >
+                      {window.localStorage.getItem('invitecode')}
+                    </div>
+                  </div>
+
+                  <button
+                    className={styles.selectGame}
+                    style={{
+                      gridRow: '2 / span 3',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: '4%',
+                    }}
+                    onClick={handleOpenModal}
+                  >
+                    <img src={Play} style={{ width: '30%', height: '55%' }}></img>게임 선택
+                  </button>
+                  <button
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '2%',
+                    }}
+                    className={styles.infoGame}
+                  >
+                    <Info
+                      style={{
+                        width: '20%',
+                        height: '45%',
+                      }}
+                      filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
+                    />
+                    설명서
+                  </button>
+                  <button
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: '2%',
+                    }}
+                    className={styles.inviteFriend}
+                    onClick={handleOpensInvite}
+                  >
+                    <People
+                      style={{
+                        width: '20%',
+                        height: '45%',
+                      }}
+                      filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
+                    />
+                    친구 초대
+                  </button>
                 </div>
               </div>
-              
-              <button className={styles.selectGame} style={{
-                gridRow : "2 / span 3",
-                display : "flex",
-                alignItems : "center",
-                justifyContent : "center",
-                marginRight : "4%"
-              }} onClick={selectGame}><img src={Play} style={{width : "30%", height : "55%"}}></img>게임 선택</button>
-              <button style={{
-                display : "flex",
-                alignItems : "center",
-                justifyContent : "center",
-                marginBottom : "2%"
-              }} className={styles.infoGame}><Info style={{
-                width : "20%",
-                height : "45%"
-              }} filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"/>설명서</button>
-              <button style={{
-                display : "flex",
-                alignItems : "center",
-                justifyContent : "center",
-                marginTop: "2%"
-              }} className={styles.inviteFriend}>
-                <People style={{
-                width : "20%",
-                height : "45%",
-              }} filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"/>
-                친구 초대</button>
-            </div>
-        </div>) : (<div className={`${styles["chat-container"]} ${styles.game}`}>
+            ) : (
+              <div className={`${styles['chat-container']} ${styles.game}`}>
                 <>
-                  <Chat
-                    user={localUserRef.current}
-                    mode={mode}
-                    sub={subscribers}
-                  />
+                  <Chat user={localUserRef.current} mode={mode} sub={subscribers} />
                 </>
-            </div>)}
-          
-        </div>
-          
-      )}
-    </div>
-    
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      {open ? <SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame> : null}
+      {wait ? <Wait open={wait}></Wait> : null}
+      {inviteIsOpen ? <Invite open={inviteIsOpen} onClose={handleCloseInvite} /> : null}
     </div>
   );
 };

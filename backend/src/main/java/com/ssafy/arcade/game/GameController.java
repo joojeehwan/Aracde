@@ -2,6 +2,7 @@ package com.ssafy.arcade.game;
 
 
 import com.ssafy.arcade.game.request.GameReqDto;
+import com.ssafy.arcade.game.request.InviteReq;
 import com.ssafy.arcade.game.request.PictureReqDto;
 import com.ssafy.arcade.game.request.RoomReqDto;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,11 @@ public class GameController {
         } else {
             return new ResponseEntity<>("요청 성공", HttpStatus.OK);
         }
+    }
+    // 친구 초대
+    @PostMapping("/invite")
+    public ResponseEntity<String> inviteFriend(@RequestBody InviteReq inviteReq) {
+        return new ResponseEntity<>(gameService.inviteFriend(inviteReq), HttpStatus.OK);
     }
 
     /**

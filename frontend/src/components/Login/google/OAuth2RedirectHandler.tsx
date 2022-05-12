@@ -16,7 +16,6 @@ function OAuth2RedirectHandler() {
   // api 통신
   //백으로 code 넘기고 토큰 저장하고, api 통신 연결하고 로그인 이후의 화면으로 보내면 된다. ex, main
   const apiResult = async () => {
-    console.log("??????? 왜?? 여기가 구글");
     const result = await getGoogleLoginResult(code as string);
 
     //넘기고 나는 토큰 저장,, 끝! 헤헷,,,

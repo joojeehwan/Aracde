@@ -1,3 +1,4 @@
+/*eslint no-unused-expressions: "error"*/
 import React from "react";
 import styles from "../style/StreamComponent.module.scss";
 import OvVideoComponent from "./OvVideo";
@@ -21,7 +22,7 @@ function StreamComponent({
   nickname,
   correctNickname,
   sirenWingWing,
-} : any) {
+}: any) {
   console.log(user);
   const [mutedSound, setMuted] = useState(false);
   const [controlBox, setControl] = useState(false);
@@ -74,7 +75,7 @@ function StreamComponent({
   ];
 
   console.log("stream render");
-  const handleChangeControlBox = (e : any) => {
+  const handleChangeControlBox = (e: any) => {
     setControl(!controlBox);
     e.preventDefault();
   };
@@ -119,12 +120,12 @@ function StreamComponent({
     setBgothercolor(color[bgotherindex]);
   }, []);
 
-//   const handleSiren = (target) => {
-//     sirenWingWing(target);
-//   };
-//   const handleSubmitKeyword = (nextmode) => {
-//     openKeywordInputModal(nextmode);
-//   };
+  //   const handleSiren = (target) => {
+  //     sirenWingWing(target);
+  //   };
+  //   const handleSubmitKeyword = (nextmode) => {
+  //     openKeywordInputModal(nextmode);
+  //   };
 
   return (
     <div
@@ -140,42 +141,42 @@ function StreamComponent({
       {user !== undefined && user.getStreamManager() !== undefined ? (
         <div
           className={styles.streamComponent}
-          // onMouseEnter={handleChangeControlBox}
-          // onMouseLeave={handleChangeControlBox}
+        // onMouseEnter={handleChangeControlBox}
+        // onMouseLeave={handleChangeControlBox}
         >
           <OvVideoComponent user={user} mutedSound={mutedSound} />
-            <>
-              <div
-                className={
-                  mode === "snapshot"
-                    ? `${styles.controlbox} ${styles.snapshotMode}`
-                    : styles.controlbox
-                }
-              >
-                {sessionId ? (
-                  <ToolbarComponent
-                    sessionId={sessionId}
-                    user={user}
-                    camStatusChanged={camStatusChanged}
-                    micStatusChanged={micStatusChanged}
-                  ></ToolbarComponent>
-                ) : null}
-              </div>
+          <>
+            <div
+              className={
+                mode === "snapshot"
+                  ? `${styles.controlbox} ${styles.snapshotMode}`
+                  : styles.controlbox
+              }
+            >
+              {sessionId ? (
+                <ToolbarComponent
+                  sessionId={sessionId}
+                  user={user}
+                  camStatusChanged={camStatusChanged}
+                  micStatusChanged={micStatusChanged}
+                ></ToolbarComponent>
+              ) : null}
+            </div>
 
-              <div id={styles.statusIcons}>
-                {sessionId ? null : !user.isVideoActive() ? (
-                  <div id={styles.camIcon}>
-                    <VideocamOff id={styles.statusCam} color="secondary" />
-                  </div>
-                ) : null}
+            <div id={styles.statusIcons}>
+              {sessionId ? null : !user.isVideoActive() ? (
+                <div id={styles.camIcon}>
+                  <VideocamOff id={styles.statusCam} color="secondary" />
+                </div>
+              ) : null}
 
-                {sessionId ? null : !user.isAudioActive() ? (
-                  <div id={styles.micIcon}>
-                    <MicOff id={styles.statusMic} color="secondary" />
-                  </div>
-                ) : null}
-              </div>
-            </>
+              {sessionId ? null : !user.isAudioActive() ? (
+                <div id={styles.micIcon}>
+                  <MicOff id={styles.statusMic} color="secondary" />
+                </div>
+              ) : null}
+            </div>
+          </>
         </div>
       ) : null}
     </div>

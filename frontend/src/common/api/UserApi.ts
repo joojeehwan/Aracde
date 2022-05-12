@@ -38,15 +38,33 @@ const getUserSearchResult = async (name: string) => {
   return null;
 };
 
-// 친구 검색은 api가 뭐지 저거?!
+// 친구 검색 (게임 초대 요청)
+const getSearchUserResultForGame = async (name: any) => {
+  const token = getToken();
+  if (token !== null) {
+    console.log("친구 검색 게임 초대 요청 name : ", name)
+    const result = await axios
+      .get(`${BASE_URL}/friend/search?name=${name}`, { headers: { Authorization: token } })
+      .then((res) => {
+        return res;
+      })
+      .catch((err) => {
+        console.dir(err);
+        return err;
+      });
+    return result;
+  }
+  return null;
+};
 
 // 친구 요청 보내기
-const getAddFriendRequestResult = async (email: string) => {
+const getAddFriendRequestResult = async (userSeq: string) => {
   const token = getToken();
   const body = {
-    email,
+    userSeq,
   };
   if (token !== null) {
+    console.log(userSeq)
     const result = await axios.post(`${BASE_URL}/friend`, body, { headers: { Authorization: token } });
     console.log(result);
     return result;
@@ -61,8 +79,10 @@ const patchAcceptFriendRequest = async (userSeq: number) => {
     userSeq,
   };
   if (token !== null) {
+    console.log(token)
+    console.log(userSeq)
     const result = await axios
-      .patch(`${BASE_URL}/friend`, { headers: { Authorization: token } })
+      .patch(`${BASE_URL}/friend`, body, { headers: { Authorization: token } })
       .then((res) => {
         console.log(res);
         return res;
@@ -83,7 +103,6 @@ const getFriendList = async () => {
     const result = await axios
       .get(`${BASE_URL}/friendList`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {
@@ -139,6 +158,7 @@ const UserApi = {
   deleteFriend,
   getProfile,
   patchAcceptFriendRequest,
+  getSearchUserResultForGame
 };
 
 export default UserApi;

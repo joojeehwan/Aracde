@@ -11,7 +11,6 @@ function OAuth2RedirectHandler() {
   //백으로 code 넘기고 토큰 저장하고, api 통신 연결하고 로그인 이후의 화면으로 보내면 된다. ex, main
   const apiResult = async () => {
     const result = await getNaverLoginResult(code as string);
-    console.log(result);
     saveToken(result.data.token);
     window.localStorage.setItem('userSeq', result.data.userSeq);
     window.localStorage.setItem('name', result.data.name);
