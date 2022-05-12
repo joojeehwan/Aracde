@@ -40,7 +40,11 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const [lastTime, setLastTime] = useState<number>(10);
     const [lastCheck, setLastCheck] = useState<boolean>(false);
     const [last, setLast] = useState<boolean>(false);
+    const [ans, setAns] = useState<boolean>(false);
+    const [end, setEnd] = useState<boolean>(false);
+    const [isAns, setIsAns] = useState<boolean>(false);
     const [chance, setChance] = useState<number>();
+    
 
     const nowRef = useRef(now);
     nowRef.current = now;
@@ -83,7 +87,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
             if(my.getStreamManager().stream.streamId === imSpeak){
                 setImNext(true);
             }
-            if(users.length > 4){
+            if(users.length < 4){
                 setChance(1);
             }
             else{
@@ -103,9 +107,12 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 }
                 else if(response.data.answerYN === 1){
                     setChance(0);
+                    setEnd(true);
                 }
                 else if(response.data.answerYN === 0){
                     setChance(0);
+                    setEnd(true);
+                    setIsAns(true)
                 }
                 return;
             }
@@ -169,6 +176,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 setLastTime(10);
                 setLast(false);
                 setLastCheck(true);
+                setAns(true);
             }, 5000)
         }
     }, [last])
@@ -226,10 +234,12 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 }
             }, 1000);
             setTimeout(()=>{
+                setTimeCheck(false);
                 setNow(false);
                 setLast(true);
             }, 60000);
         }
+
         else{
             clearInterval(countDown);
         }
@@ -268,37 +278,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
             clearInterval(countDown);
         }
     }, [lastCheck])
-
-    // useEffect(()=>{
-    //     if(time !== undefined){
-    //         setTimeout(()=>{
-    //             setTime(undefined);
-    //             setNow(false);
-    //             setLast(true);
-    //         }, 60000)
-    //     }
-    // }, [time]);
-
-    // useEffect(()=>{
-    //     if(lastTime !== undefined){
-    //         if(chance !== undefined && chance > 0){
-    //             setTimeout(()=>{
-    //                 if(my.isImDetect()){
-    //                     const data = {
-    //                         gameStatus : 2,
-    //                         gameId : 3,
-    //                         index : -1,
-    //                         tryAnswer : "",
-    //                     }
-    //                     my.getStreamManager().stream.session.signal({
-    //                         data : JSON.stringify(data),
-    //                         type : "game"
-    //                     });
-    //                 }
-    //             }, 10000)
-    //         }
-    //     }
-    // }, [lastTime])
 
     useEffect(()=>{
         console.log("여긴", speakTimeRef.current);
@@ -457,7 +436,16 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 top : "85vh",
                 borderRadius : "10px"
             }}>
-                {imDetect ? (
+                {ans ? (
+                    <div>{detectNick} 님이 추리중 입니다! (기회 : {chance})</div>
+                ) 
+                : end ? (
+                    <>
+                        {isAns ? (<div> 정답입니다! {findNick}님을 찾았습니다!</div>) 
+                        : chance !== undefined && chance > 0 ? ((<div>땡! 틀렸습니다! 기회 : {chance}</div>)) : (<>땡! 틀렸습니다. {findNick}님을 못찾았습니다!</>)}
+                    </> 
+                )
+                : imDetect ? (
                     <div>
                         {findNick} 님을 찾아주세요
                     </div>
