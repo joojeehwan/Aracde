@@ -122,7 +122,7 @@ const MyRoom = () => {
                       gameCnt={gameCnts}
                       totalGame={totalGameCnt}
                       />): (
-                    <h4>아직 참여한 게임이 없어요 🤔</h4>
+                    <h4 style={{textAlign:"center"}}>아직 참여한 게임이 없어요 🤔</h4>
                     )}
                 </div>
                 <div className={styles.answer}>
@@ -132,7 +132,7 @@ const MyRoom = () => {
                       vicCnt={vicCnts}
                       totalVic={totalVicCnt} 
                       />): (
-                    <h4>아직 승리한 이력이 없어요 🤔</h4>
+                    <h4 style={{textAlign:"center"}}>아직 승리한 이력이 없어요 🤔</h4>
                     )}
                 </div>              
               </div>               
