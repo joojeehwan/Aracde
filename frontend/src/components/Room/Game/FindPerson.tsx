@@ -32,7 +32,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const [curSpeak, setCurSpeak] = useState<string>("");
     const [now, setNow] = useState<boolean>(false);
     const [imNext, setImNext] = useState<boolean>(false);
-    const [speakTime, setSpeakTime] = useState<number>(100000000);
+    const [speakTime, setSpeakTime] = useState<number>(10);
     const [speak, setSpeak] = useState<boolean>(false);
     const [time, setTime] = useState<number>(60);
     const [timeCheck, setTimeCheck] = useState<boolean>(false);
@@ -140,14 +140,14 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     useEffect(()=>{
         if(step){
             setTimeout(()=>{
-                setStep(false);
-                setSpeakTime(1000000000);
-                setSpeak(true);
                 console.log("여긴", curSpeakRef.current, my.getStreamManager().stream.streamId);
                 if(curSpeakRef.current === my.getStreamManager().stream.streamId){
                     setNow(true);
                     setImNext(false);
                 }
+                setStep(false);
+                setSpeakTime(10);
+                setSpeak(true);
             }, 5000)
         }
     }, [step])
@@ -207,7 +207,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     }
                 }
                 
-            }, 100000000);
+            }, 10000);
         }
         else{
             clearInterval(countDown);
@@ -240,6 +240,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
         if(lastCheck && chance && chance > 0){
             
             countDown = setInterval(()=>{
+                console.log("여긴 라스트임",lastTimeRef.current);
                 if(lastTimeRef.current === 0){
                     clearInterval(countDown);
                 }
@@ -312,6 +313,42 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     return(
         <>
             {speak ? (
+                <>
+                    <AlarmIcon sx={{
+                        position : "absolute",
+                        color : "white",
+                        fontSize : 30, 
+                        marginRight : "1vw",
+                        top : "8.4vh",
+                        right : "29.5vw"
+                    }}
+                    />
+                    <div style={{
+                        position : "absolute",
+                        display : "flex",
+                        justifyContent : "center",
+                        alignItems : "center",
+                        top : "9vh",
+                        right : "28.5vw",
+                        color : "white",
+                        fontSize : "1.5em",
+                    }}>
+                        {speakTime} 
+                    </div>
+                </>
+                
+            ) : null}
+            {timeCheck ? (
+                <>
+                <AlarmIcon sx={{
+                    position : "absolute",
+                    color : "white",
+                    fontSize : 30, 
+                    marginRight : "1vw",
+                    top : "8.4vh",
+                    right : "29.5vw"
+                }}
+                />
                 <div style={{
                     position : "absolute",
                     display : "flex",
@@ -322,12 +359,35 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     color : "white",
                     fontSize : "1.5em",
                 }}>
-                    <AlarmIcon sx={{fontSize : 30, marginRight : "1vw"}}/>
-                    {speakTime} 
+                    {time} 
                 </div>
+            </>
+            ): null}
+            {lastCheck ? (
+                <>
+                <AlarmIcon sx={{
+                    position : "absolute",
+                    color : "white",
+                    fontSize : 30, 
+                    marginRight : "1vw",
+                    top : "8.4vh",
+                    right : "29.5vw"
+                }}
+                />
+                <div style={{
+                    position : "absolute",
+                    display : "flex",
+                    justifyContent : "center",
+                    alignItems : "center",
+                    top : "9vh",
+                    right : "28.5vw",
+                    color : "white",
+                    fontSize : "1.5em",
+                }}>
+                    {lastTime} 
+                </div>
+            </>
             ) : null}
-            {timeCheck ? (time): null}
-            {lastCheck ? (lastTime) : null}
             <div className={
                 `${styles["user-videos-container"]} ${styles.findperson}`
             }>
