@@ -11,12 +11,15 @@ import Play from '../../assets/play.png';
 import { ReactComponent as Info } from '../../assets/info.svg';
 import { ReactComponent as People } from '../../assets/team.svg';
 import Chat from "./chat/Chat";
-import Catchmind from "./Game/Catchmin";
+import Catchmind from "./Game/Catchmind";
 import Charade from "./Game/Charade";
 import StreamComponent from "./stream/StreamComponent";
 import UserModel from "../Model/user-model";
-import { display } from "@mui/system";
+// import { display } from "@mui/system";
 import Invite from "../Modal/Invite/Invite"
+import SelectGame from "./Game/Modal/SelectGame";
+import Wait from "./Game/Modal/Wait";
+
 
 const OPENVIDU_SERVER_URL = "https://k6a203.p.ssafy.io:5443";
 const OPENVIDU_SERVER_SECRET = "arcade";
@@ -53,7 +56,8 @@ const RoomContents = ({
   const [participantNum, setParticpantNum] = useState<any>(1);
   const [mode, setMode] = useState<string>("home");
   const [catchMindData, setCatchMindData] = useState<{ answer: string, id: string, nextId: string }>();
-
+  const [open, setOpen] = useState<boolean>(false);
+  const [wait, setWait] = useState<boolean>(false);
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
 
@@ -70,6 +74,8 @@ const RoomContents = ({
   const handleCloseInvite = useCallback(() => {
     setInviteIsOpen(false);
   }, [inviteIsOpen])
+  const catchMindDataRef = useRef(catchMindData);
+  catchMindDataRef.current = catchMindData;
 
   const sessionRef = useRef(session);
   sessionRef.current = session;
@@ -92,7 +98,30 @@ const RoomContents = ({
     OV = new OpenVidu();
     setSession(OV.initSession());
   };
-
+  const handleCloseModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const data = {
+      gameStatus: 0,
+      flag: false
+    }
+    sessionRef.current.signal({
+      type: "game",
+      data: JSON.stringify(data)
+    })
+    setOpen(false);
+  }
+  const handleOpenModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const data = {
+      gameStatus: 0,
+      flag: true
+    }
+    sessionRef.current.signal({
+      type: "game",
+      data: JSON.stringify(data)
+    })
+    setOpen(true);
+  }
 
   useEffect(() => {
 
@@ -174,8 +203,20 @@ const RoomContents = ({
       sessionRef.current.on("signal:game", (response: any) => {
         // console.log("여긴 룸 컨텐츠에용 씨발 제발 불리지 마세용");
         console.log(response);
+        if (response.data.gameStatus === 0) {
+          if (localUserRef.current.getStreamManager().stream.streamId !== response.data.streamId) {
+            setWait(response.data.flag);
+          }
+        }
+        if (response.data.gameStatus === 3) {
+          setMode("home");
+        }
         if (response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1') {
           console.log("?실행", modeRef.current);
+          setCatchMindData({ answer: response.data.answer, id: response.data.curStreamId, nextId: response.data.nextStreamId });
+          setMode("game1");
+        }
+        if (response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current === 'game1' && response.data.restart) {
           setCatchMindData({ answer: response.data.answer, id: response.data.curStreamId, nextId: response.data.nextStreamId });
           setMode("game1");
         }
@@ -396,18 +437,31 @@ const RoomContents = ({
         .catch((error) => reject(error));
     });
   };
-  const selectGame = () => {
+  const selectGame = (game: string, ctgy: string) => {
+    if (game === '3') {
+      const data = {
+        gameStatus: 1,
+        gameId: 3,
+        // category : 5,
+      };
+      sessionRef.current.signal({
+        type: "game",
+        data: JSON.stringify(data),
+      });
+    }
+    else {
+      console.log("???????여기 아님?");
+      const data = {
+        gameStatus: 1,
+        gameId: +game,
+        category: +ctgy,
+      };
+      sessionRef.current.signal({
+        type: "game",
+        data: JSON.stringify(data),
+      });
+    }
 
-    const data = {
-      gameStatus: 1,
-      gameId: 1,
-      category: 5,
-      count: 1
-    };
-    sessionRef.current.signal({
-      type: "game",
-      data: JSON.stringify(data),
-    });
     // setMode("game1");
   }
   const handleCopy = () => {
@@ -422,173 +476,229 @@ const RoomContents = ({
     );
   }
   return (
-    <div style={{
-      width: "100vw"
-    }}>
-      <div className={
-        mode === "home"
-          ? styles["contents-container"]
-          : mode === "game1"
-            ? `${styles["contents-container"]} ${styles.catchmind}`
-            : styles["contents-container"]
-      }>
-        <div className={
-          mode === "home"
-            ? styles["user-videos-container"]
-            : mode === "game1"
-              ? `${styles["user-videos-container"]} ${styles.catchmind}`
-              : styles["user-videos-container"]
-        }>
+    <div
+      style={{
+        width: '100vw',
+      }}
+    >
+      <div
+        className={
+          mode === 'home'
+            ? styles['contents-container']
+            : mode === 'game1' || mode === 'game3'
+              ? `${styles['contents-container']} ${styles.catchmind}`
+              : mode === 'game2'
+                ? `${styles['contents-container']} ${styles.charade}`
+                : styles['contents-container']
+        }
+      >
+        {mode === 'game3' ? (
+          // <FindPerson
+          //   my={localUserRef.current}
+          //   users={findsub}
+          //   detect={imDetect}
+          //   suspect={imPerson}
+          //   mySession={mySessionId}
+          //   imSpeak={firstSpeak}
+          //   detectNick={detectNick}
+          //   camChange={camStatusChanged}
+          //   micChange={micStatusChanged}
+          // />
+          null
+        ) : (
           <div
-            id="user-video"
             className={
-              mode === "home"
-                ? `${styles["video-container"]}`
-                : mode === "game1"
-                  ? `${styles["video-container"]} ${styles.catchmind}`
-                  : participantNumRef.current > 4
-                    ? `${styles["video-container"]} ${styles.twoXthree}`
-                    : participantNumRef.current > 2
-                      ? `${styles["video-container"]} ${styles.twoXtwo}`
-                      : styles["video-container"]
+              mode === 'home'
+                ? styles['user-videos-container']
+                : mode === 'game1'
+                  ? `${styles['user-videos-container']} ${styles.catchmind}`
+                  : mode === 'game2'
+                    ? `${styles['user-videos-container']} ${styles.charade}`
+                    : styles['user-videos-container']
             }
           >
-            {localUserRef.current !== undefined &&
-              localUserRef.current.getStreamManager() !== undefined && (
-                <StreamComponent
-                  user={localUserRef.current}
-                  sessionId={mySessionId}
-                  camStatusChanged={camStatusChanged}
-                  micStatusChanged={micStatusChanged}
-                  subscribers={subscribers}
-                  mode={mode}
-                // openKeywordInputModal={openKeywordInputModal}
-                />
-              )}
+            <div
+              id="user-video"
+              className={
+                mode === 'home'
+                  ? `${styles['video-container']}`
+                  : mode === 'game1'
+                    ? `${styles['video-container']} ${styles.catchmind}`
+                    : mode === 'game2'
+                      ? `${styles['video-container']} ${styles.charade}`
+                      : styles['video-container']
+              }
+            >
+              {localUserRef.current !== undefined &&
+                localUserRef.current.getStreamManager() !== undefined &&
+                mode !== 'game2' && (
+                  <StreamComponent
+                    user={localUserRef.current}
+                    sessionId={mySessionId}
+                    camStatusChanged={camStatusChanged}
+                    micStatusChanged={micStatusChanged}
+                    subscribers={subscribers}
+                    mode={mode}
+                  // openKeywordInputModal={openKeywordInputModal}
+                  />
+                )}
 
-
-            {subscribersRef.current.map((sub, i) => {
-              return (
-                <StreamComponent
-                  key={i}
-                  user={sub}
-                  targetSubscriber={targetSubscriber}
-                  subscribers={subscribers}
-                  mode={mode}
-                  nickname={nickname}
-                  correctNickname={correctNickname}
-                  // sirenWingWing={sirenWingWing}
-                  correctPeopleName={correctPeopleName}
-                />
-              );
-            })}
+              {subscribersRef.current.map((sub, i) => {
+                return (
+                  <StreamComponent
+                    key={i}
+                    user={sub}
+                    targetSubscriber={targetSubscriber}
+                    subscribers={subscribers}
+                    mode={mode}
+                    nickname={nickname}
+                    correctNickname={correctNickname}
+                    // sirenWingWing={sirenWingWing}
+                    correctPeopleName={correctPeopleName}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
-        {mode === "game1" ? (
-          <Catchmind initData={catchMindData} user={localUserRef.current} />
-        ) : null}
-        {mode === "game2" ? (
-          <Charade />
+        )}
+        {mode === 'game1' ? <Catchmind initData={catchMindDataRef.current} user={localUserRef.current} /> : null}
+        {mode === 'game2' ? (
+          // <div>
+          //   <Charade
+          //     sessionId={mySessionId}
+          //     sub={subscribersRef.current}
+          //     user={localUserRef.current}
+          //     subscribers={subscribers}
+          //     charadeData={charadeData}
+          //   />
+          // </div>
+          null
         ) : null}
         {localUser !== undefined && localUser.getStreamManager() !== undefined && (
-          <div className={
-            mode === "home"
-              ? styles.etcbox
-              : mode === "game1"
-                ? `${styles.etcbox} ${styles.catchmind}`
-                : styles.etcbox
-          }>
-            {mode === "home" ? (<div style={{
-              display: "flex",
-              width: "85%"
-            }}>
-              <div className={styles["chat-container"]}>
+          <div
+            className={
+              mode === 'home'
+                ? styles.etcbox
+                : mode === 'game1' || mode === 'game3'
+                  ? `${styles.etcbox} ${styles.catchmind}`
+                  : mode === 'game2'
+                    ? `${styles.etcbox} ${styles.charade}`
+                    : styles.etcbox
+            }
+          >
+            {mode === 'home' ? (
+              <div
+                style={{
+                  display: 'flex',
+                  width: '85%',
+                }}
+              >
+                <div className={styles['chat-container']}>
+                  <>
+                    <Chat user={localUserRef.current} mode={mode} sub={subscribers} />
+                  </>
+                </div>
+                <div
+                  style={{
+                    width: '50%',
+                    height: '23.7vh',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gridTemplateRows: '1fr 1fr 1fr',
+                    // gap : "5% 2%"
+                    // gridColumn : "1 / span 2",
+                  }}
+                >
+                  <div
+                    style={{
+                      gridColumn: '1 / span 2',
+                      marginBottom: '2%',
+                      display: 'flex',
+                    }}
+                  >
+                    <button onClick={handleCopy}>COPY</button>
+
+                    <div
+                      id="code"
+                      style={{
+                        width: '100%',
+                        backgroundColor: '#C4C4C4',
+                        borderRadius: '0px 5px 5px 0px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        fontSize: 32,
+                      }}
+                    >
+                      {window.localStorage.getItem('invitecode')}
+                    </div>
+                  </div>
+
+                  <button
+                    className={styles.selectGame}
+                    style={{
+                      gridRow: '2 / span 3',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: '4%',
+                    }}
+                    onClick={handleOpenModal}
+                  >
+                    <img src={Play} style={{ width: '30%', height: '55%' }}></img>게임 선택
+                  </button>
+                  <button
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: '2%',
+                    }}
+                    className={styles.infoGame}
+                  >
+                    <Info
+                      style={{
+                        width: '20%',
+                        height: '45%',
+                      }}
+                      filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
+                    />
+                    설명서
+                  </button>
+                  <button
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: '2%',
+                    }}
+                    className={styles.inviteFriend}
+                    onClick={handleOpensInvite}
+                  >
+                    <People
+                      style={{
+                        width: '20%',
+                        height: '45%',
+                      }}
+                      filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
+                    />
+                    친구 초대
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className={`${styles['chat-container']} ${styles.game}`}>
                 <>
-                  <Chat
-                    user={localUserRef.current}
-                    mode={mode}
-                    sub={subscribers}
-                  />
+                  <Chat user={localUserRef.current} mode={mode} sub={subscribers} />
                 </>
               </div>
-              <div style={{
-                width: "50%",
-                height: "23.7vh",
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gridTemplateRows: "1fr 1fr 1fr",
-                // gap : "5% 2%"
-                // gridColumn : "1 / span 2",
-              }}>
-                <div style={{
-                  gridColumn: "1 / span 2",
-                  marginBottom: "2%",
-                  display: "flex",
-
-                }}>
-                  <button onClick={handleCopy}>COPY</button>
-
-                  <div id="code" style={{
-                    width: "100%",
-                    backgroundColor: "#C4C4C4",
-                    borderRadius: "0px 5px 5px 0px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontSize: 32
-                  }}>
-                    {window.localStorage.getItem("invitecode")}
-                  </div>
-                </div>
-
-                <button className={styles.selectGame} style={{
-                  gridRow: "2 / span 3",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: "4%"
-                }} onClick={selectGame}><img src={Play} style={{ width: "30%", height: "55%" }}></img>게임 선택</button>
-                <button style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: "2%"
-                }} className={styles.infoGame}><Info style={{
-                  width: "20%",
-                  height: "45%"
-                }} filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)" />설명서</button>
-                <button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginTop: "2%"
-                  }}
-                  className={styles.inviteFriend}
-                  onClick={handleOpensInvite}
-                >
-                  <People style={{
-                    width: "20%",
-                    height: "45%",
-                  }} filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)" />
-                  친구 초대</button>
-              </div>
-            </div>) : (<div className={`${styles["chat-container"]} ${styles.game}`}>
-              <>
-                <Chat
-                  user={localUserRef.current}
-                  mode={mode}
-                  sub={subscribers}
-                />
-              </>
-            </div>)}
-
+            )}
           </div>
-
         )}
-        {inviteIsOpen ? <Invite open={inviteIsOpen} onClose={handleCloseInvite} /> : null}
       </div>
-
+      {open ? <SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame> : null}
+      {wait ? <Wait open={wait}></Wait> : null}
+      {inviteIsOpen ? <Invite open={inviteIsOpen} onClose={handleCloseInvite} /> : null}
     </div>
   );
 };

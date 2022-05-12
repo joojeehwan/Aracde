@@ -24,7 +24,14 @@ const exitRoom = async (code: string) => {
 const getUploadImageResult = async (data: FormData) => {
   const response = await axios.post(`${BASE_URL}/upload`, data);
   return response;
-
+}
+const getSaveMyFavoriteImageResult = async (data: { userSeq: string | number | null, pictureUrl: string }) => {
+  if (data.userSeq !== null) {
+    data.userSeq = +data.userSeq;
+    const response = await axios.post(`${BASE_URL}/picture`, data);
+    return response
+  }
+  else return null;
 }
 
 //게임 초대 
@@ -56,7 +63,8 @@ const RoomApi = {
   enterRoom,
   exitRoom,
   getUploadImageResult,
-  postInviteFriendAlarm
+  postInviteFriendAlarm,
+  getSaveMyFavoriteImageResult
 };
 
 export default RoomApi;
