@@ -12,7 +12,7 @@ import { ReactComponent as People } from '../../assets/team.svg';
 import Chat from './chat/Chat';
 import Catchmind from './Game/Catchmind';
 import Charade from './Game/Charade';
-import FindPerson from "./Game/FindPerson";
+import FindPerson from './Game/FindPerson';
 import StreamComponent from './stream/StreamComponent';
 import UserModel from '../Model/user-model';
 import SelectGame from './Game/Modal/SelectGame';
@@ -49,19 +49,18 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const [correctNickname, setCorrectNickname] = useState<any[]>([]);
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
-  const [mode , setMode] = useState<string>("home");
-  const [catchMindData, setCatchMindData] = useState<{answer : string, id : string, nextId : string}>();
+  const [mode, setMode] = useState<string>('home');
+  const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string }>();
   const [charadeData, setCharadeData] = useState<{ answer: string; id: string }>();
-  
-  const [firstSpeak, setFirstSpeak] = useState<string>("");
+
+  const [firstSpeak, setFirstSpeak] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
   const [wait, setWait] = useState<boolean>(false);
 
-  const [imDetect, setImDetect] = useState<string>("");
-  const [imPerson, setImPerson] = useState<string>("");
-  const [detectNick, setDetectNick] = useState<string>("");
+  const [imDetect, setImDetect] = useState<string>('');
+  const [imPerson, setImPerson] = useState<string>('');
+  const [detectNick, setDetectNick] = useState<string>('');
   const [curStreamId, setCurStreamId] = useState<any>('');
-
 
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
@@ -90,10 +89,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
     OV = new OpenVidu();
     OV.setAdvancedConfiguration({
       publisherSpeakingEventsOptions: {
-          interval: 100,   // Frequency of the polling of audio streams in ms (default 100)
-          threshold: -50  // Threshold volume in dB (default -50)
-      }
-  });
+        interval: 100, // Frequency of the polling of audio streams in ms (default 100)
+        threshold: -50, // Threshold volume in dB (default -50)
+      },
+    });
     setSession(OV.initSession());
   };
 
@@ -193,31 +192,31 @@ const RoomContents = ({ sessionName, userName }: any) => {
         setParticpantNum(participantNumRef.current - 1);
         deleteSubscriber(event.stream);
       });
-      sessionRef.current.on('publisherStartSpeaking', (event : any) => {
+      sessionRef.current.on('publisherStartSpeaking', (event: any) => {
         console.log('User ' + event.connection.connectionId + ' start speaking');
-        subscribersRef.current.map(v => {
-          if(v.getConnectionId() === event.connection.connectionId){
+        subscribersRef.current.map((v) => {
+          if (v.getConnectionId() === event.connection.connectionId) {
             v.setSpeaking(true);
           }
-        })
+        });
         setSubscribers([...subscribersRef.current]);
       });
-    
-      sessionRef.current.on('publisherStopSpeaking', (event : any) => {
-          console.log('User ' + event.connection.connectionId + ' stop speaking');
-          subscribersRef.current.map(v => {
-            if(v.getConnectionId() === event.connection.connectionId){
-              v.setSpeaking(false);
-            }
-          })
-          setSubscribers([...subscribersRef.current]);
+
+      sessionRef.current.on('publisherStopSpeaking', (event: any) => {
+        console.log('User ' + event.connection.connectionId + ' stop speaking');
+        subscribersRef.current.map((v) => {
+          if (v.getConnectionId() === event.connection.connectionId) {
+            v.setSpeaking(false);
+          }
         });
+        setSubscribers([...subscribersRef.current]);
+      });
 
       sessionRef.current.on('exception', (exception: any) => {
         console.warn(exception);
       });
-      
-      sessionRef.current.on("signal:game", (response : any) => {
+
+      sessionRef.current.on('signal:game', (response: any) => {
         console.log(response);
         if (response.data.gameStatus === 0) {
           if (localUserRef.current.getStreamManager().stream.streamId !== response.data.streamId) {
@@ -256,36 +255,34 @@ const RoomContents = ({ sessionName, userName }: any) => {
           localUserInit.setAudioActive(false);
           setMode('game2');
         }
-        if(response.data.gameId === 3 && response.data.gameStatus === 2 && modeRef.current !== 'game3'){
-          console.log("?실행", response.data);
-          
-          if(response.data.playYn === "Y"){
+        if (response.data.gameId === 3 && response.data.gameStatus === 2 && modeRef.current !== 'game3') {
+          console.log('?실행', response.data);
+
+          if (response.data.playYn === 'Y') {
             console.log(response.data);
             let curUsers = [];
             curUsers.push(localUserRef.current);
             curUsers.push(...subscribersRef.current);
             curUsers.sort(() => Math.random() - 0.5);
-            if(localUserRef.current.getStreamManager().stream.streamId === response.data.detectiveStreamId){
+            if (localUserRef.current.getStreamManager().stream.streamId === response.data.detectiveStreamId) {
               localUserRef.current.setImDetect(true);
               setImDetect(response.data.detectiveStreamId);
               setDetectNick(localUserRef.current.getNickname());
-            }
-            else{
-              subscribersRef.current.map(v => {
-                if(v.getStreamManager().stream.streamId === response.data.detectiveStreamId){
+            } else {
+              subscribersRef.current.map((v) => {
+                if (v.getStreamManager().stream.streamId === response.data.detectiveStreamId) {
                   v.setImDetect(true);
                   setDetectNick(v.getNickname());
                 }
-              })
+              });
             }
             setFirstSpeak(response.data.curStreamId);
             setImPerson(response.data.suspectStreamId);
             setFindsub(curUsers);
-            setMode("game3");
+            setMode('game3');
           }
         }
-
-      })
+      });
 
       getToken().then((token) => {
         console.log('GETTOKEN', token);
@@ -388,22 +385,17 @@ const RoomContents = ({ sessionName, userName }: any) => {
     sendSignalUserChanged({ isVideoActive: localUserInit.isVideoActive() });
   };
 
-  const micStatusChanged = (flag : any) => {
+  const micStatusChanged = (flag: any) => {
     //console.log("마이크 상태 변경!!!");
     // console.log(flag, );
-    if(flag.type !== "click"){
+    if (flag.type !== 'click') {
       localUserInit.setAudioActive(flag);
-      localUserInit
-        .getStreamManager()
-        .publishAudio(localUserInit.isAudioActive());
+      localUserInit.getStreamManager().publishAudio(localUserInit.isAudioActive());
       sendSignalUserChanged({ isAudioActive: localUserInit.isAudioActive() });
       setLocalUser(localUserInit);
-    }
-    else{
+    } else {
       localUserInit.setAudioActive(!localUserInit.isAudioActive());
-      localUserInit
-        .getStreamManager()
-        .publishAudio(localUserInit.isAudioActive());
+      localUserInit.getStreamManager().publishAudio(localUserInit.isAudioActive());
       sendSignalUserChanged({ isAudioActive: localUserInit.isAudioActive() });
       setLocalUser(localUserInit);
     }
@@ -503,8 +495,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
       const data = {
         gameStatus: 1,
         gameId: 2,
-        category: 5,
-        // count: 1,
+        category: +ctgy,
       };
       sessionRef.current.signal({
         type: 'game',
@@ -535,81 +526,92 @@ const RoomContents = ({ sessionName, userName }: any) => {
     });
   };
   return (
-    <div style={{
-      width : "100vw"
-    }}>
-    <div className={
-          mode === "home"
-          ? styles["contents-container"] 
-          : mode === "game1" || mode === "game3"
-          ? `${styles["contents-container"]} ${styles.catchmind}`
-          : mode === 'game2'
-          ? `${styles['contents-container']} ${styles.charade}`
-          : styles["contents-container"] 
-      }>
-      {mode === "game3" ? (
-        <FindPerson my={localUserRef.current} users = {findsub} detect = {imDetect} suspect = {imPerson} mySession = {mySessionId} imSpeak={firstSpeak} detectNick={detectNick} camChange={camStatusChanged} micChange={micStatusChanged}/>
-      ) : (
-  
-          <div className={
-            mode === "home" 
-            ? styles["user-videos-container"]
-            : mode === "game1"
-            ? `${styles["user-videos-container"]} ${styles.catchmind}`
+    <div
+      style={{
+        width: '100vw',
+      }}
+    >
+      <div
+        className={
+          mode === 'home'
+            ? styles['contents-container']
+            : mode === 'game1' || mode === 'game3'
+            ? `${styles['contents-container']} ${styles.catchmind}`
             : mode === 'game2'
-            ? `${styles['user-videos-container']} ${styles.charade}`
-            : styles['user-videos-container']
-          }>
+            ? `${styles['contents-container']} ${styles.charade}`
+            : styles['contents-container']
+        }
+      >
+        {mode === 'game3' ? (
+          <FindPerson
+            my={localUserRef.current}
+            users={findsub}
+            detect={imDetect}
+            suspect={imPerson}
+            mySession={mySessionId}
+            imSpeak={firstSpeak}
+            detectNick={detectNick}
+            camChange={camStatusChanged}
+            micChange={micStatusChanged}
+          />
+        ) : (
+          <div
+            className={
+              mode === 'home'
+                ? styles['user-videos-container']
+                : mode === 'game1'
+                ? `${styles['user-videos-container']} ${styles.catchmind}`
+                : mode === 'game2'
+                ? `${styles['user-videos-container']} ${styles.charade}`
+                : styles['user-videos-container']
+            }
+          >
             <div
               id="user-video"
               className={
-                mode === "home"
-                  ? `${styles["video-container"]}`
-                  : mode === "game1"
-                  ? `${styles["video-container"]} ${styles.catchmind}`
+                mode === 'home'
+                  ? `${styles['video-container']}`
+                  : mode === 'game1'
+                  ? `${styles['video-container']} ${styles.catchmind}`
                   : mode === 'game2'
                   ? `${styles['video-container']} ${styles.charade}`
                   : styles['video-container']
               }
             >
               {localUserRef.current !== undefined &&
-              localUserRef.current.getStreamManager() !== undefined && (
-                <StreamComponent
-                  user={localUserRef.current}
-                  sessionId={mySessionId}
-                  camStatusChanged={camStatusChanged}
-                  micStatusChanged={micStatusChanged}
-                  subscribers={subscribers}
-                  mode={mode}
-                  // openKeywordInputModal={openKeywordInputModal}
-                />
-              )}
-  
-  
-            {subscribersRef.current.map((sub, i) => {
-              return (
-                <StreamComponent
-                  key={i}
-                  user={sub}
-                  targetSubscriber={targetSubscriber}
-                  subscribers={subscribers}
-                  mode={mode}
-                  nickname={nickname}
-                  correctNickname={correctNickname}
-                  // sirenWingWing={sirenWingWing}
-                  correctPeopleName={correctPeopleName}
-                />
-              );
-            })}
+                localUserRef.current.getStreamManager() !== undefined &&
+                mode !== 'game2' && (
+                  <StreamComponent
+                    user={localUserRef.current}
+                    sessionId={mySessionId}
+                    camStatusChanged={camStatusChanged}
+                    micStatusChanged={micStatusChanged}
+                    subscribers={subscribers}
+                    mode={mode}
+                    // openKeywordInputModal={openKeywordInputModal}
+                  />
+                )}
+
+              {subscribersRef.current.map((sub, i) => {
+                return (
+                  <StreamComponent
+                    key={i}
+                    user={sub}
+                    targetSubscriber={targetSubscriber}
+                    subscribers={subscribers}
+                    mode={mode}
+                    nickname={nickname}
+                    correctNickname={correctNickname}
+                    // sirenWingWing={sirenWingWing}
+                    correctPeopleName={correctPeopleName}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
-
-
-      )}
-      {mode === "game1" ? (
-            <Catchmind initData = {catchMindDataRef.current} user={localUserRef.current}/>
-      ) : null}
-      {mode === 'game2' ? (
+        )}
+        {mode === 'game1' ? <Catchmind initData={catchMindDataRef.current} user={localUserRef.current} /> : null}
+        {mode === 'game2' ? (
           <div>
             <Charade
               sessionId={mySessionId}
@@ -620,7 +622,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
             />
           </div>
         ) : null}
-      {localUser !== undefined && localUser.getStreamManager() !== undefined && (
+        {localUser !== undefined && localUser.getStreamManager() !== undefined && (
           <div
             className={
               mode === 'home'
@@ -736,14 +738,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
                 <>
                   <Chat user={localUserRef.current} mode={mode} sub={subscribers} />
                 </>
-            </div>)}
-          
-        </div>
-          
-      )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
-        {open ? (<SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame>) : null}
-        {wait ? (<Wait open={wait}></Wait>) : null}
+      {open ? <SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame> : null}
+      {wait ? <Wait open={wait}></Wait> : null}
     </div>
   );
 };
