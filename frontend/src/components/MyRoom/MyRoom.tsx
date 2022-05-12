@@ -131,7 +131,7 @@ const MyRoom = () => {
             </div>
             ) : (
               <div>
-                <h3 style={{textAlign:"center"}}>내가 저장한 그림들</h3>
+                <h3 style={{textAlign:"center"}}>캐치마인드 Histroy</h3>
                 <div>
                   <MyPicture pictures={pictures} />
                 </div>

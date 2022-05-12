@@ -39,7 +39,7 @@ function DoughnutChart({gameCnt, totalGame} : profileProps) {
             'rgba(75, 192, 192, 1)',
           ],
           borderWidth: 1.5,
-          hoverOffset: 4
+          hoverOffset: 4,
         }
       ]
     }

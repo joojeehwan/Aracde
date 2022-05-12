@@ -3,7 +3,7 @@ import styles from './style/MyRoom.module.scss';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import "swiper/css";
 import "swiper/css/pagination";
-import { Pagination } from "swiper";
+import { Pagination, EffectCoverflow } from "swiper";
 
 // 슬라이더 적용..
 type pictureProps = {
@@ -11,15 +11,23 @@ type pictureProps = {
 }
 
 function MyPicture({ pictures } : pictureProps) {
-
   return (
       <Swiper
-        spaceBetween={50}
+        effect={"coverflow"}
+        grabCursor={true}
+        centeredSlides={true}
         slidesPerView={4}
-        pagination={{
-          clickable: true,
+        coverflowEffect={{
+          rotate: 40,
+          stretch: 0,
+          depth: 100,
+          modifier: 1,
+          slideShadows: false,
         }}
-        modules={[Pagination]}
+        pagination={{
+          clickable: true
+        }}
+        modules={[EffectCoverflow, Pagination]}
         className="mySwiper"
       >
         {pictures.map((value:any, index: number) => {
