@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import styles from "../style/OvVideo.module.scss";
+import Thinking from '../../../assets/thinking.png';
 
 type MyProps = {
     user : any,
     mutedSound : boolean,
+    mode : string
 }
 
-function OvVideo({ user, mutedSound } : MyProps) {
+function OvVideo({ user, mutedSound, mode } : MyProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
   // console.log("video render");
 
@@ -38,12 +40,50 @@ function OvVideo({ user, mutedSound } : MyProps) {
     }, [user]);
 
     return (
-        <video
-            autoPlay={true}
-            ref={videoRef}
-            muted={mutedSound}
-            className={styles.video}
-        />
+        <>
+            {mode !== "game3" ? (
+                <video
+                    autoPlay={true}
+                    ref={videoRef}
+                    muted={mutedSound}
+                    className={styles.video}
+                />
+            ) 
+            : user.isImDetect() ? (
+                <video
+                    autoPlay={true}
+                    ref={videoRef}
+                    muted={mutedSound}
+                    className={styles.video}
+                />
+            ) : (
+                <>
+                <div style={{
+                        zIndex : "98",
+                        position : "absolute",
+                        display : "flex",
+                        justifyContent : "center",
+                        alignItems : "center",
+                        width : "100%",
+                        height : "100%",
+                        backgroundColor : "black"
+                    }}>
+                <img style={{width : "15vw", height : "15vw"}} src={Thinking}></img>
+                </div>
+                    
+                <video
+                    style={{
+                        display : "none"
+                    }}
+                    autoPlay={true}
+                    ref={videoRef}
+                    muted={mutedSound}
+                    className={styles.video}
+                />
+                </>
+            )}
+            
+        </>
   );
 }
 
