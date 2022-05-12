@@ -67,9 +67,21 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const lastTimeRef = useRef(lastTime);
     lastTimeRef.current = lastTime;
 
-    
+    const chanceRef = useRef(chance);
+    chanceRef.current = chance;
 
-
+    const sendAnswer = (streamId : string) => {
+        const data = {
+            gameStatus : 2,
+            gameId : 3,
+            index : -1,
+            tryAnswer : streamId
+        }
+        my.getStreamManager().stream.session.signal({
+            data : JSON.stringify(data),
+            type : "game"
+        });
+    }
 
     useEffect(()=>{
         
@@ -96,10 +108,10 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
         }, 10000);
         my.getStreamManager().stream.session.on("signal:game", (response : any) => {
             console.log(response.data, "여긴 게임 안이에용~~~~~~");
-
+            console.log(response.data.answerYN, "여긴 씨발");
             setIdx(response.data.index);
-            if(response.data.answerYN){
-                
+            if(response.data.answerYN !== undefined){
+                console.log("여긴 들어오는 거니?? in answer");
                 if(response.data.answerYN === 2){
                     setChance(1);
                     setLastCheck(true);
@@ -108,15 +120,17 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 else if(response.data.answerYN === 1){
                     setChance(0);
                     setEnd(true);
+                    setAns(false);
                 }
                 else if(response.data.answerYN === 0){
                     setChance(0);
                     setEnd(true);
-                    setIsAns(true)
+                    setAns(false);
+                    setIsAns(true);
                 }
                 return;
             }
-            if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
+            else if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
                 console.log("여긴 됨?? in finish");
                 if(my.getStreamManager().stream.streamId === response.data.curStreamId){
                     console.log("여긴 됨?? in if");
@@ -237,7 +251,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 setTimeCheck(false);
                 setNow(false);
                 setLast(true);
-            }, 60000);
+            }, 1000);
         }
 
         else{
@@ -379,7 +393,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     <>
                     {users.map((v,i) => {
                         const idx = i;
-                        console.log(v);
                         if(v.isImDetect() && v.getStreamManager().stream.streamId === detect){
                             return(
                                     <StreamComponent
@@ -403,20 +416,47 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                             )
                         }
                     })}
-                    {users.map((v,i) => {
-                        const idx = i;
-                        console.log(v.getStreamManager().stream.streamId, detect, "씨발");
-                        if(!v.isImDetect()){
-                            return (<StreamComponent
-                                key={idx}
-                                user={v}
-                                mode="game3"
-                                camStatusChanged={camChange}
-                                micStatusChanged={micChange}
-                                now={nowRef.current}
-                            />)
-                        }
-                    })}
+                    {imDetect ? (
+                        <>
+                        {users.map((v,i) => {
+                            const idx = i;
+                            if(!v.isImDetect()){
+                                return (
+                                <StreamComponent
+                                    key={idx}
+                                    user={v}
+                                    mode="game3"
+                                    camStatusChanged={camChange}
+                                    micStatusChanged={micChange}
+                                    now={nowRef.current}
+                                    sendAns={sendAnswer}
+                                    isLast={lastCheck}
+                                    end={end}
+                                />)
+                            }
+                        })}
+                        </>
+                    ) 
+                    : 
+                    (
+                        <>
+                        {users.map((v,i) => {
+                            const idx = i;
+                            if(!v.isImDetect()){
+                                return (<StreamComponent
+                                    key={idx}
+                                    user={v}
+                                    mode="game3"
+                                    camStatusChanged={camChange}
+                                    micStatusChanged={micChange}
+                                    now={nowRef.current}
+                                    end={end}
+                                />)
+                            }
+                        })}
+                        </>
+                    )}
+                    
                     </>
                 
                 </div>
@@ -426,6 +466,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 display : "flex",
                 alignItems : "center",
                 justifyContent : "center",
+                padding : "0px 20px",
                 width : "50vw",
                 height : "10vh",
                 fontSize : "2rem",
@@ -442,7 +483,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 : end ? (
                     <>
                         {isAns ? (<div> 정답입니다! {findNick}님을 찾았습니다!</div>) 
-                        : chance !== undefined && chance > 0 ? ((<div>땡! 틀렸습니다! 기회 : {chance}</div>)) : (<>땡! 틀렸습니다. {findNick}님을 못찾았습니다!</>)}
+                        : chanceRef.current !== undefined && chanceRef.current > 0 ? ((<div>땡! 틀렸습니다! 기회 : {chance}</div>)) : (<>땡! 틀렸습니다. {findNick}님을 못찾았습니다!</>)}
                     </> 
                 )
                 : imDetect ? (

@@ -22,7 +22,10 @@ function StreamComponent({
   correctNickname,
   sirenWingWing,
   imDetect,
-  now
+  now,
+  sendAns,
+  isLast,
+  end
 } : any) {
   console.log(user);
   const [mutedSound, setMuted] = useState(false);
@@ -161,10 +164,11 @@ function StreamComponent({
           
         >
           {mode === "game3" ?(
-            <OvVideoComponent user={user} mutedSound={mutedSound} mode = {mode} />
+            
+            <OvVideoComponent user={user} mutedSound={mutedSound} mode = {mode} end = {end} isLast = {isLast} sendAns = {sendAns} />
           ) 
           : (
-            <OvVideoComponent user={user} mutedSound={mutedSound} mode = {""}/>
+            <OvVideoComponent user={user} mutedSound={mutedSound} mode = {""} end = {null} isLast = {null} sendAns = {null}/>
           )}
             <>
               <div
