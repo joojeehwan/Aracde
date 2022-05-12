@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../common/navbar/Navbar';
 import styles from './style/MyRoom.module.scss';
@@ -23,10 +23,15 @@ const MyRoom = () => {
   const [totalVicCnt, setTotalVicCnt] = useState<number>(0); // 맞춘 총 정답 개수
   const [vicCnts, setVicCnts] = useState<number[]>([]);
   const [pictures, setPictures] = useState<String[]>([]);
+  const navigate = useNavigate();
 
   const clickHandler = (id: number) => {
     setActiveTab(id);
   };
+  const moveToHome = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate(`/`);
+  }
 
   const getProfileInfo = async () => {
     const response = await getProfile();
@@ -107,34 +112,54 @@ const MyRoom = () => {
             </div>
           </div>
           { activeTab === 0 ? (
-            <div className={styles.profileGameInfo}>
-              <div className={styles.count}>
-                <h2>게임 참여 횟수: 총 {totalGameCnt} 회</h2>
-                {totalGameCnt !== 0 ? (
-                  <GameDoughnutChart 
-                    gameCnt={gameCnts}
-                    totalGame={totalGameCnt}
-                    />): (
-                  <h4>아직 참여한 게임이 없어요</h4>
-                  )}
-              </div>
-              <div className={styles.answer}>
-                <h2>정답 맞춘 개수: 총 {totalVicCnt} 회</h2>
-                {totalVicCnt !== 0 ? (
-                  <WinDoughnutChart
-                    vicCnt={vicCnts}
-                    totalVic={totalVicCnt} 
-                    />): (
-                  <h4>아직 승리한 이력이 없어요</h4>
-                  )}
-              </div>
+            <div>
+
+              <div className={styles.profileGameInfo}>
+                <div className={styles.count}>
+                  <h2>🎲 게임 참여 횟수: 총 {totalGameCnt} 회 🎲</h2>
+                  {totalGameCnt !== 0 ? (
+                    <GameDoughnutChart 
+                      gameCnt={gameCnts}
+                      totalGame={totalGameCnt}
+                      />): (
+                    <h4>아직 참여한 게임이 없어요 🤔</h4>
+                    )}
+                </div>
+                <div className={styles.answer}>
+                  <h2> 🥇 정답 맞춘 개수: 총 {totalVicCnt} 회 🥇</h2>
+                  {totalVicCnt !== 0 ? (
+                    <WinDoughnutChart
+                      vicCnt={vicCnts}
+                      totalVic={totalVicCnt} 
+                      />): (
+                    <h4>아직 승리한 이력이 없어요 🤔</h4>
+                    )}
+                </div>              
+              </div>               
             </div>
             ) : (
               <div>
-                <h3 style={{textAlign:"center"}}>캐치마인드 Histroy</h3>
+                <h3 style={{textAlign:"center"}}>🎲 캐치마인드 Histroy 🎲</h3>
                 <div>
-                  <MyPicture pictures={pictures} />
+                  {pictures.length > 0 ? (
+                    <MyPicture pictures={pictures} />
+                  ) : (
+                    <div style={{textAlign:"center", marginTop: 100}}>
+                      <h4>아직 저장된 사진이 없어요 🤔</h4>
+
+                    </div>
+                  )}
                 </div>
+                <h4
+                  onClick={moveToHome} 
+                  style={{
+                    textAlign: "center",
+                    cursor:"pointer",
+                    marginTop: 40
+                  }}
+                >
+                  🎮게임하러 Go🎮
+                </h4>                
               </div>
             )}
         </div>
