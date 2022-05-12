@@ -5,6 +5,7 @@ import FindInit from "./Modal/FindInit";
 import FirstStep from "./Modal/FirstStep";
 import Meeting from './Modal/Meeting';
 import Last from './Modal/Last';
+import AlarmIcon from '@mui/icons-material/Alarm';
 
 type MyProps = {
     my : any,
@@ -13,32 +14,33 @@ type MyProps = {
     suspect : string,
     mySession : string,
     imSpeak : string,
+    detectNick : string,
     camChange : () => void,
     micChange : (value : any) => void,
 }
 
 // 정답 answerYN 0 or 1 이면 캠 오픈 되게 해야함
 
-function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, micChange} : MyProps){
+function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick,camChange, micChange} : MyProps){
 
     const [init, setInit] = useState<boolean>(true);
     const [idx, setIdx] = useState<number>();
     const [step, setStep] = useState<boolean>(false);
     const [findNick, setFindNick] = useState<string>("");
-    const [detectNick, setDetectNick] = useState<string>("");
+    //const [detectNick, setDetectNick] = useState<string>("");
     const [imDetect, setImDetect] = useState<boolean>(false);
     const [curSpeak, setCurSpeak] = useState<string>("");
     const [now, setNow] = useState<boolean>(false);
     const [imNext, setImNext] = useState<boolean>(false);
-    const [speakTime, setSpeakTime] = useState<number | undefined>();
-    const [time, setTime] = useState<number>();
+    const [speakTime, setSpeakTime] = useState<number>(100000000);
+    const [speak, setSpeak] = useState<boolean>(false);
+    const [time, setTime] = useState<number>(60);
+    const [timeCheck, setTimeCheck] = useState<boolean>(false);
     const [meeting, setMeeting] = useState<boolean>(false);
-    const [lastTime, setLastTime] = useState<number>();
+    const [lastTime, setLastTime] = useState<number>(10);
+    const [lastCheck, setLastCheck] = useState<boolean>(false);
     const [last, setLast] = useState<boolean>(false);
     const [chance, setChance] = useState<number>();
-
-    const speakTimeRef = useRef(speakTime);
-    speakTimeRef.current = speakTime;
 
     const nowRef = useRef(now);
     nowRef.current = now;
@@ -52,6 +54,18 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
     const idxRef = useRef(idx);
     idxRef.current = idx;
 
+    const timeRef = useRef(time);
+    timeRef.current = time;
+
+    const speakTimeRef = useRef(speakTime);
+    speakTimeRef.current = speakTime;
+    
+    const lastTimeRef = useRef(lastTime);
+    lastTimeRef.current = lastTime;
+
+    
+
+
 
     useEffect(()=>{
         
@@ -59,7 +73,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
         users.map((v) => {
             if(v.isImDetect() && v.getStreamManager().stream.streamId === detect){
                 setImDetect(true);
-                setDetectNick(v.getNickname());
             }
         });
         setTimeout(()=>{
@@ -85,6 +98,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                 
                 if(response.data.answerYN === 2){
                     setChance(1);
+                    setLastCheck(true);
                     setLastTime(10);
                 }
                 else if(response.data.answerYN === 1){
@@ -93,8 +107,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                 else if(response.data.answerYN === 0){
                     setChance(0);
                 }
-                
-                
                 return;
             }
             if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
@@ -108,6 +120,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                 setStep(true);
             }
             else if(response.data.finishPR && response.data.finishPR === 'Y'){
+                console.log("??? 여긴 실행 되니?? 마지막 체크")
                 setMeeting(true);
             }
         });
@@ -128,7 +141,8 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
         if(step){
             setTimeout(()=>{
                 setStep(false);
-                setSpeakTime(10);
+                setSpeakTime(1000000000);
+                setSpeak(true);
                 console.log("여긴", curSpeakRef.current, my.getStreamManager().stream.streamId);
                 if(curSpeakRef.current === my.getStreamManager().stream.streamId){
                     setNow(true);
@@ -143,6 +157,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
             setTimeout(()=>{
                 setMeeting(false);               
                 setTime(60);
+                setTimeCheck(true);
                 setNow(true);
             }, 5000)
         }
@@ -153,22 +168,31 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
             setTimeout(()=>{
                 setLastTime(10);
                 setLast(false);
+                setLastCheck(true);
             }, 5000)
         }
     }, [last])
 
     useEffect(()=>{
         let countDown : any;
-        if(speakTime !== undefined){
+        if(speak){
+            countDown = setInterval(()=>{
+                if(speakTimeRef.current === 0){
+                    clearInterval(countDown);
+                }
+                else{
+                    setSpeakTime(speakTimeRef.current-1);
+                }
+            }, 1000);
+
             setTimeout(()=>{
                 console.log("????????? 되는거야??");
-                setSpeakTime(undefined);
+                setSpeak(false);
                 console.log(nowRef.current);
                 if(nowRef.current){
-                    //sendSignal();
                     setNow(false);  
                     
-                    if(idx !== undefined && idx <= users.length){
+                    if(idx !== undefined){
                         console.log("여긴 길이 검사야");
                         const data = {
                             gameStatus : 2,
@@ -183,9 +207,66 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
                     }
                 }
                 
-            }, 10000);
+            }, 100000000);
         }
-    }, [speakTime]);
+        else{
+            clearInterval(countDown);
+        }
+    }, [speak]);
+
+    useEffect(()=>{
+        let countDown : any;
+        if(timeCheck){
+            countDown = setInterval(()=>{
+                if(timeRef.current === 0){
+                    clearInterval(countDown);
+                }
+                else{
+                    setTime(timeRef.current-1);
+                }
+            }, 1000);
+            setTimeout(()=>{
+                setNow(false);
+                setLast(true);
+            }, 60000);
+        }
+        else{
+            clearInterval(countDown);
+        }
+    }, [timeCheck]);
+
+    useEffect(()=>{
+        let countDown : any;
+        if(lastCheck && chance && chance > 0){
+            
+            countDown = setInterval(()=>{
+                if(lastTimeRef.current === 0){
+                    clearInterval(countDown);
+                }
+                else{
+                    setLastTime(lastTimeRef.current-1);
+                }
+            }, 1000);
+            setTimeout(()=>{
+                if(my.isImDetect()){
+                    const data = {
+                        gameStatus : 2,
+                        gameId : 3,
+                        index : -1,
+                        tryAnswer : "",
+                    }
+                    my.getStreamManager().stream.session.signal({
+                        data : JSON.stringify(data),
+                        type : "game"
+                    });
+                }
+                setLastCheck(false);
+            }, 10000)
+        }
+        else{
+            clearInterval(countDown);
+        }
+    }, [lastCheck])
 
     // useEffect(()=>{
     //     if(time !== undefined){
@@ -230,6 +311,23 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak,camChange, 
 
     return(
         <>
+            {speak ? (
+                <div style={{
+                    position : "absolute",
+                    display : "flex",
+                    justifyContent : "center",
+                    alignItems : "center",
+                    top : "9vh",
+                    right : "28.5vw",
+                    color : "white",
+                    fontSize : "1.5em",
+                }}>
+                    <AlarmIcon sx={{fontSize : 30, marginRight : "1vw"}}/>
+                    {speakTime} 
+                </div>
+            ) : null}
+            {timeCheck ? (time): null}
+            {lastCheck ? (lastTime) : null}
             <div className={
                 `${styles["user-videos-container"]} ${styles.findperson}`
             }>

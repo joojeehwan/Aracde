@@ -63,7 +63,7 @@ const RoomContents = ({
 
   const [imDetect, setImDetect] = useState<string>("");
   const [imPerson, setImPerson] = useState<string>("");
-  const [imPersonNick, setImPersonNick] = useState<string>("");
+  const [detectNick, setDetectNick] = useState<string>("");
 
   const participantNumRef = useRef(participantNum);
   participantNumRef.current = participantNum;
@@ -251,11 +251,13 @@ const RoomContents = ({
             if(localUserRef.current.getStreamManager().stream.streamId === response.data.detectiveStreamId){
               localUserRef.current.setImDetect(true);
               setImDetect(response.data.detectiveStreamId);
+              setDetectNick(localUserRef.current.getNickname());
             }
             else{
               subscribersRef.current.map(v => {
                 if(v.getStreamManager().stream.streamId === response.data.detectiveStreamId){
                   v.setImDetect(true);
+                  setDetectNick(v.getNickname());
                 }
               })
             }
@@ -548,7 +550,7 @@ const RoomContents = ({
             <Charade />
         ) : null}
       {mode === "game3" ? (
-        <FindPerson my={localUserRef.current} users = {findsub} detect = {imDetect} suspect = {imPerson} mySession = {mySessionId} imSpeak={firstSpeak} camChange={camStatusChanged} micChange={micStatusChanged}/>
+        <FindPerson my={localUserRef.current} users = {findsub} detect = {imDetect} suspect = {imPerson} mySession = {mySessionId} imSpeak={firstSpeak} detectNick={detectNick} camChange={camStatusChanged} micChange={micStatusChanged}/>
       ) : (
   
           <div className={
