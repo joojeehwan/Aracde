@@ -240,6 +240,15 @@ public class ChatService {
         // redis에서 sort가 정상 작동하지 않는다.
         // spring에서 sort 하여 처리.
         list.sort((o1, o2) -> -o1.getRealTime().compareTo(o2.getRealTime()));
+        // 만약 메시지 개수가 100개 이상이면 여기서 삭제.
+        // 원래는 TTL을 걸어서 삭제할 수 있지만, 그것은 키 만료만 되기 때문에 데이터가 쌓이는 것은 매한가지.
+        // 만료된 키를 삭제하는 방법을 찾지 못했다.
+        while(list.size() > 100){
+            Message message = list.get(list.size()-1);
+            messageRepository.delete(message);
+            list.remove(message);
+        }
+
         ArrayList<Message> messages = new ArrayList<>();
         Stack<Message> s = new Stack<>();
         for(int i = 0; i < list.size() ; i++){
