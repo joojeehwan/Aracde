@@ -29,7 +29,7 @@ public class NotiController {
     }
     // 알림 삭제
     @DeleteMapping
-    public ResponseEntity<String> deleteNotification(@RequestHeader("Authorization") String token, @RequestParam Long notiSeq) {
+    public ResponseEntity<String> deleteNotification(@RequestHeader("Authorization") String token, @RequestParam String notiSeq) {
         return new ResponseEntity<>(notiService.deleteNotification(token,notiSeq), HttpStatus.OK);
     }
 }

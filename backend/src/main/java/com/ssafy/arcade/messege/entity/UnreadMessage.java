@@ -12,7 +12,7 @@ import org.springframework.data.redis.core.RedisHash;
 @Setter
 @NoArgsConstructor
 @RedisHash("unreadMessage")// 레디스 db에 매핑하겠다.
-public class UnreadMessage extends BaseTimeEntity {
+public class UnreadMessage {
     @Id
     private Long unreadMessageSeq;
     private Long chatRoomSeq;

@@ -2,6 +2,7 @@ package com.ssafy.arcade.game;
 
 
 import com.ssafy.arcade.game.request.GameReqDto;
+import com.ssafy.arcade.game.request.InviteReq;
 import com.ssafy.arcade.game.request.PictureReqDto;
 import com.ssafy.arcade.game.request.RoomReqDto;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,11 @@ public class GameController {
             return new ResponseEntity<>("요청 성공", HttpStatus.OK);
         }
     }
+    // 친구 초대
+    @PostMapping("/invite")
+    public ResponseEntity<String> inviteFriend(@RequestBody InviteReq inviteReq) {
+        return new ResponseEntity<>(gameService.inviteFriend(inviteReq), HttpStatus.OK);
+    }
 
     /**
      *  Game 관련 Controller
@@ -75,11 +81,19 @@ public class GameController {
         return new ResponseEntity<>(gameService.uploadPicture(image), HttpStatus.OK);
     }
 
-    // 캐치마인드 끝나고 원하는 그림 추가
+    // 캐치마인드 끝나고 원하는 그림 추가 (개별 추가)
     @PostMapping(value="/picture")
     public ResponseEntity<String> savePicture(@RequestBody PictureReqDto pictureReqDto) {
 
-        gameService.createPicture(pictureReqDto.getUserSeq(), pictureReqDto.getPictureUrls());
+        gameService.createPicture(pictureReqDto.getUserSeq(), pictureReqDto.getPictureUrl());
+        return new ResponseEntity<>("그림 저장 성공", HttpStatus.OK);
+    }
+
+    // 원하는 그림 한번에 추가
+    @PostMapping(value="/many-picture")
+    public ResponseEntity<String> savePictures(@RequestBody PictureReqDto pictureReqDto) {
+
+        gameService.createPictures(pictureReqDto.getUserSeq(), pictureReqDto.getPictureUrlList());
         return new ResponseEntity<>("그림 저장 성공", HttpStatus.OK);
     }
 

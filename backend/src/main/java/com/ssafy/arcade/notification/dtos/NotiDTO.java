@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NotiDTO {
-    private Long notiSeq;
+    private String notiSeq;
     private Long userSeq; // 누가 보낸 알람인지
     private String name;
     private String type;

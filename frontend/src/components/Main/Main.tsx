@@ -6,6 +6,7 @@ import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
+import { ReactComponent as BellRed } from '../../assets/Modal/bellLight.svg';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
@@ -21,6 +22,10 @@ import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
 import { getToken } from '../../common/api/jWT-Token';
 import { WindowSharp } from '@mui/icons-material';
+import alarmSound from '../../mp3/alram.mp3';
+
+import { useStore } from "../../../src/components/Room/store";
+import { infoStore } from "../../../src/components/Store/info"
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -29,27 +34,29 @@ function Main() {
   const navigate = useNavigate();
 
   //지환 코드
+  const { setClientt, clientt } = useStore();
+
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
-  const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
-  const [alramsList, setAlarmsList] = useState<any[]>([]);
+  const [isBell, setIsBell] = useState(false)
   //swr & api
   const { fetchWithToken } = ChatAPI;
   const { setOnlie, setOffline } = OnlineApi;
-  const { postReadAlarm, fetchAlarmWithToken } = AlarmApi;
-  const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
-    fetchWithToken(url, getToken() as unknown as string),
-  );
-  const { data: AlarmsList } = useSWR(process.env.REACT_APP_API_ROOT + '/noti', (url) =>
-    fetchAlarmWithToken(url, getToken() as unknown as string),
-  );
-  const client = useRef<any>({});
+  const { postReadAlarm, getAlarmList } = AlarmApi;
 
+  useEffect(() => {
+    console.log(clientt, "클라이언트 티티!")
+  }, [clientt])
+
+  const { setInviteCode } = infoStore()
+  const client = useRef<any>({});
   const handleOpenAlarms = useCallback(async () => {
-    setAlarmsIsOpen(true);
-    postReadAlarm();
     // 무조건 무조건이야 알람 흰색 변화
+    setIsBell(false)
+    setAlarmsIsOpen(true);
+    // 모든 알람을 읽었다.
+    postReadAlarm();
   }, [alarmsIsOpen]);
 
   const handleCloseAlarms = useCallback(
@@ -67,21 +74,13 @@ function Main() {
     setFriendsIsOpen(false);
   }, [friendsIsOpen]);
 
-  const handleOpenTest = useCallback(() => {
-    setTest(true);
-  }, [test]);
-
-  const handleCloseTest = useCallback(() => {
-    setTest(false);
-  }, [test]);
-
   const handleOpenChatting = useCallback(() => {
     setChattingIsOpen(true);
-  }, [test]);
+  }, [chattingIsOpen]);
 
   const handleCloseChatting = useCallback(() => {
     setChattingIsOpen(false);
-  }, [test]);
+  }, [chattingIsOpen]);
 
   const handleOpenCreateRoom = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -94,19 +93,18 @@ function Main() {
   };
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
+    setInviteCode("")
     navigate('/entrance');
-    console.log('눌렸음');
   };
 
   const handleClickLogout = (e: React.MouseEvent) => {
-    deleteToken();
     // 여기서 로그아웃 api 추가
     disconnect();
     setIsLogin(false);
+    deleteToken();
   };
   // 임시 메서드
   const handleClickLogin = (e: React.MouseEvent) => {
-    console.log('here');
     // navigate login page here
     navigate(`/login`);
     setIsLogin(true);
@@ -115,9 +113,9 @@ function Main() {
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
     navigate('/myroom')
-    console.log('hererererererere');
   };
 
+  //바로 위로 스므스하게 올라감
   const handleClickTop = (e: React.MouseEvent) => {
     if (divRef.current !== null) {
       window.scrollBy({ top: divRef.current.getBoundingClientRect().top, behavior: 'smooth' });
@@ -133,41 +131,50 @@ function Main() {
     }
   }, [friendsIsOpen, alarmsIsOpen, open, chattingIsOpen]);
 
-  useEffect(() => {
-    if (window.localStorage.getItem('token')) {
-      setIsLogin(true);
+  //정리
+  const getAndgetAlarmList = async () => {
+    // 단순히 내가 확인하지 않은 알림이 있는지 없는지만 검사.
+    const result = await getAlarmList()
+    const checkAlarm: any[] = result.data
+    // 객체 오브젝트안에 내가 찾고자 하는 값을 구별해내는 js 
+    let flaginUnreads: boolean = checkAlarm.some(it => it.confirm === false)
+
+    if (flaginUnreads === true) {
+      setIsBell(true)
+    } else {
+      setIsBell(false)
     }
-  }, []);
+
+  }
 
   const connect = () => {
-    const token = getToken();
-    // await online();
+
+    // setOnlie();
     client.current = new StompJs.Client({
-      brokerURL: 'wss://k6a203.p.ssafy.io/ws-stomp', // 웹소켓 서버로 직접 접속
+      brokerURL: 'wss://k6a203.p.ssafy.io/socket', // 웹소켓 서버로 직접 접속
       debug: function (str) {
-        console.log(str);
+        console.log(str)
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
         subscribe();
-        setOnlie();
       },
       onStompError: (frame) => {
         console.error(frame);
       },
-      // onDisconnect: () => {
-      //   console.log("나간다")
-      //   client.current.deactivate();
-      // }
+
     });
     client.current.activate();
   };
-  const disconnect = () => {
-    // 여기다가
-    setOffline();
+
+  const disconnect = async () => {
+
+    await setOffline();
+    // clientRef.current.deactivate();
     client.current.deactivate();
+
   };
 
   if (typeof WebSocket !== 'function') {
@@ -181,25 +188,32 @@ function Main() {
 
   const subscribe = () => {
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
-      // 여기는 무조건 알림창 빨간색 처리 해야함.
-      // 알림창 누르면 알림 가져오기 api 호출. => 메인 가면 바로 알림 리스트 가져옴
-      console.log(body);
-      const data: any = JSON.parse(body);
-      alramsList.push(data);
-      setAlarmsList([...data]);
+      // 데이터 받자마자 빨간색 처리
+      setIsBell(true)
+      bellSound()
     });
   };
+  const bellSound = () => {
+    let audio = new Audio(alarmSound)
+
+    audio.play()
+  }
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
+      setOnlie();
       connect();
+      setClientt(client)
+      setIsLogin(true);
+      getAndgetAlarmList()
     }
-    // unmount 될때 실행되는게 맞냐?
     return () => {
-      disconnect();
+
+      // back에서 없어지나 test
+      // disconnect()
+      // window.removeEventListener("unload", disconnect);
     };
   }, []);
-  console.log(alramsList);
 
   return (
     <>
@@ -209,34 +223,38 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
-              {/* <button onClick={handleOpenTest}>test</button> */}
-              <Bell
-                className={styles.button}
-                onClick={handleOpenAlarms}
-                style={{
-                  width: 28,
-                  height: 28,
-                  float: 'right',
-                  marginTop: '2%',
-                  marginRight: '2%',
-                }}
-                filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-              />
+              {isBell === false ?
+                (
+                  <Bell
+                    className={styles.button}
+                    onClick={handleOpenAlarms}
+                    style={{
+                      width: 30,
+                      height: 28,
+                      float: 'right',
+                      marginTop: '2%',
+                      marginRight: '2%',
+                      position: "relative",
+                    }}
+                    filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+                  />) :
+                (<Bell
+                  className={styles.button}
+                  onClick={handleOpenAlarms}
+                  style={{
+                    width: 28,
+                    height: 28,
+                    float: 'right',
+                    marginTop: '2%',
+                    marginRight: '2%',
+                    position: "relative",
+                  }}
+                  filter="invert(11%) sepia(100%) saturate(6216%) hue-rotate(280deg) brightness(94%) contrast(116%)"
+                />)
+              }
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}
-                style={{
-                  width: 28,
-                  height: 28,
-                  float: 'right',
-                  marginTop: '2%',
-                  marginRight: '2%',
-                }}
-                filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-              />
-              <Chatt
-                className={styles.button}
-                onClick={handleOpenChatting}
                 style={{
                   width: 28,
                   height: 28,
@@ -297,14 +315,29 @@ function Main() {
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? (
-          <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} AlarmsList={AlarmsList} />
+          <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} />
         ) : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
-        {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
         {chattingIsOpen ? (
-          <Chatting chattingList={chattingList} open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
+          <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
         ) : null}
       </div>
+      {
+        window.localStorage.getItem("token") !== null &&
+        < Chatt
+          className={styles.button}
+          onClick={handleOpenChatting}
+          style={{
+            margin: "20px",
+            width: 60,
+            height: 60,
+            position: "fixed",
+            right: "0px",
+            bottom: "0px"
+          }}
+          filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+        />
+      }
     </>
   );
 }

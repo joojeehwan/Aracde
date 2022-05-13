@@ -3,12 +3,22 @@ import style from '../../styles/Invite.module.scss';
 import Char from '../../../../assets/character.png';
 import magnifyingGlassInvite from '../../../../assets/Modal/magnifyingGlassInvite.png';
 
-function InviteSearhBar() {
+interface MyProps {
+  searchPeople: (name: string) => void;
+}
+
+function InviteSearhBar({ searchPeople }: MyProps) {
   const [input, setInput] = useState<string>('');
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setInput(e.currentTarget.value);
+  };
+
+  const handleSearchPeople = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      searchPeople(input);
+    }
   };
 
   return (
@@ -33,7 +43,7 @@ function InviteSearhBar() {
       </div>
       <div className={style.serachBar}>
         <img src={magnifyingGlassInvite} style={{ height: '43px', marginTop: '-30px', marginBottom: '-10px' }} />
-        <input className={style.input} id="nick" type="text" onChange={handleInput}></input>
+        <input className={style.input} id="nick" type="text" onChange={handleInput} onKeyDown={handleSearchPeople}></input>
       </div>
     </header>
   );

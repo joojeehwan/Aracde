@@ -48,10 +48,11 @@
 	<properties>
 		<!-- Main class -->
 		<start-class>io.openvidu.server.OpenViduServer</start-class>
+		<project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>utf-8</project.reporting.outputEncoding>
 	</properties>
 
 	<profiles>
-
 		<profile>
 			<id>exec</id>
 			<activation>

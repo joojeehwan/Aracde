@@ -26,9 +26,25 @@
   display: flex;
 }
 
+.plusOn {
+  height: 64px;
+  width: 64px;
+  display: block;
+  margin: 0px 80px;
+}
+
+.plusOff {
+  left: 200px;
+  height: 64px;
+  width: 64px;
+  // margin: 0px 80px;
+  margin-left: 160px;
+}
+
 .self {
   float: right;
 }
+
 .chatList {
   width: 30%;
 }
@@ -36,6 +52,14 @@
 .chatContent {
   width: 60%;
   margin-left: 10px;
+}
+
+.onFocus .lastMessage {
+  display: block;
+  width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chatMessages {
@@ -159,6 +183,7 @@
   font-size: 30px;
   margin-left: 10px;
 }
+
 .modal button {
   font-family: 'neodgm';
   cursor: pointer;
@@ -185,7 +210,7 @@
   background-color: #858585;
 }
 
-.modal > section {
+.modal>section {
   width: auto;
   height: 600px;
   border-radius: 10px;
@@ -194,6 +219,7 @@
   animation: modal-show 0.3s;
   overflow: hidden;
 }
+
 .serachBar {
   width: 100%;
   margin: 40px auto;
@@ -201,15 +227,18 @@
   // font-size: 1px;
   position: relative;
 }
+
 .input {
   font-size: 20px;
   margin-left: 20px;
   font-family: 'neodgm';
   border-style: none none so1lid none;
+
   &:focus {
     outline: none;
   }
 }
+
 .onFocus {
   &:hover {
     background-color: #ededed;
@@ -235,20 +264,24 @@
   /* 팝업이 열릴때 스르륵 열리는 효과 */
   animation: modal-bg-show 0.3s;
 }
+
 @keyframes modal-show {
   from {
     opacity: 0;
     margin-top: -50px;
   }
+
   to {
     opacity: 1;
     margin-top: 0;
   }
 }
+
 @keyframes modal-bg-show {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
