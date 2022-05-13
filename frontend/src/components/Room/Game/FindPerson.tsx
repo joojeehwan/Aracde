@@ -6,6 +6,7 @@ import FirstStep from "./Modal/FirstStep";
 import Meeting from './Modal/Meeting';
 import Last from './Modal/Last';
 import AlarmIcon from '@mui/icons-material/Alarm';
+import {toast} from 'react-toastify';
 
 type MyProps = {
     my : any,
@@ -32,7 +33,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const [curSpeak, setCurSpeak] = useState<string>("");
     const [now, setNow] = useState<boolean>(false);
     const [imNext, setImNext] = useState<boolean>(false);
-    const [speakTime, setSpeakTime] = useState<number>(100000000);
+    const [speakTime, setSpeakTime] = useState<number>(10);
     const [speak, setSpeak] = useState<boolean>(false);
     const [time, setTime] = useState<number>(60);
     const [timeCheck, setTimeCheck] = useState<boolean>(false);
@@ -40,7 +41,12 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const [lastTime, setLastTime] = useState<number>(10);
     const [lastCheck, setLastCheck] = useState<boolean>(false);
     const [last, setLast] = useState<boolean>(false);
+    const [ans, setAns] = useState<boolean>(false);
+    const [end, setEnd] = useState<boolean>(false);
+    const [endDiv, setEndDiv] = useState<boolean>(false);
+    const [isAns, setIsAns] = useState<boolean>(false);
     const [chance, setChance] = useState<number>();
+    const [exit, setExit] = useState<boolean>(false);
 
     const nowRef = useRef(now);
     nowRef.current = now;
@@ -63,9 +69,55 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const lastTimeRef = useRef(lastTime);
     lastTimeRef.current = lastTime;
 
-    
+    const chanceRef = useRef(chance);
+    chanceRef.current = chance;
 
+    const endRef = useRef(end);
+    endRef.current = end;
 
+    const sendAnswer = (streamId : string) => {
+        const data = {
+            gameStatus : 2,
+            gameId : 3,
+            index : -1,
+            tryAnswer : streamId
+        }
+        my.getStreamManager().stream.session.signal({
+            data : JSON.stringify(data),
+            type : "game"
+        });
+    }
+    const exitGame = () => {
+        if(exit){
+            const data = {
+                gameStatus : 3,
+                gameId : 3
+            }
+            my.getStreamManager().stream.session.signal({
+                data : JSON.stringify(data),
+                type : "game"
+            });
+        }
+        else{
+            toast.error(
+                <div style={{
+                    display : "flex",
+                    justifyContent : "center",
+                    flexDirection : "column",
+                    alignItems : "center"
+                }}>
+                <div style={{ width: 'inherit', fontSize: '14px' }}>
+                    게임을 시작한 사람만
+                </div>
+                <div style={{ width: 'inherit', fontSize: '14px' }}>
+                    클릭 가능합니다.
+                </div>
+                </div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+            });
+        }
+    }
 
     useEffect(()=>{
         
@@ -83,7 +135,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
             if(my.getStreamManager().stream.streamId === imSpeak){
                 setImNext(true);
             }
-            if(users.length > 4){
+            if(users.length <= 4){
                 setChance(1);
             }
             else{
@@ -92,24 +144,43 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
         }, 10000);
         my.getStreamManager().stream.session.on("signal:game", (response : any) => {
             console.log(response.data, "여긴 게임 안이에용~~~~~~");
-
+            console.log(response.data.answerYN, "여긴 씨발");
             setIdx(response.data.index);
-            if(response.data.answerYN){
-                
+            if(response.data.answerYN !== undefined){
+                console.log("여긴 들어오는 거니?? in answer");
                 if(response.data.answerYN === 2){
                     setChance(1);
                     setLastCheck(true);
                     setLastTime(10);
+                    setAns(false);
+                    setEndDiv(true);
                 }
                 else if(response.data.answerYN === 1){
+                    if(my.getStreamManager().stream.streamId === response.data.startStreamId){
+                        setExit(true);
+                    }
+                    setLastCheck(false);
                     setChance(0);
+                    setEnd(true);
+                    setAns(false);
+                    setNow(true);
+                    setEndDiv(true);
                 }
                 else if(response.data.answerYN === 0){
+                    if(my.getStreamManager().stream.streamId === response.data.startStreamId){
+                        setExit(true);
+                    }
+                    setLastCheck(false);
                     setChance(0);
+                    setEnd(true);
+                    setAns(false);
+                    setIsAns(true);
+                    setNow(true);
+                    setEndDiv(true);
                 }
                 return;
             }
-            if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
+            else if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
                 console.log("여긴 됨?? in finish");
                 if(my.getStreamManager().stream.streamId === response.data.curStreamId){
                     console.log("여긴 됨?? in if");
@@ -140,14 +211,14 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     useEffect(()=>{
         if(step){
             setTimeout(()=>{
-                setStep(false);
-                setSpeakTime(1000000000);
-                setSpeak(true);
                 console.log("여긴", curSpeakRef.current, my.getStreamManager().stream.streamId);
                 if(curSpeakRef.current === my.getStreamManager().stream.streamId){
                     setNow(true);
                     setImNext(false);
                 }
+                setStep(false);
+                setSpeakTime(10);
+                setSpeak(true);
             }, 5000)
         }
     }, [step])
@@ -169,6 +240,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 setLastTime(10);
                 setLast(false);
                 setLastCheck(true);
+                setAns(true);
             }, 5000)
         }
     }, [last])
@@ -207,7 +279,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     }
                 }
                 
-            }, 100000000);
+            }, 10000);
         }
         else{
             clearInterval(countDown);
@@ -226,10 +298,12 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 }
             }, 1000);
             setTimeout(()=>{
+                setTimeCheck(false);
                 setNow(false);
                 setLast(true);
-            }, 60000);
+            }, 1000);
         }
+
         else{
             clearInterval(countDown);
         }
@@ -238,66 +312,42 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     useEffect(()=>{
         let countDown : any;
         if(lastCheck && chance && chance > 0){
-            
-            countDown = setInterval(()=>{
-                if(lastTimeRef.current === 0){
-                    clearInterval(countDown);
-                }
-                else{
-                    setLastTime(lastTimeRef.current-1);
-                }
-            }, 1000);
-            setTimeout(()=>{
-                if(my.isImDetect()){
-                    const data = {
-                        gameStatus : 2,
-                        gameId : 3,
-                        index : -1,
-                        tryAnswer : "",
+            if(endRef.current){
+                clearInterval(countDown);
+                clearTimeout();
+            }
+            else{
+                countDown = setInterval(()=>{
+                    console.log("여긴 라스트임",lastTimeRef.current);
+                    if(lastTimeRef.current === 0 || endRef.current){
+                        clearInterval(countDown);
                     }
-                    my.getStreamManager().stream.session.signal({
-                        data : JSON.stringify(data),
-                        type : "game"
-                    });
-                }
-                setLastCheck(false);
-            }, 10000)
+                    else{
+                        setLastTime(lastTimeRef.current-1);
+                    }
+                }, 1000);
+                setTimeout(()=>{
+                    if(my.isImDetect() && !endRef.current){
+                        const data = {
+                            gameStatus : 2,
+                            gameId : 3,
+                            index : -1,
+                            tryAnswer : "",
+                        }
+                        my.getStreamManager().stream.session.signal({
+                            data : JSON.stringify(data),
+                            type : "game"
+                        });
+                    }
+                    setLastCheck(false);
+                }, 10000)
+            }
+            
         }
         else{
             clearInterval(countDown);
         }
     }, [lastCheck])
-
-    // useEffect(()=>{
-    //     if(time !== undefined){
-    //         setTimeout(()=>{
-    //             setTime(undefined);
-    //             setNow(false);
-    //             setLast(true);
-    //         }, 60000)
-    //     }
-    // }, [time]);
-
-    // useEffect(()=>{
-    //     if(lastTime !== undefined){
-    //         if(chance !== undefined && chance > 0){
-    //             setTimeout(()=>{
-    //                 if(my.isImDetect()){
-    //                     const data = {
-    //                         gameStatus : 2,
-    //                         gameId : 3,
-    //                         index : -1,
-    //                         tryAnswer : "",
-    //                     }
-    //                     my.getStreamManager().stream.session.signal({
-    //                         data : JSON.stringify(data),
-    //                         type : "game"
-    //                     });
-    //                 }
-    //             }, 10000)
-    //         }
-    //     }
-    // }, [lastTime])
 
     useEffect(()=>{
         console.log("여긴", speakTimeRef.current);
@@ -312,6 +362,42 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     return(
         <>
             {speak ? (
+                <>
+                    <AlarmIcon sx={{
+                        position : "absolute",
+                        color : "white",
+                        fontSize : 30, 
+                        marginRight : "1vw",
+                        top : "8.4vh",
+                        right : "29.5vw"
+                    }}
+                    />
+                    <div style={{
+                        position : "absolute",
+                        display : "flex",
+                        justifyContent : "center",
+                        alignItems : "center",
+                        top : "9vh",
+                        right : "28.5vw",
+                        color : "white",
+                        fontSize : "1.5em",
+                    }}>
+                        {speakTime} 
+                    </div>
+                </>
+                
+            ) : null}
+            {timeCheck ? (
+                <>
+                <AlarmIcon sx={{
+                    position : "absolute",
+                    color : "white",
+                    fontSize : 30, 
+                    marginRight : "1vw",
+                    top : "8.4vh",
+                    right : "29.5vw"
+                }}
+                />
                 <div style={{
                     position : "absolute",
                     display : "flex",
@@ -322,12 +408,35 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     color : "white",
                     fontSize : "1.5em",
                 }}>
-                    <AlarmIcon sx={{fontSize : 30, marginRight : "1vw"}}/>
-                    {speakTime} 
+                    {time} 
                 </div>
+            </>
+            ): null}
+            {lastCheck ? (
+                <>
+                <AlarmIcon sx={{
+                    position : "absolute",
+                    color : "white",
+                    fontSize : 30, 
+                    marginRight : "1vw",
+                    top : "8.4vh",
+                    right : "29.5vw"
+                }}
+                />
+                <div style={{
+                    position : "absolute",
+                    display : "flex",
+                    justifyContent : "center",
+                    alignItems : "center",
+                    top : "9vh",
+                    right : "28.5vw",
+                    color : "white",
+                    fontSize : "1.5em",
+                }}>
+                    {lastTime} 
+                </div>
+            </>
             ) : null}
-            {timeCheck ? (time): null}
-            {lastCheck ? (lastTime) : null}
             <div className={
                 `${styles["user-videos-container"]} ${styles.findperson}`
             }>
@@ -340,7 +449,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     <>
                     {users.map((v,i) => {
                         const idx = i;
-                        console.log(v);
                         if(v.isImDetect() && v.getStreamManager().stream.streamId === detect){
                             return(
                                     <StreamComponent
@@ -364,49 +472,193 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                             )
                         }
                     })}
-                    {users.map((v,i) => {
-                        const idx = i;
-                        console.log(v.getStreamManager().stream.streamId, detect, "씨발");
-                        if(!v.isImDetect()){
-                            return (<StreamComponent
-                                key={idx}
-                                user={v}
-                                mode="game3"
-                                camStatusChanged={camChange}
-                                micStatusChanged={micChange}
-                                now={nowRef.current}
-                            />)
-                        }
-                    })}
+                    {imDetect ? (
+                        <>
+                        {users.map((v,i) => {
+                            const idx = i;
+                            if(!v.isImDetect()){
+                                return (
+                                <StreamComponent
+                                    key={idx}
+                                    user={v}
+                                    mode="game3"
+                                    camStatusChanged={camChange}
+                                    micStatusChanged={micChange}
+                                    now={nowRef.current}
+                                    sendAns={sendAnswer}
+                                    isLast={lastCheck}
+                                    end={end}
+                                />)
+                            }
+                        })}
+                        </>
+                    ) 
+                    : 
+                    (
+                        <>
+                        {users.map((v,i) => {
+                            const idx = i;
+                            if(!v.isImDetect()){
+                                return (<StreamComponent
+                                    key={idx}
+                                    user={v}
+                                    mode="game3"
+                                    camStatusChanged={camChange}
+                                    micStatusChanged={micChange}
+                                    now={nowRef.current}
+                                    end={end}
+                                />)
+                            }
+                        })}
+                        </>
+                    )}
+                    
                     </>
                 
                 </div>
             </div>
-            <div style={{
-                position : "absolute",
-                display : "flex",
-                alignItems : "center",
-                justifyContent : "center",
-                width : "50vw",
-                height : "10vh",
-                fontSize : "2rem",
-                textAlign : "center",
-                color : "white",
-                backgroundColor : "#0250C5",
-                left : "13.5vw",
-                top : "85vh",
-                borderRadius : "10px"
-            }}>
-                {imDetect ? (
+            
+                {ans ? (
+                    <div style={{
+                        position : "absolute",
+                        display : "flex",
+                        alignItems : "center",
+                        justifyContent : "center",
+                        padding : "0px 20px",
+                        width : "50vw",
+                        height : "10vh",
+                        fontSize : "2rem",
+                        textAlign : "center",
+                        color : "white",
+                        backgroundColor : "#FF7936",
+                        left : "13.5vw",
+                        top : "85vh",
+                        borderRadius : "10px"
+                    }}>
+                    <div>{detectNick} 님이 추리중 입니다! (기회 : {chance})</div>
+                    </div>
+                ) 
+                : endDiv ? (
+                    <>
+                        {isAns ? (
+                        <div style={{
+                            position : "absolute",
+                            display : "flex",
+                            alignItems : "center",
+                            justifyContent : "center",
+                            padding : "0px 20px",
+                            width : "50vw",
+                            height : "10vh",
+                            fontSize : "2rem",
+                            textAlign : "center",
+                            color : "white",
+                            backgroundColor : "#F3C522",
+                            left : "13.5vw",
+                            top : "85vh",
+                            borderRadius : "10px"
+                        }}>
+                            <div> 정답입니다! {findNick}님을 찾았습니다!</div>
+                            <button 
+                            className={styles.exitGame}
+                            style={{
+                                fontSize : "1.3rem",
+                                border : "none",
+                                borderRadius : 10,
+                                color : "white",
+                            }} onClick={exitGame}>게임 종료</button>
+                        </div>) 
+                        : chanceRef.current !== undefined && chanceRef.current > 0 ? ((
+                        
+                        <div style={{
+                            position : "absolute",
+                            display : "flex",
+                            alignItems : "center",
+                            justifyContent : "center",
+                            padding : "0px 20px",
+                            width : "50vw",
+                            height : "10vh",
+                            fontSize : "2rem",
+                            textAlign : "center",
+                            color : "white",
+                            backgroundColor : "#FF7768",
+                            left : "13.5vw",
+                            top : "85vh",
+                            borderRadius : "10px"
+                        }}>
+                        <div>땡! 틀렸습니다! 기회 : {chance}</div>
+                        </div>)) : (
+                        <div style={{
+                            position : "absolute",
+                            display : "flex",
+                            alignItems : "center",
+                            justifyContent : "center",
+                            padding : "0px 20px",
+                            width : "50vw",
+                            height : "10vh",
+                            fontSize : "2rem",
+                            textAlign : "center",
+                            color : "white",
+                            backgroundColor : "#E03F1B",
+                            left : "13.5vw",
+                            top : "85vh",
+                            borderRadius : "10px"
+                        }}>
+                        <div>땡! 틀렸습니다. {findNick}님을 못찾았습니다!</div>
+                        
+                        <button 
+                        className={styles.exitGame}
+                        style={{
+                            fontSize : "1.3rem",
+                            border : "none",
+                            borderRadius : 10,
+                            color : "white",
+                        }} onClick={exitGame}>게임 종료</button></div>)}
+                    </> 
+                )
+                : imDetect ? (
+                    <div style={{
+                        position : "absolute",
+                        display : "flex",
+                        alignItems : "center",
+                        justifyContent : "center",
+                        padding : "0px 20px",
+                        width : "50vw",
+                        height : "10vh",
+                        fontSize : "2rem",
+                        textAlign : "center",
+                        color : "white",
+                        backgroundColor : "#0250C5",
+                        left : "13.5vw",
+                        top : "85vh",
+                        borderRadius : "10px"
+                    }}>
                     <div>
                         {findNick} 님을 찾아주세요
                     </div>
+                    </div>
                 ) : (
+                    <div style={{
+                        position : "absolute",
+                        display : "flex",
+                        alignItems : "center",
+                        justifyContent : "center",
+                        padding : "0px 20px",
+                        width : "50vw",
+                        height : "10vh",
+                        fontSize : "2rem",
+                        textAlign : "center",
+                        color : "white",
+                        backgroundColor : "#0250C5",
+                        left : "13.5vw",
+                        top : "85vh",
+                        borderRadius : "10px"
+                    }}>
                     <div>
                         범인은 누구일까요?
                     </div>
+                    </div>
                 )}
-            </div>
+
             {init ? (<FindInit open={init} imDetect = {imDetect} nick = {findNick}></FindInit>) : null}
             {step ? (<FirstStep open={step} now = {imNextRef.current}></FirstStep>) : null}
             {meeting ? (<Meeting open={meeting}></Meeting>) : null}

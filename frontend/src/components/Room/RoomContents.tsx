@@ -225,6 +225,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
           }
         }
         if (response.data.gameStatus === 3) {
+          if (response.data.gameId === 3){
+            removeVoiceFilter();
+          }
           setMode('home');
         }
         if (response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1') {
@@ -262,14 +265,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
           if (response.data.playYn === 'Y') {
             console.log(response.data);
             let curUsers = [];
-            curUsers.push(localUserRef.current);
-            curUsers.push(...subscribersRef.current);
-            curUsers.sort(() => Math.random() - 0.5);
             if (localUserRef.current.getStreamManager().stream.streamId === response.data.detectiveStreamId) {
               localUserRef.current.setImDetect(true);
               setImDetect(response.data.detectiveStreamId);
               setDetectNick(localUserRef.current.getNickname());
             } else {
+              console.log("난 탐정이 아니다. ", localUserRef.current.getStreamManager());
+              handleVoiceFilter();
               subscribersRef.current.map((v) => {
                 if (v.getStreamManager().stream.streamId === response.data.detectiveStreamId) {
                   v.setImDetect(true);
@@ -277,6 +279,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
                 }
               });
             }
+            curUsers.push(localUserRef.current);
+            curUsers.push(...subscribersRef.current);
+            curUsers.sort(() => Math.random() - 0.5);
             setFirstSpeak(response.data.curStreamId);
             setImPerson(response.data.suspectStreamId);
             setFindsub(curUsers);
@@ -400,6 +405,29 @@ const RoomContents = ({ sessionName, userName }: any) => {
       sendSignalUserChanged({ isAudioActive: localUserInit.isAudioActive() });
       setLocalUser(localUserInit);
     }
+  };
+
+  const handleVoiceFilter = () => {
+    const filterList = [0.4, 2.0];
+    const type = "GStreamerFilter";
+    const rnum = Math.floor(Math.random() * filterList.length);
+
+    const options = {command : `pitch pitch=${filterList[rnum]}`};
+    localUserRef.current.getStreamManager().stream.applyFilter(type, options).then((result : any)=>{
+      console.log(result, "난 탐정이 아니다.");
+    });
+  }
+
+  const removeVoiceFilter = () => {
+    localUserRef.current
+      .getStreamManager()
+      .stream.removeFilter()
+      .then(() => {
+        console.log("필터 제거");
+      })
+      .catch(() => {
+        console.log("필터 없어용");
+      });
   };
 
   const sendSignalCameraStart = () => {

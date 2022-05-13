@@ -12,22 +12,32 @@
 }
 
 .squareContainer {
+  margin-top: 5%;
   vertical-align: middle;
   display: flex;
   justify-content: center;
+  @media (width < 500px) {
+    margin-top: 20%;
+  }
 }
 
 .square {
   padding: 30px;
   height: 500px;
-  width: 50%;
+  width: 30%;
   position: relative;
   max-width: 100%;
+  backdrop-filter: blur(5px);
+  border-radius: 10px;
   background-color: rgba(255, 255, 255, 0.205);
+  @media (width < 500px) {
+    width: 50%;
+    height: 400px;
+  }
 }
 
 .content {
-  margin-top: 0%;
+  margin-top: 3%;
   color: #ffffff;
   text-align: center;
   font-weight: bold;
@@ -41,8 +51,7 @@
   border: none;
   border-radius: 15px;
   cursor: pointer;
-  &:hover {
-    box-shadow: 0rem 1.5rem 2rem rgba($color: #f7f7f7, $alpha: 0.4);
-    transform: translateY(-4px);
+  @media (width < 500px) {
+    width: 180px;
   }
 }

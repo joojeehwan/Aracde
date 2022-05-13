@@ -5,13 +5,24 @@ import Thinking from '../../../assets/thinking.png';
 type MyProps = {
     user : any,
     mutedSound : boolean,
-    mode : string
+    mode : string,
+    end : boolean | null,
+    isLast : boolean | null,
+    sendAns : ((value : string) => void) | null,
 }
 
-function OvVideo({ user, mutedSound, mode } : MyProps) {
+function OvVideo({ user, mutedSound, mode, end, isLast, sendAns } : MyProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
   // console.log("video render");
 
+
+    const handleClickDiv = (streamId : string) => {
+        console.log("?? 클릭임");
+        console.log("?? 클릭임 ",isLast, sendAns !== null)
+        if(isLast && sendAns !== null){
+            sendAns(streamId);
+        }
+    }
   // console.log(user);
     useEffect(() => {
         console.log("PROPS: ", user.streamManager);
@@ -56,32 +67,40 @@ function OvVideo({ user, mutedSound, mode } : MyProps) {
                     muted={mutedSound}
                     className={styles.video}
                 />
-            ) : (
+            ) : 
+            (
                 <>
-                <div style={{
-                        zIndex : "98",
-                        position : "absolute",
-                        display : "flex",
-                        justifyContent : "center",
-                        alignItems : "center",
-                        width : "100%",
-                        height : "100%",
-                        backgroundColor : "black"
-                    }}>
-                <img style={{width : "15vw", height : "15vw"}} src={Thinking}></img>
-                </div>
-                    
-                <video
-                    style={{
-                        display : "none"
-                    }}
-                    autoPlay={true}
-                    ref={videoRef}
-                    muted={mutedSound}
-                    className={styles.video}
-                />
+                    {end ? null : (
+                    <div     
+                        style={{
+                            zIndex : "98",
+                            position : "absolute",
+                            display : "flex",
+                            justifyContent : "center",
+                            alignItems : "center",
+                            width : "100%",
+                            height : "100%",
+                            backgroundColor : "black",
+                            borderRadius : 15,
+                            cursor: "pointer"
+                        }}
+                        onClick = {() => handleClickDiv(user.getStreamManager().stream.streamId)}
+                        >
+                        <img className={styles.screat} style={{width : "15vw", height : "15vw"}} src={Thinking}></img>
+                    </div>
+                    )}
+                    <video
+                        // style={{
+                        //     display : "none"
+                        // }}
+                        autoPlay={true}
+                        ref={videoRef}
+                        muted={mutedSound}
+                        className={styles.video}
+                    />
                 </>
-            )}
+            )
+            }
             
         </>
   );
