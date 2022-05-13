@@ -171,6 +171,7 @@ public class GameService {
         // 순서 매핑
         Map<Integer, String> peopleOrder = new HashMap<>();
 
+        log.info("########## [ARCADE] : peopleOrder = " + peopleOrder);
 
         int idx1, idx2;
         for (int i = 0; i < peopleCnt; i++) {
@@ -252,7 +253,7 @@ public class GameService {
             // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
             String playYn;
             if (peopleCnt < 3) {
-                    playYn = "N";
+                playYn = "N";
             } else {
                 playYn = "Y";
                 // 사람 수 만큼 있는 [1 ~ 사람 수 ] 배열에서 랜덤으로 2개 뽑아서 하나씩 쓰고 저장한다.
@@ -284,7 +285,10 @@ public class GameService {
                 suspectMap.put(sessionId, suspectStreamId);
 
                 // 기회는 4명까지는 1번, 5명 부터는 2번
-                int chance = Math.round(peopleCnt/3);
+                int chance = 1;
+                if (peopleCnt > 4) {
+                    chance++;
+                }
                 chanceMap.put(sessionId, chance);
 
                 // 탐정과 범인 지정
@@ -321,7 +325,7 @@ public class GameService {
      *  gameStatus: 2
      * */
     public void startGame(Participant participant, Set<Participant> participants,
-                             JsonObject message, JsonObject params, JsonObject data) {
+                          JsonObject message, JsonObject params, JsonObject data) {
 
         int index = data.get("index").getAsInt(); // 이번 차례인 사람 index
         int peopleCnt = participants.size();
@@ -361,22 +365,23 @@ public class GameService {
                     data.addProperty("answerYn", "N");
                 }
 
-                    // 이미지 문자열 ( 프론트에서 | 으로 파싱)
-                    String allImages = "";
+                // 이미지 문자열 ( 프론트에서 | 으로 파싱)
+                String allImages = "";
 
-                    for (int i = 0; i < imageList.size(); i++) {
-                        String imgUrl = imageList.get(i);
-                        if (i == imageList.size()-1) {
-                            allImages = allImages.concat(imgUrl);
-                        } else {
-                            allImages = allImages.concat(imgUrl).concat("|");
-                        }
+                for (int i = 0; i < imageList.size(); i++) {
+                    String imgUrl = imageList.get(i);
+                    if (i == imageList.size()-1) {
+                        allImages = allImages.concat(imgUrl);
+                    } else {
+                        allImages = allImages.concat(imgUrl).concat("|");
                     }
-                    log.info("########## [아케이드] : 모든 이미지 링크 = " + allImages);
-                    data.addProperty("gameStatus", 2);
-                    data.addProperty("allImages", allImages);
-            // 마지막 사람 외에는, 이전사람 그림과, gameStatus값을 보내 줌
+                }
+                log.info("########## [아케이드] : 모든 이미지 링크 = " + allImages);
+                data.addProperty("gameStatus", 2);
+                data.addProperty("allImages", allImages);
+                // 마지막 사람 외에는, 이전사람 그림과, gameStatus값을 보내 줌
             } else {
+                data.addProperty("gameStatus", 2);
                 data.addProperty("imageUrl", imageUrl);
             }
             // 다음 차례
@@ -433,16 +438,19 @@ public class GameService {
                     if (index == peopleCnt) {
                         // 게임 끝낸다.
                         data.addProperty("gameStatus", 2);
+                        data.addProperty("finishYN", "Y");
                     } else {
                         // 다음 사람으로 넘어간다.
                         data.addProperty("index", ++index);
                         data.addProperty("curStreamId", peopleOrder.get(index));
                         data.addProperty("answer", charadesAnswers.get(index));
+                        data.addProperty("finishYN", "N");
                     }
                 } else {
                     // 틀렸다. 다시 정답을 맞춰봐야한다.
                     log.info("########## [아케이드] 몸으로 말해요 : 정답이 아닙니다!!!!");
                     data.addProperty("answerYN", "N");
+                    data.addProperty("finishYN", "N");
                 }
             } else {
                 // 시간 내에 정답을 맞추지 못했다.
@@ -450,11 +458,13 @@ public class GameService {
                 // 마지막 사람인 경우
                 if (index == peopleCnt) {
                     // 게임을 끝낸다.
+                    data.addProperty("finishYN", "Y");
                 } else {
                     // 다음 출제자와 답변을 보낸다.
                     data.addProperty("index", ++index);
                     data.addProperty("curStreamId", peopleOrder.get(index));
                     data.addProperty("answer", charadesAnswers.get(index));
+                    data.addProperty("finishYN", "N");
                 }
             }
         }
@@ -466,21 +476,23 @@ public class GameService {
                 String tryAnswer = data.get("tryAnswer").getAsString();
                 String answer = suspectMap.get(sessionId);
                 if (answer.equals(tryAnswer)) {
-                    log.info("########## [아케이드] 몸으로 말해요 : 정답 !!");
+                    log.info("########## [아케이드] 너의 목소리가 들려 : 정답 !!");
                     data.addProperty("answerYN", 0);
+                    data.addProperty("startStreamId", starterMap.get(sessionId));
                 } else {
                     // 현재 남은 맞출 기회
                     int chance = chanceMap.get(sessionId);
-                    log.info("########## [아케이드] 몸으로 말해요 : 틀렸어요!!!! !!");
+                    log.info("########## [아케이드] 너의 목소리가 들려 : 틀렸어요!!!! !!");
                     // 횟수 한번 차감
                     chance--;
-                    log.info("########## [아케이드] 몸으로 말해요 : 남은 기회는 = " + chance);
+                    log.info("########## [아케이드] 너의 목소리가 들려 : 남은 기회는 = " + chance);
                     if (chance > 0) {
                         // 아직 기회가 남았다.
                         data.addProperty("answerYN", 2);
                     } else {
                         // 이제 기회가 없다.
                         data.addProperty("answerYN", 1);
+                        data.addProperty("startStreamId", starterMap.get(sessionId));
                     }
                 }
             }
