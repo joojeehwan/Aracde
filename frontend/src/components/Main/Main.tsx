@@ -12,8 +12,8 @@ import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
 import useSWR from 'swr';
-import OnlineApi from '../../common/api/OnlineApi';
 import ChatAPI from '../../common/api/ChatAPI';
+import OnlineAPI from '../../common/api/OnlineApi';
 import AlarmApi from '../../common/api/AlarmApi';
 
 import Chatting from '../Modal/Chatting';
@@ -26,6 +26,7 @@ import alarmSound from '../../mp3/alram.mp3';
 
 import { useStore } from "../../../src/components/Room/store";
 import { infoStore } from "../../../src/components/Store/info"
+import { StompHeaders } from '@stomp/stompjs';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -42,7 +43,7 @@ function Main() {
   const [isBell, setIsBell] = useState(false)
   //swr & api
   const { fetchWithToken } = ChatAPI;
-  const { setOnlie, setOffline } = OnlineApi;
+  const { setOnline, setOffline } = OnlineAPI
   const { postReadAlarm, getAlarmList } = AlarmApi;
 
   useEffect(() => {
@@ -100,6 +101,7 @@ function Main() {
   const handleClickLogout = (e: React.MouseEvent) => {
     // 여기서 로그아웃 api 추가
     disconnect();
+    setOffline();
     setIsLogin(false);
     deleteToken();
   };
@@ -148,30 +150,33 @@ function Main() {
   }
 
   const connect = () => {
-
     // setOnlie();
     client.current = new StompJs.Client({
-      brokerURL: 'wss://k6a203.p.ssafy.io/socket', // 웹소켓 서버로 직접 접속
+      brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str)
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
+      connectHeaders: { "Authorization": getToken() as string },
+      disconnectHeaders: { "Authorization": getToken() as string }, // 이것도 안먹어
       onConnect: () => {
         subscribe();
       },
       onStompError: (frame) => {
         console.error(frame);
       },
+      onDisconnect: () => {
+        setOffline(); // 이것도 안먹어
+        disconnect();
+      }
 
     });
     client.current.activate();
   };
 
   const disconnect = async () => {
-
-    await setOffline();
     // clientRef.current.deactivate();
     client.current.deactivate();
 
@@ -182,11 +187,12 @@ function Main() {
     // to be used for each (re)connect
     client.current.webSocketFactory = function () {
       // Note that the URL is different from the WebSocket URL
-      return new SockJS('http://k6a203.p.ssafy.io/ws-stomp');
+      return new SockJS('http://localhost:8080/ws-stomp');
     };
   }
 
-  const subscribe = () => {
+  const subscribe = async () => {
+    await setOnline();
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
       // 데이터 받자마자 빨간색 처리
       setIsBell(true)
@@ -195,13 +201,11 @@ function Main() {
   };
   const bellSound = () => {
     let audio = new Audio(alarmSound)
-
     audio.play()
   }
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
-      setOnlie();
       connect();
       setClientt(client)
       setIsLogin(true);

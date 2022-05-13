@@ -207,7 +207,7 @@ function Chatting({ open, onClose, client }: any) {
                     );
                   })
                 ) : (
-                  <div style={{ width: '250px', textAlign: 'end' }}>채팅이 없습니다.</div>
+                  <div style={{ width: '250px', textAlign: 'end' }}>대화할 상대가 없습니다.</div>
                 )}
               </div>
               <div>

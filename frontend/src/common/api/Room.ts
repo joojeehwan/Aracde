@@ -34,36 +34,13 @@ const getSaveMyFavoriteImageResult = async (data: { userSeq: string | number | n
   else return null;
 }
 
-//게임 초대 
-const postInviteFriendAlarm = async (userSeq: any, inviteCode: any, targetUserSeq: any) => {
-  const token = getToken();
-  const body = {
-    inviteCode,
-    userSeq,
-    targetSeq: targetUserSeq
-  };
-  if (token !== null) {
-    console.log(body)
-    const result = await axios.post(`${BASE_URL}/invite`, body, { headers: { Authorization: token } })
-      .then((res) => {
-        console.log(res)
-        return res;
-      })
-      .catch((err) => {
-        console.dir(err);
-        return err;
-      });
-    return result;
-  }
-  return null;
-};
+
 
 const RoomApi = {
   createRoom,
   enterRoom,
   exitRoom,
   getUploadImageResult,
-  postInviteFriendAlarm,
   getSaveMyFavoriteImageResult
 };
 

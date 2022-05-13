@@ -5,7 +5,7 @@ const BASE_URL = process.env.REACT_APP_API_ROOT + '/online';
 
 // 온라인 api
 
-const setOnlie = async () => {
+const setOnline = async () => {
   const token = getToken();
   if (token !== null) {
     console.log("온라인 실행")
@@ -42,7 +42,7 @@ const setOffline = async () => {
 };
 
 const OnlineApi = {
-  setOnlie,
+  setOnline,
   setOffline,
 };
 

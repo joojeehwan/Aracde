@@ -4,6 +4,7 @@ import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import styles from '../../styles/Friends.module.scss';
 import UserApi from '../../../../common/api/UserApi';
+import AlarmApi from "../../../../common/api/AlarmApi"
 
 //mui
 const StyledBadgeOnline = styled(Badge)(({ theme }) => ({
@@ -48,12 +49,14 @@ function FriendsSearchResults({ seq, name, email, imgUrl, status }: any) {
   const [curStatus, setCurStatus] = useState<number>(status);
 
   const { getAddFriendRequestResult } = UserApi;
+  const { sendFreindNoti } = AlarmApi
 
   const onClickAddFriends = async (seq: any) => {
     const result = await getAddFriendRequestResult(seq);
     if (result?.status === 200) {
       setCurStatus(0);
     }
+    await sendFreindNoti(seq);
   };
 
   return (

@@ -6,10 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.arcade.chat.dtos.response.ChatRoomListDTO;
 import com.ssafy.arcade.chat.entity.ChatRoom;
 import com.ssafy.arcade.chat.repository.ChatRoomRepository;
-import com.ssafy.arcade.common.RedisPublisher;
 import com.ssafy.arcade.common.exception.CustomException;
 import com.ssafy.arcade.common.exception.ErrorCode;
 import com.ssafy.arcade.common.util.Code;
@@ -20,14 +18,10 @@ import com.ssafy.arcade.game.entity.GameUser;
 import com.ssafy.arcade.game.entity.Picture;
 import com.ssafy.arcade.game.repositroy.GameUserRepository;
 import com.ssafy.arcade.game.repositroy.PictureRepository;
-import com.ssafy.arcade.game.request.GameReqDto;
 import com.ssafy.arcade.game.request.GameResDto;
 import com.ssafy.arcade.game.response.PictureResDto;
 import com.ssafy.arcade.messege.entity.Message;
 import com.ssafy.arcade.messege.repository.MessageRepository;
-import com.ssafy.arcade.notification.dtos.NotiDTO;
-import com.ssafy.arcade.notification.entity.Notification;
-import com.ssafy.arcade.notification.repository.NotiRepository;
 import com.ssafy.arcade.user.entity.Friend;
 import com.ssafy.arcade.user.entity.User;
 import com.ssafy.arcade.user.repository.FriendRepository;
@@ -42,19 +36,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -65,13 +53,9 @@ public class UserService {
     private String kakaoRedirectUri;
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
-    private final SimpMessagingTemplate template;
     private final GameService gameService;
     private final GameUserRepository gameUserRepository;
     private final PictureRepository pictureRepository;
-    private final NotiRepository notiRepository;
-    private final RedisPublisher redisPublisher;
-    private final SimpMessageSendingOperations messageTemplate;
     private final ChatRoomRepository chatRoomRepository;
     private final MessageRepository messageRepository;
 
@@ -282,24 +266,7 @@ public class UserService {
         } else {
             throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
         }
-        // 알림 생성
-        notiRepository.save(Notification.builder()
-                .userSeq(user.getUserSeq()).type("Friend").targetSeq(targetUser.getUserSeq())
-                .time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
-                .name(user.getName()).isConfirm(false).build());
 
-        // 두개 이상일수도 있음; 친구 요청을 두번 이상 보낼수도 있으니까
-        List<Notification> notifications = notiRepository.findAllByTypeAndUserSeqAndTargetSeq("Friend", user.getUserSeq(), targetUser.getUserSeq())
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_DATA));
-        // 리스트를 time 내림차순정렬
-        notifications.sort((o1, o2) -> -o1.getTime().compareTo(o2.getTime()));
-        // 가장 최근 noti 가져옴.
-        Notification notification = notifications.get(0);
-        // publish
-        messageTemplate.convertAndSend("/sub/" + targetUser.getUserSeq(), NotiDTO.builder()
-                .time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
-                .notiSeq(notification.getNotiSeq()).type("Friend").userSeq(user.getUserSeq()).name(user.getName())
-                .isConfirm(false).build());
     }
 
     // 친구 수락

@@ -52,11 +52,7 @@ public class GameController {
             return new ResponseEntity<>("요청 성공", HttpStatus.OK);
         }
     }
-    // 친구 초대
-    @PostMapping("/invite")
-    public ResponseEntity<String> inviteFriend(@RequestBody InviteReq inviteReq) {
-        return new ResponseEntity<>(gameService.inviteFriend(inviteReq), HttpStatus.OK);
-    }
+
 
     /**
      *  Game 관련 Controller

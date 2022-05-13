@@ -61,6 +61,7 @@ function Alarms({ open, onClose, client }: any) {
     } else {
       console.log(inviteCode)
       setInviteCode(inviteCode)
+      await deleteAlarm(notiSeq)
       navigate("/entrance")
     }
   }

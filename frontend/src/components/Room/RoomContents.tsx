@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useCallback } from 'react';
 import { useState } from 'react';
 import { OpenVidu } from 'openvidu-browser';
 import axios from 'axios';
@@ -18,6 +18,8 @@ import UserModel from '../Model/user-model';
 import SelectGame from './Game/Modal/SelectGame';
 import Wait from './Game/Modal/Wait';
 import Guess from './Game/Guess';
+import Invite from "../../components/Modal/Invite/Invite"
+
 
 const OPENVIDU_SERVER_URL = 'https://k6a203.p.ssafy.io:5443';
 const OPENVIDU_SERVER_SECRET = 'arcade';
@@ -441,11 +443,11 @@ const RoomContents = ({ sessionName, userName }: any) => {
             if (
               window.confirm(
                 'No connection to OpenVidu Server. This may be a certificate error at "' +
-                  OPENVIDU_SERVER_URL +
-                  '"\n\nClick OK to navigate and accept it. ' +
-                  'If no certificate warning is shown, then check that your OpenVidu Server is up and running at "' +
-                  OPENVIDU_SERVER_URL +
-                  '"',
+                OPENVIDU_SERVER_URL +
+                '"\n\nClick OK to navigate and accept it. ' +
+                'If no certificate warning is shown, then check that your OpenVidu Server is up and running at "' +
+                OPENVIDU_SERVER_URL +
+                '"',
               )
             ) {
               window.location.assign(OPENVIDU_SERVER_URL + '/accept-certificate');
@@ -526,6 +528,19 @@ const RoomContents = ({ sessionName, userName }: any) => {
       });
     });
   };
+
+  //게임 초대 모달
+  const [inviteIsOpen, setInviteIsOpen] = useState<boolean>(false);
+
+  const handleOpenInvite = useCallback(() => {
+    setInviteIsOpen(true);
+  }, [inviteIsOpen]);
+
+  const handleCloseInvite = useCallback(() => {
+    setInviteIsOpen(false);
+  }, [inviteIsOpen]);
+
+
   return (
     <div
       style={{
@@ -537,10 +552,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
           mode === 'home'
             ? styles['contents-container']
             : mode === 'game1' || mode === 'game3'
-            ? `${styles['contents-container']} ${styles.catchmind}`
-            : mode === 'game2'
-            ? `${styles['contents-container']} ${styles.charade}`
-            : styles['contents-container']
+              ? `${styles['contents-container']} ${styles.catchmind}`
+              : mode === 'game2'
+                ? `${styles['contents-container']} ${styles.charade}`
+                : styles['contents-container']
         }
       >
         {mode === 'game3' ? (
@@ -561,10 +576,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
               mode === 'home'
                 ? styles['user-videos-container']
                 : mode === 'game1'
-                ? `${styles['user-videos-container']} ${styles.catchmind}`
-                : mode === 'game2'
-                ? `${styles['user-videos-container']} ${styles.charade}`
-                : styles['user-videos-container']
+                  ? `${styles['user-videos-container']} ${styles.catchmind}`
+                  : mode === 'game2'
+                    ? `${styles['user-videos-container']} ${styles.charade}`
+                    : styles['user-videos-container']
             }
           >
             <div
@@ -573,10 +588,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
                 mode === 'home'
                   ? `${styles['video-container']}`
                   : mode === 'game1'
-                  ? `${styles['video-container']} ${styles.catchmind}`
-                  : mode === 'game2'
-                  ? `${styles['video-container']} ${styles.charade}`
-                  : styles['video-container']
+                    ? `${styles['video-container']} ${styles.catchmind}`
+                    : mode === 'game2'
+                      ? `${styles['video-container']} ${styles.charade}`
+                      : styles['video-container']
               }
             >
               {localUserRef.current !== undefined &&
@@ -589,7 +604,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
                     micStatusChanged={micStatusChanged}
                     subscribers={subscribers}
                     mode={mode}
-                    // openKeywordInputModal={openKeywordInputModal}
+                  // openKeywordInputModal={openKeywordInputModal}
                   />
                 )}
 
@@ -629,10 +644,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
               mode === 'home'
                 ? styles.etcbox
                 : mode === 'game1' || mode === 'game3'
-                ? `${styles.etcbox} ${styles.catchmind}`
-                : mode === 'game2'
-                ? `${styles.etcbox} ${styles.charade}`
-                : styles.etcbox
+                  ? `${styles.etcbox} ${styles.catchmind}`
+                  : mode === 'game2'
+                    ? `${styles.etcbox} ${styles.charade}`
+                    : styles.etcbox
             }
           >
             {mode === 'home' ? (
@@ -722,6 +737,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
                       marginTop: '2%',
                     }}
                     className={styles.inviteFriend}
+                    onClick={handleOpenInvite}
                   >
                     <People
                       style={{
@@ -746,6 +762,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
       </div>
       {open ? <SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame> : null}
       {wait ? <Wait open={wait}></Wait> : null}
+      {inviteIsOpen ? (
+        <Invite open={inviteIsOpen} onClose={handleCloseInvite} />
+      ) : null}
     </div>
   );
 };
