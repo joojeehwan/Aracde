@@ -408,7 +408,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   };
 
   const handleVoiceFilter = () => {
-    const filterList = [0.2, 2.0];
+    const filterList = [0.4, 2.0];
     const type = "GStreamerFilter";
     const rnum = Math.floor(Math.random() * filterList.length);
 
