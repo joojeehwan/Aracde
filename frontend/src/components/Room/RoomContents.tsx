@@ -17,6 +17,7 @@ import StreamComponent from './stream/StreamComponent';
 import UserModel from '../Model/user-model';
 import SelectGame from './Game/Modal/SelectGame';
 import Wait from './Game/Modal/Wait';
+import Guess from './Game/Guess';
 
 const OPENVIDU_SERVER_URL = 'https://k6a203.p.ssafy.io:5443';
 const OPENVIDU_SERVER_SECRET = 'arcade';

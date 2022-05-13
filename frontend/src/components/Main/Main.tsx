@@ -114,6 +114,7 @@ function Main() {
 
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
+    navigate('/myroom')
     console.log('hererererererere');
   };
 

@@ -16,6 +16,7 @@ function mainLogin() {
   // useEffect(()=>{
   //   console.log(KAKAO_AUTH_URL, NAVER_AUTH_URL, GOOGLE_AUTH_URL)
   // }, []);
+  console.log(NAVER_AUTH_URL);
   return (
     <>
       <div className={styles.main}>
