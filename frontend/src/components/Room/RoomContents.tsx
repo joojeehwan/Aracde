@@ -226,6 +226,11 @@ const RoomContents = ({ sessionName, userName }: any) => {
         }
         if (response.data.gameStatus === 3) {
           if (response.data.gameId === 3){
+            subscribersRef.current.map(v => {
+              if(v.isImDetect()){
+                v.setImDetect(false);
+              }
+            })
             if(localUserRef.current.isImDetect()) localUserRef.current.setImDetect(false);
             else removeVoiceFilter();
           }
