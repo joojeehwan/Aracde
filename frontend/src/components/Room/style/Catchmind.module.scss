@@ -1,0 +1,142 @@
+.container{
+    position : relative;
+}
+.toolBox{
+    border-radius: 5px;
+    height: 5vh;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba($color: #444444, $alpha: 0.2);
+    }
+}
+.answerInputBox {
+    position : absolute;
+    top : 75vh;
+    left : 50%;
+    right : 50%;
+    // width: 11vw;
+    // height: 5vh;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    // height: 100%;
+    font-size: 1.5rem;
+    text-align: center;
+    padding-bottom: 10px;
+    border: none;
+    border-bottom: 1px solid;
+    &:focus {
+        outline: none;
+    }
+    &:focus::-webkit-input-placeholder{ /* WebKit browsers */
+        color:transparent;
+    }
+    &:focus:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+        color:transparent;
+    }
+    &:focus::-moz-placeholder { /* Mozilla Firefox 19+ */
+        color:transparent;
+    }
+    &:focus:-ms-input-placeholder { /* Internet Explorer 10+ */
+        color:transparent;
+    }
+}
+.desc{
+    font-size : 1.5rem;
+    margin : 0 3vw;
+    color : white;
+}
+.desc li{
+    margin-bottom: 4vh;
+    // color : yellow;
+    &::marker{
+        color : yellow;
+    }
+}
+.answerBox{
+    position : absolute;
+    font-size : 1.5rem;
+    display : flex;
+    flex-direction : column;
+    align-items : center;
+    top : 6vh;
+    left : 50%;
+    right : 50%;
+    width : fit-content;
+    text-align : center;
+    transform: translate(-50%, -50%);
+}
+.answer{
+    margin-top : 2vh;
+    width : calc(100% + 3vw);
+    background-color : #eeeeee;
+    font-size : 1.8rem;
+    height : 2rem;
+    display : flex;
+    justify-content : center;
+    align-items : center;
+    border-radius : 10px;
+}
+.timer{
+    position: absolute;
+    top : 2vh;
+    right : 10px;
+    font-size: 1.8rem;
+}
+.submit{
+    position : absolute;
+    border: none;
+    border-radius: 5px;
+    color : white;
+    background-color: #9900F0;
+    top : 75vh;
+    left : 50%;
+    right : 50%;
+    width: 11vw;
+    height: 5vh;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    &:hover {
+        background-color: rgba($color: #9900F0, $alpha: 0.7);
+    }
+}
+.save{
+    width : 90px;
+    height : 35px;
+    margin-top : 15px;
+    background-color : #9900f0;
+    border : none;
+    border-radius : 5px;
+    color : white;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba($color: #9900f0, $alpha: 0.5);
+    }
+}
+.retryButton {
+    border : none;
+    border-radius : 5px;
+    width : 15vw;
+    height : 5vh;
+    background-color: #5552FF;
+    color : white;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba($color: #5552FF, $alpha: 0.7);
+    }
+}
+.endButton {
+    border : none;
+    border-radius : 5px;
+    width : 15vw;
+    height : 5vh;
+    background-color: #E03F1B;
+    color : white;
+    cursor: pointer;
+    &:hover{
+        background-color: rgba($color: #E03F1B, $alpha: 0.7);
+    }
+}

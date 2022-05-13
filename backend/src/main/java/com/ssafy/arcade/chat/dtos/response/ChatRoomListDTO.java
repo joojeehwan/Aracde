@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -16,5 +17,6 @@ public class ChatRoomListDTO {
     String name;
     String image;
     String lastMessage;
-    LocalDate lastTime;
+    String lastTime;
+    boolean login;
 }

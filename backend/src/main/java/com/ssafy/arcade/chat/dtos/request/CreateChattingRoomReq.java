@@ -11,7 +11,7 @@ public class CreateChattingRoomReq {
     public ChatRoom toEntity(User user1, User user2){
         return ChatRoom.builder()
                 .user1(user1).user2(user2)
-                .lastContent("").time(null).build();
+                .lastContent("").lastTime(null).build();
     }
 
 }

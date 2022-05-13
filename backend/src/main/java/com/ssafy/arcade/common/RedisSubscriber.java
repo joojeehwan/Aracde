@@ -2,8 +2,6 @@ package com.ssafy.arcade.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.arcade.chat.dtos.response.SendMessageRes;
-import com.ssafy.arcade.notification.dtos.NotiDTO;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
@@ -31,10 +29,19 @@ public class RedisSubscriber implements MessageListener {
             String body = (String) redisTemplate.getStringSerializer().deserialize(message.getBody());
             // Dto에 매핑한다.
             SendMessageRes sendMessageRes = objectMapper.readValue(body, SendMessageRes.class);
-            log.info("[메시지 내용] : {}", sendMessageRes.getContent());
             if(sendMessageRes.getType() == SendMessageRes.Type.CHAT){
+                log.info("[메시지 내용] : {}", sendMessageRes.getContent());
                 // 구독자들에게 Dto 보내기
+                messageTemplate.convertAndSend("/sub/chat/room/detail/"+sendMessageRes.getChatRoomSeq(), sendMessageRes);
+            }
+            else if(sendMessageRes.getType() == SendMessageRes.Type.CHATROOM){
+                log.info("[채팅방 내용] : {}", sendMessageRes.getContent());
                 messageTemplate.convertAndSend("/sub/chat/room/"+sendMessageRes.getChatRoomSeq(), sendMessageRes);
+            }
+            // 알림
+            // 원래 통합 DTO로 구현했어야 했는데 나의 귀여운 실수로 알림은 onMessage를 안쓰게 되었다.
+            else{
+                log.info("[알림 내용] : {}", sendMessageRes.getContent());
             }
         }catch(Exception e){
             log.error(e.getMessage());

@@ -1,17 +1,57 @@
-.contents-container {
+  .contents-container {
     width: 100%;
     height: 65vh;
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    margin-top: 13vh;
+
   }
-  
+  .contents-container.catchmind {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    // justify-content: flex-start;
+    // align-content: none;
+    margin-top: 0;
+    // overflow-y: scroll;
+  }
+
+  .contents-container.charade {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+    margin-top: 0;
+  }
+
   .user-videos-container {
     width: 85%;
     height: 100%;
-    // display: flex;
-    // justify-content: center;
+  }
+  .user-videos-container.catchmind {
+    width: 15vw;
+    height: 90%;
+    margin-left: 5vw;
+    margin-right: 3vw;
+  }
+  .user-videos-container.findperson {
+    width: 80%;
+    height: 70%;
+    margin-left: 5vw;
+    margin-right: 3vw;
+    margin-top: -20vh;
   }
   
+
+  .user-videos-container.charade {
+    width: 20vw;
+    height: 90%;
+    margin-left: 8vw;
+    margin-right: 3vw;
+  }
   .video-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -20,25 +60,53 @@
     width: 100%;
     height: 100%;
   }
-  .video-container.karaoke {
+  .video-container.catchmind{
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
     gap: 10px;
     width: 100%;
     height: 100%;
+    // overflow-y: scroll;
+  }
+  .video-container.charade{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    height: 95%;
   }
   .videoplayer {
     grid-column: 2 / 4;
     grid-row: 1 / 3;
   }
-  
+  .etcbox {
+    width : 100vw;
+    display : flex;
+    justify-content : center;
+  }
+  .etcbox.catchmind{
+    color : white;
+    width: 30vw;
+    height: 90vh;
+    // display: inline;
+
+  }
+  .etcbox.charade{
+    color : white;
+    width: 30vw;
+    height: 90vh;
+  }
   .chat-container {
     // margin-top: 10px;
     margin : 0px;
     margin-right: 10px;
     width: 50%;
     height: 100%;
+  }
+  .chat-container.game{
+    width: 75%;
   }
   .selectGame {
     background-color: #F3C522;

@@ -10,25 +10,22 @@ import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
 import Invite from '../Modal/Invite/Invite';
+import useSWR from 'swr';
+import OnlineApi from '../../common/api/OnlineApi';
+import ChatAPI from '../../common/api/ChatAPI';
+import AlarmApi from '../../common/api/AlarmApi';
 
-import Chatting from '../Modal/Chatting/ChattingList/index';
-
-// import { Stomp } from '@stomp/stompjs';
-
-
+import Chatting from '../Modal/Chatting';
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
 import { getToken } from '../../common/api/jWT-Token';
+import { WindowSharp } from '@mui/icons-material';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const divRef = useRef<HTMLDivElement>(null);
-
-  // const sock = new WebSocket('ws://k6a203.p.ssafy.io:8080/ws-stomp');
-  // const client = Stomp.over(sock);
-
   const navigate = useNavigate();
 
   //지환 코드
@@ -36,10 +33,23 @@ function Main() {
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [test, setTest] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
+  const [alramsList, setAlarmsList] = useState<any[]>([]);
+  //swr & api
+  const { fetchWithToken } = ChatAPI;
+  const { setOnlie, setOffline } = OnlineApi;
+  const { postReadAlarm, fetchAlarmWithToken } = AlarmApi;
+  const { data: chattingList } = useSWR(process.env.REACT_APP_API_ROOT + '/chat', (url) =>
+    fetchWithToken(url, getToken() as unknown as string),
+  );
+  const { data: AlarmsList } = useSWR(process.env.REACT_APP_API_ROOT + '/noti', (url) =>
+    fetchAlarmWithToken(url, getToken() as unknown as string),
+  );
   const client = useRef<any>({});
 
-  const handleOpenAlarms = useCallback(() => {
+  const handleOpenAlarms = useCallback(async () => {
     setAlarmsIsOpen(true);
+    postReadAlarm();
+    // 무조건 무조건이야 알람 흰색 변화
   }, [alarmsIsOpen]);
 
   const handleCloseAlarms = useCallback(
@@ -50,19 +60,6 @@ function Main() {
   );
 
   const handleOpensFriends = useCallback(() => {
-    // client.send(
-    //   '/pub/noti/2',
-    //   {},
-    //   JSON.stringify({
-    //     userSeq: window.localStorage.getItem('userSeq'),
-    //     name: '홍승기',
-    //     inviteCode: 'asdfasf',
-    //     type: 'friend',
-    //   }),
-    // );
-
-    // client.send('/pub/noti/'+2, {}, JSON.stringify({"userSeq" : window.localStorage.getItem('userSeq'), "name" : window.localStorage.getItem('name'), "inviteCode" : "asdfasf", "type" : "friend"}));
-
     setFriendsIsOpen(true);
   }, [friendsIsOpen]);
 
@@ -103,6 +100,8 @@ function Main() {
 
   const handleClickLogout = (e: React.MouseEvent) => {
     deleteToken();
+    // 여기서 로그아웃 api 추가
+    disconnect();
     setIsLogin(false);
   };
   // 임시 메서드
@@ -115,6 +114,7 @@ function Main() {
 
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
+    navigate('/myroom')
     console.log('hererererererere');
   };
 
@@ -126,31 +126,24 @@ function Main() {
 
   // 모달 창 열리면 옆에 스크롤바 안보임
   useEffect(() => {
-    if (friendsIsOpen === true || alarmsIsOpen === true || open === true) {
+    if (friendsIsOpen === true || alarmsIsOpen === true || open === true || chattingIsOpen === true) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-  }, [friendsIsOpen, alarmsIsOpen, open]);
+  }, [friendsIsOpen, alarmsIsOpen, open, chattingIsOpen]);
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       setIsLogin(true);
-      // client.connect({}, () => {
-      //   console.log("connection");
-      //   client.subscribe("/sub/noti/" + window.localStorage.getItem("userSeq"), function(notiDTO){
-      //       console.log("TLqkfjwlSWk whwRkxsp wlsWkfh");
-      //     const content = JSON.parse(notiDTO.body);
-      //       console.log(content.name);
-      //   })
-      // })
     }
   }, []);
 
   const connect = () => {
-    const token = getToken()
+    const token = getToken();
+    // await online();
     client.current = new StompJs.Client({
-      brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
+      brokerURL: 'wss://k6a203.p.ssafy.io/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
         console.log(str);
       },
@@ -159,37 +152,54 @@ function Main() {
       heartbeatOutgoing: 4000,
       onConnect: () => {
         subscribe();
+        setOnlie();
       },
       onStompError: (frame) => {
         console.error(frame);
       },
+      // onDisconnect: () => {
+      //   console.log("나간다")
+      //   client.current.deactivate();
+      // }
     });
-    console.log(client.current);
     client.current.activate();
   };
-
+  const disconnect = () => {
+    // 여기다가
+    setOffline();
+    client.current.deactivate();
+  };
 
   if (typeof WebSocket !== 'function') {
     // For SockJS you need to set a factory that creates a new SockJS instance
     // to be used for each (re)connect
     client.current.webSocketFactory = function () {
       // Note that the URL is different from the WebSocket URL
-      return new SockJS('http://localhost:8080/ws-stomp');
+      return new SockJS('http://k6a203.p.ssafy.io/ws-stomp');
     };
   }
 
   const subscribe = () => {
-    client.current.subscribe('/sub/chat/room/1', ({ body }: any) => {
-      console.log(body)
+    client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
+      // 여기는 무조건 알림창 빨간색 처리 해야함.
+      // 알림창 누르면 알림 가져오기 api 호출. => 메인 가면 바로 알림 리스트 가져옴
+      console.log(body);
+      const data: any = JSON.parse(body);
+      alramsList.push(data);
+      setAlarmsList([...data]);
     });
   };
 
-  console.log(window.localStorage.getItem('token'))
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
-      connect()
+      connect();
     }
-  }, [])
+    // unmount 될때 실행되는게 맞냐?
+    return () => {
+      disconnect();
+    };
+  }, []);
+  console.log(alramsList);
 
   return (
     <>
@@ -286,10 +296,14 @@ function Main() {
           </div>
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
-        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} /> : null}
+        {alarmsIsOpen ? (
+          <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} AlarmsList={AlarmsList} />
+        ) : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {test ? <Invite open={test} onClose={handleCloseTest} /> : null}
-        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} /> : null}
+        {chattingIsOpen ? (
+          <Chatting chattingList={chattingList} open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
+        ) : null}
       </div>
     </>
   );

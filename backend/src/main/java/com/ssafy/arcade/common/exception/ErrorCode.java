@@ -25,11 +25,14 @@ public enum ErrorCode {
     INVALID_AUTHORIZED(UNAUTHORIZED, "권한이 없습니다"),
     NOT_OUR_USER(UNAUTHORIZED, "회원이 아닙니다. 회원가입이 필요합니다."),
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "현재 내 계정 정보가 존재하지 않습니다"),
+    UNMATHCED_CODE(UNAUTHORIZED, "초대 코드가 일치하지 않습니다."),
 
     // 403 Forbidden : 유효하지 않은 데이터
     INVALID_PASSWORD(FORBIDDEN, "비밀번호가 유효하지 않습니다."),
     INVALID_DATA(FORBIDDEN, "유효하지 않은 데이터."),
     FAILED_AUTH_EMAIL(FORBIDDEN, "이메일 인증에 실패했습니다."),
+    ALREADY_FULL(FORBIDDEN, "최대 인원을 초과하였습니다."),
+    ALREADY_DELETE(FORBIDDEN, "이미 삭제된 데이터입니다."),
 
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */
     USER_NOT_FOUND(NOT_FOUND, "해당 유저 정보를 찾을 수 없습니다"),
