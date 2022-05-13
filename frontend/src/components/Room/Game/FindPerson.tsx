@@ -6,6 +6,7 @@ import FirstStep from "./Modal/FirstStep";
 import Meeting from './Modal/Meeting';
 import Last from './Modal/Last';
 import AlarmIcon from '@mui/icons-material/Alarm';
+import {toast} from 'react-toastify';
 
 type MyProps = {
     my : any,
@@ -45,7 +46,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const [endDiv, setEndDiv] = useState<boolean>(false);
     const [isAns, setIsAns] = useState<boolean>(false);
     const [chance, setChance] = useState<number>();
-    
+    const [exit, setExit] = useState<boolean>(false);
 
     const nowRef = useRef(now);
     nowRef.current = now;
@@ -86,6 +87,37 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
             type : "game"
         });
     }
+    const exitGame = () => {
+        if(exit){
+            const data = {
+                gameStatus : 3,
+                gameId : 3
+            }
+            my.getStreamManager().stream.session.signal({
+                data : JSON.stringify(data),
+                type : "game"
+            });
+        }
+        else{
+            toast.error(
+                <div style={{
+                    display : "flex",
+                    justifyContent : "center",
+                    flexDirection : "column",
+                    alignItems : "center"
+                }}>
+                <div style={{ width: 'inherit', fontSize: '14px' }}>
+                    게임을 시작한 사람만
+                </div>
+                <div style={{ width: 'inherit', fontSize: '14px' }}>
+                    클릭 가능합니다.
+                </div>
+                </div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+            });
+        }
+    }
 
     useEffect(()=>{
         
@@ -124,20 +156,26 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     setEndDiv(true);
                 }
                 else if(response.data.answerYN === 1){
+                    if(my.getStreamManager().stream.streamId === response.data.startStreamId){
+                        setExit(true);
+                    }
+                    setLastCheck(false);
                     setChance(0);
                     setEnd(true);
                     setAns(false);
                     setNow(true);
-
                     setEndDiv(true);
                 }
                 else if(response.data.answerYN === 0){
+                    if(my.getStreamManager().stream.streamId === response.data.startStreamId){
+                        setExit(true);
+                    }
+                    setLastCheck(false);
                     setChance(0);
                     setEnd(true);
                     setAns(false);
                     setIsAns(true);
                     setNow(true);
-
                     setEndDiv(true);
                 }
                 return;
@@ -479,41 +517,148 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 
                 </div>
             </div>
-            <div style={{
-                position : "absolute",
-                display : "flex",
-                alignItems : "center",
-                justifyContent : "center",
-                padding : "0px 20px",
-                width : "50vw",
-                height : "10vh",
-                fontSize : "2rem",
-                textAlign : "center",
-                color : "white",
-                backgroundColor : "#0250C5",
-                left : "13.5vw",
-                top : "85vh",
-                borderRadius : "10px"
-            }}>
+            
                 {ans ? (
+                    <div style={{
+                        position : "absolute",
+                        display : "flex",
+                        alignItems : "center",
+                        justifyContent : "center",
+                        padding : "0px 20px",
+                        width : "50vw",
+                        height : "10vh",
+                        fontSize : "2rem",
+                        textAlign : "center",
+                        color : "white",
+                        backgroundColor : "#FF7936",
+                        left : "13.5vw",
+                        top : "85vh",
+                        borderRadius : "10px"
+                    }}>
                     <div>{detectNick} 님이 추리중 입니다! (기회 : {chance})</div>
+                    </div>
                 ) 
                 : endDiv ? (
                     <>
-                        {isAns ? (<div> 정답입니다! {findNick}님을 찾았습니다!</div>) 
-                        : chanceRef.current !== undefined && chanceRef.current > 0 ? ((<div>땡! 틀렸습니다! 기회 : {chance}</div>)) : (<>땡! 틀렸습니다. {findNick}님을 못찾았습니다!</>)}
+                        {isAns ? (
+                        <div style={{
+                            position : "absolute",
+                            display : "flex",
+                            alignItems : "center",
+                            justifyContent : "center",
+                            padding : "0px 20px",
+                            width : "50vw",
+                            height : "10vh",
+                            fontSize : "2rem",
+                            textAlign : "center",
+                            color : "white",
+                            backgroundColor : "#F3C522",
+                            left : "13.5vw",
+                            top : "85vh",
+                            borderRadius : "10px"
+                        }}>
+                            <div> 정답입니다! {findNick}님을 찾았습니다!</div>
+                            <button 
+                            className={styles.exitGame}
+                            style={{
+                                fontSize : "1.3rem",
+                                border : "none",
+                                borderRadius : 10,
+                                color : "white",
+                            }} onClick={exitGame}>게임 종료</button>
+                        </div>) 
+                        : chanceRef.current !== undefined && chanceRef.current > 0 ? ((
+                        
+                        <div style={{
+                            position : "absolute",
+                            display : "flex",
+                            alignItems : "center",
+                            justifyContent : "center",
+                            padding : "0px 20px",
+                            width : "50vw",
+                            height : "10vh",
+                            fontSize : "2rem",
+                            textAlign : "center",
+                            color : "white",
+                            backgroundColor : "#FF7768",
+                            left : "13.5vw",
+                            top : "85vh",
+                            borderRadius : "10px"
+                        }}>
+                        <div>땡! 틀렸습니다! 기회 : {chance}</div>
+                        </div>)) : (
+                        <div style={{
+                            position : "absolute",
+                            display : "flex",
+                            alignItems : "center",
+                            justifyContent : "center",
+                            padding : "0px 20px",
+                            width : "50vw",
+                            height : "10vh",
+                            fontSize : "2rem",
+                            textAlign : "center",
+                            color : "white",
+                            backgroundColor : "#E03F1B",
+                            left : "13.5vw",
+                            top : "85vh",
+                            borderRadius : "10px"
+                        }}>
+                        <div>땡! 틀렸습니다. {findNick}님을 못찾았습니다!</div>
+                        
+                        <button 
+                        className={styles.exitGame}
+                        style={{
+                            fontSize : "1.3rem",
+                            border : "none",
+                            borderRadius : 10,
+                            color : "white",
+                        }} onClick={exitGame}>게임 종료</button></div>)}
                     </> 
                 )
                 : imDetect ? (
+                    <div style={{
+                        position : "absolute",
+                        display : "flex",
+                        alignItems : "center",
+                        justifyContent : "center",
+                        padding : "0px 20px",
+                        width : "50vw",
+                        height : "10vh",
+                        fontSize : "2rem",
+                        textAlign : "center",
+                        color : "white",
+                        backgroundColor : "#0250C5",
+                        left : "13.5vw",
+                        top : "85vh",
+                        borderRadius : "10px"
+                    }}>
                     <div>
                         {findNick} 님을 찾아주세요
                     </div>
+                    </div>
                 ) : (
+                    <div style={{
+                        position : "absolute",
+                        display : "flex",
+                        alignItems : "center",
+                        justifyContent : "center",
+                        padding : "0px 20px",
+                        width : "50vw",
+                        height : "10vh",
+                        fontSize : "2rem",
+                        textAlign : "center",
+                        color : "white",
+                        backgroundColor : "#0250C5",
+                        left : "13.5vw",
+                        top : "85vh",
+                        borderRadius : "10px"
+                    }}>
                     <div>
                         범인은 누구일까요?
                     </div>
+                    </div>
                 )}
-            </div>
+
             {init ? (<FindInit open={init} imDetect = {imDetect} nick = {findNick}></FindInit>) : null}
             {step ? (<FirstStep open={step} now = {imNextRef.current}></FirstStep>) : null}
             {meeting ? (<Meeting open={meeting}></Meeting>) : null}
