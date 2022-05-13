@@ -112,6 +112,7 @@ function Main() {
 
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
+    navigate('/myroom')
   };
 
   //바로 위로 스므스하게 올라감
