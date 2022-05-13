@@ -70,7 +70,9 @@ function OvVideo({ user, mutedSound, mode, end, isLast, sendAns } : MyProps) {
             ) : 
             (
                 <>
-                    {end ? null : (<div style={{
+                    {end ? null : (
+                    <div     
+                        style={{
                             zIndex : "98",
                             position : "absolute",
                             display : "flex",
@@ -78,12 +80,13 @@ function OvVideo({ user, mutedSound, mode, end, isLast, sendAns } : MyProps) {
                             alignItems : "center",
                             width : "100%",
                             height : "100%",
-                            backgroundColor : "black"
-                        
+                            backgroundColor : "black",
+                            borderRadius : 15,
+                            cursor: "pointer"
                         }}
                         onClick = {() => handleClickDiv(user.getStreamManager().stream.streamId)}
                         >
-                        <img style={{width : "15vw", height : "15vw"}} src={Thinking}></img>
+                        <img className={styles.screat} style={{width : "15vw", height : "15vw"}} src={Thinking}></img>
                     </div>
                     )}
                     <video

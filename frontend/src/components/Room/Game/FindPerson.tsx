@@ -42,6 +42,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const [last, setLast] = useState<boolean>(false);
     const [ans, setAns] = useState<boolean>(false);
     const [end, setEnd] = useState<boolean>(false);
+    const [endDiv, setEndDiv] = useState<boolean>(false);
     const [isAns, setIsAns] = useState<boolean>(false);
     const [chance, setChance] = useState<number>();
     
@@ -69,6 +70,9 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
 
     const chanceRef = useRef(chance);
     chanceRef.current = chance;
+
+    const endRef = useRef(end);
+    endRef.current = end;
 
     const sendAnswer = (streamId : string) => {
         const data = {
@@ -99,7 +103,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
             if(my.getStreamManager().stream.streamId === imSpeak){
                 setImNext(true);
             }
-            if(users.length < 4){
+            if(users.length <= 4){
                 setChance(1);
             }
             else{
@@ -116,17 +120,25 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     setChance(1);
                     setLastCheck(true);
                     setLastTime(10);
+                    setAns(false);
+                    setEndDiv(true);
                 }
                 else if(response.data.answerYN === 1){
                     setChance(0);
                     setEnd(true);
                     setAns(false);
+                    setNow(true);
+
+                    setEndDiv(true);
                 }
                 else if(response.data.answerYN === 0){
                     setChance(0);
                     setEnd(true);
                     setAns(false);
                     setIsAns(true);
+                    setNow(true);
+
+                    setEndDiv(true);
                 }
                 return;
             }
@@ -262,31 +274,37 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     useEffect(()=>{
         let countDown : any;
         if(lastCheck && chance && chance > 0){
-            
-            countDown = setInterval(()=>{
-                console.log("여긴 라스트임",lastTimeRef.current);
-                if(lastTimeRef.current === 0){
-                    clearInterval(countDown);
-                }
-                else{
-                    setLastTime(lastTimeRef.current-1);
-                }
-            }, 1000);
-            setTimeout(()=>{
-                if(my.isImDetect()){
-                    const data = {
-                        gameStatus : 2,
-                        gameId : 3,
-                        index : -1,
-                        tryAnswer : "",
+            if(endRef.current){
+                clearInterval(countDown);
+                clearTimeout();
+            }
+            else{
+                countDown = setInterval(()=>{
+                    console.log("여긴 라스트임",lastTimeRef.current);
+                    if(lastTimeRef.current === 0 || endRef.current){
+                        clearInterval(countDown);
                     }
-                    my.getStreamManager().stream.session.signal({
-                        data : JSON.stringify(data),
-                        type : "game"
-                    });
-                }
-                setLastCheck(false);
-            }, 10000)
+                    else{
+                        setLastTime(lastTimeRef.current-1);
+                    }
+                }, 1000);
+                setTimeout(()=>{
+                    if(my.isImDetect() && !endRef.current){
+                        const data = {
+                            gameStatus : 2,
+                            gameId : 3,
+                            index : -1,
+                            tryAnswer : "",
+                        }
+                        my.getStreamManager().stream.session.signal({
+                            data : JSON.stringify(data),
+                            type : "game"
+                        });
+                    }
+                    setLastCheck(false);
+                }, 10000)
+            }
+            
         }
         else{
             clearInterval(countDown);
@@ -480,7 +498,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 {ans ? (
                     <div>{detectNick} 님이 추리중 입니다! (기회 : {chance})</div>
                 ) 
-                : end ? (
+                : endDiv ? (
                     <>
                         {isAns ? (<div> 정답입니다! {findNick}님을 찾았습니다!</div>) 
                         : chanceRef.current !== undefined && chanceRef.current > 0 ? ((<div>땡! 틀렸습니다! 기회 : {chance}</div>)) : (<>땡! 틀렸습니다. {findNick}님을 못찾았습니다!</>)}
