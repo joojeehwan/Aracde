@@ -301,7 +301,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 setTimeCheck(false);
                 setNow(false);
                 setLast(true);
-            }, 1000);
+            }, 60000);
         }
 
         else{

@@ -226,7 +226,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
         }
         if (response.data.gameStatus === 3) {
           if (response.data.gameId === 3){
-            removeVoiceFilter();
+            if(localUserRef.current.isImDetect()) localUserRef.current.setImDetect(false);
+            else removeVoiceFilter();
           }
           setMode('home');
         }
