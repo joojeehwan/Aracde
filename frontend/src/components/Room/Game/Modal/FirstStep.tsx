@@ -36,7 +36,7 @@ function FirstStep({ open, now }: MyProps) {
                   flexDirection : "column",
                 }}>
                   <div>당신 차례 입니다.</div>
-                  <div>간결하게 소개해주세요</div>
+                  <div>10초간 자기소개 시작!!🤩</div>
                   
                 </div>
               )
@@ -50,7 +50,7 @@ function FirstStep({ open, now }: MyProps) {
                   alignItems : "center",
                   flexDirection : "column",
                 }}>
-                  <div>발언을 준비중 입니다.</div>
+                  <div>차례를 넘기는 중...😴</div>
                 </div>
               )}
 
