@@ -42,7 +42,7 @@ const getUserSearchResult = async (name: string) => {
 const getSearchUserResultForGame = async (name: any) => {
   const token = getToken();
   if (token !== null) {
-    console.log("친구 검색 게임 초대 요청 name : ", name)
+    console.log('친구 검색 게임 초대 요청 name : ', name);
     const result = await axios
       .get(`${BASE_URL}/friend/search?name=${name}`, { headers: { Authorization: token } })
       .then((res) => {
@@ -64,7 +64,7 @@ const getAddFriendRequestResult = async (userSeq: string) => {
     userSeq,
   };
   if (token !== null) {
-    console.log(userSeq)
+    console.log(userSeq);
     const result = await axios.post(`${BASE_URL}/friend`, body, { headers: { Authorization: token } });
     console.log(result);
     return result;
@@ -79,8 +79,8 @@ const patchAcceptFriendRequest = async (userSeq: number) => {
     userSeq,
   };
   if (token !== null) {
-    console.log(token)
-    console.log(userSeq)
+    console.log(token);
+    console.log(userSeq);
     const result = await axios
       .patch(`${BASE_URL}/friend`, body, { headers: { Authorization: token } })
       .then((res) => {
@@ -130,7 +130,6 @@ const deleteFriend = async (userSeq: number) => {
   return null;
 };
 
-
 const getProfile = async () => {
   const token = getToken();
   if (token !== null) {
@@ -158,7 +157,7 @@ const UserApi = {
   deleteFriend,
   getProfile,
   patchAcceptFriendRequest,
-  getSearchUserResultForGame
+  getSearchUserResultForGame,
 };
 
 export default UserApi;
