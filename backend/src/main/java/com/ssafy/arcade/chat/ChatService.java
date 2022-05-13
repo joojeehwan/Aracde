@@ -27,10 +27,7 @@ import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +72,6 @@ public class ChatService {
         }
 
 
-
         return topic;
     }
 
@@ -104,8 +100,6 @@ public class ChatService {
                 .user1(user).user2(target).build();
         // 채팅방 만들기
         chatRoomRepository.save(chatRoom);
-        // 해당 채팅방 토픽 생성
-        enterRoom(chatRoom.getChatRoomSeq());
 
         return "OK";
     }
@@ -123,15 +117,14 @@ public class ChatService {
         // 3. 다른 사람이 채팅방에 존재하지 않는 경우
         //  3-1.
         // topic을 만든다. 이미 존재하면 그냥 그 토픽으로 들어감.
-        ChannelTopic channel = enterRoomDetail(sendMessageReq.getChatRoomSeq());
-        SendMessageRes sendMessageRes = SendMessageRes.builder().userSeq(user.getUserSeq())
+        SendMessageRes sendMessageRes = SendMessageRes.builder().userSeq(user.getUserSeq()).realTime(String.valueOf(LocalDateTime.now()))
                 .name(user.getName()).image(user.getImage()).time(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(LocalDateTime.now()))
                 .content(sendMessageReq.getContent()).chatRoomSeq(sendMessageReq.getChatRoomSeq()).type(SendMessageRes.Type.CHAT).build();
-        redisPublisher.publish(channel, sendMessageRes);
+        redisPublisher.publish(getTopicDetail(sendMessageReq.getChatRoomSeq()), sendMessageRes);
         // redis에 저장하기
         messageRepository.save(message);
         // 채팅방 최근 메시지랑 최근 시간 변경하기
-        ChatRoom chatRoom = chatRoomRepository.findByChatRoomSeq(sendMessageReq.getChatRoomSeq()).orElseThrow(()->
+        ChatRoom chatRoom = chatRoomRepository.findByChatRoomSeq(sendMessageReq.getChatRoomSeq()).orElseThrow(() ->
                 new CustomException(ErrorCode.DATA_NOT_FOUND));
         chatRoom.setLastContent(sendMessageReq.getContent());
         chatRoom.setLastTime(message.getTime());
@@ -139,7 +132,7 @@ public class ChatService {
         // 현재 구독중인 왼쪽 채팅방 리스트에도 뿌려준다.
         ChannelTopic topic = getTopic(chatRoom.getChatRoomSeq());
         // pub url을 바꾸기 위해 타입을 바꿔준다.
-        SendMessageRes res = SendMessageRes.builder()
+        SendMessageRes res = SendMessageRes.builder().realTime(String.valueOf(LocalDateTime.now()))
                 .chatRoomSeq(chatRoom.getChatRoomSeq()).type(SendMessageRes.Type.CHATROOM)
                 .content(chatRoom.getLastContent()).time(chatRoom.getLastContent()).build();
         redisPublisher.publish(topic, res);
@@ -148,6 +141,10 @@ public class ChatService {
 
     public ChannelTopic getTopic(Long chatRoomSeq) {
         return channels.get("/sub/chat/room/" + chatRoomSeq);
+    }
+
+    public ChannelTopic getTopicDetail(Long chatRoomSeq) {
+        return channels.get("/sub/chat/room/detail/" + chatRoomSeq);
     }
 
     public List<ChatRoomListDTO> getChattingRoom(String token) {
@@ -163,20 +160,22 @@ public class ChatService {
                 ChannelTopic topic = onlineService.getOnlineTopic(target.getUserSeq());
                 boolean flag = topic != null;
                 list.add(ChatRoomListDTO.builder()
-                                .login(flag)
+                        .login(flag)
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
                         .lastTime(chatRoom.getLastTime()).build());
+                System.out.println("로그인 했냐? "+ flag);
             } else if (chatRoom.getUser2().getUserSeq() == user.getUserSeq()) {
                 User target = chatRoom.getUser1();
-                ChannelTopic topic = channels.get("/sub/" + target.getUserSeq());
+                ChannelTopic topic = onlineService.getOnlineTopic(target.getUserSeq());
                 boolean flag = topic != null;
                 list.add(ChatRoomListDTO.builder().login(flag)
                         .chatRoomSeq(chatRoom.getChatRoomSeq())
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
                         .lastTime(chatRoom.getLastTime()).build());
+                System.out.println("로그인 했냐? "+ flag);
             }
         }
         // topic 발행
@@ -207,15 +206,15 @@ public class ChatService {
         // 2. 대화방이 없는 애들로만 거름.
         for (UserResDto userResDto : temp) {
             User target = userRepository.findByUserSeq(userResDto.getUserSeq()).orElseGet(User::new);
-            ChatRoom chatRoom = chatRoomRepository.findByUser1AndUser2(user, target);
-            if (chatRoom != null) {
+            ChatRoom chatRoom = chatRoomRepository.findByUser1AndUser2(user, target).orElseGet(ChatRoom::new);
+            if (chatRoom.getChatRoomSeq() != null) {
                 list.add(SearchFriendRes.builder()
                         .canInvite(false).image(target.getImage()).name(target.getName())
                         .userSeq(target.getUserSeq()).build());
                 continue;
             }
-            chatRoom = chatRoomRepository.findByUser1AndUser2(target, user);
-            if (chatRoom != null) {
+            chatRoom = chatRoomRepository.findByUser1AndUser2(target, user).orElseGet(ChatRoom::new);
+            if (chatRoom.getChatRoomSeq() != null) {
                 list.add(SearchFriendRes.builder()
                         .canInvite(false).image(target.getImage()).name(target.getName())
                         .userSeq(target.getUserSeq()).build());
@@ -233,9 +232,32 @@ public class ChatService {
     public List<Message> enterChattingRoom(Long chatRoomSeq) {
         // 읽지 않은 메시지를 전부 삭제하고 chatRoom에 보낸다.
         // chatRoomSeq에 저장된 메시지 전부 가져온다.
-        List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByTime(chatRoomSeq).orElseThrow(() ->
-                new CustomException(ErrorCode.WRONG_DATA));
         enterRoomDetail(chatRoomSeq);
+//        List<Message> messages = messageRepository.findTop20ByChatRoomSeqOrderByRealTime(chatRoomSeq).orElseThrow(() ->
+//                new CustomException(ErrorCode.WRONG_DATA));
+        List<Message> list = messageRepository.findAllByChatRoomSeqOrderByRealTime(chatRoomSeq).orElseThrow(() ->
+                new CustomException(ErrorCode.WRONG_DATA));
+        // redis에서 sort가 정상 작동하지 않는다.
+        // spring에서 sort 하여 처리.
+        list.sort((o1, o2) -> -o1.getRealTime().compareTo(o2.getRealTime()));
+        // 만약 메시지 개수가 100개 이상이면 여기서 삭제.
+        // 원래는 TTL을 걸어서 삭제할 수 있지만, 그것은 키 만료만 되기 때문에 데이터가 쌓이는 것은 매한가지.
+        // 만료된 키를 삭제하는 방법을 찾지 못했다.
+        while(list.size() > 100){
+            Message message = list.get(list.size()-1);
+            messageRepository.delete(message);
+            list.remove(message);
+        }
+
+        ArrayList<Message> messages = new ArrayList<>();
+        Stack<Message> s = new Stack<>();
+        for(int i = 0; i < list.size() ; i++){
+            if(i >= 20 ) break;
+            s.push(list.get(i));
+        }
+        while (!s.isEmpty()) {
+            messages.add(s.pop());
+        }
         return messages;
     }
 }

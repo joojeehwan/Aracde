@@ -10,7 +10,6 @@ const getChatList = async () => {
     const result = await axios
       .get(`${BASE_URL}`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {
@@ -29,7 +28,6 @@ const getChatSearchResult = async (name: string) => {
     const result = await axios
       .get(`${BASE_URL}/search?name=${name}`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {
@@ -44,18 +42,15 @@ const getChatSearchResult = async (name: string) => {
 // 채팅창 생성하기
 const createChatRoom = async (targetUserSeq: any) => {
   const token = getToken();
-  console.log(targetUserSeq);
   if (token !== null) {
     const result = await axios
       .post(`${BASE_URL}/create`, targetUserSeq, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
       })
       .catch((err) => {
         console.dir(err);
         return err;
       });
-    console.log(result);
     return result;
   }
   return null;
@@ -68,7 +63,6 @@ const enterChatRoom = async (chatRoomSeq: number) => {
     const result = await axios
       .get(`${BASE_URL}/enter?chatRoomSeq=${chatRoomSeq}`, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {

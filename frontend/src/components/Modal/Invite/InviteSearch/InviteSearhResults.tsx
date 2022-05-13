@@ -1,13 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import style from '../../styles/Invite.module.scss';
 import Char from '../../../../assets/character.png';
+import RoomApi from "../../../../common/api/Room"
 
-function InviteSearhResults({ name, isInvite }: any) {
+function InviteSearhResults({ name, isInvite, targetUserSeq }: any) {
   const [isClicked, setIsClicked] = useState(false);
 
-  const onClickinviteFriend = useCallback(() => {
+  const { postInviteFriendAlarm } = RoomApi
+
+  const onClickinviteFriend = useCallback(async () => {
+    const userSeq = window.localStorage.getItem("userSeq")
+    const inviteCode = window.localStorage.getItem("invitecode")
+    await postInviteFriendAlarm(userSeq, inviteCode, targetUserSeq)
     setIsClicked(true);
   }, [isClicked]);
+
   return (
     <>
       <div style={{ padding: '20px', display: 'flex', marginTop: '-5px' }}>

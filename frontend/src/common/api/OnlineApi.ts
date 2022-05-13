@@ -8,10 +8,10 @@ const BASE_URL = process.env.REACT_APP_API_ROOT + '/online';
 const setOnlie = async () => {
   const token = getToken();
   if (token !== null) {
+    console.log("온라인 실행")
     const result = await axios
       .post(`${BASE_URL}/enter`, {}, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
       })
       .catch((err) => {
         console.dir(err);
@@ -27,16 +27,15 @@ const setOnlie = async () => {
 const setOffline = async () => {
   const token = getToken();
   if (token !== null) {
+    console.log("오프라인 실행")
     const result = await axios
       .post(`${BASE_URL}/out`, {}, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
       })
       .catch((err) => {
         console.dir(err);
         return err;
       });
-    console.log(result);
     return result;
   }
   return null;
