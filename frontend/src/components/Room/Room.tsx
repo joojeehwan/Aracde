@@ -5,7 +5,7 @@ import { useStore } from "./store";
 import { infoStore } from "../Store/info";
 import RoomContents from "./RoomContents";
 //chat
-import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
+import ChatIcon from '../../assets/chat.png';
 import Chatting from "../Modal/Chatting";
 import useSWR from 'swr';
 import { getToken } from '../../../src/common/api/jWT-Token';
@@ -88,20 +88,25 @@ const Room = () => {
       {/* {loading ? <LoadingSpinner></LoadingSpinner> : null} */}
       <div className={styles.nav}>
         {
-          window.localStorage.getItem("token") &&
-          <Chatt
-            className={styles.link}
-            onClick={handleOpenChatting}
+          window.localStorage.getItem("token") ? (
+          <button onClick={handleOpenChatting}
             style={{
               margin: "20px",
-              width: 60,
-              height: 60,
               position: "fixed",
               right: "0px",
-              // bottom: "0px"
+              backgroundColor: "transparent",
+              border: "none"
             }}
-            filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-          />
+          >
+            <img
+              style={{
+                width: 60,
+                height: 60,
+              }}
+              src={ChatIcon}
+              alt="chatIcon"
+            ></img>
+          </button>) : null  
         }
         <button className={styles.link}>
           EXIT
