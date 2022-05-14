@@ -52,7 +52,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const [participantNum, setParticpantNum] = useState<any>(1);
   const [mode, setMode] = useState<string>('home');
   const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string }>();
-  const [charadeData, setCharadeData] = useState<{ answer: string; id: string }>();
+  const [charadeData, setCharadeData] = useState<{ answer: string; id: string; category: number }>();
 
   const [firstSpeak, setFirstSpeak] = useState<string>('');
   const [open, setOpen] = useState<boolean>(false);
@@ -251,7 +251,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
         }
         if (response.data.gameId === 2 && response.data.gameStatus === 2 && modeRef.current !== 'game2') {
           console.log('몸으로 말해요 게임 실행');
-          setCharadeData({ answer: response.data.answer, id: response.data.curStreamId });
+          setCharadeData({ answer: response.data.answer, id: response.data.curStreamId, category: response.data.category });
           setCurStreamId(response.data.curStreamId);
           localUserInit.setAudioActive(false);
           setMode('game2');
@@ -581,7 +581,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
             >
               {localUserRef.current !== undefined &&
                 localUserRef.current.getStreamManager() !== undefined &&
-                mode !== 'game2' && (
+                (localUserRef.current.getStreamManager().stream.streamId !== curStreamId && mode !== 'game2') && (
                   <StreamComponent
                     user={localUserRef.current}
                     sessionId={mySessionId}
