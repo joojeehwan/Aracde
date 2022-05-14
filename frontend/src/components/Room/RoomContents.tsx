@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useStore } from './store';
 import Play from '../../assets/play.png';
+import Link from '../../assets/link.png';
 import { ReactComponent as Info } from '../../assets/info.svg';
 import { ReactComponent as People } from '../../assets/team.svg';
 import Chat from './chat/Chat';
@@ -18,6 +19,7 @@ import UserModel from '../Model/user-model';
 import SelectGame from './Game/Modal/SelectGame';
 import Wait from './Game/Modal/Wait';
 import Guess from './Game/Guess';
+import { style } from '@mui/system';
 
 const OPENVIDU_SERVER_URL = 'https://k6a203.p.ssafy.io:5443';
 const OPENVIDU_SERVER_SECRET = 'arcade';
@@ -51,7 +53,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
   const [mode, setMode] = useState<string>('home');
-  const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string }>();
+  const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string, time : number }>();
   const [charadeData, setCharadeData] = useState<{ answer: string; id: string; category: number }>();
 
   const [firstSpeak, setFirstSpeak] = useState<string>('');
@@ -242,6 +244,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
             answer: response.data.answer,
             id: response.data.curStreamId,
             nextId: response.data.nextStreamId,
+            time : response.data.time
           });
           setMode('game1');
         }
@@ -255,6 +258,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
             answer: response.data.answer,
             id: response.data.curStreamId,
             nextId: response.data.nextStreamId,
+            time : response.data.time
           });
           setMode('game1');
         }
@@ -684,22 +688,40 @@ const RoomContents = ({ sessionName, userName }: any) => {
                 <div
                   style={{
                     width: '50%',
-                    height: '23.7vh',
+                    height: '23vh',
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
-                    gridTemplateRows: '1fr 1fr 1fr',
-                    // gap : "5% 2%"
-                    // gridColumn : "1 / span 2",
+                    gridTemplateRows: '1fr 1fr',
                   }}
                 >
+                  <button
+                    className={styles.selectGame}
+                    style={{
+                      gridRow: '1 / span 2',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: '4%',
+                    }}
+                    onClick={handleOpenModal}
+                  >
+                    <img src={Play} style={{ width: '30%', height: '30%' }}></img>게임 선택
+                  </button>
                   <div
                     style={{
-                      gridColumn: '1 / span 2',
+                      // gridColumn: '1 / span 2',
                       marginBottom: '2%',
                       display: 'flex',
                     }}
                   >
-                    <button onClick={handleCopy}>COPY</button>
+                    <button style={{
+                      backgroundColor : "#38C502",
+                      border : "none",
+                      borderRadius : "5px 0px 0px 5px",
+                      display : "flex",
+                      alignItems : "center",
+                      justifyContent : "center"
+                    }} onClick={handleCopy}><img src={Link} style={{width : "100%", height : "50%"}}></img></button>
 
                     <div
                       id="code"
@@ -710,44 +732,12 @@ const RoomContents = ({ sessionName, userName }: any) => {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        fontSize: 32,
+                        fontSize: 30,
                       }}
                     >
                       {window.localStorage.getItem('invitecode')}
                     </div>
                   </div>
-
-                  <button
-                    className={styles.selectGame}
-                    style={{
-                      gridRow: '2 / span 3',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: '4%',
-                    }}
-                    onClick={handleOpenModal}
-                  >
-                    <img src={Play} style={{ width: '30%', height: '55%' }}></img>게임 선택
-                  </button>
-                  <button
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginBottom: '2%',
-                    }}
-                    className={styles.infoGame}
-                  >
-                    <Info
-                      style={{
-                        width: '20%',
-                        height: '45%',
-                      }}
-                      filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
-                    />
-                    설명서
-                  </button>
                   <button
                     style={{
                       display: 'flex',

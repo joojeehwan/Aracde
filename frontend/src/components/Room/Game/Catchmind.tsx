@@ -12,7 +12,7 @@ import Undo from '../../../assets/undo.png';
 import { toast } from 'react-toastify';
 
 type MyProps = {
-    initData : {answer : string, id : string, nextId : string} | undefined,
+    initData : {answer : string, id : string, nextId : string, time : number} | undefined,
     user : any
 }
 
@@ -37,6 +37,7 @@ function Catchmind({initData, user} : MyProps) {
     const [allImage, setAllimage] = useState<string[]>([]);
     const [ansFlag, setAnsFlag] = useState<boolean>(false);
     const [end, setEnd] = useState<boolean>(false);
+    const [lastOther, setLastOther] = useState<boolean>(false);
     const [src, setSrc] = useState<string>("");
     const [color, setColor] = useState<string>("#000000");
     const [undoArr, setUndoArr] = useState<any[]>([]);
@@ -409,11 +410,11 @@ function Catchmind({initData, user} : MyProps) {
     }
     useEffect(()=>{
         let countDown : any;
-        if(last){
+        if(lastOther){
             countDown = setInterval(()=>{
                 if(lastTimeRef.current === 0){
                     clearInterval(countDown);
-                    sendAnswer();
+                    if(last) sendAnswer();
                 }
                 else{
                     setLastTime(lastTimeRef.current-1);
@@ -425,7 +426,7 @@ function Catchmind({initData, user} : MyProps) {
             clearInterval(countDown);
             
         }
-    }, [last])
+    }, [lastOther])
 
     useEffect(()=>{
         let countDown : any;
@@ -435,7 +436,7 @@ function Catchmind({initData, user} : MyProps) {
                     clearInterval(countDown);
                     // us
                     setTimeFlag(false);
-                    sendSignal();
+                    if(myTurn) sendSignal();
                 }
                 else{
                     setTime(time-1);
@@ -512,6 +513,9 @@ function Catchmind({initData, user} : MyProps) {
     }, [myTurn, imgStatus, startDraw, draw, exit]);
     
     useEffect(() => {
+        if(initData?.time){
+            setTime(initData.time);
+        }
         if(user.getStreamManager().stream.streamId === initData?.id){
             setFirst(true);
         }
@@ -527,9 +531,9 @@ function Catchmind({initData, user} : MyProps) {
         setTimeout(()=>{
             setInit(true);
             setIdx(1);
+            setTimeFlag(true);
             if(user.getStreamManager().stream.streamId === initData?.id){
                 setMyturn(true);
-                setTimeFlag(true);
             }
             if(user.getStreamManager().stream.streamId === initData?.nextId){
                 setNext(true);
@@ -572,7 +576,6 @@ function Catchmind({initData, user} : MyProps) {
                             console.log("???왜 안됨 제발 제발");
                             setMyturn(true);
                             // setTimeFlag(true);
-                            setImgStatus(true);
                             setSrc(response.data.imageUrl);
                             setNext(false);
                             setIdx(response.data.index);
@@ -582,14 +585,19 @@ function Catchmind({initData, user} : MyProps) {
                         if(response.data.orderStatus === 1) setImLast(true);
                         else setNext(true);
                     }
+                    setTimeFlag(false);
+                    setImgStatus(true);
+                    setImgTime(5);
+                    setTime(response.data.time);
                 }
                 else if(response.data.orderStatus === 2){
                     if(user.getStreamManager().stream.streamId === response.data.curStreamId){
                         setImLast(false);
+                        setLast(true);
                         setIdx(response.data.index);
                         setSrc(response.data.imageUrl);
-                        setLast(true);
                     }
+                    setLastOther(true);
                 }
             }
         });
@@ -881,6 +889,7 @@ function Catchmind({initData, user} : MyProps) {
                 (<> 
                     {nextTurn === true ? (
                     <div style={{
+                        position : "relative",
                         borderRadius : "10px",
                         display : "flex",
                         flexDirection : "column",
@@ -892,6 +901,12 @@ function Catchmind({initData, user} : MyProps) {
                         color : "white",
                         backgroundColor : "black"
                     }}>
+                    <div className={style.timer}
+                        style={ time < 10 ? {
+                            color : "red"
+                        } : { color : "white"}}>
+                        {time}
+                    </div>
                         <div>다음 차례 입니다!</div>
                         <div style={{
                             marginTop : "3vh"
@@ -938,6 +953,7 @@ function Catchmind({initData, user} : MyProps) {
                     : last === true ? null 
                     : imLast === true ? (
                     <div style={{
+                        position : "relative",
                         borderRadius : "10px",
                         display : "flex",
                         flexDirection : "column",
@@ -949,6 +965,12 @@ function Catchmind({initData, user} : MyProps) {
                         color : "white",
                         backgroundColor : "black"
                     }}>
+                    <div className={style.timer}
+                        style={ time < 10 ? {
+                            color : "red"
+                        } : { color : "white"}}>
+                        {time}
+                    </div>
                         <div>당신은 마지막 순서입니다</div>
                         <div style={{
                             marginTop : "3vh"
@@ -956,17 +978,37 @@ function Catchmind({initData, user} : MyProps) {
                     </div>)
                     : (
                     <div style={{
+                        position : "relative",
                         borderRadius : "10px",
                         display : "flex",
                         width : "100%",
                         height : "100%",
+                        flexDirection : "column",
                         justifyContent : "center",
                         alignItems : "center",
                         fontSize : "2.5rem",
                         color : "white",
                         backgroundColor : "black"
                     }}>
-                        잠시만 기다려 주세요...😴
+                    {lastOther ? (<div className={style.timer}
+                        style={ lastTime < 10 ? {
+                            color : "red"
+                        } : { color : "white"}}>
+                        {lastTime}
+                    </div>
+                    ) : (<div className={style.timer}
+                        style={ time < 10 ? {
+                            color : "red"
+                        } : { color : "white"}}>
+                        {time}
+                    </div>
+                    )}
+                    {lastOther ? (
+                    <>
+                        <div>마지막 사람이 정답을 적고 있어요!</div>
+                        <div>기다려 주세요!😎</div>
+                    </>) 
+                    : (<>잠시만 기다려 주세요...😴</>)}
                     </div>)}
                 </>)}
                     
