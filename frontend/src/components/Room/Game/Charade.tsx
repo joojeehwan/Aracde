@@ -9,6 +9,8 @@ const Charade = (props: any) => {
   const [answer, setAnswer] = useState<any>('');
   const [streamId, setStreamId] = useState<any>('');
   const [index, setIndex] = useState<any>(1);
+  const [category, setCategory] = useState<any>('');
+  const categoryAll = ['속담', '영화', '게임', '생물', '캐릭터', '전체'];
 
   const [time, setTime] = useState<any>(60);
   const [timeFlag, setTimeFlag] = useState<any>(false);
@@ -47,9 +49,20 @@ const Charade = (props: any) => {
     return result;
   };
 
+  const getHint = (msg: string) => {
+    const result = [];
+    const hint = msg.replace(/ /g, '');
+    if (hint.length > 0) {
+      for (let i = 0; i < hint.length; i++) {
+        result.push(<img src="hint.png" alt="hintIcon" className={styles.hint} />);
+      }
+    }
+    return result;
+  };
+
   const onKeyPress = (e: any) => {
     if (e.key === 'Enter') {
-      sendMessage(e.target.value);
+      sendMessage(e.target.value, props.user.getNickname());
       sendGameData(e.target.value);
     }
   };
@@ -68,13 +81,14 @@ const Charade = (props: any) => {
       type: 'game',
     });
   };
-  const sendMessage = (msg: string) => {
+
+  const sendMessage = (msg: string, nickname: string) => {
     if (props.user && msg) {
       let messageData = msg.replace(/ +(?= )/g, '');
       if (messageData !== '' && messageData !== ' ') {
         const chatData = {
           message: messageData,
-          nickname: props.user.getNickname(),
+          nickname: nickname,
           streamId: props.user.getStreamManager().stream.streamId,
         };
         props.user.getStreamManager().stream.session.signal({
@@ -116,7 +130,7 @@ const Charade = (props: any) => {
   };
 
   useEffect(() => {
-    toast("5초 후 몸으로 말해요 게임을 시작하겠습니다.");
+    toast('5초 후 몸으로 말해요 게임을 시작하겠습니다.');
     setTimeout(() => {
       setGameFlag(true);
       setTimeFlag(true);
@@ -144,6 +158,7 @@ const Charade = (props: any) => {
   useEffect(() => {
     setPresenter(props.charadeData.id);
     setAnswer(props.charadeData.answer);
+    setCategory(props.charadeData.category);
     setStreamId(props.user.getStreamManager().stream.streamId);
 
     let array = [];
@@ -171,53 +186,61 @@ const Charade = (props: any) => {
   useEffect(() => {
     props.user.getStreamManager().stream.session.on('signal:game', (response: any) => {
       if (response.data.gameId === 2) {
+        // 게임 종료
         if (response.data.gameStatus === 3) {
           console.log('게임 종료');
           exitGame();
           return;
         }
-        // 문제를 맞췄을 때
-        if (response.data.gameStatus === 2 && response.data.answerYN === 'Y') {
-          sendMessage('정답입니다');
-          setIndex(response.data.index);
-          setAnswer(response.data.answer);
-          setPresenter(response.data.curStreamId);
-          setAnswerStreamId(response.data.answerStreamId);
-          setTime(60);
-          return;
-        }
-        // 문제를 맞춰서 게임이 끝난 경우
-        if (response.data.gameStatus === 2 && response.data.answerYN === 'Y' && !response.data.curStreamId) {
-          sendMessage('게임이 끝났습니다.');
-          setAnswerStreamId(response.data.answerStreamId);
-          setTime(60);
-          setGameFlag(false);
-          setTimeFlag(false);
-          return;
-        }
-        // 문제를 틀렸을 때
-        if (response.data.gameStatus === 2 && response.data.answerYN === 'N') {
-          console.log('틀렸어');
-          return;
-        }
-
-        // 시간이 지났을 때
-        if (response.data.gameStatus === 2 && response.data.timeout === 'Y') {
-          console.log('시간 초과');
-          setIndex(response.data.index);
-          setAnswer(response.data.answer);
-          setPresenter(response.data.curStreamId);
-          setTime(60);
-          return;
-        }
-
-        // 시간이 지났는데 게임이 끝난 경우
-        if (response.data.gameStatus === 2 && response.data.timeout === 'Y' && !response.data.curStreamId) {
-          console.log('게임 끝났어');
-          setTime(60);
-          setGameFlag(false);
-          setTimeFlag(false);
-          return;
+        // 게임 도중
+        else if (response.data.gameStatus === 2) {
+          // 시간이 지나갔을 때
+          if (response.data.timeout === 'Y') {
+            if (response.data.finishYN === 'N') {
+              console.log('시간 초과');
+              setIndex(response.data.index);
+              setAnswer(response.data.answer);
+              setPresenter(response.data.curStreamId);
+              setTime(60);
+              return;
+            }
+            // 모든 게임이 끝났을 때
+            else if (response.data.finishYN === 'Y') {
+              console.log('게임 끝났어');
+              setTime(60);
+              setGameFlag(false);
+              setTimeFlag(false);
+              return;
+            }
+          }
+          // 시간이 지나가지 않았을 때
+          else if (response.data.timeout === 'N') {
+            // 문제를 맞췄을 때
+            if (response.data.answerYN === 'Y' && response.data.finishYN === 'N') {
+              console.log('맞췄어');
+              sendMessage('정답입니다', props.user.getNickname());
+              setIndex(response.data.index);
+              setAnswer(response.data.answer);
+              setPresenter(response.data.curStreamId);
+              setAnswerStreamId(response.data.answerStreamId);
+              setTime(60);
+              return;
+            }
+            // 모든 게임이 끝났을 때
+            else if (response.data.finishYN === 'Y') {
+              sendMessage('게임이 끝났습니다.', props.user.getNickname());
+              setAnswerStreamId(response.data.answerStreamId);
+              setTime(60);
+              setGameFlag(false);
+              setTimeFlag(false);
+              return;
+            }
+            // 문제를 틀렸을 때
+            else if (response.data.answerYN === 'N') {
+              console.log('틀렸어');
+              return;
+            }
+          }
         }
       }
     });
@@ -230,10 +253,15 @@ const Charade = (props: any) => {
     <>
       <div className={styles.body}>
         <div className={styles.wrapper}>
-          <span className={styles.alarm}>
-            <AlarmIcon /> {time}
-          </span>
+          <div className={styles.hintWrapper}>{getHint(`${answer}`)}</div>
+          <input type="text" value={`카테고리 : ${categoryAll[category]} `} className={styles.category} disabled></input>
           <div className={styles.video}>
+            <span className={styles.round}>
+              Round {index} / {userData.length}
+            </span>
+            <span className={styles.alarm}>
+              <AlarmIcon fontSize="large" /> {time}
+            </span>
             {streamId === presenter ? (
               <StreamComponent sessionId={props.sessionId} user={props.user} subscribers={props.subscribers} />
             ) : (
@@ -264,8 +292,7 @@ const Charade = (props: any) => {
 
         <div className={styles.scoreWrapper}>
           <div className={styles.score}>
-            <h1>정답 맞춘 개수</h1>
-            {getScore()}
+            <h3>{getScore()}</h3>
           </div>
         </div>
       </div>
