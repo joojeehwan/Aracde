@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useRef } from "react";
 import styles from "../style/Chat.module.scss";
 
-import { ReactComponent as SendIcon } from "../../../assets/send.svg";
+import SendIcon from "../../../assets/send.png";
 
 const Chat = (props : any) => {
   const [messageList, setMessageList] = useState<any>([]);
@@ -401,7 +401,7 @@ const Chat = (props : any) => {
             autoComplete="off"
           />
           <div className={styles.sendIcon}>
-            <SendIcon className={styles.sendButton} onClick={sendMessage} />
+          <img className={styles.sendButton} src={SendIcon} alt="sendIcon"></img>
           </div>
         </div>):
         (<div className={`${styles.messageInput} ${styles.game}`}>
@@ -414,8 +414,8 @@ const Chat = (props : any) => {
             onKeyPress={handlePressKey}
             autoComplete="off"
           />
-          <div className={styles.sendIcon}>
-            <SendIcon className={styles.sendButton} onClick={sendMessage} />
+          <div className={styles.sendIcon} onClick={sendMessage}>
+            <img className={styles.sendButton} src={SendIcon} alt="sendIcon"></img>
           </div>
         </div>)}
       </div>
