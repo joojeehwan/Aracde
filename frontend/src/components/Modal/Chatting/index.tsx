@@ -41,7 +41,7 @@ interface subObject {
   unsubscribe: () => void;
 }
 
-function Chatting({ open, onClose, client }: any) {
+function Chatting({ open, onClose, client, handleChatBell }: any) {
   const scrollbarRef = useRef<Scrollbars>(null);
   const [chat, onChangeChat, setChat] = useInput('');
   const [chatList, setChatList] = useState<any>([]);
@@ -185,6 +185,7 @@ function Chatting({ open, onClose, client }: any) {
                   chatList?.map((section: any) => {
                     return (
                       <ChattingLists
+                        handleChatBell={handleChatBell}
                         setIsShow={setIsShow}
                         chat={chat}
                         scrollbarRef={scrollbarRef}

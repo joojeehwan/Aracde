@@ -6,22 +6,16 @@ import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
-import { ReactComponent as BellRed } from '../../assets/Modal/bellLight.svg';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
-import Invite from '../Modal/Invite/Invite';
-import useSWR from 'swr';
 import OnlineApi from '../../common/api/OnlineApi';
-import ChatAPI from '../../common/api/ChatAPI';
 import AlarmApi from '../../common/api/AlarmApi';
 
 import Chatting from '../Modal/Chatting';
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
-import { getToken } from '../../common/api/jWT-Token';
-import { WindowSharp } from '@mui/icons-material';
 import alarmSound from '../../mp3/alram.mp3';
 
 import { useStore } from '../../../src/components/Room/store';
@@ -40,8 +34,12 @@ function Main() {
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
   const [isBell, setIsBell] = useState(false);
+  const [isChat, setIsChat] = useState(false);
+
+  const handleChatBell = () => {
+    setIsChat(true);
+  };
   //swr & api
-  const { fetchWithToken } = ChatAPI;
   const { setOnlie, setOffline } = OnlineApi;
   const { postReadAlarm, getAlarmList } = AlarmApi;
 
@@ -76,6 +74,8 @@ function Main() {
 
   const handleOpenChatting = useCallback(() => {
     setChattingIsOpen(true);
+    //채팅창 열리면 알람 꺼짐
+    setIsChat(false);
   }, [chattingIsOpen]);
 
   const handleCloseChatting = useCallback(() => {
@@ -310,23 +310,45 @@ function Main() {
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
-        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} /> : null}
+        {chattingIsOpen ? (
+          <Chatting
+            open={chattingIsOpen}
+            onClose={handleCloseChatting}
+            client={client}
+            handleChatBell={handleChatBell}
+          />
+        ) : null}
       </div>
-      {window.localStorage.getItem('token') === null && (
-        <Chatt
-          className={styles.button}
-          onClick={handleOpenChatting}
-          style={{
-            margin: '20px',
-            width: 60,
-            height: 60,
-            position: 'fixed',
-            right: '0px',
-            bottom: '0px',
-          }}
-          filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-        />
-      )}
+      {window.localStorage.getItem('token') === null &&
+        (isChat ? (
+          <Chatt
+            className={isChat ? `${styles.buttone} ${styles.shakee}` : styles.buttone}
+            onClick={handleOpenChatting}
+            style={{
+              margin: '20px',
+              width: 60,
+              height: 60,
+              position: 'fixed',
+              right: '0px',
+              bottom: '0px',
+            }}
+            filter="invert(11%) sepia(100%) saturate(6216%) hue-rotate(280deg) brightness(94%) contrast(116%)"
+          />
+        ) : (
+          <Chatt
+            className={styles.button}
+            onClick={handleOpenChatting}
+            style={{
+              margin: '20px',
+              width: 60,
+              height: 60,
+              position: 'fixed',
+              right: '0px',
+              bottom: '0px',
+            }}
+            filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+          />
+        ))}
     </>
   );
 }
