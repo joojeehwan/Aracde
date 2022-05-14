@@ -258,7 +258,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
           });
           setMode('game1');
         }
-        if (response.data.gameId === 2 && response.data.gameStatus === 2 && modeRef.current !== 'game2') {
+        if (response.data.gameId === 2 && response.data.gameStatus === 2) {
           console.log('몸으로 말해요 게임 실행');
           setCharadeData({ answer: response.data.answer, id: response.data.curStreamId, category: response.data.category });
           setCurStreamId(response.data.curStreamId);
@@ -614,8 +614,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
               }
             >
               {localUserRef.current !== undefined &&
-                localUserRef.current.getStreamManager() !== undefined &&
-                (localUserRef.current.getStreamManager().stream.streamId !== curStreamId) && (
+                  localUserRef.current.getStreamManager() !== undefined &&
+                  localUserRef.current.getStreamManager().stream.streamId !== curStreamId && (
                   <StreamComponent
                     user={localUserRef.current}
                     sessionId={mySessionId}
@@ -629,7 +629,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
                 {subscribersRef.current.map((sub, i) => {
                   return (
-                  sub.getStreamManager().stream.streamId === curStreamId ? null : 
+                    sub.getStreamManager().stream.streamId === curStreamId ? null :
                   <StreamComponent
                     key={i}
                     user={sub}
