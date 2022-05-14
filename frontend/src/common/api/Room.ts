@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-const BASE_URL = process.env.REACT_APP_API_ROOT + '/game';
+// const BASE_URL = process.env.REACT_APP_API_ROOT + '/game';
+const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/game';
 
 const createRoom = async () => {
   const response = await axios.post(`${BASE_URL}/room`);
@@ -15,8 +16,9 @@ const enterRoom = async (code: string) => {
   return response;
 };
 
-const exitRoom = async (code: string) => {
-  const response = await axios.patch(`${BASE_URL}/game/exit`, { inviteCode: code });
+const exitRoom = async (code: string | null) => {
+  if(code === null) return null;
+  const response = await axios.patch(`${BASE_URL}/exit`, { inviteCode: code });
   console.log(response);
   return response;
 };

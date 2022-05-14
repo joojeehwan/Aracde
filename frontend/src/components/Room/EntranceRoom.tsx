@@ -10,14 +10,16 @@ import MicOffIcon from '@mui/icons-material/MicOff';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import RoomApi from '../../common/api/Room';
-import { infoStore } from "../../components/Store/info"
+import { infoStore } from "../../components/Store/info";
+import { useStore } from './store'; 
 const CreateRoom = () => {
   const navigate = useNavigate();
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMic, setMic] = useState(true);
   const [isVideo, setVideo] = useState(true);
-  const { invitecode } = infoStore()
+  const { invitecode } = infoStore();
+  const {setMyMic, setMyVideo} = useStore();
   const [nickname, setNickname] = useState<any>(""); // 닉네임
   const [code, setCode] = useState<any>(invitecode); // 초대 코드
   console.log(invitecode)
@@ -41,6 +43,8 @@ const CreateRoom = () => {
     const response = await enterRoom(code as string);
     if (response.status === 200) {
       console.log('??????');
+      setMyMic(isMic);
+      setMyVideo(isVideo);
       window.localStorage.setItem('nickname', nickname);
       window.localStorage.setItem('invitecode', code);
       navigate('/room');
@@ -76,7 +80,7 @@ const CreateRoom = () => {
           <div className={styles.content}>
             <div className={styles.preferences}>
               <div className={styles.camera}>
-                <video ref={videoRef} autoPlay={isVideo} muted={isMic}></video>
+                <video ref={videoRef} autoPlay={isVideo} muted={!isMic}></video>
               </div>
               <div className={styles.cameraBtn}>
                 {isMic ? (

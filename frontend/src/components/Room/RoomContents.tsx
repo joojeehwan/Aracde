@@ -32,7 +32,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const navigate = useNavigate();
   //   const { setRoomSnapshotResult } = RoomApi;
   //   const { getImgUploadResult } = ImgApi;
-  const { setSessionId, mode, setMode } = useStore();
+  const { setSessionId, mode, setMode, myMic, myVideo } = useStore();
   //   const { loginStatus, setLoginStatus } = useContext(LoginStatusContext);
   //   const { myName } = useContext(NameContext);
   //console.log(loginStatus, myName);
@@ -311,8 +311,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
             let publisherTemp = OV.initPublisher(undefined, {
               audioSource: undefined,
               videoSource: undefined,
-              publishAudio: true,
-              publishVideo: true,
+              publishAudio: myMic,
+              publishVideo: myVideo,
               resolution: '640x480',
               frameRate: 30,
               insertMode: 'APPEND', // How the video is inserted in the target element 'video-container'
@@ -323,8 +323,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
             sessionRef.current.publish(publisherTemp);
 
-            localUserInit.setAudioActive(true);
-            localUserInit.setVideoActive(true);
+            localUserInit.setAudioActive(myMic);
+            localUserInit.setVideoActive(myVideo);
             localUserInit.setNickname(myUserName);
             localUserInit.setConnectionId(sessionRef.current.connection.connectionId);
             localUserInit.setStreamManager(publisherTemp);
