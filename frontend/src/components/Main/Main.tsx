@@ -312,7 +312,7 @@ function Main() {
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} /> : null}
       </div>
-      {window.localStorage.getItem('token') !== null && (
+      {window.localStorage.getItem('token') === null && (
         <Chatt
           className={styles.button}
           onClick={handleOpenChatting}
