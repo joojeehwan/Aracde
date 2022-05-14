@@ -6,6 +6,7 @@ import styles from './style/RoomContents.module.scss';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useStore } from './store';
+import RoomApi from '../../common/api/Room';
 import Play from '../../assets/play.png';
 import Link from '../../assets/link.png';
 import { ReactComponent as Info } from '../../assets/info.svg';
@@ -31,7 +32,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const navigate = useNavigate();
   //   const { setRoomSnapshotResult } = RoomApi;
   //   const { getImgUploadResult } = ImgApi;
-  const { setSessionId } = useStore();
+  const { setSessionId, mode, setMode } = useStore();
   //   const { loginStatus, setLoginStatus } = useContext(LoginStatusContext);
   //   const { myName } = useContext(NameContext);
   //console.log(loginStatus, myName);
@@ -52,7 +53,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const [correctNickname, setCorrectNickname] = useState<any[]>([]);
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
-  const [mode, setMode] = useState<string>('home');
   const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string, time : number }>();
   const [charadeData, setCharadeData] = useState<{ answer: string; id: string; category: number }>();
 
@@ -87,6 +87,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
   const targetSubscriberRef = useRef(targetSubscriber);
   targetSubscriberRef.current = targetSubscriber;
+
+  const {exitRoom} = RoomApi;
+
 
   const joinSession = () => {
     OV = new OpenVidu();
@@ -133,14 +136,14 @@ const RoomContents = ({ sessionName, userName }: any) => {
     window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', preventGoBack);
     window.addEventListener('beforeunload', onbeforeunload);
-    // window.addEventListener("unload", handleleaveRoom);
+    window.addEventListener("unload", handleleaveRoom);
 
     joinSession();
     return () => {
       window.removeEventListener('beforeunload', onbeforeunload);
       window.removeEventListener('popstate', preventGoBack);
-      //   window.removeEventListener("unload", handleleaveRoom);
-      //   handleleaveRoom();
+      window.removeEventListener("unload", handleleaveRoom);
+      handleleaveRoom();
       leaveSession();
     };
   }, []);
@@ -343,6 +346,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
   }, [subscribers]);
 
   const leaveSession = () => {
+    console.log("??여기 실행됨?");
+    // handleleaveRoom();
     const mySession = sessionRef.current;
     if (mySession) {
       mySession.disconnect();
@@ -379,9 +384,19 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
   const onbeforeunload = (e: any) => {
     e.preventDefault();
-    e.returnValue = '나가실껀가요?';
-  };
+    e.returnValue = "message to user";
+    // setTimeout(()=>{
+    //   setTimeout(()=>{
+    //     console.log("tㅣㄹ행");
+    //     handleleaveRoom();
+    //   }, 500)
+    // },100)
+  }
 
+  const handleleaveRoom = async () => {
+    console.log("여기 안불리겠지??",sessionName);
+    await exitRoom(sessionName);
+  }
   const sendSignalUserChanged = (data: any) => {
     //console.log("시그널 보내 시그널 보내");
     const signalOptions = {
@@ -440,16 +455,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
       });
   };
 
-  const sendSignalCameraStart = () => {
-    const data = {
-      photoStatus: 1,
-    };
-    const signalOptions = {
-      data: JSON.stringify(data),
-      type: 'photo',
-    };
-    sessionRef.current.signal(signalOptions);
-  };
+
 
   const getToken = () => {
     return createSession(mySessionId).then((sessionId) => createToken(sessionId));
