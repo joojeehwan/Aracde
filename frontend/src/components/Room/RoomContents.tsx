@@ -6,7 +6,9 @@ import styles from './style/RoomContents.module.scss';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useStore } from './store';
+import RoomApi from '../../common/api/Room';
 import Play from '../../assets/play.png';
+import Link from '../../assets/link.png';
 import { ReactComponent as Info } from '../../assets/info.svg';
 import { ReactComponent as People } from '../../assets/team.svg';
 import Chat from './chat/Chat';
@@ -18,6 +20,7 @@ import UserModel from '../Model/user-model';
 import SelectGame from './Game/Modal/SelectGame';
 import Wait from './Game/Modal/Wait';
 import Guess from './Game/Guess';
+import { style } from '@mui/system';
 
 const OPENVIDU_SERVER_URL = 'https://k6a203.p.ssafy.io:5443';
 const OPENVIDU_SERVER_SECRET = 'arcade';
@@ -29,7 +32,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const navigate = useNavigate();
   //   const { setRoomSnapshotResult } = RoomApi;
   //   const { getImgUploadResult } = ImgApi;
-  const { setSessionId } = useStore();
+  const { setSessionId, mode, setMode, myMic, myVideo } = useStore();
   //   const { loginStatus, setLoginStatus } = useContext(LoginStatusContext);
   //   const { myName } = useContext(NameContext);
   //console.log(loginStatus, myName);
@@ -50,8 +53,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const [correctNickname, setCorrectNickname] = useState<any[]>([]);
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
-  const [mode, setMode] = useState<string>('home');
-  const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string }>();
+  const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string, time : number }>();
   const [charadeData, setCharadeData] = useState<{ answer: string; id: string; category: number }>();
 
   const [firstSpeak, setFirstSpeak] = useState<string>('');
@@ -86,7 +88,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const targetSubscriberRef = useRef(targetSubscriber);
   targetSubscriberRef.current = targetSubscriber;
 
-  const joinSession = () => {
+  const {exitRoom, enterRoom, intoGame} = RoomApi;
+
+
+  const joinSession = async () => {
     OV = new OpenVidu();
     OV.setAdvancedConfiguration({
       publisherSpeakingEventsOptions: {
@@ -131,14 +136,16 @@ const RoomContents = ({ sessionName, userName }: any) => {
     window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', preventGoBack);
     window.addEventListener('beforeunload', onbeforeunload);
-    // window.addEventListener("unload", handleleaveRoom);
+    window.addEventListener("unload", handleleaveRoom);
+
+
 
     joinSession();
     return () => {
       window.removeEventListener('beforeunload', onbeforeunload);
       window.removeEventListener('popstate', preventGoBack);
-      //   window.removeEventListener("unload", handleleaveRoom);
-      //   handleleaveRoom();
+      window.removeEventListener("unload", handleleaveRoom);
+      handleleaveRoom();
       leaveSession();
     };
   }, []);
@@ -217,7 +224,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
         console.warn(exception);
       });
 
-      sessionRef.current.on('signal:game', (response: any) => {
+      sessionRef.current.on('signal:game', async (response: any) => {
         console.log(response);
         if (response.data.gameStatus === 0) {
           if (localUserRef.current.getStreamManager().stream.streamId !== response.data.streamId) {
@@ -242,7 +249,11 @@ const RoomContents = ({ sessionName, userName }: any) => {
             answer: response.data.answer,
             id: response.data.curStreamId,
             nextId: response.data.nextStreamId,
+            time : response.data.time
           });
+          if(window.localStorage.getItem("useSeq")){
+            await intoGame(window.localStorage.getItem("useSeq"), 0);
+          }
           setMode('game1');
         }
         if (
@@ -255,7 +266,11 @@ const RoomContents = ({ sessionName, userName }: any) => {
             answer: response.data.answer,
             id: response.data.curStreamId,
             nextId: response.data.nextStreamId,
+            time : response.data.time
           });
+          if(window.localStorage.getItem("useSeq")){
+            await intoGame(window.localStorage.getItem("useSeq"), 0);
+          }
           setMode('game1');
         }
         if (response.data.gameId === 2 && response.data.gameStatus === 2 && modeRef.current !== 'game2') {
@@ -263,6 +278,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
           setCharadeData({ answer: response.data.answer, id: response.data.curStreamId, category: response.data.category });
           setCurStreamId(response.data.curStreamId);
           localUserInit.setAudioActive(false);
+          if(window.localStorage.getItem("useSeq")){
+            await intoGame(window.localStorage.getItem("useSeq"), 1);
+          }
           setMode('game2');
         }
         if (response.data.gameId === 3 && response.data.gameStatus === 2 && modeRef.current !== 'game3') {
@@ -291,6 +309,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
             setFirstSpeak(response.data.curStreamId);
             setImPerson(response.data.suspectStreamId);
             setFindsub(curUsers);
+            if(window.localStorage.getItem("useSeq")){
+              await intoGame(window.localStorage.getItem("useSeq"), 2);
+            }
             setMode('game3');
           }
         }
@@ -301,11 +322,12 @@ const RoomContents = ({ sessionName, userName }: any) => {
         sessionRef.current
           .connect(token, { clientData: myUserName })
           .then(async () => {
+            console.log("???AS?DA?SD?ASD?ASD?ASD?ASD?ASD??????????????? 여기가 왜 실 행 되는 거냐 ");
             let publisherTemp = OV.initPublisher(undefined, {
               audioSource: undefined,
               videoSource: undefined,
-              publishAudio: true,
-              publishVideo: true,
+              publishAudio: myMic,
+              publishVideo: myVideo,
               resolution: '640x480',
               frameRate: 30,
               insertMode: 'APPEND', // How the video is inserted in the target element 'video-container'
@@ -316,8 +338,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
             sessionRef.current.publish(publisherTemp);
 
-            localUserInit.setAudioActive(true);
-            localUserInit.setVideoActive(true);
+            localUserInit.setAudioActive(myMic);
+            localUserInit.setVideoActive(myVideo);
             localUserInit.setNickname(myUserName);
             localUserInit.setConnectionId(sessionRef.current.connection.connectionId);
             localUserInit.setStreamManager(publisherTemp);
@@ -325,6 +347,20 @@ const RoomContents = ({ sessionName, userName }: any) => {
             // Set the main video in the page to display our webcam and store our Publisher
             setPublisher(publisherTemp);
             setLocalUser(localUserInit);
+            const result = await enterRoom(sessionName);
+            if(result.status === 200){
+              toast.success(<div style={{ width: 'inherit', fontSize: '14px' }}>입장 성공!</div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+              });
+            }
+            else{
+              toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>방이 존재하지 않거나, 인원 초과입니다.</div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+              });
+              navigate('/');
+            }
           })
           .catch((error: any) => {
             console.log('There was an error connecting to the session:', error.code, error.message);
@@ -339,6 +375,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
   }, [subscribers]);
 
   const leaveSession = () => {
+    console.log("??여기 실행됨?");
+    // handleleaveRoom();
     const mySession = sessionRef.current;
     if (mySession) {
       mySession.disconnect();
@@ -375,9 +413,20 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
   const onbeforeunload = (e: any) => {
     e.preventDefault();
-    e.returnValue = '나가실껀가요?';
-  };
+    handleleaveRoom();
+    e.returnValue = "message to user";
+    setTimeout(()=>{
+      setTimeout(()=>{
+        console.log("여기가 되는건 아니겠죠?!?!?!?!?!?!?!?!?!?!?!??!?!?!?!?!?");
+        enterRoom(sessionName);
+      }, 500)
+    },100)
+  }
 
+  const handleleaveRoom = async () => {
+    console.log("여기 안불리겠지??",sessionName);
+    await exitRoom(sessionName);
+  }
   const sendSignalUserChanged = (data: any) => {
     //console.log("시그널 보내 시그널 보내");
     const signalOptions = {
@@ -436,16 +485,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
       });
   };
 
-  const sendSignalCameraStart = () => {
-    const data = {
-      photoStatus: 1,
-    };
-    const signalOptions = {
-      data: JSON.stringify(data),
-      type: 'photo',
-    };
-    sessionRef.current.signal(signalOptions);
-  };
+
 
   const getToken = () => {
     return createSession(mySessionId).then((sessionId) => createToken(sessionId));
@@ -684,22 +724,40 @@ const RoomContents = ({ sessionName, userName }: any) => {
                 <div
                   style={{
                     width: '50%',
-                    height: '23.7vh',
+                    height: '23vh',
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
-                    gridTemplateRows: '1fr 1fr 1fr',
-                    // gap : "5% 2%"
-                    // gridColumn : "1 / span 2",
+                    gridTemplateRows: '1fr 1fr',
                   }}
                 >
+                  <button
+                    className={styles.selectGame}
+                    style={{
+                      gridRow: '1 / span 2',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: '4%',
+                    }}
+                    onClick={handleOpenModal}
+                  >
+                    <img src={Play} style={{ width: '30%', height: '30%' }}></img>게임 선택
+                  </button>
                   <div
                     style={{
-                      gridColumn: '1 / span 2',
+                      // gridColumn: '1 / span 2',
                       marginBottom: '2%',
                       display: 'flex',
                     }}
                   >
-                    <button onClick={handleCopy}>COPY</button>
+                    <button style={{
+                      backgroundColor : "#38C502",
+                      border : "none",
+                      borderRadius : "5px 0px 0px 5px",
+                      display : "flex",
+                      alignItems : "center",
+                      justifyContent : "center"
+                    }} onClick={handleCopy}><img src={Link} style={{width : "100%", height : "50%"}}></img></button>
 
                     <div
                       id="code"
@@ -710,44 +768,12 @@ const RoomContents = ({ sessionName, userName }: any) => {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        fontSize: 32,
+                        fontSize: 30,
                       }}
                     >
                       {window.localStorage.getItem('invitecode')}
                     </div>
                   </div>
-
-                  <button
-                    className={styles.selectGame}
-                    style={{
-                      gridRow: '2 / span 3',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: '4%',
-                    }}
-                    onClick={handleOpenModal}
-                  >
-                    <img src={Play} style={{ width: '30%', height: '55%' }}></img>게임 선택
-                  </button>
-                  <button
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginBottom: '2%',
-                    }}
-                    className={styles.infoGame}
-                  >
-                    <Info
-                      style={{
-                        width: '20%',
-                        height: '45%',
-                      }}
-                      filter="invert(100%) sepia(100%) saturate(0%) hue-rotate(283deg) brightness(101%) contrast(104%)"
-                    />
-                    설명서
-                  </button>
                   <button
                     style={{
                       display: 'flex',
