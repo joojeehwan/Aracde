@@ -44,12 +44,8 @@ public class GameController {
 
     @PatchMapping(value="/exit")
     public ResponseEntity<String> exitRoom(@RequestBody RoomReqDto roomReqDto) {
-
-        if (gameService.exitGameRoom(roomReqDto.getInviteCode())){
-            return new ResponseEntity<>("방 닫힘", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("요청 성공", HttpStatus.OK);
-        }
+        gameService.exitGameRoom(roomReqDto.getInviteCode());
+        return new ResponseEntity<>("방 나감 처리 완료", HttpStatus.OK);
     }
 
     /**
