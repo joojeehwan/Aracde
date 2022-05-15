@@ -53,14 +53,14 @@ public class GameService {
         String inviteCode = createRandString();
         // 혹시나 하는 중복 제거.
         while (true) {
-            GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElse(null);
+            GameRoom gameRoom = gameRoomRepository.findByInviteCode(inviteCode).orElse(null);
             if (gameRoom == null) {
                 break;
             }
             inviteCode = createRandString();
         }
         GameRoom gameRoom = GameRoom.builder().
-                inviteCode(inviteCode).currentMember(1).isDel(false).build();
+                inviteCode(inviteCode).currentMember(0).build();
         gameRoomRepository.save(gameRoom);
 
         return inviteCode;
@@ -70,50 +70,44 @@ public class GameService {
     public void enterGameRoom(String inviteCode) {
         // 해당 inviteCode를 갖는 gameRoom이 존재하지 않는경우
         System.out.println("inviteCode: " + inviteCode);
-        GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElseThrow(() ->
+        GameRoom gameRoom = gameRoomRepository.findByInviteCode(inviteCode).orElseThrow(() ->
                 new CustomException(ErrorCode.UNMATHCED_CODE));
 
         Integer curMember = gameRoom.getCurrentMember();
         // 인원 초과 시,
         if (curMember >= 6) {
             throw new CustomException(ErrorCode.ALREADY_FULL);
+        } else if (curMember < 0) {
+            throw new CustomException(ErrorCode.ALREADY_EMPTY);
         }
         // 인원 추가
         gameRoom.addMember();
         gameRoomRepository.save(gameRoom);
     }
-    public boolean exitGameRoom(String inviteCode) {
-        GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElseThrow(() ->
+    public void exitGameRoom(String inviteCode) {
+        GameRoom gameRoom = gameRoomRepository.findByInviteCode(inviteCode).orElseThrow(() ->
                 new CustomException(ErrorCode.UNMATHCED_CODE));
 
         Integer curMember = gameRoom.getCurrentMember();
-        if (curMember == 0) {
-            throw new CustomException(ErrorCode.ALREADY_DELETE);
+        if (curMember < 0) {
+            throw new CustomException(ErrorCode.ALREADY_EMPTY);
         }
-        curMember--;
         gameRoom.delMember();
-        if (curMember == 0) {
-            deleteGameRoom(inviteCode);
-            gameRoomRepository.save(gameRoom);
-            return true;
-        }
         gameRoomRepository.save(gameRoom);
-        return false;
-
     }
 
     // 방 삭제 (인원이 0명이 되면 실행하도록 구현)
-    public void deleteGameRoom(String inviteCode) {
-        GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElseThrow(() ->
-                new CustomException(ErrorCode.UNMATHCED_CODE));
-        boolean isDel = gameRoom.isDel();
-        // 이미 삭제된 데이터
-        if (isDel) {
-            throw new CustomException(ErrorCode.ALREADY_DELETE);
-        }
-        gameRoom.deleteRoom();
-        gameRoomRepository.save(gameRoom);
-    }
+//    public void deleteGameRoom(String inviteCode) {
+//        GameRoom gameRoom = gameRoomRepository.findByInviteCodeAndIsDel(inviteCode, false).orElseThrow(() ->
+//                new CustomException(ErrorCode.UNMATHCED_CODE));
+//        boolean isDel = gameRoom.isDel();
+//        // 이미 삭제된 데이터
+//        if (isDel) {
+//            throw new CustomException(ErrorCode.ALREADY_DELETE);
+//        }
+//        gameRoom.deleteRoom();
+//        gameRoomRepository.save(gameRoom);
+//    }
 
     // Game DB 생성
     public void createGame(Long userSeq, Code code) {
