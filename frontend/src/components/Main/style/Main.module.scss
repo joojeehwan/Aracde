@@ -5,7 +5,8 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
-  overflow-y: hidden;
+  // overflow-y: hidden;
+  overflow: hidden;
 }
 
 .main {
@@ -135,6 +136,18 @@
 
   &:hover {
     box-shadow: 0rem 1.5rem 2rem rgba($color: #f3c522, $alpha: 0.4);
+    transform: translateY(-4px);
+  }
+}
+
+.transButton {
+  background-color: transparent;
+  border: none;
+  margin-bottom: 35px;
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+
+  &:hover {
     transform: translateY(-4px);
   }
 }

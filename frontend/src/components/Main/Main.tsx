@@ -3,6 +3,8 @@ import styles from './style/Main.module.scss';
 import RoomCreate from './Modal/RoomCreate';
 import Content from './Content';
 import Arrow from '../../assets/next.png';
+import RoomCreateIcon from '../../assets/createRoom.png';
+import RoomEnterIcon from '../../assets/enterRoom.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import ChatIcon from '../../assets/chat.png';
@@ -273,11 +275,11 @@ function Main() {
             <p className={styles.glitch} data-text="Arcade">
               Arcade
             </p>
-            <button className={styles.button} onClick={handleOpenCreateRoom}>
-              방 만들기
+            <button className={styles.transButton} onClick={handleOpenCreateRoom}>
+              <img src={RoomCreateIcon} alt="방 만들기 아이콘" />
             </button>
-            <button className={styles.button} onClick={handleEnterRoom}>
-              입장하기
+            <button className={styles.transButton} onClick={handleEnterRoom}>
+            <img src={RoomEnterIcon} alt="입장하기 아이콘" />
             </button>
             {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
           </div>
