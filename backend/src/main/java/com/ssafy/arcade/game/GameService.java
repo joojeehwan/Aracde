@@ -60,7 +60,7 @@ public class GameService {
             inviteCode = createRandString();
         }
         GameRoom gameRoom = GameRoom.builder().
-                inviteCode(inviteCode).currentMember(1).build();
+                inviteCode(inviteCode).currentMember(0).build();
         gameRoomRepository.save(gameRoom);
 
         return inviteCode;
