@@ -73,13 +73,27 @@ const postInviteFriendAlarm = async (userSeq: any, inviteCode: any, targetUserSe
   return null;
 };
 
+const intoGame = async (userSeq : string | null, code : number) => {
+  const token = getToken();
+  if(userSeq !== null && token !== null){
+    const user = +userSeq;
+    const body = {
+      userSeq : user,
+      codeIdx : code
+    }
+    const result = await axios.patch(`${BASE_URL}/init`, body, {headers : {Authorization : token}});
+    return result;
+  }
+}
+
 const RoomApi = {
   createRoom,
   enterRoom,
   exitRoom,
   getUploadImageResult,
   postInviteFriendAlarm,
-  getSaveMyFavoriteImageResult
+  getSaveMyFavoriteImageResult,
+  intoGame
 };
 
 export default RoomApi;

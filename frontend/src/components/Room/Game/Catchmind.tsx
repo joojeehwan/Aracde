@@ -538,7 +538,7 @@ function Catchmind({initData, user} : MyProps) {
             if(user.getStreamManager().stream.streamId === initData?.nextId){
                 setNext(true);
             }
-        }, 100000000000);
+        }, 10000);
         user.getStreamManager().stream.session.on("signal:game", (response : any) => {
             console.log(response.data, "여긴 게임 안이에요");
             //console.log(user.getStreamManager().stream.streamId, user.getStreamManager().stream.streamId === response.data.curStreamId);

@@ -88,7 +88,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const targetSubscriberRef = useRef(targetSubscriber);
   targetSubscriberRef.current = targetSubscriber;
 
-  const {exitRoom, enterRoom} = RoomApi;
+  const {exitRoom, enterRoom, intoGame} = RoomApi;
 
 
   const joinSession = async () => {
@@ -224,7 +224,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
         console.warn(exception);
       });
 
-      sessionRef.current.on('signal:game', (response: any) => {
+      sessionRef.current.on('signal:game', async (response: any) => {
         console.log(response);
         if (response.data.gameStatus === 0) {
           if (localUserRef.current.getStreamManager().stream.streamId !== response.data.streamId) {
@@ -251,6 +251,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
             nextId: response.data.nextStreamId,
             time : response.data.time
           });
+          if(window.localStorage.getItem("useSeq")){
+            await intoGame(window.localStorage.getItem("useSeq"), 0);
+          }
           setMode('game1');
         }
         if (
@@ -265,6 +268,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
             nextId: response.data.nextStreamId,
             time : response.data.time
           });
+          if(window.localStorage.getItem("useSeq")){
+            await intoGame(window.localStorage.getItem("useSeq"), 0);
+          }
           setMode('game1');
         }
         if (response.data.gameId === 2 && response.data.gameStatus === 2 && modeRef.current !== 'game2') {
@@ -272,6 +278,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
           setCharadeData({ answer: response.data.answer, id: response.data.curStreamId, category: response.data.category });
           setCurStreamId(response.data.curStreamId);
           localUserInit.setAudioActive(false);
+          if(window.localStorage.getItem("useSeq")){
+            await intoGame(window.localStorage.getItem("useSeq"), 1);
+          }
           setMode('game2');
         }
         if (response.data.gameId === 3 && response.data.gameStatus === 2 && modeRef.current !== 'game3') {
@@ -300,6 +309,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
             setFirstSpeak(response.data.curStreamId);
             setImPerson(response.data.suspectStreamId);
             setFindsub(curUsers);
+            if(window.localStorage.getItem("useSeq")){
+              await intoGame(window.localStorage.getItem("useSeq"), 2);
+            }
             setMode('game3');
           }
         }
