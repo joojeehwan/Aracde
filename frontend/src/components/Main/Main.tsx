@@ -5,8 +5,7 @@ import Content from './Content';
 import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
-import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
-import { ReactComponent as BellRed } from '../../assets/Modal/bellLight.svg';
+import ChatIcon from '../../assets/chat.png';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
@@ -236,7 +235,7 @@ function Main() {
                       marginRight: '2%',
                       position: "relative",
                     }}
-                    filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+                    filter="sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
                   />) :
                 (<Bell
                   className={styles.button}
@@ -323,20 +322,26 @@ function Main() {
         ) : null}
       </div>
       {
-        window.localStorage.getItem("token") !== null &&
-        < Chatt
-          className={styles.button}
-          onClick={handleOpenChatting}
+        window.localStorage.getItem("token") ? (
+        <button onClick={handleOpenChatting}
           style={{
             margin: "20px",
-            width: 60,
-            height: 60,
             position: "fixed",
             right: "0px",
-            bottom: "0px"
+            bottom: "0px",
+            backgroundColor: "transparent",
+            border: "none"
           }}
-          filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-        />
+        >
+          <img
+            style={{
+              width: 60,
+              height: 60,
+            }}
+            src={ChatIcon}
+            alt="chatIcon"
+          ></img>
+        </button>) : null     
       }
     </>
   );
