@@ -40,7 +40,7 @@ function Main() {
     setIsChat(true);
   };
   //swr & api
-  const { setOffline } = OnlineApi;
+  const { setOffline, setOnline } = OnlineApi;
   const { postReadAlarm, getAlarmList } = AlarmApi;
 
   useEffect(() => {
@@ -185,7 +185,7 @@ function Main() {
   }
 
   const subscribe = async () => {
-    // await setOnline();
+    await setOnline();
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
       // 데이터 받자마자 빨간색 처리
       setIsBell(true);
@@ -210,6 +210,27 @@ function Main() {
       // window.removeEventListener("unload", disconnect);
     };
   }, []);
+
+  //정리! 온/오프라인을 이렇게 해결?!
+  const onbeforeunload = (e: any) => {
+    e.preventDefault();
+    setOffline()
+    e.returnValue = '나가실껀가요?';
+    console.log("나가기 전에 실행")
+    setTimeout(() => {
+      setTimeout(() => {
+        console.log("취소 누르면 실행")
+        setOnline()
+      })
+    })
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', onbeforeunload);
+    return () => {
+      window.removeEventListener('beforeunload', onbeforeunload);
+    }
+  }, [])
 
   return (
     <>
@@ -321,7 +342,7 @@ function Main() {
           />
         ) : null}
       </div>
-      {window.localStorage.getItem('token') === null &&
+      {window.localStorage.getItem('token') !== null &&
         (isChat ? (
           <Chatt
             className={isChat ? `${styles.buttone} ${styles.shakee}` : styles.buttone}
