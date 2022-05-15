@@ -60,7 +60,6 @@ function ChattingLists({
   login,
   handleSubscribe,
   unsub,
-  handleChatBell,
 }: any) {
   const [subList, setSubList] = useState<any>([]);
   const subListRef = useRef(subList);
@@ -139,7 +138,6 @@ function ChattingLists({
       }
     });
     handleSubscribe(res);
-    handleChatBell(); // 알람이 울리게 된다
   };
 
   useEffect(() => {

@@ -62,7 +62,18 @@
 .chatContent {
   width: 60%;
   margin-left: 10px;
+  animation:  slide 1s
 }
+
+@keyframes slide {
+  from {
+    transform: translateX(-10%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
 
 .onFocus .lastMessage {
   display: block;

@@ -338,7 +338,6 @@ function Main() {
             open={chattingIsOpen}
             onClose={handleCloseChatting}
             client={client}
-            handleChatBell={handleChatBell}
           />
         ) : null}
       </div>
