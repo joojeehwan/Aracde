@@ -9,14 +9,7 @@ import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
-<<<<<<< HEAD
-import Invite from '../Modal/Invite/Invite';
-import useSWR from 'swr';
-import ChatAPI from '../../common/api/ChatAPI';
-import OnlineAPI from '../../common/api/OnlineApi';
-=======
 import OnlineApi from '../../common/api/OnlineApi';
->>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
 import AlarmApi from '../../common/api/AlarmApi';
 
 import Chatting from '../Modal/Chatting';
@@ -25,14 +18,8 @@ import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
 import alarmSound from '../../mp3/alram.mp3';
 
-<<<<<<< HEAD
-import { useStore } from "../../../src/components/Room/store";
-import { infoStore } from "../../../src/components/Store/info"
-import { StompHeaders } from '@stomp/stompjs';
-=======
 import { useStore } from '../../../src/components/Room/store';
 import { infoStore } from '../../../src/components/Store/info';
->>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -53,12 +40,7 @@ function Main() {
     setIsChat(true);
   };
   //swr & api
-<<<<<<< HEAD
-  const { fetchWithToken } = ChatAPI;
-  const { setOnline, setOffline } = OnlineAPI
-=======
-  const { setOnlie, setOffline } = OnlineApi;
->>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
+  const { setOffline } = OnlineApi;
   const { postReadAlarm, getAlarmList } = AlarmApi;
 
   useEffect(() => {
@@ -175,31 +157,20 @@ function Main() {
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
-      connectHeaders: { "Authorization": getToken() as string },
-      disconnectHeaders: { "Authorization": getToken() as string }, // 이것도 안먹어
+      // connectHeaders: { "Authorization": getToken() as string },
+      // disconnectHeaders: { "Authorization": getToken() as string }, // 이것도 안먹어
       onConnect: () => {
         subscribe();
       },
       onStompError: (frame) => {
         console.error(frame);
       },
-<<<<<<< HEAD
-      onDisconnect: () => {
-        setOffline(); // 이것도 안먹어
-        disconnect();
-      }
-
-=======
->>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
     });
     client.current.activate();
   };
 
   const disconnect = async () => {
-<<<<<<< HEAD
-=======
     await setOffline();
->>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
     // clientRef.current.deactivate();
     client.current.deactivate();
   };
@@ -214,7 +185,7 @@ function Main() {
   }
 
   const subscribe = async () => {
-    await setOnline();
+    // await setOnline();
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
       // 데이터 받자마자 빨간색 처리
       setIsBell(true);
