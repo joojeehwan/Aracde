@@ -60,7 +60,6 @@ public class GameController {
     @PatchMapping(value="/init")
     public ResponseEntity<String> initGame(@RequestBody GameReqDto gameReqDto) {
 
-
         gameService.handleInitGame(gameReqDto.getUserSeq(), gameReqDto.getCodeIdx());
         return new ResponseEntity<>("요청 성공", HttpStatus.OK);
     }
@@ -75,18 +74,9 @@ public class GameController {
     @PostMapping(value="/picture")
     public ResponseEntity<String> savePicture(@RequestBody PictureReqDto pictureReqDto) {
 
-        gameService.createPicture(pictureReqDto.getUserSeq(), pictureReqDto.getPictureUrl());
+        gameService.savePicture(pictureReqDto.getUserSeq(), pictureReqDto.getPictureUrl());
         return new ResponseEntity<>("그림 저장 성공", HttpStatus.OK);
     }
-
-    // 원하는 그림 한번에 추가
-    @PostMapping(value="/many-picture")
-    public ResponseEntity<String> savePictures(@RequestBody PictureReqDto pictureReqDto) {
-
-        gameService.createPictures(pictureReqDto.getUserSeq(), pictureReqDto.getPictureUrlList());
-        return new ResponseEntity<>("그림 저장 성공", HttpStatus.OK);
-    }
-
 
     // test용, 승리, 게임 횟수 초기화
     @PatchMapping(value="/reset")

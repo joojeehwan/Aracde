@@ -178,7 +178,7 @@ public class GameService {
 
 
     // 그림 저장
-    public void createPicture(Long userSeq, String pictureUrl) {
+    public void savePicture(Long userSeq, String pictureUrl) {
         User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_OUR_USER));
 
@@ -188,31 +188,6 @@ public class GameService {
         }
         picture = Picture.builder().pictureUrl(pictureUrl).delYn(false).user(user)
                 .build();
-        pictureRepository.save(picture);
-
-    }
-    // 그림 저장
-    public void createPictures(Long userSeq, List<String> pictureUrlList) {
-        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
-                new CustomException(ErrorCode.NOT_OUR_USER));
-
-        for (String pictureUrl : pictureUrlList) {
-            Picture picture = pictureRepository.findByUserAndPictureUrlAndDelYn(user, pictureUrl, false).orElse(null);
-            if (picture != null) {
-                throw new CustomException(ErrorCode.DUPLICATE_RESOURCE);
-            }
-            picture = Picture.builder().pictureUrl(pictureUrl).delYn(false).user(user)
-                    .build();
-            pictureRepository.save(picture);
-        }
-    }
-    // 그림 삭제
-    public void deletePicture(Long userSeq, String pictureUrl) {
-        User user = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
-                new CustomException(ErrorCode.NOT_OUR_USER));
-        Picture picture = pictureRepository.findByUserAndPictureUrlAndDelYn(user, pictureUrl, false).orElseThrow(() ->
-                new CustomException(ErrorCode.DATA_NOT_FOUND));
-        picture.deletePicture();
         pictureRepository.save(picture);
     }
     

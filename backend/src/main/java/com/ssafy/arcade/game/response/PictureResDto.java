@@ -14,6 +14,4 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PictureResDto {
     private String pictureUrl;
-    private LocalDateTime createdDate;
-
 }

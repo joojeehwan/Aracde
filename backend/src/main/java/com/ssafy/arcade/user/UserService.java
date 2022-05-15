@@ -413,16 +413,20 @@ public class UserService {
         }
         // 저장된 그림 추가
         List<PictureResDto> pictureResDtos = new ArrayList<>();
-        List<Picture> pictureList = pictureRepository.findAllByUserAndDelYn(user, false).orElse(null);
+        List<Picture> pictureList = pictureRepository.findAllByUser(user).orElse(null);
         // 있을때만 추가
         if (pictureList != null){
-            for (Picture picture : pictureList) {
+            int endIndex = 0;
+            // 10개까지만 보내준다.
+            if (pictureList.size() > 10) {
+                endIndex = pictureList.size() - 10;
+            }
+            for (int i = pictureList.size()-1; i >= endIndex; i--) {
                 PictureResDto pictureResDto = new PictureResDto();
-                pictureResDto.setPictureUrl(picture.getPictureUrl());
-                pictureResDto.setCreatedDate(picture.getCreatedDate());
-
+                pictureResDto.setPictureUrl(pictureList.get(i).getPictureUrl());
                 pictureResDtos.add(pictureResDto);
             }
+
         }
 
         // profileResDto에 전부 저장
