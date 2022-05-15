@@ -31,6 +31,11 @@
   width: 64px;
   display: block;
   margin: 0px 80px;
+  transition: all 0.3s ease 0s;
+  &:hover {
+    box-shadow: 0rem 1.5rem 2rem rgba($color: #f7f7f7, $alpha: 0.4);
+    transform: translateY(-8px);
+  }
 }
 
 .plusOff {
@@ -38,7 +43,12 @@
   height: 64px;
   width: 64px;
   // margin: 0px 80px;
+  transition: all 0.3s ease 0s;
   margin-left: 160px;
+  &:hover {
+    box-shadow: 0rem 1.5rem 2rem rgba($color: #f7f7f7, $alpha: 0.4);
+    transform: translateY(-8px);
+  }
 }
 
 .self {
@@ -210,7 +220,7 @@
   background-color: #858585;
 }
 
-.modal>section {
+.modal > section {
   width: auto;
   height: 600px;
   border-radius: 10px;

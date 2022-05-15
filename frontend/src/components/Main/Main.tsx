@@ -6,31 +6,37 @@ import Arrow from '../../assets/next.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
-import { ReactComponent as BellRed } from '../../assets/Modal/bellLight.svg';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
+<<<<<<< HEAD
 import Invite from '../Modal/Invite/Invite';
 import useSWR from 'swr';
 import ChatAPI from '../../common/api/ChatAPI';
 import OnlineAPI from '../../common/api/OnlineApi';
+=======
+import OnlineApi from '../../common/api/OnlineApi';
+>>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
 import AlarmApi from '../../common/api/AlarmApi';
 
 import Chatting from '../Modal/Chatting';
 import SockJS from 'sockjs-client/dist/sockjs';
 import * as StompJs from '@stomp/stompjs';
 import { deleteToken } from '../../common/api/jWT-Token';
-import { getToken } from '../../common/api/jWT-Token';
-import { WindowSharp } from '@mui/icons-material';
 import alarmSound from '../../mp3/alram.mp3';
 
+<<<<<<< HEAD
 import { useStore } from "../../../src/components/Room/store";
 import { infoStore } from "../../../src/components/Store/info"
 import { StompHeaders } from '@stomp/stompjs';
+=======
+import { useStore } from '../../../src/components/Room/store';
+import { infoStore } from '../../../src/components/Store/info';
+>>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
-  const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [isLogin, setIsLogin] = useState<boolean>(true);
   const divRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -40,21 +46,30 @@ function Main() {
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
-  const [isBell, setIsBell] = useState(false)
+  const [isBell, setIsBell] = useState(false);
+  const [isChat, setIsChat] = useState(false);
+
+  const handleChatBell = () => {
+    setIsChat(true);
+  };
   //swr & api
+<<<<<<< HEAD
   const { fetchWithToken } = ChatAPI;
   const { setOnline, setOffline } = OnlineAPI
+=======
+  const { setOnlie, setOffline } = OnlineApi;
+>>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
   const { postReadAlarm, getAlarmList } = AlarmApi;
 
   useEffect(() => {
-    console.log(clientt, "클라이언트 티티!")
-  }, [clientt])
+    console.log(clientt, '클라이언트 티티!');
+  }, [clientt]);
 
-  const { setInviteCode } = infoStore()
+  const { setInviteCode } = infoStore();
   const client = useRef<any>({});
   const handleOpenAlarms = useCallback(async () => {
     // 무조건 무조건이야 알람 흰색 변화
-    setIsBell(false)
+    setIsBell(false);
     setAlarmsIsOpen(true);
     // 모든 알람을 읽었다.
     postReadAlarm();
@@ -77,6 +92,8 @@ function Main() {
 
   const handleOpenChatting = useCallback(() => {
     setChattingIsOpen(true);
+    //채팅창 열리면 알람 꺼짐
+    setIsChat(false);
   }, [chattingIsOpen]);
 
   const handleCloseChatting = useCallback(() => {
@@ -94,7 +111,7 @@ function Main() {
   };
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
-    setInviteCode("")
+    setInviteCode('');
     navigate('/entrance');
   };
 
@@ -114,7 +131,7 @@ function Main() {
 
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
-    navigate('/myroom')
+    navigate('/myroom');
   };
 
   //바로 위로 스므스하게 올라감
@@ -136,25 +153,24 @@ function Main() {
   //정리
   const getAndgetAlarmList = async () => {
     // 단순히 내가 확인하지 않은 알림이 있는지 없는지만 검사.
-    const result = await getAlarmList()
-    const checkAlarm: any[] = result.data
-    // 객체 오브젝트안에 내가 찾고자 하는 값을 구별해내는 js 
-    let flaginUnreads: boolean = checkAlarm.some(it => it.confirm === false)
+    const result = await getAlarmList();
+    const checkAlarm: any[] = result.data;
+    // 객체 오브젝트안에 내가 찾고자 하는 값을 구별해내는 js
+    let flaginUnreads: boolean = checkAlarm.some((it) => it.confirm === false);
 
     if (flaginUnreads === true) {
-      setIsBell(true)
+      setIsBell(true);
     } else {
-      setIsBell(false)
+      setIsBell(false);
     }
-
-  }
+  };
 
   const connect = () => {
     // setOnlie();
     client.current = new StompJs.Client({
       brokerURL: 'ws://localhost:8080/ws-stomp', // 웹소켓 서버로 직접 접속
       debug: function (str) {
-        console.log(str)
+        console.log(str);
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
@@ -167,19 +183,25 @@ function Main() {
       onStompError: (frame) => {
         console.error(frame);
       },
+<<<<<<< HEAD
       onDisconnect: () => {
         setOffline(); // 이것도 안먹어
         disconnect();
       }
 
+=======
+>>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
     });
     client.current.activate();
   };
 
   const disconnect = async () => {
+<<<<<<< HEAD
+=======
+    await setOffline();
+>>>>>>> ef5fd58eb631b456e207d452e9ba804eeb184ae8
     // clientRef.current.deactivate();
     client.current.deactivate();
-
   };
 
   if (typeof WebSocket !== 'function') {
@@ -195,8 +217,8 @@ function Main() {
     await setOnline();
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
       // 데이터 받자마자 빨간색 처리
-      setIsBell(true)
-      bellSound()
+      setIsBell(true);
+      bellSound();
     });
   };
   const bellSound = () => {
@@ -207,12 +229,11 @@ function Main() {
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
       connect();
-      setClientt(client)
+      setClientt(client);
       setIsLogin(true);
-      getAndgetAlarmList()
+      getAndgetAlarmList();
     }
     return () => {
-
       // back에서 없어지나 test
       // disconnect()
       // window.removeEventListener("unload", disconnect);
@@ -227,23 +248,23 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
-              {isBell === false ?
-                (
-                  <Bell
-                    className={styles.button}
-                    onClick={handleOpenAlarms}
-                    style={{
-                      width: 30,
-                      height: 28,
-                      float: 'right',
-                      marginTop: '2%',
-                      marginRight: '2%',
-                      position: "relative",
-                    }}
-                    filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-                  />) :
-                (<Bell
+              {isBell === false ? (
+                <Bell
                   className={styles.button}
+                  onClick={handleOpenAlarms}
+                  style={{
+                    width: 30,
+                    height: 28,
+                    float: 'right',
+                    marginTop: '2%',
+                    marginRight: '2%',
+                    position: 'relative',
+                  }}
+                  filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+                />
+              ) : (
+                <Bell
+                  className={isBell ? `${styles.button} ${styles.shake}` : styles.button}
                   onClick={handleOpenAlarms}
                   style={{
                     width: 28,
@@ -251,11 +272,11 @@ function Main() {
                     float: 'right',
                     marginTop: '2%',
                     marginRight: '2%',
-                    position: "relative",
+                    position: 'relative',
                   }}
                   filter="invert(11%) sepia(100%) saturate(6216%) hue-rotate(280deg) brightness(94%) contrast(116%)"
-                />)
-              }
+                />
+              )}
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}
@@ -318,30 +339,47 @@ function Main() {
           </div>
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
-        {alarmsIsOpen ? (
-          <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} />
-        ) : null}
+        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {chattingIsOpen ? (
-          <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
+          <Chatting
+            open={chattingIsOpen}
+            onClose={handleCloseChatting}
+            client={client}
+            handleChatBell={handleChatBell}
+          />
         ) : null}
       </div>
-      {
-        window.localStorage.getItem("token") !== null &&
-        < Chatt
-          className={styles.button}
-          onClick={handleOpenChatting}
-          style={{
-            margin: "20px",
-            width: 60,
-            height: 60,
-            position: "fixed",
-            right: "0px",
-            bottom: "0px"
-          }}
-          filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-        />
-      }
+      {window.localStorage.getItem('token') === null &&
+        (isChat ? (
+          <Chatt
+            className={isChat ? `${styles.buttone} ${styles.shakee}` : styles.buttone}
+            onClick={handleOpenChatting}
+            style={{
+              margin: '20px',
+              width: 60,
+              height: 60,
+              position: 'fixed',
+              right: '0px',
+              bottom: '0px',
+            }}
+            filter="invert(11%) sepia(100%) saturate(6216%) hue-rotate(280deg) brightness(94%) contrast(116%)"
+          />
+        ) : (
+          <Chatt
+            className={styles.button}
+            onClick={handleOpenChatting}
+            style={{
+              margin: '20px',
+              width: 60,
+              height: 60,
+              position: 'fixed',
+              right: '0px',
+              bottom: '0px',
+            }}
+            filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+          />
+        ))}
     </>
   );
 }
