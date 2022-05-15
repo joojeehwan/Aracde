@@ -88,10 +88,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const targetSubscriberRef = useRef(targetSubscriber);
   targetSubscriberRef.current = targetSubscriber;
 
-  const {exitRoom} = RoomApi;
+  const {exitRoom, enterRoom} = RoomApi;
 
 
-  const joinSession = () => {
+  const joinSession = async () => {
     OV = new OpenVidu();
     OV.setAdvancedConfiguration({
       publisherSpeakingEventsOptions: {
@@ -137,6 +137,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
     window.addEventListener('popstate', preventGoBack);
     window.addEventListener('beforeunload', onbeforeunload);
     window.addEventListener("unload", handleleaveRoom);
+
+
 
     joinSession();
     return () => {
@@ -308,6 +310,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
         sessionRef.current
           .connect(token, { clientData: myUserName })
           .then(async () => {
+            console.log("???AS?DA?SD?ASD?ASD?ASD?ASD?ASD??????????????? 여기가 왜 실 행 되는 거냐 ");
             let publisherTemp = OV.initPublisher(undefined, {
               audioSource: undefined,
               videoSource: undefined,
@@ -332,6 +335,20 @@ const RoomContents = ({ sessionName, userName }: any) => {
             // Set the main video in the page to display our webcam and store our Publisher
             setPublisher(publisherTemp);
             setLocalUser(localUserInit);
+            const result = await enterRoom(sessionName);
+            if(result.status === 200){
+              toast.success(<div style={{ width: 'inherit', fontSize: '14px' }}>입장 성공!</div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+              });
+            }
+            else{
+              toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>방이 존재하지 않거나, 인원 초과입니다.</div>, {
+                position: toast.POSITION.TOP_CENTER,
+                role: 'alert',
+              });
+              navigate('/');
+            }
           })
           .catch((error: any) => {
             console.log('There was an error connecting to the session:', error.code, error.message);
@@ -384,13 +401,14 @@ const RoomContents = ({ sessionName, userName }: any) => {
 
   const onbeforeunload = (e: any) => {
     e.preventDefault();
+    handleleaveRoom();
     e.returnValue = "message to user";
-    // setTimeout(()=>{
-    //   setTimeout(()=>{
-    //     console.log("tㅣㄹ행");
-    //     handleleaveRoom();
-    //   }, 500)
-    // },100)
+    setTimeout(()=>{
+      setTimeout(()=>{
+        console.log("여기가 되는건 아니겠죠?!?!?!?!?!?!?!?!?!?!?!??!?!?!?!?!?");
+        enterRoom(sessionName);
+      }, 500)
+    },100)
   }
 
   const handleleaveRoom = async () => {

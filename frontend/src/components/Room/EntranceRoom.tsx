@@ -39,16 +39,15 @@ const CreateRoom = () => {
     }
     setVideo((prev) => !prev);
   };
-  const handleEnter = async () => {
-    const response = await enterRoom(code as string);
-    if (response.status === 200) {
-      console.log('??????');
-      setMyMic(isMic);
-      setMyVideo(isVideo);
-      window.localStorage.setItem('nickname', nickname);
-      window.localStorage.setItem('invitecode', code);
-      navigate('/room');
-    }
+  const handleEnter = () => {
+    // const response = await enterRoom(code as string);
+    // if (response.status === 200) {
+      // console.log('??????');
+    setMyMic(isMic);
+    setMyVideo(isVideo);
+    window.localStorage.setItem('nickname', nickname);
+    window.localStorage.setItem('invitecode', code);
+    navigate('/room');
   };
   const handleCancel = () => {
     navigate(`/`);
