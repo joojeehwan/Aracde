@@ -32,7 +32,7 @@ public enum ErrorCode {
     INVALID_DATA(FORBIDDEN, "유효하지 않은 데이터."),
     FAILED_AUTH_EMAIL(FORBIDDEN, "이메일 인증에 실패했습니다."),
     ALREADY_FULL(FORBIDDEN, "최대 인원을 초과하였습니다."),
-    ALREADY_DELETE(FORBIDDEN, "이미 삭제된 데이터입니다."),
+    ALREADY_EMPTY(FORBIDDEN, "방인원수가 0보다 작다... 대체 여긴 어쩌다 온거죠?"),
 
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */
     USER_NOT_FOUND(NOT_FOUND, "해당 유저 정보를 찾을 수 없습니다"),
