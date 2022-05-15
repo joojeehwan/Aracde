@@ -226,8 +226,8 @@ const Charade = (props: any) => {
               setTime(60);
               return;
             }
-            // 모든 게임이 끝났을 때
-            else if (response.data.finishYN === 'Y') {
+            // 문제를 맞췄는데 모든 게임이 끝났을 때
+            else if (response.data.answerYN === 'Y' && response.data.finishYN === 'Y') {
               sendMessage('게임이 끝났습니다.', props.user.getNickname());
               setAnswerStreamId(response.data.answerStreamId);
               setTime(60);
