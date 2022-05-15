@@ -237,7 +237,7 @@ function Main() {
                       marginRight: '2%',
                       position: "relative",
                     }}
-                    filter="sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+                    filter="invert(100%) sepia(0%) saturate(16%) hue-rotate(231deg) brightness(103%) contrast(106%)"
                   />) :
                 (<Bell
                   className={styles.button}
@@ -250,7 +250,7 @@ function Main() {
                     marginRight: '2%',
                     position: "relative",
                   }}
-                  filter="invert(11%) sepia(100%) saturate(6216%) hue-rotate(280deg) brightness(94%) contrast(116%)"
+                  filter="invert(10%) sepia(100%) saturate(6905%) hue-rotate(281deg) brightness(95%) contrast(114%)"
                 />)
               }
               <Users
