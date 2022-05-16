@@ -47,8 +47,8 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsList({ name, imgUrl, userSeq, setIsDelete }: any) {
-  const [isOnline, setIsOnline] = useState(true);
+function FriendsList({ name, imgUrl, userSeq, setIsDelete, login }: any) {
+  const [isOnline, setIsOnline] = useState(login);
 
   //api
   const { deleteFriend, getFriendList } = UserApi;

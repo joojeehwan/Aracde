@@ -32,6 +32,7 @@ import com.ssafy.arcade.user.response.ProfileResDto;
 import com.ssafy.arcade.user.response.UserResDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -58,6 +59,7 @@ public class UserService {
     private final PictureRepository pictureRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MessageRepository messageRepository;
+    private final OnlineService onlineService;
 
     // refreshToken을 같이 담아 보낼수도 있음.
     public String getAccessToken(String code) {
@@ -224,7 +226,15 @@ public class UserService {
             if (friend == null) {
                 status = -1;
             }
+
+            if (friend != null && friend.isApproved()) {
+                continue;
+            }
+            // 이미 친구인 관계
             UserResDto userResDto = new UserResDto();
+            ChannelTopic topic = onlineService.getOnlineTopic(user.getUserSeq());
+            boolean flag = topic != null;
+            userResDto.setLogin(flag);
             userResDto.setUserSeq(user.getUserSeq());
             userResDto.setEmail(user.getEmail());
             userResDto.setName(user.getName());
@@ -355,6 +365,9 @@ public class UserService {
             }
             User friend_user = (friend.getRequest() == user) ? friend.getTarget() : friend.getRequest();
             UserResDto userResDto = new UserResDto();
+            ChannelTopic topic = onlineService.getOnlineTopic(friend_user.getUserSeq());
+            boolean flag = topic != null;
+            userResDto.setLogin(flag);
             userResDto.setUserSeq(friend_user.getUserSeq());
             userResDto.setEmail(friend_user.getEmail());
             userResDto.setName(friend_user.getName());

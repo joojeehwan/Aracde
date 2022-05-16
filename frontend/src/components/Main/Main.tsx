@@ -157,8 +157,7 @@ function Main() {
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
-      // connectHeaders: { "Authorization": getToken() as string },
-      // disconnectHeaders: { "Authorization": getToken() as string }, // 이것도 안먹어
+
       onConnect: () => {
         subscribe();
       },
