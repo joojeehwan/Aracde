@@ -105,7 +105,7 @@ const MyRoom = () => {
                   </tr>
                   <tr>
                     <th>이 름: </th>
-                    <td>{name}</td>
+                    <td className={styles.gradientText}>{name}</td>
                   </tr>
                 </tbody>
               </table>
