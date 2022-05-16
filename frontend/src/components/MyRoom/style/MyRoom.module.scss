@@ -1,6 +1,8 @@
 .body{
-  background-color: #231557;
-  height: 120vh;
+  background-image: url('../../../assets/roomBackground.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
 }
 .wrapper {
   width: 100%;
@@ -16,15 +18,16 @@
 
 .content {
   padding: 30px;
-  background-color: #7c64d5;
+  // backdrop-filter: brightnesS(120%);
+  // background-color: #ffffff38;
   width: 80%;
   height: 100vh;
   border-radius: 35px;
   font-family: 'neodgm';
   display: flex;
   flex-direction: column;
-  border-color: #333333;
-  border-style: solid;
+  // border-color: #333333;
+  // border-style: solid;
 }
 .profileContent {
   display: flex;
