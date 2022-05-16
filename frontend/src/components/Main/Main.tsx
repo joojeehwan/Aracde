@@ -3,6 +3,8 @@ import styles from './style/Main.module.scss';
 import RoomCreate from './Modal/RoomCreate';
 import Content from './Content';
 import Arrow from '../../assets/next.png';
+import RoomCreateIcon from '../../assets/createRoom.png';
+import RoomEnterIcon from '../../assets/enterRoom.png';
 import { ReactComponent as Users } from '../../assets/users.svg';
 import { ReactComponent as Bell } from '../../assets/bell-ring.svg';
 import ChatIcon from '../../assets/chat.png';
@@ -235,7 +237,7 @@ function Main() {
                       marginRight: '2%',
                       position: "relative",
                     }}
-                    filter="sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+                    filter="invert(100%) sepia(0%) saturate(16%) hue-rotate(231deg) brightness(103%) contrast(106%)"
                   />) :
                 (<Bell
                   className={styles.button}
@@ -248,7 +250,7 @@ function Main() {
                     marginRight: '2%',
                     position: "relative",
                   }}
-                  filter="invert(11%) sepia(100%) saturate(6216%) hue-rotate(280deg) brightness(94%) contrast(116%)"
+                  filter="invert(10%) sepia(100%) saturate(6905%) hue-rotate(281deg) brightness(95%) contrast(114%)"
                 />)
               }
               <Users
@@ -273,11 +275,11 @@ function Main() {
             <p className={styles.glitch} data-text="Arcade">
               Arcade
             </p>
-            <button className={styles.button} onClick={handleOpenCreateRoom}>
-              방 만들기
+            <button className={styles.transButton} onClick={handleOpenCreateRoom}>
+              <img src={RoomCreateIcon} alt="방 만들기 아이콘" />
             </button>
-            <button className={styles.button} onClick={handleEnterRoom}>
-              입장하기
+            <button className={styles.transButton} onClick={handleEnterRoom}>
+            <img src={RoomEnterIcon} alt="입장하기 아이콘" />
             </button>
             {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
           </div>
