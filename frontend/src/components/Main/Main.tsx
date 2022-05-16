@@ -334,25 +334,25 @@ function Main() {
       </div>
       {
         window.localStorage.getItem("token") ? (
-        <button onClick={handleOpenChatting}
-          style={{
-            margin: "20px",
-            position: "fixed",
-            right: "0px",
-            bottom: "0px",
-            backgroundColor: "transparent",
-            border: "none"
-          }}
-        >
-          <img
+          <button onClick={handleOpenChatting}
             style={{
-              width: 60,
-              height: 60,
+              margin: "20px",
+              position: "fixed",
+              right: "0px",
+              bottom: "0px",
+              backgroundColor: "transparent",
+              border: "none"
             }}
-            src={ChatIcon}
-            alt="chatIcon"
-          ></img>
-        </button>) : null
+          >
+            <img
+              style={{
+                width: 60,
+                height: 60,
+              }}
+              src={ChatIcon}
+              alt="chatIcon"
+            ></img>
+          </button>) : null
       }
     </>
   );
