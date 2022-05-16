@@ -25,7 +25,6 @@
   flex-direction: column;
   border-color: #333333;
   border-style: solid;
-;
 }
 .profileContent {
   display: flex;
@@ -71,6 +70,13 @@
 .container {
   height: 25vw;
 }
+.picture {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 .picture img {
   margin-top: 20px;
   height: 200px;
@@ -78,8 +84,4 @@
   border-radius: 10px;
   border-style: solid;
   border-color:#231557;
-  box-shadow: 1.5px 1.5px 1.5px black;
-}
-.picture img:hover {
-  transform: scale(1.05, 1.05);
 }
