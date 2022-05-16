@@ -45,18 +45,10 @@ public class GameController {
 
     @PatchMapping(value="/exit")
     public ResponseEntity<String> exitRoom(@RequestBody RoomReqDto roomReqDto) {
+        gameService.exitGameRoom(roomReqDto.getInviteCode());
+        return new ResponseEntity<>("방 나감 처리 완료", HttpStatus.OK);
+    }
 
-        if (gameService.exitGameRoom(roomReqDto.getInviteCode())){
-            return new ResponseEntity<>("방 닫힘", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("요청 성공", HttpStatus.OK);
-        }
-    }
-    // 친구 초대
-    @PostMapping("/invite")
-    public ResponseEntity<String> inviteFriend(@RequestBody InviteReq inviteReq) {
-        return new ResponseEntity<>(gameService.inviteFriend(inviteReq), HttpStatus.OK);
-    }
 
     /**
      *  Game 관련 Controller

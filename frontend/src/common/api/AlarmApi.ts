@@ -20,6 +20,49 @@ const getAlarmList = async () => {
   return null;
 };
 
+// 친구 알림 보내기
+const sendFreindNoti = async (targetUserSeq: any) => {
+  const token = getToken();
+  if (token !== null) {
+    const result = await axios
+      .post(`${BASE_URL}/sendFriend?targetUserSeq=${targetUserSeq}`, {}, { headers: { Authorization: token } })
+      .then((res) => {
+        return res;
+      })
+      .catch((err) => {
+        console.dir(err);
+        return err;
+      });
+    return result;
+  }
+  return null;
+};
+
+// 게임 초대 알림 보내기
+//게임 초대 
+const sendGameNoti = async (userSeq: any, inviteCode: any, targetUserSeq: any) => {
+  const token = getToken();
+  const body = {
+    inviteCode,
+    userSeq,
+    targetSeq: targetUserSeq
+  };
+  if (token !== null) {
+    console.log(body)
+    const result = await axios.post(`${BASE_URL}/sendGame`, body, { headers: { Authorization: token } })
+      .then((res) => {
+        console.log(res)
+        return res;
+      })
+      .catch((err) => {
+        console.dir(err);
+        return err;
+      });
+    return result;
+  }
+  return null;
+};
+
 
 // 알람 읽음 처리
 // 정리,,,
@@ -57,6 +100,8 @@ const AlarmApi = {
   getAlarmList,
   deleteAlarm,
   postReadAlarm,
+  sendFreindNoti,
+  sendGameNoti,
 };
 
 export default AlarmApi;

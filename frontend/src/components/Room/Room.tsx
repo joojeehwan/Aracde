@@ -4,64 +4,52 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useStore } from "./store";
 import { infoStore } from "../Store/info";
 import RoomContents from "./RoomContents";
+import { toast } from "react-toastify";
 //chat
-import { ReactComponent as Chatt } from '../../assets/Modal/chat.svg';
+import ChatIcon from '../../assets/chat.png';
 import Chatting from "../Modal/Chatting";
 import useSWR from 'swr';
 import { getToken } from '../../../src/common/api/jWT-Token';
 import ChatAPI from '../../common/api/ChatAPI';
-
-// import LoadingSpinner from "../Modals/LoadingSpinner/LoadingSpinner";
-// import RoomApi from "../../api/RoomApi";
-
-// import { ReactComponent as CameraIcon } from "../../assets/icons/camera.svg";
-// import { ReactComponent as GameIcon } from "../../assets/icons/game.svg";
-// import { ReactComponent as RegistMusicIcon } from "../../assets/icons/library.svg";
-// import { ReactComponent as HomeIcon } from "../../assets/icons/home.svg";
-// import { ReactComponent as SongIcon } from "../../assets/icons/microphone.svg";
-
-// import LoginStatusContext from "../../contexts/LoginStatusContext";
-// import NameContext from "../../contexts/NameContext";
-// import VideoMicContext from "../../contexts/VideoMicContext";
-// import RegistMusic from "../Modals/RegistMusic/RegistMusic";
-// import GameList from "../Modals/Game/GameList";
-
-// import Youtube from "../../api/Youtube";
-// import SessionIdContext from "../../contexts/SessionIdContext";
-// import BangZzangContext from "../../contexts/angZzangContext";
-// import KaraokeList from "../Modals/Karaoke/KaraokeList";
-// import RoomContentsGrid from "./RoomContentsGrid";
-
-// const youtube = new Youtube(process.env.REACT_APP_YOUTUBE_API_KEY);
-
+import RoomApi from "../../common/api/Room";
+import OnlineApi from '../../common/api/OnlineApi';
 
 const Room = () => {
-  const { sessionId, setSessionId, clientt } = useStore();
-  // const {nickname, invitecode, setNick} = infoStore();
-  //   const { setLoginStatus } = useContext(LoginStatusContext);
-  //   const { myVMstate } = useContext(VideoMicContext);
-  // const { myName } = useContext(NameContext);
-  // const [myName, setMyName] = useState<string>(nickname);
+  const { sessionId, setSessionId, clientt, mode } = useStore();
+
   const myName = window.localStorage.getItem("nickname");
 
-  const [mode, setMode] = useState("basic");
   const [contentTitle, setContentTitle] = useState("");
-  const [onGameList, setOnGameList] = useState(false);
-  const [onKaraokeList, setOnKaraokeList] = useState(false);
-  const [onRegistMusic, setOnRegistMusic] = useState(false);
-  const [gameId, setGameId] = useState("");
-  const [singMode, setSingMode] = useState(1);
-  const [roomTitle, setRoomTitle] = useState("");
-  //   const { setbangZzang } = useContext(BangZzangContext);
 
-  // const [roomseq, setRoomseq] = useState<string>(invitecode);
   const roomseq = window.localStorage.getItem("invitecode");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
+  const { setOffline, setOnline } = OnlineApi;
   //chat
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
   const { fetchWithToken } = ChatAPI
+
+
+  const {exitRoom} = RoomApi;
+
+  const handleExitRoom = async () => {
+    if(mode !== "home"){
+      toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>게임중에는 방에서 나갈 수 없습니다.</div>, {
+        position: toast.POSITION.TOP_CENTER,
+        role: 'alert',
+      });
+    }
+    else{
+      //const result = await exitRoom(roomseq);
+      //if(result?.status === 200){
+        navigate('/');
+        //toast.success(<div style={{ width: 'inherit', fontSize: '14px' }}>성공적으로 퇴장했습니다!</div>, {
+          //position: toast.POSITION.TOP_CENTER,
+          //role: 'alert',
+        //});
+      //}
+    }
+  }
 
   const handleOpenChatting = useCallback(() => {
     setChattingIsOpen(true);
@@ -81,6 +69,26 @@ const Room = () => {
     }
   }, []);
 
+  const onbeforeunload = (e: any) => {
+    e.preventDefault();
+    setOffline()
+    e.returnValue = '나가실껀가요?';
+    console.log("나가기 전에 실행")
+    setTimeout(() => {
+      setTimeout(() => {
+        console.log("취소 누르면 실행")
+        setOnline()
+      })
+    })
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', onbeforeunload);
+    return () => {
+      window.removeEventListener('beforeunload', onbeforeunload);
+    }
+  }, [])
+
   console.log(clientt)
 
   return (
@@ -88,22 +96,27 @@ const Room = () => {
       {/* {loading ? <LoadingSpinner></LoadingSpinner> : null} */}
       <div className={styles.nav}>
         {
-          window.localStorage.getItem("token") &&
-          <Chatt
-            className={styles.link}
-            onClick={handleOpenChatting}
+          window.localStorage.getItem("token") ? (
+          <button onClick={handleOpenChatting}
             style={{
               margin: "20px",
-              width: 60,
-              height: 60,
               position: "fixed",
               right: "0px",
-              // bottom: "0px"
+              backgroundColor: "transparent",
+              border: "none"
             }}
-            filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-          />
+          >
+            <img
+              style={{
+                width: 60,
+                height: 60,
+              }}
+              src={ChatIcon}
+              alt="chatIcon"
+            ></img>
+          </button>) : null
         }
-        <button className={styles.link}>
+        <button className={styles.link} onClick={handleExitRoom}>
           EXIT
         </button>
       </div>
@@ -123,62 +136,6 @@ const Room = () => {
       {chattingIsOpen ? (
         <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={clientt} />
       ) : null}
-      {/* <div className={styles.dockBar}>
-        <div className={styles.dock}>
-          <HomeIcon
-            width="50"
-            height="50"
-            className={styles.icon}
-            onClick={handleHomeClick}
-          />
-          <CameraIcon
-            width="50"
-            height="50"
-            className={styles.icon}
-            onClick={handleCameraClick}
-          />
-          <GameIcon
-            width="50"
-            height="50"
-            fill="#eee"
-            className={styles.icon}
-            onClick={handleGameList}
-          />
-          <SongIcon
-            width="50"
-            height="50"
-            fill="#eee"
-            onClick={handleKaraokeList}
-            className={styles.icon}
-          />
-          <RegistMusicIcon
-            width="50"
-            height="50"
-            fill="#eee"
-            onClick={handleRegistMusic}
-            className={styles.icon}
-          />
-        </div>
-      </div> */}
-
-      {/* 카메라 기능 */}
-      {/* <CameraIcon onClick={handleCameraClick} /> */}
-      {/* <GameList
-        open={onGameList}
-        onClose={handleModalClose}
-        onChange={handleGameModeChange}
-      />
-      <KaraokeList
-        open={onKaraokeList}
-        onClose={handleModalClose}
-        onChange={handleKaraokeModeChange}
-      />
-      <RegistMusic
-        open={onRegistMusic}
-        onClose={handleModalClose}
-        onSubmit={handleMusicSearch}
-        // onChange={handleModeChange}
-      /> */}
     </div>
   );
 };

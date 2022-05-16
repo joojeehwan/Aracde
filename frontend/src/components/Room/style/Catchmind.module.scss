@@ -1,7 +1,84 @@
 .container{
     position : relative;
 }
+.initBox{
+    width: 60vw;
+    height: 80vh;
+    background-color: black;
+    margin-top: -10vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 10px;
+}
+.parent{
+    width: 60vw;
+    height: 80vh;
+    background-color: white;
+    margin-top: -10vh;
+    border-radius: 10px;
+}
+.wait-page{
+    position: relative;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    color: white;
+    background-color: black;
+}
+.end-page{
+    width: 100%;
+    height: 70vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+.img-box{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.img-box-num{
+    position: absolute;
+    top: 10%;
+    left: 2%;
+}
+.img-box-imgs{
+    width: 95%;
+    height: 50%;
+    object-fit: contain;
+    border: 1px dashed #d7d7d7;
+    border-radius: 5px;
+}
 .toolBox{
+    position: absolute;
+    width: 8vw;
+    height: 35vh;
+    padding: 10px;
+    background-color: white;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    top : 20vh;
+    right : 1vw;
+    filter: drop-shadow(0px 50px 60px rgba(0, 0, 0, 0.15));
+}
+.toolBox-inner{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.toolButton{
     border-radius: 5px;
     height: 5vh;
     background-color: white;
@@ -46,10 +123,11 @@
 }
 .desc{
     font-size : 1.5rem;
-    margin : 0 3vw;
+    margin : 0 auto;
     color : white;
 }
 .desc li{
+    // width: 80%;
     margin-bottom: 4vh;
     // color : yellow;
     &::marker{
@@ -85,6 +163,28 @@
     top : 2vh;
     right : 10px;
     font-size: 1.8rem;
+}
+.lastTime{
+    position: absolute;
+    right: 0;
+    font-size: 2rem;
+    margin-top: 2vh;
+    margin-right: 2vw;
+    // color : black
+}
+.imgTime{
+    position: absolute;
+    right: 0;
+    font-size: 2rem;
+    margin-top: 2vh;
+    margin-right: 2vw;
+    // color : black
+}
+.imgView{
+    width: 100%;
+    height: 80vh;
+    object-fit: cover;
+    border-radius: 10px;
 }
 .submit{
     position : absolute;

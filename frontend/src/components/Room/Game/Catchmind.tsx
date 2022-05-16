@@ -12,7 +12,7 @@ import Undo from '../../../assets/undo.png';
 import { toast } from 'react-toastify';
 
 type MyProps = {
-    initData : {answer : string, id : string, nextId : string} | undefined,
+    initData : {answer : string, id : string, nextId : string, time : number} | undefined,
     user : any
 }
 
@@ -37,6 +37,7 @@ function Catchmind({initData, user} : MyProps) {
     const [allImage, setAllimage] = useState<string[]>([]);
     const [ansFlag, setAnsFlag] = useState<boolean>(false);
     const [end, setEnd] = useState<boolean>(false);
+    const [lastOther, setLastOther] = useState<boolean>(false);
     const [src, setSrc] = useState<string>("");
     const [color, setColor] = useState<string>("#000000");
     const [undoArr, setUndoArr] = useState<any[]>([]);
@@ -409,11 +410,11 @@ function Catchmind({initData, user} : MyProps) {
     }
     useEffect(()=>{
         let countDown : any;
-        if(last){
+        if(lastOther){
             countDown = setInterval(()=>{
                 if(lastTimeRef.current === 0){
                     clearInterval(countDown);
-                    sendAnswer();
+                    if(last) sendAnswer();
                 }
                 else{
                     setLastTime(lastTimeRef.current-1);
@@ -425,7 +426,7 @@ function Catchmind({initData, user} : MyProps) {
             clearInterval(countDown);
             
         }
-    }, [last])
+    }, [lastOther])
 
     useEffect(()=>{
         let countDown : any;
@@ -435,7 +436,7 @@ function Catchmind({initData, user} : MyProps) {
                     clearInterval(countDown);
                     // us
                     setTimeFlag(false);
-                    sendSignal();
+                    if(myTurn) sendSignal();
                 }
                 else{
                     setTime(time-1);
@@ -512,6 +513,9 @@ function Catchmind({initData, user} : MyProps) {
     }, [myTurn, imgStatus, startDraw, draw, exit]);
     
     useEffect(() => {
+        if(initData?.time){
+            setTime(initData.time);
+        }
         if(user.getStreamManager().stream.streamId === initData?.id){
             setFirst(true);
         }
@@ -527,9 +531,9 @@ function Catchmind({initData, user} : MyProps) {
         setTimeout(()=>{
             setInit(true);
             setIdx(1);
+            setTimeFlag(true);
             if(user.getStreamManager().stream.streamId === initData?.id){
                 setMyturn(true);
-                setTimeFlag(true);
             }
             if(user.getStreamManager().stream.streamId === initData?.nextId){
                 setNext(true);
@@ -553,6 +557,7 @@ function Catchmind({initData, user} : MyProps) {
                     setAnswer(response.data.answer);
                     setInputAns(response.data.response);
                     setOpen(true);
+                    setLastOther(false);
                 }
                 else{
                     setEnd(true);
@@ -561,6 +566,7 @@ function Catchmind({initData, user} : MyProps) {
                     setAnswer(response.data.answer);
                     setInputAns(response.data.response);
                     setOpen(true);
+                    setLastOther(false);
                 }
                 
             }
@@ -572,7 +578,6 @@ function Catchmind({initData, user} : MyProps) {
                             console.log("???왜 안됨 제발 제발");
                             setMyturn(true);
                             // setTimeFlag(true);
-                            setImgStatus(true);
                             setSrc(response.data.imageUrl);
                             setNext(false);
                             setIdx(response.data.index);
@@ -582,14 +587,19 @@ function Catchmind({initData, user} : MyProps) {
                         if(response.data.orderStatus === 1) setImLast(true);
                         else setNext(true);
                     }
+                    setTimeFlag(false);
+                    setImgStatus(true);
+                    setImgTime(5);
+                    setTime(response.data.time);
                 }
                 else if(response.data.orderStatus === 2){
                     if(user.getStreamManager().stream.streamId === response.data.curStreamId){
                         setImLast(false);
+                        setLast(true);
                         setIdx(response.data.index);
                         setSrc(response.data.imageUrl);
-                        setLast(true);
                     }
+                    setLastOther(true);
                 }
             }
         });
@@ -599,17 +609,7 @@ function Catchmind({initData, user} : MyProps) {
     return(
         <>
         {init === false ? (
-            <div style={{
-                width : "60vw",
-                height : "80vh",
-                backgroundColor : "black",
-                marginTop : "-10vh",
-                // overflow : "auto",
-                display : "flex",
-                flexDirection : "column",
-                justifyContent : "center",
-                borderRadius : 10
-            }}>
+            <div className={style.initBox}>
                 <h1 style={{color : "white", margin : "4vh auto"}}>캐치마인드 🤔</h1>
                 <ol className={style.desc}>
                     <li>첫 번째 사람은 제시어를 보고 제한시간안에 그림으로 묘사 해주세요</li>
@@ -627,32 +627,15 @@ function Catchmind({initData, user} : MyProps) {
             }}>{startTime}초 후 시작됩니다!</div>
             </div>
         ): (
-            <div id="parent" style={{
-                width : "60vw",
-                height : "80vh",
-                backgroundColor : "white",
-                marginTop : "-10vh",
-                // overflow : "auto",
-                borderRadius : "10px"
-            }}>
+            <div id="parent" className={style.parent}>
             {last === true ? (
                 <div style={{
                     position : "relative"
                 }}>
-                    <div style={{
-                        position : "absolute",
-                        fontSize : "2rem",
-                        right : 0,
-                        marginTop : "2vh",
-                        marginRight : "2vw",
-                        color : "black"
-                    }}>{lastTime}</div>
-                    <img style={{
-                        width : "100%",
-                        height : "80vh",
-                        objectFit : "cover",
-                        borderRadius : "10px"
-                    }} src={src}></img>
+                    <div className={style.lastTime} style={lastTime < 10 ? {color : "red"} : {color : "black"}}>
+                        {lastTime}
+                    </div>
+                    <img className={style.imgView} src={src}></img>
                     <input className={style.answerInputBox}
                     onChange = {handleChangeValue} onKeyDown={handleKeyDownEnter} placeholder="정답을 입력해주세요"></input>
                 </div>
@@ -663,20 +646,8 @@ function Catchmind({initData, user} : MyProps) {
                     <div style={{
                         position : "relative"
                     }}>
-                        <div style={{
-                            position : "absolute",
-                            color : "red",
-                            fontSize : "2rem",
-                            right : 0,
-                            marginTop : "3vh",
-                            marginRight : "2vw"
-                        }}>{imgTime}</div>
-                        <img style={{
-                            width : "100%",
-                            height : "80vh",
-                            objectFit : "cover",
-                            borderRadius : "10px"
-                        }} src={src}></img>
+                        <div className={style.imgTime} style={{color : "red"}}>{imgTime}</div>
+                        <img className={style.imgView} src={src}></img>
                     </div>
                 ) 
                 : (<>
@@ -691,33 +662,13 @@ function Catchmind({initData, user} : MyProps) {
                             } : { color : "black"}}>
                             {time}
                         </div>
-                        <div style={{
-                            position : "absolute",
-                            width : "8vw",
-                            height : "35vh",
-                            padding : "10px",
-                            backgroundColor : "white",
-                            borderRadius : "15px",
-                            display : "flex",
-                            flexDirection : "column",
-                            filter : "drop-shadow(0px 50px 60px rgba(0, 0, 0, 0.15))",
-                        
-                            alignItems : "center",
-                            top : "20vh",
-                            right : "1vw",
-                        }}>
+                        <div className={style.toolBox}>
                             <div style={{border : "5px solid #999999",borderRadius : "99999px", width : "4vw", height : "4vw", margin : "2vh 0", overflow : "hidden"}}>
                                 <input style={{width : "200%", height : "200%", border : "none", transform: "translate(-25%, -25%)"}} type="color" onChange={handleChangeColor} defaultValue={color}></input>
                             </div>
                             {/* <input type="text"></input> */}
-                            <div style={{
-                                width : "100%",
-                                display : "flex",
-                                justifyContent : "center",
-                                alignItems : "center",
-                                marginBottom : "5px"
-                            }}>
-                                <button className={style.toolBox} style={ drawMode ? 
+                            <div className={style["toolBox-inner"]}>
+                                <button className={style.toolButton} style={ drawMode ? 
                                 {
                                     width : "50%",
                                     border : "none",
@@ -732,7 +683,7 @@ function Catchmind({initData, user} : MyProps) {
                                 ><img style={{
                                     width : "inherit"
                                 }}src={Pen}/></button>
-                                <button className={style.toolBox} style={ drawMode ? 
+                                <button className={style.toolButton} style={ drawMode ? 
                                 {
                                     width : "50%",
                                     border : "none",
@@ -748,14 +699,8 @@ function Catchmind({initData, user} : MyProps) {
                                     width : "inherit"
                                 }} src={Eraser}/></button>
                             </div>
-                            <div style={{
-                                width : "100%",
-                                display : "flex",
-                                justifyContent : "center",
-                                alignItems : "center",
-                                marginBottom : "5px"
-                            }}>
-                                <button className={style.toolBox} style={
+                            <div className={style["toolBox-inner"]}>
+                                <button className={style.toolButton} style={
                                     lineWidth[0].flag ? 
                                     {
                                         width : "50%",
@@ -775,7 +720,7 @@ function Catchmind({initData, user} : MyProps) {
                                         value="5"
                                         onClick={handleClickLineWidth}
                                     >5px</button>
-                                <button className={style.toolBox} style={
+                                <button className={style.toolButton} style={
                                     lineWidth[1].flag ? 
                                     {
                                         width : "50%",
@@ -794,13 +739,8 @@ function Catchmind({initData, user} : MyProps) {
                                         onClick={handleClickLineWidth}
                                     >14px</button>
                             </div>
-                            <div style={{
-                                width : "100%",
-                                display : "flex",
-                                justifyContent : "center",
-                                alignItems : "center"
-                            }}>
-                                <button className={style.toolBox} style={
+                            <div className={style["toolBox-inner"]}>
+                                <button className={style.toolButton} style={
                                     lineWidth[2].flag ? 
                                     {
                                         width : "50%",
@@ -817,7 +757,7 @@ function Catchmind({initData, user} : MyProps) {
                                     }}
                                         value="26"
                                         onClick={handleClickLineWidth}>26px</button>
-                                <button className={style.toolBox} style={
+                                <button className={style.toolButton} style={
                                     lineWidth[3].flag ? 
                                     {
                                         width : "50%",
@@ -835,14 +775,8 @@ function Catchmind({initData, user} : MyProps) {
                                         value="42"
                                         onClick={handleClickLineWidth}>42px</button>
                             </div>
-                            <div style={{
-                                width : "100%",
-                                display : "flex",
-                                justifyContent : "center",
-                                alignItems : "center",
-                                marginTop : "5px"
-                            }}>
-                                <button className={style.toolBox} style={ 
+                            <div className={style["toolBox-inner"]}>
+                                <button className={style.toolButton} style={ 
                                 {
                                     width : "50%",
                                     border : "none",
@@ -853,7 +787,7 @@ function Catchmind({initData, user} : MyProps) {
                                 ><img style={{
                                     width : "inherit"
                                 }}src={Undo}/></button>
-                                <button className={style.toolBox} style={ {
+                                <button className={style.toolButton} style={ {
                                     width : "50%",
                                     border : "none",
                                     // margin : "0 10px",
@@ -880,18 +814,13 @@ function Catchmind({initData, user} : MyProps) {
                 : 
                 (<> 
                     {nextTurn === true ? (
-                    <div style={{
-                        borderRadius : "10px",
-                        display : "flex",
-                        flexDirection : "column",
-                        width : "100%",
-                        height : "100%",
-                        justifyContent : "center",
-                        alignItems : "center",
-                        fontSize : "2.5rem",
-                        color : "white",
-                        backgroundColor : "black"
-                    }}>
+                    <div className={style["wait-page"]}>
+                        <div className={style.timer}
+                            style={ time < 10 ? {
+                                color : "red"
+                            } : { color : "white"}}>
+                            {time}
+                        </div>
                         <div>다음 차례 입니다!</div>
                         <div style={{
                             marginTop : "3vh"
@@ -899,29 +828,13 @@ function Catchmind({initData, user} : MyProps) {
                     </div>)
                     : end === true ? (
                     <>
-                        <div style={{
-                            width : "100%",
-                            height : "70vh",
-                            display : "grid",
-                            gridTemplateColumns : "1fr 1fr 1fr",
-                            gridTemplateRows : "1fr 1fr",
-                        }}>
+                        <div className={style["end-page"]}>
                             {allImage.map((v : string, i : number) => {
                                 const idx = i;
                                 return(
-                                    <div key={idx} style={{
-                                        position : "relative",
-                                        display : "flex",
-                                        justifyContent : "center",
-                                        alignItems : "center",
-                                        flexDirection : "column"
-                                    }}>
-                                        <div style={{
-                                            position : "absolute",
-                                            top : "10%",
-                                            left : "2%"
-                                        }}>{idx+1}</div>
-                                        <img id={`image${idx}`} key={idx} src ={`${v}`} style={{width : "95%", height : "50%", objectFit : "contain", border : "1px dashed #d7d7d7", borderRadius : "5px"}}/>
+                                    <div key={idx} className={style["img-box"]}>
+                                        <div className={style["img-box-num"]}>{idx+1}</div>
+                                        <img className={style["img-box-imgs"]} id={`image${idx}`} key={idx} src ={`${v}`}/>
                                         <button className={style.save} onClick={() => handleSaveImg(idx)}>SAVE</button>
                                     </div>
                                 )
@@ -937,36 +850,39 @@ function Catchmind({initData, user} : MyProps) {
                     </>)
                     : last === true ? null 
                     : imLast === true ? (
-                    <div style={{
-                        borderRadius : "10px",
-                        display : "flex",
-                        flexDirection : "column",
-                        width : "100%",
-                        height : "100%",
-                        justifyContent : "center",
-                        alignItems : "center",
-                        fontSize : "2.5rem",
-                        color : "white",
-                        backgroundColor : "black"
-                    }}>
+                    <div className={style["wait-page"]}>
+                    <div className={style.timer}
+                        style={ time < 10 ? {
+                            color : "red"
+                        } : { color : "white"}}>
+                        {time}
+                    </div>
                         <div>당신은 마지막 순서입니다</div>
                         <div style={{
                             marginTop : "3vh"
                         }}> 정답을 맞춰보세요!! 😆 </div>
                     </div>)
                     : (
-                    <div style={{
-                        borderRadius : "10px",
-                        display : "flex",
-                        width : "100%",
-                        height : "100%",
-                        justifyContent : "center",
-                        alignItems : "center",
-                        fontSize : "2.5rem",
-                        color : "white",
-                        backgroundColor : "black"
-                    }}>
-                        잠시만 기다려 주세요...😴
+                    <div className={style["wait-page"]}>
+                    {lastOther ? (<div className={style.timer}
+                        style={ lastTime < 10 ? {
+                            color : "red"
+                        } : { color : "white"}}>
+                        {lastTime}
+                    </div>
+                    ) : (<div className={style.timer}
+                        style={ time < 10 ? {
+                            color : "red"
+                        } : { color : "white"}}>
+                        {time}
+                    </div>
+                    )}
+                    {lastOther ? (
+                    <>
+                        <div>마지막 사람이 정답을 적고 있어요!</div>
+                        <div>기다려 주세요!😎</div>
+                    </>) 
+                    : (<>잠시만 기다려 주세요...😴</>)}
                     </div>)}
                 </>)}
                     

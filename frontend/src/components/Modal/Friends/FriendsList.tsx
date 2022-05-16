@@ -47,8 +47,8 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsList({ name, imgUrl, userSeq, setIsDelete }: any) {
-  const [isOnline, setIsOnline] = useState(true);
+function FriendsList({ name, imgUrl, userSeq, setIsDelete, login }: any) {
+  const [isOnline, setIsOnline] = useState(login);
 
   //api
   const { deleteFriend, getFriendList } = UserApi;
@@ -87,7 +87,21 @@ function FriendsList({ name, imgUrl, userSeq, setIsDelete }: any) {
           </StyledBadgeOffline>
         )}
       </div>
-      <div>{name}</div>
+      <div
+        style={{
+          display: 'block',
+          textAlign: 'left',
+          width: 180,
+        }}
+      >
+        <div
+          style={{
+            marginTop: 5,
+          }}
+        >
+          {name}
+        </div>
+      </div>
       <div>
         <button className={styles.button} onClick={onClickdeleteFriend}>
           친구 삭제
