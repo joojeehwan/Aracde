@@ -2,8 +2,6 @@ import axios from 'axios';
 import { getToken } from './jWT-Token';
 
 const BASE_URL = process.env.REACT_APP_API_ROOT + '/game';
-// const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/game';
-
 
 const createRoom = async () => {
   const response = await axios.post(`${BASE_URL}/room`);
@@ -49,29 +47,7 @@ const getSaveMyFavoriteImageResult = async (data: { userSeq: string | number | n
   else return null;
 }
 
-//게임 초대 
-const postInviteFriendAlarm = async (userSeq: any, inviteCode: any, targetUserSeq: any) => {
-  const token = getToken();
-  const body = {
-    inviteCode,
-    userSeq,
-    targetSeq: targetUserSeq
-  };
-  if (token !== null) {
-    console.log(body)
-    const result = await axios.post(`${BASE_URL}/invite`, body, { headers: { Authorization: token } })
-      .then((res) => {
-        console.log(res)
-        return res;
-      })
-      .catch((err) => {
-        console.dir(err);
-        return err;
-      });
-    return result;
-  }
-  return null;
-};
+
 
 const intoGame = async (userSeq : string | null, code : number) => {
   const token = getToken();
@@ -91,7 +67,6 @@ const RoomApi = {
   enterRoom,
   exitRoom,
   getUploadImageResult,
-  postInviteFriendAlarm,
   getSaveMyFavoriteImageResult,
   intoGame
 };

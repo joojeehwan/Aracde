@@ -15,6 +15,7 @@ public class UserResDto {
     String provider;
     // -1이면 아무관계도 아닌것, 0이면 친구요청만 된 상태,  1이면 친구
     Integer status;
+    boolean login;
 
     @Builder
     public UserResDto(User user) {

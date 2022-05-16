@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useCallback } from 'react';
 import { useState } from 'react';
 import { OpenVidu } from 'openvidu-browser';
 import axios from 'axios';
@@ -21,6 +21,8 @@ import SelectGame from './Game/Modal/SelectGame';
 import Wait from './Game/Modal/Wait';
 import Guess from './Game/Guess';
 import { style } from '@mui/system';
+import Invite from "../../components/Modal/Invite/Invite"
+
 
 const OPENVIDU_SERVER_URL = 'https://k6a203.p.ssafy.io:5443';
 const OPENVIDU_SERVER_SECRET = 'arcade';
@@ -32,10 +34,14 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const navigate = useNavigate();
   //   const { setRoomSnapshotResult } = RoomApi;
   //   const { getImgUploadResult } = ImgApi;
-  const { setSessionId, mode, setMode, myMic, myVideo } = useStore();
+  const { setSessionId, mode, setMode, myMic, myVideo, myTurn, setMyTurn } = useStore();
   //   const { loginStatus, setLoginStatus } = useContext(LoginStatusContext);
   //   const { myName } = useContext(NameContext);
   //console.log(loginStatus, myName);
+
+  const myTurnRef = useRef(myTurn);
+  myTurnRef.current = myTurn;
+
   console.log('room content render');
   const [mySessionId, setMySessionId] = useState<string>(sessionName);
   const [myUserName, setMyUserName] = useState<string>(userName);
@@ -273,10 +279,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
           }
           setMode('game1');
         }
-        if (response.data.gameId === 2 && response.data.gameStatus === 2) {
+        if (response.data.gameId === 2 && response.data.gameStatus === 2 && modeRef.current !== 'game2') {
           console.log('몸으로 말해요 게임 실행');
-          setCharadeData({ answer: response.data.answer, id: response.data.curStreamId, category: response.data.category });
+          setCharadeData({ answer: response.data.answer, id: localUserRef.current.getStreamManager().stream.streamId, category: response.data.category });
           setCurStreamId(response.data.curStreamId);
+          if(localUserRef.current.getStreamManager().stream.streamId === response.data.curStreamId){
+            setMyTurn(true);
+          }
           localUserInit.setAudioActive(false);
           if(window.localStorage.getItem("useSeq")){
             await intoGame(window.localStorage.getItem("useSeq"), 1);
@@ -600,6 +609,24 @@ const RoomContents = ({ sessionName, userName }: any) => {
       });
     });
   };
+
+  //게임 초대 모달
+  const [inviteIsOpen, setInviteIsOpen] = useState<boolean>(false);
+
+  const handleOpenInvite = useCallback(() => {
+    setInviteIsOpen(true);
+  }, [inviteIsOpen]);
+
+  const handleCloseInvite = useCallback(() => {
+    setInviteIsOpen(false);
+  }, [inviteIsOpen]);
+  
+  useEffect(()=>{
+    console.log(myTurnRef.current, "진짜ㅋㅋㅋ");
+  },[myTurn])
+
+
+
   return (
     <div
       style={{
@@ -628,8 +655,19 @@ const RoomContents = ({ sessionName, userName }: any) => {
             detectNick={detectNick}
             camChange={camStatusChanged}
             micChange={micStatusChanged}
-          />
-        ) : (
+          />) : mode === 'game2' ?
+          (
+            <div>
+              <Charade
+                sessionId={mySessionId}
+                sub={subscribersRef.current}
+                user={localUserRef.current}
+                subscribers={subscribers}
+                charadeData={charadeData}
+                curStreamId={curStreamId}
+              />
+            </div>
+        ) :  (
           <div
             className={
               mode === 'home'
@@ -654,22 +692,38 @@ const RoomContents = ({ sessionName, userName }: any) => {
               }
             >
               {localUserRef.current !== undefined &&
-                  localUserRef.current.getStreamManager() !== undefined &&
-                  localUserRef.current.getStreamManager().stream.streamId !== curStreamId && (
-                  <StreamComponent
-                    user={localUserRef.current}
-                    sessionId={mySessionId}
-                    camStatusChanged={camStatusChanged}
-                    micStatusChanged={micStatusChanged}
-                    subscribers={subscribers}
-                    mode={mode}
-                    // openKeywordInputModal={openKeywordInputModal}
-                  />
+                  localUserRef.current.getStreamManager() !== undefined && (
+                  <>
+                    {mode === "game2" 
+                    ? myTurnRef.current ? null 
+                    : (
+                      <StreamComponent
+                      user={localUserRef.current}
+                      sessionId={mySessionId}
+                      camStatusChanged={camStatusChanged}
+                      micStatusChanged={micStatusChanged}
+                      subscribers={subscribers}
+                      mode={mode}
+                      // openKeywordInputModal={openKeywordInputModal}
+                    />
+                    )
+                    : (
+                      <StreamComponent
+                      user={localUserRef.current}
+                      sessionId={mySessionId}
+                      camStatusChanged={camStatusChanged}
+                      micStatusChanged={micStatusChanged}
+                      subscribers={subscribers}
+                      mode={mode}
+                      // openKeywordInputModal={openKeywordInputModal}
+                    />
+                    )}
+                  </>
                 )}
 
                 {subscribersRef.current.map((sub, i) => {
                   return (
-                    sub.getStreamManager().stream.streamId === curStreamId ? null :
+                     
                   <StreamComponent
                     key={i}
                     user={sub}
@@ -688,17 +742,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
           </div>
         )}
         {mode === 'game1' ? <Catchmind initData={catchMindDataRef.current} user={localUserRef.current} /> : null}
-        {mode === 'game2' ? (
-          <div>
-            <Charade
-              sessionId={mySessionId}
-              sub={subscribersRef.current}
-              user={localUserRef.current}
-              subscribers={subscribers}
-              charadeData={charadeData}
-            />
-          </div>
-        ) : null}
         {localUser !== undefined && localUser.getStreamManager() !== undefined && (
           <div
             className={
@@ -784,6 +827,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
                       marginTop: '2%',
                     }}
                     className={styles.inviteFriend}
+                    onClick={handleOpenInvite}
                   >
                     <People
                       style={{
@@ -808,6 +852,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
       </div>
       {open ? <SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame> : null}
       {wait ? <Wait open={wait}></Wait> : null}
+      {inviteIsOpen ? (
+        <Invite open={inviteIsOpen} onClose={handleCloseInvite} />
+      ) : null}
     </div>
   );
 };

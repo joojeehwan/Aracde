@@ -13,10 +13,10 @@ interface MyProps {
 
 function Friends({ open, onClose }: MyProps) {
   const [friend, setFriend] = useState<
-    { userSeq: number; email: string; name: string; image: string; status: number }[]
+    { userSeq: number; email: string; name: string; image: string; status: number; login: boolean }[]
   >([]);
   const [people, setPeople] = useState<
-    { userSeq: number; email: string; name: string; image: string; status: number }[]
+    { userSeq: number; email: string; name: string; image: string; status: number; login: boolean }[]
   >([]);
   const [label, setLabel] = useState([]);
   const [number, setNum] = useState([]);
@@ -45,6 +45,7 @@ function Friends({ open, onClose }: MyProps) {
 
   const getAndgetFriendList = async () => {
     const result = await getFriendList()
+    console.log(result)
     if (result?.status === 200) {
       setFriend([...result.data])
     }
@@ -55,6 +56,7 @@ function Friends({ open, onClose }: MyProps) {
 
   useEffect(() => {
     getAndgetFriendList()
+    setPeople([])
   }, [tab, isDelete])
 
   const rendertab = (value: any) => {
@@ -65,7 +67,7 @@ function Friends({ open, onClose }: MyProps) {
             <div className={styles.friendListContainer}>
               {friend.map((value, i) => {
                 const idx = i;
-                return <FriendsList key={idx} imgUrl={value.image} name={value.name} userSeq={value.userSeq} setIsDelete={setIsDelete} />;
+                return <FriendsList key={idx} imgUrl={value.image} name={value.name} userSeq={value.userSeq} setIsDelete={setIsDelete} login={value.login} />;
               })}
             </div>
           ) : (
@@ -82,6 +84,7 @@ function Friends({ open, onClose }: MyProps) {
                       name={value.name}
                       email={value.email}
                       status={value.status}
+                      login={value.login}
                     />
                   );
                 })}

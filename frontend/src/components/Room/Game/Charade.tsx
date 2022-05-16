@@ -2,12 +2,16 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from '../style/Charade.module.scss';
 import StreamComponent from '../stream/StreamComponent';
 import AlarmIcon from '@mui/icons-material/Alarm';
+import { useStore } from '../store';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Charade = (props: any) => {
+
+  const {myTurn, setMyTurn} = useStore();
   const [answer, setAnswer] = useState<any>('');
   const [streamId, setStreamId] = useState<any>('');
+  const [preId, setPreId] = useState<any>('');
   const [index, setIndex] = useState<any>(1);
   const [category, setCategory] = useState<any>('');
   const categoryAll = ['속담', '영화', '게임', '생물', '캐릭터', '전체'];
@@ -23,6 +27,21 @@ const Charade = (props: any) => {
   const [answerStreamId, setAnswerStreamId] = useState<any>('');
 
   const [gameFlag, setGameFlag] = useState<any>(false);
+
+  const streamIdRef = useRef(streamId);
+  streamIdRef.current = streamId;
+
+  const idxRef = useRef(idx);
+  idxRef.current = idx;
+
+  const presenterRef = useRef(presenter);
+  presenterRef.current = presenter;
+
+  const preIdRef = useRef(preId);
+  preIdRef.current = preId;
+
+  const myTurnRef = useRef(myTurn);
+  myTurnRef.current = myTurn;
 
   const handleChange = (e: any) => {
     setMessage(e.target.value);
@@ -75,7 +94,6 @@ const Charade = (props: any) => {
       timeout: time <= 0 ? 'Y' : 'N',
       keyword: msg,
     };
-
     props.user.getStreamManager().stream.session.signal({
       data: JSON.stringify(gameData),
       type: 'game',
@@ -156,11 +174,19 @@ const Charade = (props: any) => {
   }, [time, timeFlag]);
 
   useEffect(() => {
-    setPresenter(props.charadeData.id);
+    console.log("ㅋㅋㅋㅋ 배하은 바보ㅋㅋ");
+    console.log("진짜ㅋㅋㅋ", props.charadeData.id);
+    setStreamId(props.charadeData.id);
     setAnswer(props.charadeData.answer);
     setCategory(props.charadeData.category);
-    setStreamId(props.user.getStreamManager().stream.streamId);
-
+    
+    if(props.curStreamId === props.user.getStreamManager().stream.streamId){
+      setPresenter(props.user.getStreamManager().stream.streamId);
+    }
+    else{
+      setPresenter("undefined");
+      setPreId(props.curStreamId);
+    }
     let array = [];
     array.push({
       streamId: props.user.getStreamManager().stream.streamId,
@@ -176,12 +202,18 @@ const Charade = (props: any) => {
     }
 
     setUserData(array);
-    for (let i = 0; i < props.sub.length; i++) {
-      if (streamId === props.sub[i].getStreamManager().stream.streamId) {
-        setIdx(i);
+
+  }, []);
+  useEffect(()=>{
+    if(presenterRef.current === "undefined"){
+      console.log("개씨발", preIdRef.current);
+      for (let i = 0; i < props.sub.length; i++) {
+        if (preIdRef.current === props.sub[i].getStreamManager().stream.streamId) {
+          setIdx(i);
+        }
       }
     }
-  }, []);
+  }, [presenter]);
 
   useEffect(() => {
     props.user.getStreamManager().stream.session.on('signal:game', (response: any) => {
@@ -198,9 +230,27 @@ const Charade = (props: any) => {
           if (response.data.timeout === 'Y') {
             if (response.data.finishYN === 'N') {
               console.log('시간 초과');
+              if(myTurnRef.current) {
+                console.log("진짜ㅋㅋㅋㅋ 내 차례때 여기 되야함ㅋㅋㅋ");
+                setMyTurn(false);
+              }
+                if(props.user.getStreamManager().stream.streamId !== response.data.curStreamId){
+                props.sub.map((v : any,i : number) => {
+                 const nexidx = i;
+                 if(v.getStreamManager().stream.streamId === response.data.curStreamId){
+                   setIdx(nexidx);
+                   setPresenter("");
+                  //  setPresenter("undefined");
+                  //  setPreId(v.getStreamManager().stream.streamId);
+                  }
+               })
+             }
+             else{
+               setMyTurn(true);
+               setPresenter(response.data.curStreamId);
+             }
               setIndex(response.data.index);
               setAnswer(response.data.answer);
-              setPresenter(response.data.curStreamId);
               setTime(60);
               return;
             }
@@ -220,8 +270,31 @@ const Charade = (props: any) => {
               console.log('맞췄어');
               sendMessage('정답입니다', props.user.getNickname());
               setIndex(response.data.index);
+              console.log("여기가 정답 맞췄을때 내 차례였으면 true", myTurnRef.current);
+              if(myTurnRef.current) {
+                console.log("들어와라 제발");
+                console.log("진짜 씨발ㅋㅋㅋㅋ");
+                setMyTurn(false);
+              }
+              console.log(streamId, "진짜ㅋㅋㅋ 재밌네ㅋㅋㅋ", props.user.getStreamManager().stream.streamId, "ㅋㅋㅋ", response.data.curStreamId);
+              if(props.user.getStreamManager().stream.streamId !== response.data.curStreamId){
+                props.sub.map((v : any,i : number) => {
+                 const nexidx = i;
+                 if(v.getStreamManager().stream.streamId === response.data.curStreamId){
+                    console.log("진짜ㅋㅋㅋㅋㅋㅋ 다른 사람임");
+                    setIdx(nexidx);
+                    setPresenter("");
+                  //  setPreId(v.getStreamManager().stream.streamId);
+                  }
+               })
+             }
+             else{
+               console.log("내차례임");
+               setMyTurn(true);
+               setPresenter(response.data.curStreamId);
+             }
+              //setPresenter(response.data.curStreamId);
               setAnswer(response.data.answer);
-              setPresenter(response.data.curStreamId);
               setAnswerStreamId(response.data.answerStreamId);
               setTime(60);
               return;
@@ -245,16 +318,79 @@ const Charade = (props: any) => {
       }
     });
   }, []);
+  
+  useEffect(()=>{
+    console.log("진짜 제발ㅋㅋㅋ 되라고 좀", myTurnRef.current);
+  },[myTurn])
 
   useEffect(() => {
     setScore();
   });
   return (
     <>
+        <div style={{
+      display : "flex"
+    }}>
+        <div
+            className={`${styles['user-videos-container']} ${styles.charade}`}
+          >
+            <div
+              id="user-video"
+              className={`${styles['video-container']} ${styles.charade}`}
+            >
+               {myTurnRef.current ? (
+                    <>
+                    {props.sub.map((v : any, i : number) => {
+                      const curidx = i;
+                      console.log(v);
+                        return (
+                          <StreamComponent
+                          key={curidx}
+                          user={v}
+                          subscribers={props.sub}
+                          nickname={v.getNickname()}
+                          />)
+                      
+                      })}
+                      </>
+
+               ) :  
+                    (
+                      <>
+                      <StreamComponent
+                      user={props.user}
+                      sessionId={props.sessionId}
+                      subscribers={props.sub}
+                      />
+                      {props.sub.map((v : any, i : number) => {
+                        const curidx = i;
+                        console.log(v);
+                        if(idxRef.current !== curidx){
+                          console.log(presenterRef.current, "진짜ㅋㅋㅋ 여기가 제발 되지 마라고");
+                          return (
+                            <StreamComponent
+                            key={curidx}
+                            user={v}
+                            subscribers={props.sub}
+                            //  mode={mode}
+                            nickname={v.getNickname()}
+                            />)
+                        
+                        }
+                        })}
+                        </>
+                  )}
+  
+                
+
+            </div>
+          </div>
       <div className={styles.body}>
         <div className={styles.wrapper}>
           <div className={styles.hintWrapper}>{getHint(`${answer}`)}</div>
-          <input type="text" value={`카테고리 : ${categoryAll[category]} `} className={styles.category} disabled></input>
+          <input style={{
+            height : 40
+          }} type="text" value={`카테고리 : ${categoryAll[category]} `} className={styles.category} disabled></input>
           <div className={styles.video}>
             <span className={styles.round}>
               Round {index} / {userData.length}
@@ -262,13 +398,13 @@ const Charade = (props: any) => {
             <span className={styles.alarm}>
               <AlarmIcon fontSize="large" /> {time}
             </span>
-            {streamId === presenter ? (
+            {streamIdRef.current === presenterRef.current ? (
               <StreamComponent sessionId={props.sessionId} user={props.user} subscribers={props.subscribers} />
             ) : (
               <StreamComponent
-                sessionId={props.sessionId}
-                user={props.sub[idx]}
-                targetSubscriber={props.targetSubscriber}
+                // sessionId={props.sessionId}
+                
+                user={props.sub[idxRef.current]}
                 subscribers={props.subscribers}
               />
             )}
@@ -295,6 +431,7 @@ const Charade = (props: any) => {
             <h3>{getScore()}</h3>
           </div>
         </div>
+      </div>
       </div>
     </>
   );
