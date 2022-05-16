@@ -38,12 +38,10 @@ function Main() {
   const [alarmsIsOpen, setAlarmsIsOpen] = useState<boolean>(false);
   const [friendsIsOpen, setFriendsIsOpen] = useState<boolean>(false);
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
-  const [isBell, setIsBell] = useState(false)
+  const [isBell, setIsBell] = useState(false);
   //swr & api
   const { setOffline, setOnline } = OnlineApi;
   const { postReadAlarm, getAlarmList } = AlarmApi;
-
-
 
   const { setInviteCode } = infoStore();
   const client = useRef<any>({});
@@ -89,7 +87,7 @@ function Main() {
   };
   const handleEnterRoom = (e: React.MouseEvent) => {
     // navigate 시켜줘야함 -> 방 입장 설정 페이지
-    setInviteCode("")
+    setInviteCode('');
     navigate('/entrance');
   };
 
@@ -144,12 +142,11 @@ function Main() {
   };
 
   const connect = () => {
-
     // setOnlie();
     client.current = new StompJs.Client({
       brokerURL: 'wss://k6a203.p.ssafy.io/socket', // 웹소켓 서버로 직접 접속
       debug: function (str) {
-        console.log(str)
+        console.log(str);
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
@@ -189,9 +186,9 @@ function Main() {
     });
   };
   const bellSound = () => {
-    let audio = new Audio(alarmSound)
-    audio.play()
-  }
+    let audio = new Audio(alarmSound);
+    audio.play();
+  };
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
@@ -211,23 +208,23 @@ function Main() {
   //정리! 온/오프라인을 이렇게 해결?!
   const onbeforeunload = (e: any) => {
     e.preventDefault();
-    setOffline()
+    setOffline();
     e.returnValue = '나가실껀가요?';
-    console.log("나가기 전에 실행")
+    console.log('나가기 전에 실행');
     setTimeout(() => {
       setTimeout(() => {
-        console.log("취소 누르면 실행")
-        setOnline()
-      })
-    })
-  }
+        console.log('취소 누르면 실행');
+        setOnline();
+      });
+    });
+  };
 
   useEffect(() => {
     window.addEventListener('beforeunload', onbeforeunload);
     return () => {
       window.removeEventListener('beforeunload', onbeforeunload);
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <>
@@ -237,34 +234,35 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
-              {isBell === false ?
-                (
-                  <Bell
-                    className={styles.button}
-                    onClick={handleOpenAlarms}
-                    style={{
-                      width: 30,
-                      height: 28,
-                      float: 'right',
-                      marginTop: '2%',
-                      marginRight: '2%',
-                      position: "relative",
-                    }}
-                    filter="invert(100%) sepia(0%) saturate(16%) hue-rotate(231deg) brightness(103%) contrast(106%)"
-                  />) :
-                (<Bell
-                  className={isBell ? `${styles.button} ${styles.shake}` : styles.button} onClick={handleOpenAlarms}
+              {isBell === false ? (
+                <Bell
+                  className={styles.button}
+                  onClick={handleOpenAlarms}
+                  style={{
+                    width: 30,
+                    height: 28,
+                    float: 'right',
+                    marginTop: '2%',
+                    marginRight: '2%',
+                    position: 'relative',
+                  }}
+                  filter="invert(100%) sepia(0%) saturate(16%) hue-rotate(231deg) brightness(103%) contrast(106%)"
+                />
+              ) : (
+                <Bell
+                  className={isBell ? `${styles.button} ${styles.shake}` : styles.button}
+                  onClick={handleOpenAlarms}
                   style={{
                     width: 28,
                     height: 28,
                     float: 'right',
                     marginTop: '2%',
                     marginRight: '2%',
-                    position: "relative",
+                    position: 'relative',
                   }}
                   filter="invert(10%) sepia(100%) saturate(6905%) hue-rotate(281deg) brightness(95%) contrast(114%)"
-                />)
-              }
+                />
+              )}
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}
@@ -329,32 +327,31 @@ function Main() {
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
         {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
-        {chattingIsOpen ? (
-          <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
-        ) : null}
+        {chattingIsOpen ? <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} /> : null}
       </div>
-      {
-        window.localStorage.getItem("token") ? (
-          <button onClick={handleOpenChatting}
+      {window.localStorage.getItem('token') ? (
+        <button
+          onClick={handleOpenChatting}
+          style={{
+            margin: '20px',
+            position: 'fixed',
+            right: '0px',
+            bottom: '0px',
+            backgroundColor: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          <img
             style={{
-              margin: "20px",
-              position: "fixed",
-              right: "0px",
-              bottom: "0px",
-              backgroundColor: "transparent",
-              border: "none"
+              width: 60,
+              height: 60,
             }}
-          >
-            <img
-              style={{
-                width: 60,
-                height: 60,
-              }}
-              src={ChatIcon}
-              alt="chatIcon"
-            ></img>
-          </button>) : null
-      }
+            src={ChatIcon}
+            alt="chatIcon"
+          ></img>
+        </button>
+      ) : null}
     </>
   );
 }
