@@ -12,6 +12,7 @@ import useSWR from 'swr';
 import { getToken } from '../../../src/common/api/jWT-Token';
 import ChatAPI from '../../common/api/ChatAPI';
 import RoomApi from "../../common/api/Room";
+import OnlineApi from '../../common/api/OnlineApi';
 
 const Room = () => {
   const { sessionId, setSessionId, clientt, mode } = useStore();
@@ -23,7 +24,7 @@ const Room = () => {
   const roomseq = window.localStorage.getItem("invitecode");
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-
+  const { setOffline, setOnline } = OnlineApi;
   //chat
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
   const { fetchWithToken } = ChatAPI
@@ -68,6 +69,26 @@ const Room = () => {
     }
   }, []);
 
+  const onbeforeunload = (e: any) => {
+    e.preventDefault();
+    setOffline()
+    e.returnValue = '나가실껀가요?';
+    console.log("나가기 전에 실행")
+    setTimeout(() => {
+      setTimeout(() => {
+        console.log("취소 누르면 실행")
+        setOnline()
+      })
+    })
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', onbeforeunload);
+    return () => {
+      window.removeEventListener('beforeunload', onbeforeunload);
+    }
+  }, [])
+
   console.log(clientt)
 
   return (
@@ -93,7 +114,7 @@ const Room = () => {
               src={ChatIcon}
               alt="chatIcon"
             ></img>
-          </button>) : null  
+          </button>) : null
         }
         <button className={styles.link} onClick={handleExitRoom}>
           EXIT

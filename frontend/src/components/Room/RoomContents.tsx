@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useCallback } from 'react';
 import { useState } from 'react';
 import { OpenVidu } from 'openvidu-browser';
 import axios from 'axios';
@@ -21,6 +21,8 @@ import SelectGame from './Game/Modal/SelectGame';
 import Wait from './Game/Modal/Wait';
 import Guess from './Game/Guess';
 import { style } from '@mui/system';
+import Invite from "../../components/Modal/Invite/Invite"
+
 
 const OPENVIDU_SERVER_URL = 'https://k6a203.p.ssafy.io:5443';
 const OPENVIDU_SERVER_SECRET = 'arcade';
@@ -600,6 +602,19 @@ const RoomContents = ({ sessionName, userName }: any) => {
       });
     });
   };
+
+  //게임 초대 모달
+  const [inviteIsOpen, setInviteIsOpen] = useState<boolean>(false);
+
+  const handleOpenInvite = useCallback(() => {
+    setInviteIsOpen(true);
+  }, [inviteIsOpen]);
+
+  const handleCloseInvite = useCallback(() => {
+    setInviteIsOpen(false);
+  }, [inviteIsOpen]);
+
+
   return (
     <div
       style={{
@@ -782,6 +797,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
                       marginTop: '2%',
                     }}
                     className={styles.inviteFriend}
+                    onClick={handleOpenInvite}
                   >
                     <People
                       style={{
@@ -806,6 +822,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
       </div>
       {open ? <SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame> : null}
       {wait ? <Wait open={wait}></Wait> : null}
+      {inviteIsOpen ? (
+        <Invite open={inviteIsOpen} onClose={handleCloseInvite} />
+      ) : null}
     </div>
   );
 };

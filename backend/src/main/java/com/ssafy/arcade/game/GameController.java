@@ -48,11 +48,7 @@ public class GameController {
         gameService.exitGameRoom(roomReqDto.getInviteCode());
         return new ResponseEntity<>("방 나감 처리 완료", HttpStatus.OK);
     }
-    // 친구 초대
-    @PostMapping("/invite")
-    public ResponseEntity<String> inviteFriend(@RequestBody InviteReq inviteReq) {
-        return new ResponseEntity<>(gameService.inviteFriend(inviteReq), HttpStatus.OK);
-    }
+
 
     /**
      *  Game 관련 Controller

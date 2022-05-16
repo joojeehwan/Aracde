@@ -27,7 +27,7 @@ function ChatInput({ publish, onChangeChat, chat }: Props) {
   return (
     <div className={styles.sendMessage}>
       <form className={styles.form} >
-        <textarea style={{ overflow: "hidden" }} ref={textareaRef} onKeyPress={onKeydownChat} className={styles.inputMessage} placeholder="enter the message" onChange={onChangeChat} value={chat} />
+        <textarea style={{ overflow: "hidden", resize: "none" }} ref={textareaRef} onKeyPress={onKeydownChat} className={styles.inputMessage} placeholder="enter the message" onChange={onChangeChat} value={chat} />
         <button type="button" className={styles.sendButton} onClick={publish}>
           전송
         </button>

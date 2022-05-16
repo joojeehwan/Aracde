@@ -9,8 +9,6 @@ import ChatIcon from '../../assets/chat.png';
 import { useNavigate } from 'react-router-dom';
 import Alarms from '../Modal/Alarms/Alarms';
 import Friends from '../Modal/Friends/Friends';
-import Invite from '../Modal/Invite/Invite';
-import useSWR from 'swr';
 import OnlineApi from '../../common/api/OnlineApi';
 import ChatAPI from '../../common/api/ChatAPI';
 import AlarmApi from '../../common/api/AlarmApi';
@@ -23,8 +21,8 @@ import { getToken } from '../../common/api/jWT-Token';
 import { WindowSharp } from '@mui/icons-material';
 import alarmSound from '../../mp3/alram.mp3';
 
-import { useStore } from "../../../src/components/Room/store";
-import { infoStore } from "../../../src/components/Store/info"
+import { useStore } from '../../../src/components/Room/store';
+import { infoStore } from '../../../src/components/Store/info';
 
 function Main() {
   const [open, setOpen] = useState<boolean>(false);
@@ -40,19 +38,16 @@ function Main() {
   const [chattingIsOpen, setChattingIsOpen] = useState<boolean>(false);
   const [isBell, setIsBell] = useState(false)
   //swr & api
-  const { fetchWithToken } = ChatAPI;
-  const { setOnlie, setOffline } = OnlineApi;
+  const { setOffline, setOnline } = OnlineApi;
   const { postReadAlarm, getAlarmList } = AlarmApi;
 
-  useEffect(() => {
-    console.log(clientt, "클라이언트 티티!")
-  }, [clientt])
 
-  const { setInviteCode } = infoStore()
+
+  const { setInviteCode } = infoStore();
   const client = useRef<any>({});
   const handleOpenAlarms = useCallback(async () => {
     // 무조건 무조건이야 알람 흰색 변화
-    setIsBell(false)
+    setIsBell(false);
     setAlarmsIsOpen(true);
     // 모든 알람을 읽었다.
     postReadAlarm();
@@ -99,6 +94,7 @@ function Main() {
   const handleClickLogout = (e: React.MouseEvent) => {
     // 여기서 로그아웃 api 추가
     disconnect();
+    setOffline();
     setIsLogin(false);
     deleteToken();
   };
@@ -111,7 +107,7 @@ function Main() {
 
   const handleClickMyPage = (e: React.MouseEvent) => {
     // navigate mypage here
-    navigate('/myroom')
+    navigate('/myroom');
   };
 
   //바로 위로 스므스하게 올라감
@@ -133,18 +129,17 @@ function Main() {
   //정리
   const getAndgetAlarmList = async () => {
     // 단순히 내가 확인하지 않은 알림이 있는지 없는지만 검사.
-    const result = await getAlarmList()
-    const checkAlarm: any[] = result.data
-    // 객체 오브젝트안에 내가 찾고자 하는 값을 구별해내는 js 
-    let flaginUnreads: boolean = checkAlarm.some(it => it.confirm === false)
+    const result = await getAlarmList();
+    const checkAlarm: any[] = result.data;
+    // 객체 오브젝트안에 내가 찾고자 하는 값을 구별해내는 js
+    let flaginUnreads: boolean = checkAlarm.some((it) => it.confirm === false);
 
     if (flaginUnreads === true) {
-      setIsBell(true)
+      setIsBell(true);
     } else {
-      setIsBell(false)
+      setIsBell(false);
     }
-
-  }
+  };
 
   const connect = () => {
 
@@ -157,23 +152,21 @@ function Main() {
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
+
       onConnect: () => {
         subscribe();
       },
       onStompError: (frame) => {
         console.error(frame);
       },
-
     });
     client.current.activate();
   };
 
   const disconnect = async () => {
-
     await setOffline();
     // clientRef.current.deactivate();
     client.current.deactivate();
-
   };
 
   if (typeof WebSocket !== 'function') {
@@ -185,34 +178,54 @@ function Main() {
     };
   }
 
-  const subscribe = () => {
+  const subscribe = async () => {
+    await setOnline();
     client.current.subscribe('/sub/' + window.localStorage.getItem('userSeq'), ({ body }: any) => {
       // 데이터 받자마자 빨간색 처리
-      setIsBell(true)
-      bellSound()
+      setIsBell(true);
+      bellSound();
     });
   };
   const bellSound = () => {
     let audio = new Audio(alarmSound)
-
     audio.play()
   }
 
   useEffect(() => {
     if (window.localStorage.getItem('token')) {
-      setOnlie();
+      setOnline();
       connect();
-      setClientt(client)
+      setClientt(client);
       setIsLogin(true);
-      getAndgetAlarmList()
+      getAndgetAlarmList();
     }
     return () => {
-
       // back에서 없어지나 test
       // disconnect()
       // window.removeEventListener("unload", disconnect);
     };
   }, []);
+
+  //정리! 온/오프라인을 이렇게 해결?!
+  const onbeforeunload = (e: any) => {
+    e.preventDefault();
+    setOffline()
+    e.returnValue = '나가실껀가요?';
+    console.log("나가기 전에 실행")
+    setTimeout(() => {
+      setTimeout(() => {
+        console.log("취소 누르면 실행")
+        setOnline()
+      })
+    })
+  }
+
+  useEffect(() => {
+    window.addEventListener('beforeunload', onbeforeunload);
+    return () => {
+      window.removeEventListener('beforeunload', onbeforeunload);
+    }
+  }, [])
 
   return (
     <>
@@ -222,23 +235,23 @@ function Main() {
             <>
               <button onClick={handleClickLogout}>LOGOUT</button>
               <button onClick={handleClickMyPage}>MYPAGE</button>
-              {isBell === false ?
-                (
-                  <Bell
-                    className={styles.button}
-                    onClick={handleOpenAlarms}
-                    style={{
-                      width: 30,
-                      height: 28,
-                      float: 'right',
-                      marginTop: '2%',
-                      marginRight: '2%',
-                      position: "relative",
-                    }}
-                    filter="sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
-                  />) :
-                (<Bell
+              {isBell === false ? (
+                <Bell
                   className={styles.button}
+                  onClick={handleOpenAlarms}
+                  style={{
+                    width: 30,
+                    height: 28,
+                    float: 'right',
+                    marginTop: '2%',
+                    marginRight: '2%',
+                    position: 'relative',
+                  }}
+                  filter="invert(100%) sepia(17%) saturate(9%) hue-rotate(133deg) brightness(102%) contrast(103%)"
+                />
+              ) : (
+                <Bell
+                  className={isBell ? `${styles.button} ${styles.shake}` : styles.button}
                   onClick={handleOpenAlarms}
                   style={{
                     width: 28,
@@ -246,11 +259,11 @@ function Main() {
                     float: 'right',
                     marginTop: '2%',
                     marginRight: '2%',
-                    position: "relative",
+                    position: 'relative',
                   }}
                   filter="invert(11%) sepia(100%) saturate(6216%) hue-rotate(280deg) brightness(94%) contrast(116%)"
-                />)
-              }
+                />
+              )}
               <Users
                 className={styles.button}
                 onClick={handleOpensFriends}
@@ -313,9 +326,7 @@ function Main() {
           </div>
         </div>
         {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
-        {alarmsIsOpen ? (
-          <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} />
-        ) : null}
+        {alarmsIsOpen ? <Alarms open={alarmsIsOpen} onClose={handleCloseAlarms} client={client} /> : null}
         {friendsIsOpen ? <Friends open={friendsIsOpen} onClose={handleCloseFriends} /> : null}
         {chattingIsOpen ? (
           <Chatting open={chattingIsOpen} onClose={handleCloseChatting} client={client} />
@@ -341,7 +352,7 @@ function Main() {
             src={ChatIcon}
             alt="chatIcon"
           ></img>
-        </button>) : null     
+        </button>) : null
       }
     </>
   );
