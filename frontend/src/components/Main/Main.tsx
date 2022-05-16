@@ -253,8 +253,7 @@ function Main() {
                     filter="invert(100%) sepia(0%) saturate(16%) hue-rotate(231deg) brightness(103%) contrast(106%)"
                   />) :
                 (<Bell
-                  className={styles.button}
-                  onClick={handleOpenAlarms}
+                  className={isBell ? `${styles.button} ${styles.shake}` : styles.button} onClick={handleOpenAlarms}
                   style={{
                     width: 28,
                     height: 28,
@@ -292,7 +291,7 @@ function Main() {
               <img src={RoomCreateIcon} alt="방 만들기 아이콘" />
             </button>
             <button className={styles.transButton} onClick={handleEnterRoom}>
-            <img src={RoomEnterIcon} alt="입장하기 아이콘" />
+              <img src={RoomEnterIcon} alt="입장하기 아이콘" />
             </button>
             {open ? <RoomCreate open={open} onClose={handleCloseCreateRoom} /> : null}
           </div>
