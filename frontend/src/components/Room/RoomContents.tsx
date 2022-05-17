@@ -803,38 +803,17 @@ const RoomContents = ({ sessionName, userName }: any) => {
                   </button>
 
                   <div
-                    style={{
-                      // gridColumn: '1 / span 2',
-                      marginBottom: '2%',
-                      display: 'flex',
-                    }}
+                    className={styles.codeBlock}
+                    onClick={handleCopy}
                   >
                     <button
-                      style={{
-                        backgroundColor: '#38C502',
-                        border: 'none',
-                        borderRadius: '5px 0px 0px 5px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                      }}
-                      onClick={handleCopy}
                       className={styles.codePaste}
                     >
-                      <img src={Link} style={{ width: '100%', height: '50%' }}></img>
+                      <img src={Link} style={{ width: '48px'}}></img>
                     </button>
                     <div
                       id="code"
-                      style={{
-                        width: '100%',
-                        backgroundColor: '#C4C4C4',
-                        borderRadius: '0px 5px 5px 0px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        fontSize: 30,
-                      }}
+                      className={styles.codeText}
                     >
                       {window.localStorage.getItem('invitecode')}
                     </div>

@@ -375,7 +375,7 @@ const Chat = (props: any) => {
               autoComplete="off"
               style={{ fontSize: '17px' }}
             />
-            <div className={styles.sendIcon}>
+            <div className={styles.sendIcon} onClick={sendMessage}>
               <img className={styles.sendButton} src={SendIcon} alt="sendIcon"></img>
             </div>
           </div>
