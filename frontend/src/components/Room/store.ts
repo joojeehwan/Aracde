@@ -11,6 +11,8 @@ export const useStore = create<{
     setMyMic : (payload : boolean) => void;
     myVideo : boolean;
     setMyVideo : (payload : boolean) => void;
+    myTurn : boolean;
+    setMyTurn : (payload : boolean) => void;
   }>((set) => ({
   sessionId: '',
   setSessionId: (payload: any) => set((state) => ({ sessionId: payload })),
@@ -21,5 +23,7 @@ export const useStore = create<{
   myMic : false,
   setMyMic : (payload : boolean) => set((state) => ({myMic : payload})),
   myVideo : false,
-  setMyVideo : (payload : boolean) => set((state) => ({myVideo : payload}))
+  setMyVideo : (payload : boolean) => set((state) => ({myVideo : payload})),
+  myTurn : false,
+  setMyTurn : (payload : boolean) => set((state) => ({myTurn : payload}))
 }));

@@ -33,10 +33,14 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const navigate = useNavigate();
   //   const { setRoomSnapshotResult } = RoomApi;
   //   const { getImgUploadResult } = ImgApi;
-  const { setSessionId, mode, setMode, myMic, myVideo } = useStore();
+  const { setSessionId, mode, setMode, myMic, myVideo, myTurn, setMyTurn } = useStore();
   //   const { loginStatus, setLoginStatus } = useContext(LoginStatusContext);
   //   const { myName } = useContext(NameContext);
   //console.log(loginStatus, myName);
+
+  const myTurnRef = useRef(myTurn);
+  myTurnRef.current = myTurn;
+
   console.log('room content render');
   const [mySessionId, setMySessionId] = useState<string>(sessionName);
   const [myUserName, setMyUserName] = useState<string>(userName);
@@ -276,10 +280,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
           console.log('몸으로 말해요 게임 실행');
           setCharadeData({
             answer: response.data.answer,
-            id: response.data.curStreamId,
+            id: localUserRef.current.getStreamManager().stream.streamId,
             category: response.data.category,
           });
           setCurStreamId(response.data.curStreamId);
+          if (localUserRef.current.getStreamManager().stream.streamId === response.data.curStreamId) {
+            setMyTurn(true);
+          }
           localUserInit.setAudioActive(false);
           if (window.localStorage.getItem('userSeq')) {
             await intoGame(window.localStorage.getItem('userSeq'), 1);
@@ -467,6 +474,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
     }
   };
 
+  const micMuted = () => {
+    localUserInit.setAudioActive(false);
+    localUserInit.getStreamManager().publishAudio(localUserInit.isAudioActive());
+    sendSignalUserChanged({ isAudioActive: localUserInit.isAudioActive() });
+    setLocalUser(localUserInit);
+  };
+
   const handleVoiceFilter = () => {
     const filterList = [0.65, 2.0];
     const type = 'GStreamerFilter';
@@ -618,6 +632,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
     setInviteIsOpen(false);
   }, [inviteIsOpen]);
 
+  useEffect(() => {
+    console.log(myTurnRef.current, '진짜ㅋㅋㅋ');
+  }, [myTurn]);
+
   return (
     <div
       style={{
@@ -647,6 +665,20 @@ const RoomContents = ({ sessionName, userName }: any) => {
             camChange={camStatusChanged}
             micChange={micStatusChanged}
           />
+        ) : mode === 'game2' ? (
+          <div>
+            <Charade
+              sessionId={mySessionId}
+              sub={subscribersRef.current}
+              user={localUserRef.current}
+              subscribers={subscribers}
+              charadeData={charadeData}
+              curStreamId={curStreamId}
+              camChange={camStatusChanged}
+              micChange={micStatusChanged}
+              micMuted={micMuted}
+            />
+          </div>
         ) : (
           <div
             className={
@@ -671,20 +703,33 @@ const RoomContents = ({ sessionName, userName }: any) => {
                   : styles['video-container']
               }
             >
-              {localUserRef.current !== undefined &&
-                localUserRef.current.getStreamManager() !== undefined &&
-                localUserRef.current.getStreamManager().stream.streamId !== curStreamId &&
-                mode !== 'game2' && (
-                  <StreamComponent
-                    user={localUserRef.current}
-                    sessionId={mySessionId}
-                    camStatusChanged={camStatusChanged}
-                    micStatusChanged={micStatusChanged}
-                    subscribers={subscribers}
-                    mode={mode}
-                    // openKeywordInputModal={openKeywordInputModal}
-                  />
-                )}
+              {localUserRef.current !== undefined && localUserRef.current.getStreamManager() !== undefined && (
+                <>
+                  {mode === 'game2' ? (
+                    myTurnRef.current ? null : (
+                      <StreamComponent
+                        user={localUserRef.current}
+                        sessionId={mySessionId}
+                        camStatusChanged={camStatusChanged}
+                        micStatusChanged={micStatusChanged}
+                        subscribers={subscribers}
+                        mode={mode}
+                        // openKeywordInputModal={openKeywordInputModal}
+                      />
+                    )
+                  ) : (
+                    <StreamComponent
+                      user={localUserRef.current}
+                      sessionId={mySessionId}
+                      camStatusChanged={camStatusChanged}
+                      micStatusChanged={micStatusChanged}
+                      subscribers={subscribers}
+                      mode={mode}
+                      // openKeywordInputModal={openKeywordInputModal}
+                    />
+                  )}
+                </>
+              )}
 
               {subscribersRef.current.map((sub, i) => {
                 return (
@@ -698,6 +743,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
                     correctNickname={correctNickname}
                     // sirenWingWing={sirenWingWing}
                     correctPeopleName={correctPeopleName}
+                    camStatusChanged={camStatusChanged}
+                    micStatusChanged={micStatusChanged}
                   />
                 );
               })}
@@ -705,17 +752,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
           </div>
         )}
         {mode === 'game1' ? <Catchmind initData={catchMindDataRef.current} user={localUserRef.current} /> : null}
-        {mode === 'game2' ? (
-          <div>
-            <Charade
-              sessionId={mySessionId}
-              sub={subscribersRef.current}
-              user={localUserRef.current}
-              subscribers={subscribers}
-              charadeData={charadeData}
-            />
-          </div>
-        ) : null}
         {localUser !== undefined && localUser.getStreamManager() !== undefined && (
           <div
             className={
