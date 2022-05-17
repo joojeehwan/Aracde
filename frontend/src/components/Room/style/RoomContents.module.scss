@@ -183,6 +183,20 @@ $green: #38c502;
   font-size: 50px;
 }
 
+.exitGame {
+  position : absolute;
+  top : -79vh;
+  right : -5vw;
+  width: 8vw;
+  height : 5vh;
+  background-color: #FF2E63;
+  &:hover{
+    background-color: rgba($color: #FF2E63, $alpha: 0.7);
+  }
+}
+
+
+
 .codePaste {
   background-color: #38c502;
   border: none;

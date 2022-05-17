@@ -2,6 +2,7 @@ import axios from 'axios';
 import { getToken } from './jWT-Token';
 
 const BASE_URL = process.env.REACT_APP_API_ROOT + '/game';
+// const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/game';
 
 const createRoom = async () => {
   const response = await axios.post(`${BASE_URL}/room`);
@@ -56,9 +57,25 @@ const intoGame = async (userSeq: string | null, code: number) => {
       codeIdx: code,
     };
     const result = await axios.patch(`${BASE_URL}/init`, body, { headers: { Authorization: token } });
+    console.log(result, "게임 시작");
     return result;
   }
 };
+
+const winGame = async (userSeq : string | null, code : number) => {
+  const token = getToken();
+  if(userSeq !== null && token !== null){
+    const user = +userSeq;
+    const body = {
+      userSeq : user,
+      codeIdx : code
+    };
+    const result = await axios.patch(`${BASE_URL}/win`, body, {headers: {Authorization : token}});
+    console.log(result, "게임 이김");
+    return result;
+  }
+}
+
 
 const RoomApi = {
   createRoom,
@@ -67,6 +84,7 @@ const RoomApi = {
   getUploadImageResult,
   getSaveMyFavoriteImageResult,
   intoGame,
+  winGame
 };
 
 export default RoomApi;

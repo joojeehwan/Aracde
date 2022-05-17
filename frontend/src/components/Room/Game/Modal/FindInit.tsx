@@ -76,14 +76,14 @@ function FindInit({ open, imDetect, nick }: MyProps) {
                   alignItems : "center",
                   flexDirection : "column",
                 }}>
-                  <div>범인을 찾아라!👮‍♀️</div>
+                  <div>너의 목소리가 들려!🦻</div>
                   <ol>
                     <li>정답을 맞추는 사람을 제외한 나머지 <br></br>사람은 10초간 자기소개 시간을 갖습니다</li>
                     <li>나머지 사람들은 캠이 모두 꺼진 상태이며, 목소리는 변조된 상태입니다</li>
                     <li>모든 사람의 소개가 종료되면 1분간 자유 토론을 진행합니다</li>
                     <li>정답을 맞추는 사람은 자유토론이 종료된 후 지정된 사람의 캠을 유추해서 클릭하세요!</li>
                   </ol>
-                  <div>당신은 범인 일까요? 아닐까요?</div>
+                  <div>당신 일까요? 아닐까요?</div>
                   <div style={{
                     marginTop : 25
                   }}>{timeRef.current}후 시작됩니다!</div>

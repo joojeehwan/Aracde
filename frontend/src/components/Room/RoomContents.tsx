@@ -249,10 +249,11 @@ const RoomContents = ({ sessionName, userName }: any) => {
             nextId: response.data.nextStreamId,
             time: response.data.time,
           });
-          if (window.localStorage.getItem('useSeq')) {
-            await intoGame(window.localStorage.getItem('useSeq'), 0);
+          if (window.localStorage.getItem('userSeq')) {
+            await intoGame(window.localStorage.getItem('userSeq'), 0);
           }
           setMode('game1');
+          return;
         }
         if (
           response.data.gameId === 1 &&
@@ -266,8 +267,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
             nextId: response.data.nextStreamId,
             time: response.data.time,
           });
-          if (window.localStorage.getItem('useSeq')) {
-            await intoGame(window.localStorage.getItem('useSeq'), 0);
+          if (window.localStorage.getItem('userSeq')) {
+            await intoGame(window.localStorage.getItem('userSeq'), 0);
           }
           setMode('game1');
         }
@@ -280,8 +281,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
           });
           setCurStreamId(response.data.curStreamId);
           localUserInit.setAudioActive(false);
-          if (window.localStorage.getItem('useSeq')) {
-            await intoGame(window.localStorage.getItem('useSeq'), 1);
+          if (window.localStorage.getItem('userSeq')) {
+            await intoGame(window.localStorage.getItem('userSeq'), 1);
           }
           setMode('game2');
         }
@@ -311,8 +312,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
             setFirstSpeak(response.data.curStreamId);
             setImPerson(response.data.suspectStreamId);
             setFindsub(curUsers);
-            if (window.localStorage.getItem('useSeq')) {
-              await intoGame(window.localStorage.getItem('useSeq'), 2);
+            if (window.localStorage.getItem('userSeq')) {
+              await intoGame(window.localStorage.getItem('userSeq'), 2);
             }
             setMode('game3');
           }
@@ -467,7 +468,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   };
 
   const handleVoiceFilter = () => {
-    const filterList = [0.4, 2.0];
+    const filterList = [0.65, 2.0];
     const type = 'GStreamerFilter';
     const rnum = Math.floor(Math.random() * filterList.length);
 
