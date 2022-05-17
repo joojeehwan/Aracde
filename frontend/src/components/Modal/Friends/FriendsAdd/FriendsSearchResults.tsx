@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
@@ -47,18 +47,23 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
 function FriendsSearchResults({ seq, name, email, imgUrl, status, login }: any) {
   const [isOnline, setIsOnline] = useState(login);
   const [curStatus, setCurStatus] = useState<number>(status);
+  const [imClick, setImClick] = useState<boolean>(false);
+
+  const curStatusRef = useRef(curStatus);
+  curStatusRef.current = curStatus;
 
   const { getAddFriendRequestResult } = UserApi;
   const { sendFreindNoti } = AlarmApi
 
+
   const onClickAddFriends = async (seq: any) => {
     const result = await getAddFriendRequestResult(seq);
     if (result?.status === 200) {
-      setCurStatus(0);
+      setImClick(true);
     }
     await sendFreindNoti(seq);
   };
-
+  
   return (
     <div
       style={{
@@ -111,12 +116,19 @@ function FriendsSearchResults({ seq, name, email, imgUrl, status, login }: any) 
         </div>
       </div>
       <div>
-        {curStatus === 0 ? (
-          <button className={styles.buttonYocheong}>요청됨</button>
-        ) : (
-          <button className={styles.button} onClick={() => onClickAddFriends(seq)}>
-            친구 추가
-          </button>
+        {imClick ? (<button className={styles.buttonYocheong}>요청됨</button>) : (
+          <>
+            {curStatusRef.current === 0 ? (
+              <button className={styles.buttonYocheong}>요청됨</button>
+            ) : (
+              <button className={styles.button} onClick={() => onClickAddFriends(seq)}>
+                친구 추가
+              </button>
+            )}          
+          </>
+
+
+
         )}
       </div>
     </div>
