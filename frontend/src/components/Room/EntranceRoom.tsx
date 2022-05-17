@@ -11,6 +11,7 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import VideocamOffIcon from '@mui/icons-material/VideocamOff';
 import RoomApi from '../../common/api/Room';
 import { infoStore } from "../../components/Store/info"
+import CharacterIcon from "../../assets/movingCharacter.gif"
 const CreateRoom = () => {
   const navigate = useNavigate();
 
@@ -70,9 +71,25 @@ const CreateRoom = () => {
       <div className={styles.body}>
         <Navbar />
         <div className={styles.wrapper}>
-          <h1 className={styles.header}>
-            <img src="../src/assets/character.png" alt="" /> 방 입장
-          </h1>
+          <div className={styles.header}>
+            <img 
+              style={{ 
+                width: 50,
+                height: 50,
+                marginRight: 30,
+                }} 
+              src={CharacterIcon} alt="움직이는 캐릭터" /> 
+            <div>
+              방 입장
+            </div>
+            <img 
+            style={{ 
+              width: 50,
+              height: 50,
+              marginLeft: 30
+            }}
+            src={CharacterIcon} alt="움직이는 캐릭터" />
+          </div>
           <div className={styles.content}>
             <div className={styles.preferences}>
               <div className={styles.camera}>
@@ -152,10 +169,10 @@ const CreateRoom = () => {
                 )}
               </div>
             </div>
-            <div>
+            <div className={styles.controlPanel}>
               <div className={styles.form}>
                 <div className={styles.nickname}>
-                  <label style={{ width: '40%' }} htmlFor="nickname">
+                  <label htmlFor="nickname">
                     닉네임
                   </label>
                   <input
@@ -164,47 +181,32 @@ const CreateRoom = () => {
                     autoFocus
                     value={nickname}
                     onChange={handleNickname}
-                    className={styles.gray}
+                    className={styles.inputArea}
                   ></input>
                 </div>
 
                 <div className={styles.code}>
                   <label htmlFor="inviteCode">초대코드</label>
-                  <input type="text" id="inviteCode" value={code} onChange={handleCode} className={styles.gray}></input>
+                  <input 
+                    type="text" 
+                    id="inviteCode" 
+                    value={code} 
+                    onChange={handleCode} 
+                    className={styles.inputArea}
+                  ></input>
                 </div>
               </div>
-
-              <div className={styles.button}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  sx={{
-                    width: '40%',
-                    height: '10%',
-                    fontSize: '32px',
-                    m: 2,
-                    p: 1,
-                    fontFamily: 'neodgm',
-                  }}
-                  onClick={handleEnter}
-                >
+              <div className={styles.buttonSet}>
+                <button 
+                  className={styles.buttonEnter}
+                  onClick={handleEnter}>
                   입장!
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  sx={{
-                    width: '40%',
-                    height: '10%',
-                    fontSize: '32px',
-                    m: 2,
-                    p: 1,
-                    fontFamily: 'neodgm',
-                  }}
-                  onClick={handleCancel}
-                >
+                </button>
+                <button 
+                  className={styles.buttonCancle}
+                  onClick={handleCancel}>
                   취소
-                </Button>
+                </button>
               </div>
             </div>
           </div>
