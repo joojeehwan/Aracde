@@ -47,6 +47,7 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
 }));
 
 function ChattingLists({
+  isShow,
   name,
   content,
   time,
@@ -153,7 +154,21 @@ function ChattingLists({
     <div
       id="trigger"
       className={styles.onFocus}
-      style={{ display: 'flex', cursor: 'pointer', marginBottom: '20px', width: '250px' }}
+      style={
+        isShow ? {
+          position : "relative", 
+          display: 'flex', 
+          cursor: 'pointer', 
+          marginBottom: '20px', 
+          width: '250px' 
+        }  : 
+        { 
+          position : "relative", 
+          display: 'flex', 
+          cursor: 'pointer', 
+          marginBottom: '20px', 
+          width: '100%' 
+        }}
       onClick={() => {
         subscribeDef();
         enterChattingRoom();
@@ -180,14 +195,18 @@ function ChattingLists({
           </StyledBadgeOffline>
         )}
       </div>
-      <div style={{ maxWidth: '90px' }}>
-        <div style={{ marginTop: '10px', paddingRight: '30px', marginLeft: '10px' }}>{name}</div>
+      <div style={isShow ? { maxWidth: '130px' } : {maxWidth : '250px'}}>
+        <div style={{ marginTop: '10px', marginLeft: '10px',
+        paddingRight: '30px',
+        overflow: "hidden",
+        whiteSpace : "nowrap",
+        textOverflow: "ellipsis"}}>{name}</div>
         <span className={styles.lastMessage} style={{ color: '#B6A7A7', marginLeft: '10px', marginTop: '5px' }}>
           {lastMessage}
         </span>
       </div>
       <div>
-        <div style={{ position: 'absolute', marginLeft: '-1px' }}>
+        <div style={{ position: 'absolute', right : 0 }}>
           {time === null ? null : (
             <div style={{ fontSize: '15px', color: '#B6A7A7' }}>{dayjs(newTime).format('MM월DD일 h:mm A')}</div>
           )}

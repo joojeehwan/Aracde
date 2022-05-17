@@ -185,6 +185,7 @@ function Chatting({ open, onClose, client }: any) {
                   chatList?.map((section: any) => {
                     return (
                       <ChattingLists
+                        isShow = {isShow}
                         setIsShow={setIsShow}
                         chat={chat}
                         scrollbarRef={scrollbarRef}

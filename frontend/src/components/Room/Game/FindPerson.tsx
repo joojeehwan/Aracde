@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from '../style/RoomContents.module.scss';
+import RoomApi from "../../../common/api/Room";
 import StreamComponent from "../stream/StreamComponent";
 import FindInit from "./Modal/FindInit";
 import FirstStep from "./Modal/FirstStep";
@@ -47,6 +48,9 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const [isAns, setIsAns] = useState<boolean>(false);
     const [chance, setChance] = useState<number>();
     const [exit, setExit] = useState<boolean>(false);
+
+    const {winGame} = RoomApi;
+
 
     const nowRef = useRef(now);
     nowRef.current = now;
@@ -142,9 +146,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 setChance(2);
             }
         }, 10000);
-        my.getStreamManager().stream.session.on("signal:game", (response : any) => {
-            console.log(response.data, "여긴 게임 안이에용~~~~~~");
-            console.log(response.data.answerYN, "여긴 씨발");
+        my.getStreamManager().stream.session.on("signal:game", async (response : any) => {
             setIdx(response.data.index);
             if(response.data.answerYN !== undefined){
                 console.log("여긴 들어오는 거니?? in answer");
@@ -159,6 +161,11 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                     if(my.getStreamManager().stream.streamId === response.data.startStreamId){
                         setExit(true);
                     }
+                    if(my.getStreamManager().stream.streamId !== detect){
+                        if(window.localStorage.getItem('userSeq')){
+                            await winGame(window.localStorage.getItem('userSeq'), 2);
+                        }
+                    }
                     setLastCheck(false);
                     setChance(0);
                     setEnd(true);
@@ -169,6 +176,12 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 else if(response.data.answerYN === 0){
                     if(my.getStreamManager().stream.streamId === response.data.startStreamId){
                         setExit(true);
+                    }
+                    
+                    if(my.getStreamManager().stream.streamId === detect){
+                        if(window.localStorage.getItem('userSeq')){
+                            await winGame(window.localStorage.getItem('userSeq'), 2);
+                        }
                     }
                     setLastCheck(false);
                     setChance(0);
@@ -654,7 +667,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                         borderRadius : "10px"
                     }}>
                     <div>
-                        범인은 누구일까요?
+                        누굴 찾아야 할까요?
                     </div>
                     </div>
                 )}

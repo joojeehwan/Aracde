@@ -59,7 +59,7 @@ function Catchmind({initData, user} : MyProps) {
     const [drawMode, setDrawMode] = useState<boolean>(false);
     
 
-    const {getUploadImageResult, getSaveMyFavoriteImageResult} = RoomApi;
+    const {getUploadImageResult, getSaveMyFavoriteImageResult, winGame} = RoomApi;
 
     const undoArrRef = useRef(undoArr);
     undoArrRef.current = undoArr;
@@ -539,7 +539,7 @@ function Catchmind({initData, user} : MyProps) {
                 setNext(true);
             }
         }, 10000);
-        user.getStreamManager().stream.session.on("signal:game", (response : any) => {
+        user.getStreamManager().stream.session.on("signal:game", async (response : any) => {
             console.log(response.data, "여긴 게임 안이에요");
             //console.log(user.getStreamManager().stream.streamId, user.getStreamManager().stream.streamId === response.data.curStreamId);
             if(response.data.gameStatus === 3) return;
@@ -550,6 +550,9 @@ function Catchmind({initData, user} : MyProps) {
                     setImStart(true);
                 }
                 if(response.data.answerYn === 'Y') {
+                    if(window.localStorage.getItem('userSeq')){
+                        await winGame(window.localStorage.getItem('userSeq'), 0);
+                    }
                     setAnsFlag(true);
                     setEnd(true);
                     setAllimage([...imagesrc]);
