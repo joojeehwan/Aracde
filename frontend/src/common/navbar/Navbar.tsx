@@ -10,7 +10,11 @@ const Navbar = () => {
     navigate(`/`);
   }
 
-  return <div className={styles.NavbarContainer} onClick={handleGotoMain}>Arcade</div>;
+  return <div className={styles.NavbarContainer} >
+    <button className={styles.NavbarLogoBox}
+    onClick={handleGotoMain}
+    ><h3 className={styles.NavbarLogo}>Arcade</h3></button>
+  </div>;
 };
 
 export default Navbar;
