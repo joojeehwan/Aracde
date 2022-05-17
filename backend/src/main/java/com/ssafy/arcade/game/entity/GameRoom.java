@@ -25,12 +25,12 @@ public class GameRoom extends BaseTimeEntity {
     @Column(nullable = false)
     private Integer currentMember;
     // 삭제 여부
-    @Column
-    private boolean isDel;
-
-    public void deleteRoom() {
-        this.isDel = true;
-    }
+//    @Column
+//    private boolean isDel;
+//
+//    public void deleteRoom() {
+//        this.isDel = true;
+//    }
 
     public void addMember() {
         this.currentMember++;

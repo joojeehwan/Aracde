@@ -1,6 +1,7 @@
 package com.ssafy.arcade.notification;
 
 import com.ssafy.arcade.common.RedisPublisher;
+import com.ssafy.arcade.game.request.InviteReq;
 import com.ssafy.arcade.notification.dtos.NotiDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,16 @@ public class NotiController {
     @GetMapping
     public ResponseEntity<List<NotiDTO>> getNotification(@RequestHeader("Authorization") String token) {
         return new ResponseEntity<>(notiService.getNotification(token), HttpStatus.OK);
+    }
+    // 친구 알림 보내기
+    @PostMapping("/sendFriend")
+    public ResponseEntity<String> sendFriendNotification(@RequestHeader("Authorization") String token, @RequestParam("targetUserSeq") Long targetUserSeq) {
+        return new ResponseEntity<>(notiService.sendFriendNotification(token,targetUserSeq), HttpStatus.OK);
+    }
+    // 게임 알림 보내기
+    @PostMapping("/sendGame")
+    public ResponseEntity<String> sendGameNotification(@RequestBody InviteReq inviteReq) {
+        return new ResponseEntity<>(notiService.sendGameNotification(inviteReq), HttpStatus.OK);
     }
     // 알림 읽음 처리
     @PostMapping

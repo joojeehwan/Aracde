@@ -5,7 +5,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import loadable from '@loadable/component';
 import { ToastContainer } from 'react-toastify';
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
-import OnlineApi from '../src/common/api/OnlineApi';
 
 const Main = loadable(() => import('./components/Main/Main'));
 const Login = loadable(() => import('./components/Login/mainLogin'));
@@ -18,18 +17,6 @@ const Room = loadable(() => import('./components/Room/Room'));
 
 function App() {
 
-  const { setOffline } = OnlineApi;
-  const offline = async () => {
-    await setOffline()
-    // 새로고침이나 창을 닫을 때 실행
-
-  }
-  useEffect(() => {
-    window.addEventListener("unload", offline)
-    return () => {
-      window.removeEventListener("unload", offline);
-    }
-  }, []);
   return (
     <>
       <BrowserRouter>

@@ -4,6 +4,7 @@ import Char from '../../../assets/character.png';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import {infoStore} from '../../Store/info';
+import {useStore} from '../../Room/store';
 import RoomApi from '../../../common/api/Room';
 
 type MyProps = {
@@ -16,6 +17,7 @@ function RoomCreate({ open, onClose }: MyProps) {
   const navigate = useNavigate();
 
   const {setNick, setInviteCode} = infoStore();
+  const {setMyMic, setMyVideo} = useStore();
   const {createRoom} = RoomApi;
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -33,6 +35,8 @@ function RoomCreate({ open, onClose }: MyProps) {
       if(result.status === 200){
         setNick(nick);
         setInviteCode(result.data.inviteCode);
+        setMyMic(true);
+        setMyVideo(true);
         window.localStorage.setItem("nickname", nick);
         window.localStorage.setItem("invitecode", result.data.inviteCode);
         navigate('/room');
