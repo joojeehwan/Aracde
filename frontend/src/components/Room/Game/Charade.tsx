@@ -14,7 +14,7 @@ const Charade = (props: any) => {
   const [preId, setPreId] = useState<any>('');
   const [index, setIndex] = useState<any>(1);
   const [category, setCategory] = useState<any>('');
-  const categoryAll = ['속담', '영화', '게임', '생물', '캐릭터', '노래', '전체'];
+  const categoryAll = ['속담', '영화', '게임', '생물', '직업', '운동', '전체'];
 
   const [time, setTime] = useState<any>(60);
   const [timeFlag, setTimeFlag] = useState<any>(false);

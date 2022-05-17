@@ -36,7 +36,7 @@ $green: #38c502;
 }
 .user-videos-container.catchmind {
   width: 15vw;
-  height: 90%;
+  height: 75%;
   margin-left: 5vw;
   margin-right: 3vw;
 }
@@ -111,7 +111,7 @@ $green: #38c502;
 }
 
 .selectGame {
-  background-color: #f3c522;
+  background: linear-gradient(to right, #f3c522, #FF7936);
   color: white;
   border: none;
   font-weight: 900;
@@ -120,14 +120,9 @@ $green: #38c502;
   transition: all 150ms linear;
 
   &:hover {
-    background: darken($yellow, 1.5%);
-    border: 1px solid rgba(#000, 0.05);
-    box-shadow: 1px 1px 2px rgba(#fff, 0.2);
-    color: lighten($yellow, 18%);
-    text-decoration: none;
-    text-shadow: -1px -1px 0 darken($yellow, 9.5%);
-    transition: all 250ms linear;
+    animation: changing_color 2s ease-in-out infinite;
   }
+  background-size: 400% 100%;
 }
 
 .selectGame img {
@@ -136,8 +131,7 @@ $green: #38c502;
 }
 
 .selectGame:hover img {
-  opacity: 0.2;
-  transform: scale(1.25);
+  animation: zoomin_zoomout 2s ease-in-out infinite;
 }
 
 .infoGame {
@@ -146,30 +140,23 @@ $green: #38c502;
   border: none;
   border-radius: 5px;
 }
+
 .inviteFriend {
-  background-color: #4cc3ff;
+  background: linear-gradient(to right, #4cc3ff, #0250C5);
   color: white;
   border: none;
   border-radius: 5px;
-  border: 1px solid darken($blue, 4%);
   font-weight: 900;
   letter-spacing: 1px;
   transition: all 150ms linear;
 
   &:hover {
-    background: darken($blue, 1.5%);
-    border: 1px solid rgba(#000, 0.05);
-    box-shadow: 1px 1px 2px rgba(#fff, 0.2);
-    color: lighten($blue, 18%);
-    text-decoration: none;
-    text-shadow: -1px -1px 0 darken($blue, 9.5%);
-    transition: all 250ms linear;
+    animation: changing_color 2s ease-in-out infinite;
     & .inviteSVG {
-      opacity: 0.2;
-      transform: scale(1.25);
-      transition: all 0.25s linear;
+      animation: zoomin_zoomout 2s ease-in-out infinite;
     }
   }
+  background-size: 400% 100%;
 }
 
 .countContainer {
@@ -195,13 +182,36 @@ $green: #38c502;
   }
 }
 
+.codeBlock {
+  margin-bottom: 2%;
+  display: flex;
+  cursor: pointer;
+  &:hover{
+    & .codeText {
+      transition: all 300ms linear;
+      background-color: #38c502;
+      color: white;
+    }
+    & img {
+      animation: zoomin_zoomout 2s ease-in-out infinite;
+    }
+  }
+}
+
 
 
 .codePaste {
+  cursor: pointer;
   background-color: #38c502;
   border: none;
   border-radius: 5px;
   transition: all 150ms linear;
+  width: 25%;
+  border: none;
+  border-radius: 5px 0px 0px 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .codePaste img {
@@ -209,7 +219,32 @@ $green: #38c502;
   transition: all 0.25s linear;
 }
 
-.codePaste:hover img {
-  opacity: 0.2;
-  transform: scale(1.25);
+.codeText {
+  width: 75%;
+  background-color: #C4C4C4;
+  border-radius: 0px 5px 5px 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+}
+
+@keyframes changing_color {
+  0%,100% {
+      background-position: 0 0;
+  }
+
+  50% {
+      background-position: 100% 0;
+  }
+}
+
+@keyframes zoomin_zoomout {
+  0%,100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.25);
+  }
 }

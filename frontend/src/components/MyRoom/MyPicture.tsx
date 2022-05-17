@@ -25,7 +25,7 @@ function MyPicture({ pictures } : pictureProps) {
           slideShadows: false,
         }}
         pagination={{
-          clickable: true
+          type: "fraction",
         }}
         modules={[EffectCoverflow, Pagination]}
         className="mySwiper"
