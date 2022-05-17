@@ -344,8 +344,8 @@ const Charade = (props: any) => {
                       user={v}
                       subscribers={props.sub}
                       nickname={v.getNickname()}
-                      camStatusChanged={props.camStatusChanged()}
-                      micStatusChanged={props.micStatusChanged()}
+                      camStatusChanged={props.camChange()}
+                      micStatusChanged={props.micChange()}
                     />
                   );
                 })}
@@ -365,8 +365,8 @@ const Charade = (props: any) => {
                         subscribers={props.sub}
                         //  mode={mode}
                         nickname={v.getNickname()}
-                        camStatusChanged={props.camStatusChanged()}
-                        micStatusChanged={props.micStatusChanged()}
+                        camStatusChanged={props.camChange()}
+                        micStatusChanged={props.micChange()}
                       />
                     );
                   }
@@ -399,7 +399,7 @@ const Charade = (props: any) => {
                   sessionId={props.sessionId}
                   user={props.user}
                   subscribers={props.subscribers}
-                  camStatusChanged={props.camStatusChanged()}
+                  camStatusChanged={props.camChange()}
                   micMuted={props.micMuted()}
                 />
               ) : (
@@ -407,7 +407,7 @@ const Charade = (props: any) => {
                   // sessionId={props.sessionId}
                   user={props.sub[idxRef.current]}
                   subscribers={props.subscribers}
-                  camStatusChanged={props.camStatusChanged()}
+                  camStatusChanged={props.camChange()}
                   micMuted={props.micMuted()}
                 />
               )}
