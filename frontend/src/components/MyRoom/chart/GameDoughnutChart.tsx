@@ -15,7 +15,7 @@ type profileProps = {
 }
   
 function DoughnutChart({gameCnt, totalGame} : profileProps) {
-    const [label, setLabel] = useState<String[]>(['캐치마인드', '몸으로 말해요', '범인을 찾아라', 'Up & Down'])
+    const [label, setLabel] = useState<String[]>(['캐치마인드', '몸으로 말해요', '범인을 찾아라'])
 
     const data = {
       labels: label,
@@ -39,7 +39,7 @@ function DoughnutChart({gameCnt, totalGame} : profileProps) {
             'rgba(75, 192, 192, 1)',
           ],
           borderWidth: 1.5,
-          hoverOffset: 4,
+          // hoverOffset: 2,
         }
       ]
     }
