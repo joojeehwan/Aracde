@@ -5,6 +5,7 @@ import AlarmIcon from '@mui/icons-material/Alarm';
 import { useStore } from '../store';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { QrCodeScannerOutlined } from '@mui/icons-material';
 
 const Charade = (props: any) => {
   const { myTurn, setMyTurn } = useStore();
@@ -27,6 +28,10 @@ const Charade = (props: any) => {
 
   const [gameFlag, setGameFlag] = useState<any>(false);
 
+  const [host, setHost] = useState<any>('');
+
+  const [endFlag, setEndFlag] = useState<any>(false);
+
   const streamIdRef = useRef(streamId);
   streamIdRef.current = streamId;
 
@@ -41,6 +46,15 @@ const Charade = (props: any) => {
 
   const myTurnRef = useRef(myTurn);
   myTurnRef.current = myTurn;
+
+  const hostRef = useRef(host);
+  hostRef.current = hostRef;
+
+  const messageRef = useRef(message);
+  messageRef.current = message;
+
+  const endFlagRef = useRef(endFlag);
+  endFlagRef.current = endFlag;
 
   const handleChange = (e: any) => {
     setMessage(e.target.value);
@@ -127,10 +141,30 @@ const Charade = (props: any) => {
       gameStatus: 3,
       gameId: 2,
     };
-    await props.user.getStreamManager().stream.session.signal({
-      type: 'game',
-      data: JSON.stringify(data),
-    });
+    if (streamIdRef.current === host) {
+      await props.user.getStreamManager().stream.session.signal({
+        type: 'game',
+        data: JSON.stringify(data),
+      });
+    } else {
+      toast.error(
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ width: 'inherit', fontSize: '14px' }}>게임을 시작한 사람만</div>
+          <div style={{ width: 'inherit', fontSize: '14px' }}>클릭 가능합니다.</div>
+        </div>,
+        {
+          position: toast.POSITION.TOP_CENTER,
+          role: 'alert',
+        },
+      );
+    }
   };
 
   const sendCountdown = () => {
@@ -147,11 +181,14 @@ const Charade = (props: any) => {
   };
 
   useEffect(() => {
-    toast('5초 후 몸으로 말해요 게임을 시작하겠습니다.');
+    toast('5초 후 몸으로 말해요 게임을 시작하겠습니다.', {
+      position: toast.POSITION.TOP_CENTER,
+      role: 'alert',
+    });
     setTimeout(() => {
       setGameFlag(true);
       setTimeFlag(true);
-    }, 5000);
+    }, 10000);
     return () => {
       clearTimeout();
     };
@@ -254,6 +291,8 @@ const Charade = (props: any) => {
               setTime(60);
               setGameFlag(false);
               setTimeFlag(false);
+              setEndFlag(true);
+              setHost(response.data.startSteamId);
               return;
             }
           }
@@ -262,7 +301,12 @@ const Charade = (props: any) => {
             // 문제를 맞췄을 때
             if (response.data.answerYN === 'Y' && response.data.finishYN === 'N') {
               console.log('맞췄어');
-              sendMessage('정답입니다', props.user.getNickname());
+              if (streamIdRef.current === response.data.answerStreamId) {
+                sendMessage(
+                  `${props.user.getNickname()}님 ${response.data.keyword} 정답입니다`,
+                  props.user.getNickname(),
+                );
+              }
               setIndex(response.data.index);
               console.log('여기가 정답 맞췄을때 내 차례였으면 true', myTurnRef.current);
               if (myTurnRef.current) {
@@ -299,11 +343,20 @@ const Charade = (props: any) => {
             }
             // 문제를 맞췄는데 모든 게임이 끝났을 때
             else if (response.data.answerYN === 'Y' && response.data.finishYN === 'Y') {
-              sendMessage('게임이 끝났습니다.', props.user.getNickname());
+              console.log('맞췄어');
+              if (streamIdRef.current === response.data.answerStreamId) {
+                sendMessage(
+                  `${props.user.getNickname()}님 ${response.data.keyword} 정답입니다`,
+                  props.user.getNickname(),
+                );
+                sendMessage('게임이 끝났습니다.', props.user.getNickname());
+              }
               setAnswerStreamId(response.data.answerStreamId);
               setTime(60);
               setGameFlag(false);
               setTimeFlag(false);
+              setEndFlag(true);
+              setHost(response.data.startSteamId);
               return;
             }
             // 문제를 틀렸을 때
@@ -400,6 +453,15 @@ const Charade = (props: any) => {
               <span className={styles.alarm}>
                 <AlarmIcon fontSize="large" /> {time}
               </span>
+
+              {endFlagRef.current ? (
+                <div className={styles.exit}>
+                  <button onClick={exitGame} className={styles.button}>
+                    대기실로
+                  </button>
+                </div>
+              ) : null}
+
               {streamIdRef.current === presenterRef.current ? (
                 <StreamComponent
                   sessionId={props.sessionId}
