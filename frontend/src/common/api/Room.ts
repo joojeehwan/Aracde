@@ -10,25 +10,26 @@ const createRoom = async () => {
 };
 
 const enterRoom = async (code: string) => {
-  const response = await axios.patch(`${BASE_URL}/room`, { inviteCode: code })
-                          .then((res) => {
-                            const value = {
-                              status : 200,
-                            }
-                            return value;
-                          })
-                          .catch((e) => {
-                            const value = {
-                              status : 400,
-                            }
-                            return value;
-                          });
+  const response = await axios
+    .patch(`${BASE_URL}/room`, { inviteCode: code })
+    .then((res) => {
+      const value = {
+        status: 200,
+      };
+      return value;
+    })
+    .catch((e) => {
+      const value = {
+        status: 400,
+      };
+      return value;
+    });
   console.log(response);
   return response;
 };
 
 const exitRoom = async (code: string | null) => {
-  if(code === null) return null;
+  if (code === null) return null;
   const response = await axios.patch(`${BASE_URL}/exit`, { inviteCode: code });
   console.log(response);
   return response;
@@ -37,30 +38,27 @@ const exitRoom = async (code: string | null) => {
 const getUploadImageResult = async (data: FormData) => {
   const response = await axios.post(`${BASE_URL}/upload`, data);
   return response;
-}
-const getSaveMyFavoriteImageResult = async (data: { userSeq: string | number | null, pictureUrl: string }) => {
+};
+const getSaveMyFavoriteImageResult = async (data: { userSeq: string | number | null; pictureUrl: string }) => {
   if (data.userSeq !== null) {
     data.userSeq = +data.userSeq;
     const response = await axios.post(`${BASE_URL}/picture`, data);
-    return response
-  }
-  else return null;
-}
+    return response;
+  } else return null;
+};
 
-
-
-const intoGame = async (userSeq : string | null, code : number) => {
+const intoGame = async (userSeq: string | null, code: number) => {
   const token = getToken();
-  if(userSeq !== null && token !== null){
+  if (userSeq !== null && token !== null) {
     const user = +userSeq;
     const body = {
-      userSeq : user,
-      codeIdx : code
-    }
-    const result = await axios.patch(`${BASE_URL}/init`, body, {headers : {Authorization : token}});
+      userSeq: user,
+      codeIdx: code,
+    };
+    const result = await axios.patch(`${BASE_URL}/init`, body, { headers: { Authorization: token } });
     return result;
   }
-}
+};
 
 const RoomApi = {
   createRoom,
@@ -68,7 +66,7 @@ const RoomApi = {
   exitRoom,
   getUploadImageResult,
   getSaveMyFavoriteImageResult,
-  intoGame
+  intoGame,
 };
 
 export default RoomApi;

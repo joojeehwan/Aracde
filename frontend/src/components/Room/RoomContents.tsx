@@ -766,6 +766,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
             {mode === 'home' ? (
               <div
                 style={{
+                  marginTop: '20px',
                   display: 'flex',
                   width: '85%',
                 }}
@@ -792,11 +793,14 @@ const RoomContents = ({ sessionName, userName }: any) => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       marginRight: '4%',
+                      cursor: 'pointer',
                     }}
                     onClick={handleOpenModal}
                   >
-                    <img src={Play} style={{ width: '30%', height: '30%' }}></img>게임 선택
+                    <img className={styles.selectGameImage} src={Play} style={{ width: '30%', height: '30%' }}></img>
+                    게임 선택
                   </button>
+
                   <div
                     style={{
                       // gridColumn: '1 / span 2',
@@ -812,12 +816,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        cursor: 'pointer',
                       }}
                       onClick={handleCopy}
+                      className={styles.codePaste}
                     >
                       <img src={Link} style={{ width: '100%', height: '50%' }}></img>
                     </button>
-
                     <div
                       id="code"
                       style={{
@@ -839,11 +844,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       marginTop: '2%',
+                      cursor: 'pointer',
                     }}
                     className={styles.inviteFriend}
                     onClick={handleOpenInvite}
                   >
                     <People
+                      className={styles.inviteSVG}
                       style={{
                         width: '20%',
                         height: '45%',
