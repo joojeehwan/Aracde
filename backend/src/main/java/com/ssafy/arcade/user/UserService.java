@@ -395,12 +395,16 @@ public class UserService {
             if (friend == null || !friend.isApproved()) {
                 continue;
             }
+            ChannelTopic topic = onlineService.getOnlineTopic(user.getUserSeq());
+            boolean flag = topic != null;
             UserResDto userResDto = new UserResDto();
+            userResDto.setLogin(flag);
             userResDto.setUserSeq(user.getUserSeq());
             userResDto.setEmail(user.getEmail());
             userResDto.setName(user.getName());
             userResDto.setImage(user.getImage());
             userResDto.setStatus(1);
+
 
             userResDtoList.add(userResDto);
 

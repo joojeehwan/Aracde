@@ -47,7 +47,7 @@ const StyledBadgeOffline = styled(Badge)(({ theme }) => ({
   },
 }));
 
-function FriendsList({ name, imgUrl, userSeq, setIsDelete, login }: any) {
+function FriendsList({ name, imgUrl, userSeq, setIsDelete, login, email }: any) {
   const [isOnline, setIsOnline] = useState(login);
 
   //api
@@ -100,6 +100,14 @@ function FriendsList({ name, imgUrl, userSeq, setIsDelete, login }: any) {
           }}
         >
           {name}
+        </div>
+        <div
+          style={{
+            marginTop: 5,
+            fontSize: 15,
+          }}
+        >
+          {email}
         </div>
       </div>
       <div>

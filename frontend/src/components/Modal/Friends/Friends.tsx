@@ -59,6 +59,8 @@ function Friends({ open, onClose }: MyProps) {
     setPeople([])
   }, [tab, isDelete])
 
+  console.log(friend)
+
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5) {
       return (
@@ -67,7 +69,7 @@ function Friends({ open, onClose }: MyProps) {
             <div className={styles.friendListContainer}>
               {friend.map((value, i) => {
                 const idx = i;
-                return <FriendsList key={idx} imgUrl={value.image} name={value.name} userSeq={value.userSeq} setIsDelete={setIsDelete} login={value.login} />;
+                return <FriendsList key={idx} imgUrl={value.image} name={value.name} userSeq={value.userSeq} setIsDelete={setIsDelete} login={value.login} email={value.email} />;
               })}
             </div>
           ) : (

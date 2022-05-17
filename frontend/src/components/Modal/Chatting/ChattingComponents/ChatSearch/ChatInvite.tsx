@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import style from '../../../styles/Invite.module.scss';
 import { toast } from 'react-toastify';
 
+
 //components
 import ChatInviteSearhBar from '../../ChattingComponents/ChatSearch/ChatInviteSearhBar';
 import ChatInviteSearhResults from '../../ChattingComponents/ChatSearch/ChatInviteSearhResults';
@@ -9,13 +10,15 @@ import ChatInviteSearhResults from '../../ChattingComponents/ChatSearch/ChatInvi
 //api
 import ChatApi from '../../../../../common/api/ChatAPI';
 
+
+
 type MyProps = {
   open: boolean;
   onClose: (e: any) => void;
 };
 
 function ChatInvite({ open, onClose, handleFlag }: any) {
-  const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string }[]>([]);
+  const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string; login: boolean; email: string }[]>([]);
   const { getChatSearchResult } = ChatApi;
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -28,6 +31,8 @@ function ChatInvite({ open, onClose, handleFlag }: any) {
       setFriend([...result.data]);
     }
   };
+
+  console.log(friend)
 
   return (
     <div
@@ -46,24 +51,29 @@ function ChatInvite({ open, onClose, handleFlag }: any) {
           tabIndex={0}
         >
           <ChatInviteSearhBar searchPeople={handleSearchPeople} />
-          {friend.map((value) => {
-            return (
-              <ChatInviteSearhResults
-                key={value.name}
-                onClose={onClose}
-                name={value.name}
-                isInvite={value.canInvite}
-                image={value.image}
-                userSeq={value.userSeq}
-                handleFlag={handleFlag}
-              />
-            );
-          })}
-          <div className={style.CancelContainer}>
+          <div className={style.chatAddContainer}>
+            {friend.map((value, i) => {
+              const idx = i
+              return (
+                <ChatInviteSearhResults
+                  key={idx}
+                  onClose={onClose}
+                  name={value.name}
+                  isInvite={value.canInvite}
+                  image={value.image}
+                  userSeq={value.userSeq}
+                  handleFlag={handleFlag}
+                  login={value.login}
+                  email={value.email}
+                />
+              );
+            })}
+          </div>
+          {/* <div className={style.CancelContainer}>
             <button onClick={onClose} className={style.cancel}>
               취소
             </button>
-          </div>
+          </div> */}
         </section>
       ) : null}
     </div>

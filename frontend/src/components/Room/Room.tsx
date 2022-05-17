@@ -106,7 +106,7 @@ const Room = () => {
             <RoomContents sessionName={roomseq} userName={myName} />
           </div>
         </div>
-        {window.localStorage.getItem('token') === null ? (
+        {window.localStorage.getItem('token') ? (
           <div>
             <button
               onClick={handleOpenChatting}
