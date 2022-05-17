@@ -344,15 +344,21 @@ const Charade = (props: any) => {
                       user={v}
                       subscribers={props.sub}
                       nickname={v.getNickname()}
-                      camStatusChanged={props.camChange()}
-                      micStatusChanged={props.micChange()}
+                      camStatusChanged={props.camChange}
+                      micStatusChanged={props.micChange}
                     />
                   );
                 })}
               </>
             ) : (
               <>
-                <StreamComponent user={props.user} sessionId={props.sessionId} subscribers={props.sub} />
+                <StreamComponent
+                  user={props.user}
+                  sessionId={props.sessionId}
+                  subscribers={props.sub}
+                  camStatusChanged={props.camChange}
+                  micStatusChanged={props.micChange}
+                />
                 {props.sub.map((v: any, i: number) => {
                   const curidx = i;
                   console.log(v);
@@ -365,8 +371,8 @@ const Charade = (props: any) => {
                         subscribers={props.sub}
                         //  mode={mode}
                         nickname={v.getNickname()}
-                        camStatusChanged={props.camChange()}
-                        micStatusChanged={props.micChange()}
+                        camStatusChanged={props.camChange}
+                        micStatusChanged={props.micChange}
                       />
                     );
                   }
@@ -399,16 +405,16 @@ const Charade = (props: any) => {
                   sessionId={props.sessionId}
                   user={props.user}
                   subscribers={props.subscribers}
-                  camStatusChanged={props.camChange()}
-                  micMuted={props.micMuted()}
+                  camStatusChanged={props.camChange}
+                  micMuted={props.micMuted}
                 />
               ) : (
                 <StreamComponent
                   // sessionId={props.sessionId}
                   user={props.sub[idxRef.current]}
                   subscribers={props.subscribers}
-                  camStatusChanged={props.camChange()}
-                  micMuted={props.micMuted()}
+                  camStatusChanged={props.camChange}
+                  micMuted={props.micMuted}
                 />
               )}
             </div>
