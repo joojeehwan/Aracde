@@ -112,12 +112,22 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
                     />
                 </div>
                 <div className={style.game}>
-                    전체
+                    노래
                     <input
                         value="5"
                         name="platform"
                         type="radio"
                         checked={category === "5"}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className={style.game}>
+                    전체
+                    <input
+                        value="6"
+                        name="platform"
+                        type="radio"
+                        checked={category === "6"}
                         onChange={handleChange}
                     />
                 </div>
