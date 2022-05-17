@@ -32,6 +32,7 @@
   display: block;
   margin: 0px 80px;
   transition: all 0.3s ease 0s;
+
   &:hover {
     box-shadow: 0rem 1.5rem 2rem rgba($color: #f7f7f7, $alpha: 0.4);
     transform: translateY(-8px);
@@ -45,6 +46,7 @@
   // margin: 0px 80px;
   transition: all 0.3s ease 0s;
   margin-left: 160px;
+
   &:hover {
     box-shadow: 0rem 1.5rem 2rem rgba($color: #f7f7f7, $alpha: 0.4);
     transform: translateY(-8px);
@@ -62,13 +64,14 @@
 .chatContent {
   width: 60%;
   margin-left: 10px;
-  animation:  slide 1s
+  animation: slide 1s
 }
 
 @keyframes slide {
   from {
     transform: translateX(-10%);
   }
+
   to {
     transform: translateX(0%);
   }
@@ -231,7 +234,7 @@
   background-color: #858585;
 }
 
-.modal > section {
+.modal>section {
   width: auto;
   height: 600px;
   border-radius: 10px;

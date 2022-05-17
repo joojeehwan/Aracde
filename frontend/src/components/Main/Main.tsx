@@ -332,6 +332,7 @@ function Main() {
       {window.localStorage.getItem('token') ? (
         <button
           onClick={handleOpenChatting}
+          className={styles.link}
           style={{
             margin: '20px',
             position: 'fixed',
