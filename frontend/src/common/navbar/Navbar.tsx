@@ -10,7 +10,7 @@ const Navbar = () => {
     navigate(`/`);
   }
 
-  return <div className={styles.NavbarContainer} onClick={handleGotoMain}>Aracde</div>;
+  return <div className={styles.NavbarContainer} onClick={handleGotoMain}>Arcade</div>;
 };
 
 export default Navbar;
