@@ -92,7 +92,7 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
                     />
                 </div>
                 <div className={style.game}>
-                    생물
+                    동물
                     <input
                         value="3"
                         name="platform"
@@ -102,7 +102,7 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
                     />
                 </div>
                 <div className={style.game}>
-                    캐릭터
+                    직업
                     <input
                         value="4"
                         name="platform"
@@ -112,7 +112,7 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
                     />
                 </div>
                 <div className={style.game}>
-                    노래
+                    운동
                     <input
                         value="5"
                         name="platform"
