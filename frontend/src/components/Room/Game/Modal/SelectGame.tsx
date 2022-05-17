@@ -124,7 +124,7 @@ function SelectGame({ open, onClose, onSelect }: MyProps) {
                 </select>
                 ) : null}
                 <div className={style.game}>
-                    범인을 잡아라
+                    너의 목소리가 들려
                     <input
                         value="3"
                         name="platform"
