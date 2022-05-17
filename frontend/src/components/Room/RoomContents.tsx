@@ -21,8 +21,7 @@ import SelectGame from './Game/Modal/SelectGame';
 import Wait from './Game/Modal/Wait';
 import Guess from './Game/Guess';
 import { style } from '@mui/system';
-import Invite from "../../components/Modal/Invite/Invite"
-
+import Invite from '../../components/Modal/Invite/Invite';
 
 const OPENVIDU_SERVER_URL = 'https://k6a203.p.ssafy.io:5443';
 const OPENVIDU_SERVER_SECRET = 'arcade';
@@ -59,7 +58,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const [correctNickname, setCorrectNickname] = useState<any[]>([]);
   const [correctPeopleName, setCorrectPeopleName] = useState<any>();
   const [participantNum, setParticpantNum] = useState<any>(1);
-  const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string, time : number }>();
+  const [catchMindData, setCatchMindData] = useState<{ answer: string; id: string; nextId: string; time: number }>();
   const [charadeData, setCharadeData] = useState<{ answer: string; id: string; category: number }>();
 
   const [firstSpeak, setFirstSpeak] = useState<string>('');
@@ -94,8 +93,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const targetSubscriberRef = useRef(targetSubscriber);
   targetSubscriberRef.current = targetSubscriber;
 
-  const {exitRoom, enterRoom, intoGame} = RoomApi;
-
+  const { exitRoom, enterRoom, intoGame } = RoomApi;
 
   const joinSession = async () => {
     OV = new OpenVidu();
@@ -142,15 +140,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
     window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', preventGoBack);
     window.addEventListener('beforeunload', onbeforeunload);
-    window.addEventListener("unload", handleleaveRoom);
-
-
+    window.addEventListener('unload', handleleaveRoom);
 
     joinSession();
     return () => {
       window.removeEventListener('beforeunload', onbeforeunload);
       window.removeEventListener('popstate', preventGoBack);
-      window.removeEventListener("unload", handleleaveRoom);
+      window.removeEventListener('unload', handleleaveRoom);
       handleleaveRoom();
       leaveSession();
     };
@@ -238,13 +234,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
           }
         }
         if (response.data.gameStatus === 3) {
-          if (response.data.gameId === 3){
-            subscribersRef.current.map(v => {
-              if(v.isImDetect()){
+          if (response.data.gameId === 3) {
+            subscribersRef.current.map((v) => {
+              if (v.isImDetect()) {
                 v.setImDetect(false);
               }
-            })
-            if(localUserRef.current.isImDetect()) localUserRef.current.setImDetect(false);
+            });
+            if (localUserRef.current.isImDetect()) localUserRef.current.setImDetect(false);
             else removeVoiceFilter();
           }
           setMode('home');
@@ -255,10 +251,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
             answer: response.data.answer,
             id: response.data.curStreamId,
             nextId: response.data.nextStreamId,
-            time : response.data.time
+            time: response.data.time,
           });
-          if(window.localStorage.getItem("useSeq")){
-            await intoGame(window.localStorage.getItem("useSeq"), 0);
+          if (window.localStorage.getItem('useSeq')) {
+            await intoGame(window.localStorage.getItem('useSeq'), 0);
           }
           setMode('game1');
         }
@@ -272,23 +268,27 @@ const RoomContents = ({ sessionName, userName }: any) => {
             answer: response.data.answer,
             id: response.data.curStreamId,
             nextId: response.data.nextStreamId,
-            time : response.data.time
+            time: response.data.time,
           });
-          if(window.localStorage.getItem("useSeq")){
-            await intoGame(window.localStorage.getItem("useSeq"), 0);
+          if (window.localStorage.getItem('useSeq')) {
+            await intoGame(window.localStorage.getItem('useSeq'), 0);
           }
           setMode('game1');
         }
         if (response.data.gameId === 2 && response.data.gameStatus === 2 && modeRef.current !== 'game2') {
           console.log('몸으로 말해요 게임 실행');
-          setCharadeData({ answer: response.data.answer, id: localUserRef.current.getStreamManager().stream.streamId, category: response.data.category });
+          setCharadeData({
+            answer: response.data.answer,
+            id: localUserRef.current.getStreamManager().stream.streamId,
+            category: response.data.category,
+          });
           setCurStreamId(response.data.curStreamId);
-          if(localUserRef.current.getStreamManager().stream.streamId === response.data.curStreamId){
+          if (localUserRef.current.getStreamManager().stream.streamId === response.data.curStreamId) {
             setMyTurn(true);
           }
           localUserInit.setAudioActive(false);
-          if(window.localStorage.getItem("useSeq")){
-            await intoGame(window.localStorage.getItem("useSeq"), 1);
+          if (window.localStorage.getItem('useSeq')) {
+            await intoGame(window.localStorage.getItem('useSeq'), 1);
           }
           setMode('game2');
         }
@@ -303,7 +303,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
               setImDetect(response.data.detectiveStreamId);
               setDetectNick(localUserRef.current.getNickname());
             } else {
-              console.log("난 탐정이 아니다. ", localUserRef.current.getStreamManager());
+              console.log('난 탐정이 아니다. ', localUserRef.current.getStreamManager());
               handleVoiceFilter();
               subscribersRef.current.map((v) => {
                 if (v.getStreamManager().stream.streamId === response.data.detectiveStreamId) {
@@ -318,8 +318,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
             setFirstSpeak(response.data.curStreamId);
             setImPerson(response.data.suspectStreamId);
             setFindsub(curUsers);
-            if(window.localStorage.getItem("useSeq")){
-              await intoGame(window.localStorage.getItem("useSeq"), 2);
+            if (window.localStorage.getItem('useSeq')) {
+              await intoGame(window.localStorage.getItem('useSeq'), 2);
             }
             setMode('game3');
           }
@@ -331,7 +331,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
         sessionRef.current
           .connect(token, { clientData: myUserName })
           .then(async () => {
-            console.log("???AS?DA?SD?ASD?ASD?ASD?ASD?ASD??????????????? 여기가 왜 실 행 되는 거냐 ");
+            console.log('???AS?DA?SD?ASD?ASD?ASD?ASD?ASD??????????????? 여기가 왜 실 행 되는 거냐 ');
             let publisherTemp = OV.initPublisher(undefined, {
               audioSource: undefined,
               videoSource: undefined,
@@ -357,17 +357,19 @@ const RoomContents = ({ sessionName, userName }: any) => {
             setPublisher(publisherTemp);
             setLocalUser(localUserInit);
             const result = await enterRoom(sessionName);
-            if(result.status === 200){
+            if (result.status === 200) {
               toast.success(<div style={{ width: 'inherit', fontSize: '14px' }}>입장 성공!</div>, {
                 position: toast.POSITION.TOP_CENTER,
                 role: 'alert',
               });
-            }
-            else{
-              toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>방이 존재하지 않거나, 인원 초과입니다.</div>, {
-                position: toast.POSITION.TOP_CENTER,
-                role: 'alert',
-              });
+            } else {
+              toast.error(
+                <div style={{ width: 'inherit', fontSize: '14px' }}>방이 존재하지 않거나, 인원 초과입니다.</div>,
+                {
+                  position: toast.POSITION.TOP_CENTER,
+                  role: 'alert',
+                },
+              );
               navigate('/');
             }
           })
@@ -384,7 +386,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
   }, [subscribers]);
 
   const leaveSession = () => {
-    console.log("??여기 실행됨?");
+    console.log('??여기 실행됨?');
     // handleleaveRoom();
     const mySession = sessionRef.current;
     if (mySession) {
@@ -423,19 +425,19 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const onbeforeunload = (e: any) => {
     e.preventDefault();
     handleleaveRoom();
-    e.returnValue = "message to user";
-    setTimeout(()=>{
-      setTimeout(()=>{
-        console.log("여기가 되는건 아니겠죠?!?!?!?!?!?!?!?!?!?!?!??!?!?!?!?!?");
+    e.returnValue = 'message to user';
+    setTimeout(() => {
+      setTimeout(() => {
+        console.log('여기가 되는건 아니겠죠?!?!?!?!?!?!?!?!?!?!?!??!?!?!?!?!?');
         enterRoom(sessionName);
-      }, 500)
-    },100)
-  }
+      }, 500);
+    }, 100);
+  };
 
   const handleleaveRoom = async () => {
-    console.log("여기 안불리겠지??",sessionName);
+    console.log('여기 안불리겠지??', sessionName);
     await exitRoom(sessionName);
-  }
+  };
   const sendSignalUserChanged = (data: any) => {
     //console.log("시그널 보내 시그널 보내");
     const signalOptions = {
@@ -471,30 +473,38 @@ const RoomContents = ({ sessionName, userName }: any) => {
     }
   };
 
+  const micMuted = () => {
+    localUserInit.setAudioActive(false);
+    localUserInit.getStreamManager().publishAudio(localUserInit.isAudioActive());
+    sendSignalUserChanged({ isAudioActive: localUserInit.isAudioActive() });
+    setLocalUser(localUserInit);
+  };
+
   const handleVoiceFilter = () => {
     const filterList = [0.4, 2.0];
-    const type = "GStreamerFilter";
+    const type = 'GStreamerFilter';
     const rnum = Math.floor(Math.random() * filterList.length);
 
-    const options = {command : `pitch pitch=${filterList[rnum]}`};
-    localUserRef.current.getStreamManager().stream.applyFilter(type, options).then((result : any)=>{
-      console.log(result, "난 탐정이 아니다.");
-    });
-  }
+    const options = { command: `pitch pitch=${filterList[rnum]}` };
+    localUserRef.current
+      .getStreamManager()
+      .stream.applyFilter(type, options)
+      .then((result: any) => {
+        console.log(result, '난 탐정이 아니다.');
+      });
+  };
 
   const removeVoiceFilter = () => {
     localUserRef.current
       .getStreamManager()
       .stream.removeFilter()
       .then(() => {
-        console.log("필터 제거");
+        console.log('필터 제거');
       })
       .catch(() => {
-        console.log("필터 없어용");
+        console.log('필터 없어용');
       });
   };
-
-
 
   const getToken = () => {
     return createSession(mySessionId).then((sessionId) => createToken(sessionId));
@@ -620,12 +630,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const handleCloseInvite = useCallback(() => {
     setInviteIsOpen(false);
   }, [inviteIsOpen]);
-  
-  useEffect(()=>{
-    console.log(myTurnRef.current, "진짜ㅋㅋㅋ");
-  },[myTurn])
 
-
+  useEffect(() => {
+    console.log(myTurnRef.current, '진짜ㅋㅋㅋ');
+  }, [myTurn]);
 
   return (
     <div
@@ -655,19 +663,22 @@ const RoomContents = ({ sessionName, userName }: any) => {
             detectNick={detectNick}
             camChange={camStatusChanged}
             micChange={micStatusChanged}
-          />) : mode === 'game2' ?
-          (
-            <div>
-              <Charade
-                sessionId={mySessionId}
-                sub={subscribersRef.current}
-                user={localUserRef.current}
-                subscribers={subscribers}
-                charadeData={charadeData}
-                curStreamId={curStreamId}
-              />
-            </div>
-        ) :  (
+          />
+        ) : mode === 'game2' ? (
+          <div>
+            <Charade
+              sessionId={mySessionId}
+              sub={subscribersRef.current}
+              user={localUserRef.current}
+              subscribers={subscribers}
+              charadeData={charadeData}
+              curStreamId={curStreamId}
+              camChange={camStatusChanged}
+              micChange={micStatusChanged}
+              micMuted={micMuted}
+            />
+          </div>
+        ) : (
           <div
             className={
               mode === 'home'
@@ -691,24 +702,22 @@ const RoomContents = ({ sessionName, userName }: any) => {
                   : styles['video-container']
               }
             >
-              {localUserRef.current !== undefined &&
-                  localUserRef.current.getStreamManager() !== undefined && (
-                  <>
-                    {mode === "game2" 
-                    ? myTurnRef.current ? null 
-                    : (
+              {localUserRef.current !== undefined && localUserRef.current.getStreamManager() !== undefined && (
+                <>
+                  {mode === 'game2' ? (
+                    myTurnRef.current ? null : (
                       <StreamComponent
-                      user={localUserRef.current}
-                      sessionId={mySessionId}
-                      camStatusChanged={camStatusChanged}
-                      micStatusChanged={micStatusChanged}
-                      subscribers={subscribers}
-                      mode={mode}
-                      // openKeywordInputModal={openKeywordInputModal}
-                    />
+                        user={localUserRef.current}
+                        sessionId={mySessionId}
+                        camStatusChanged={camStatusChanged}
+                        micStatusChanged={micStatusChanged}
+                        subscribers={subscribers}
+                        mode={mode}
+                        // openKeywordInputModal={openKeywordInputModal}
+                      />
                     )
-                    : (
-                      <StreamComponent
+                  ) : (
+                    <StreamComponent
                       user={localUserRef.current}
                       sessionId={mySessionId}
                       camStatusChanged={camStatusChanged}
@@ -717,13 +726,12 @@ const RoomContents = ({ sessionName, userName }: any) => {
                       mode={mode}
                       // openKeywordInputModal={openKeywordInputModal}
                     />
-                    )}
-                  </>
-                )}
+                  )}
+                </>
+              )}
 
-                {subscribersRef.current.map((sub, i) => {
-                  return (
-                     
+              {subscribersRef.current.map((sub, i) => {
+                return (
                   <StreamComponent
                     key={i}
                     user={sub}
@@ -734,10 +742,11 @@ const RoomContents = ({ sessionName, userName }: any) => {
                     correctNickname={correctNickname}
                     // sirenWingWing={sirenWingWing}
                     correctPeopleName={correctPeopleName}
+                    camStatusChanged={camStatusChanged}
+                    micStatusChanged={micStatusChanged}
                   />
                 );
-                })}
-
+              })}
             </div>
           </div>
         )}
@@ -795,14 +804,19 @@ const RoomContents = ({ sessionName, userName }: any) => {
                       display: 'flex',
                     }}
                   >
-                    <button style={{
-                      backgroundColor : "#38C502",
-                      border : "none",
-                      borderRadius : "5px 0px 0px 5px",
-                      display : "flex",
-                      alignItems : "center",
-                      justifyContent : "center"
-                    }} onClick={handleCopy}><img src={Link} style={{width : "100%", height : "50%"}}></img></button>
+                    <button
+                      style={{
+                        backgroundColor: '#38C502',
+                        border: 'none',
+                        borderRadius: '5px 0px 0px 5px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                      onClick={handleCopy}
+                    >
+                      <img src={Link} style={{ width: '100%', height: '50%' }}></img>
+                    </button>
 
                     <div
                       id="code"
@@ -852,9 +866,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
       </div>
       {open ? <SelectGame open={open} onClose={handleCloseModal} onSelect={selectGame}></SelectGame> : null}
       {wait ? <Wait open={wait}></Wait> : null}
-      {inviteIsOpen ? (
-        <Invite open={inviteIsOpen} onClose={handleCloseInvite} />
-      ) : null}
+      {inviteIsOpen ? <Invite open={inviteIsOpen} onClose={handleCloseInvite} /> : null}
     </div>
   );
 };
