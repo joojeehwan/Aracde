@@ -13,7 +13,7 @@ type MyProps = {
 
 function Invite({ open, onClose }: MyProps) {
 
-  const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string }[]>([]);
+  const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string, login: boolean; email: string }[]>([]);
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -27,6 +27,9 @@ function Invite({ open, onClose }: MyProps) {
       setFriend([...result.data]);
     }
   };
+
+
+  console.log(friend)
 
   return (
     <div
@@ -45,14 +48,17 @@ function Invite({ open, onClose }: MyProps) {
           tabIndex={0}
         >
           <InviteSearchBar searchPeople={handleSearchPeople} />
-          {friend.map((value) => {
-            return <InviteSearhResults key={value.name} name={value.name} isInvite={value.canInvite} targetUserSeq={value.userSeq} />;
-          })}
-          <div className={style.CancelContainer}>
+          <div className={style.InviteAddContainer}>
+            {friend.map((value, i) => {
+              const idx = i
+              return <InviteSearhResults key={idx} name={value.name} isInvite={value.canInvite} targetUserSeq={value.userSeq} login={value.login} image={value.image} email={value.email} />;
+            })}
+          </div>
+          {/* <div className={style.CancelContainer}>
             <button onClick={onClose} className={style.cancel}>
               취소
             </button>
-          </div>
+          </div> */}
         </section>
       ) : null}
     </div>

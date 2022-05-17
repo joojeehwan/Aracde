@@ -21,6 +21,20 @@
   margin-left: 10px;
 }
 
+.InviteAddContainer {
+  height: 430px;
+  margin-top: 10px;
+  font-size: 1.2rem;
+  text-align: center;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0 !important;
+  }
+}
+
+
 .modal button {
   font-family: 'neodgm';
   cursor: pointer;

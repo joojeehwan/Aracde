@@ -207,21 +207,23 @@ public class ChatService {
         for (UserResDto userResDto : temp) {
             User target = userRepository.findByUserSeq(userResDto.getUserSeq()).orElseGet(User::new);
             ChatRoom chatRoom = chatRoomRepository.findByUser1AndUser2(user, target).orElseGet(ChatRoom::new);
+            ChannelTopic topic = onlineService.getOnlineTopic(target.getUserSeq());
+            boolean flag = topic != null;
             if (chatRoom.getChatRoomSeq() != null) {
-                list.add(SearchFriendRes.builder()
+                list.add(SearchFriendRes.builder().login(flag).email(target.getEmail())
                         .canInvite(false).image(target.getImage()).name(target.getName())
                         .userSeq(target.getUserSeq()).build());
                 continue;
             }
             chatRoom = chatRoomRepository.findByUser1AndUser2(target, user).orElseGet(ChatRoom::new);
             if (chatRoom.getChatRoomSeq() != null) {
-                list.add(SearchFriendRes.builder()
+                list.add(SearchFriendRes.builder().login(flag).email(target.getEmail())
                         .canInvite(false).image(target.getImage()).name(target.getName())
                         .userSeq(target.getUserSeq()).build());
                 continue;
             }
             // 채팅방이 아직 없는 경우
-            list.add(SearchFriendRes.builder()
+            list.add(SearchFriendRes.builder().login(flag).email(target.getEmail())
                     .canInvite(true).image(target.getImage()).name(target.getName())
                     .userSeq(target.getUserSeq()).build());
         }

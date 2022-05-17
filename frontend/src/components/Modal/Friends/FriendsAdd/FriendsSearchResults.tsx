@@ -65,8 +65,6 @@ function FriendsSearchResults({ seq, name, email, imgUrl, status, login }: any) 
         display: 'flex',
         justifyContent: 'space-evenly',
         alignItems: 'center',
-        padding: 10,
-        marginTop: 15,
       }}
     >
       <div>
