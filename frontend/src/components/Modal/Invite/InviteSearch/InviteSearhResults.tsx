@@ -63,8 +63,7 @@ function InviteSearhResults({ name, isInvite, targetUserSeq, login, image, email
         display: 'flex',
         justifyContent: 'space-evenly',
         alignItems: 'center',
-        padding: 10,
-        marginTop: 15,
+        marginBottom: "10px"
       }}>
       <div>
         {isOnline ? (
@@ -109,7 +108,7 @@ function InviteSearhResults({ name, isInvite, targetUserSeq, login, image, email
           {email}
         </div>
       </div>
-      <div style={{ paddingLeft: '18px' }}>
+      <div>
         {isClicked ? (
           <button className={style.buttonClicked}>초대함</button>
         ) : (
