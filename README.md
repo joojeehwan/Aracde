@@ -32,15 +32,15 @@
 
 **방 생성**
 
-![방 만들기 (1)](README.assets/방 만들기 (1).gif)
+![createroom](README.assets/createroom.gif)
 
 **초대받은 방 입장**
 
-![초대방 입장 (1)](README.assets/초대방 입장 (1).gif)
+![invite](README.assets/invite.gif)
 
 **캐치마인드**
 
-![캐치마인드1](README.assets/캐치마인드1.gif)
+![catchmind](README.assets/catchmind.gif)
 
 **몸으로 말해요**
 
@@ -52,11 +52,11 @@
 
 **친구 추가 / 채팅**
 
-![친구 추가, 채팅](README.assets/친구 추가, 채팅.gif)
+![friend](README.assets/friend.gif)
 
 **마이페이지**
 
-![마이페이지 (1)](README.assets/마이페이지 (1).gif)
+![mypage](README.assets/mypage.gif)
 
 ## 🧭 프로젝트 기간
 
