@@ -19,6 +19,32 @@
   // overflow-y: auto;
 }
 
+.link {
+  z-index: 1;
+  position: relative;
+  float: right;
+  margin-top: 32px;
+  margin-right: 5%;
+  font-weight: bold;
+  letter-spacing: 2.5px;
+  border: none;
+  width: 80px;
+  background-color: rgba(0, 0, 0, 0);
+  color: #eaeaea;
+  font-size: 20px;
+  text-decoration: none;
+  text-shadow: 0rem 1rem 0.5rem rgba(234, 234, 234, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.link:hover {
+  text-shadow: 0rem 1.5rem 2rem rgba(234, 234, 234, 0.5);
+  color: #eaeaea;
+  transform: translateY(-7px);
+}
+
 .dockbar {
   height: 100px;
   width: inherit;
@@ -84,6 +110,7 @@
   margin-top: 2%;
   margin-right: 2%;
 }
+
 .nav .shake {
   animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   transform: translate3d(0, 0, 0);
@@ -101,6 +128,7 @@
   margin-top: 2%;
   margin-right: 2%;
 }
+
 .shakee {
   animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   transform: translate3d(0, 0, 0);
@@ -109,6 +137,7 @@
 }
 
 @keyframes shake {
+
   10%,
   90% {
     transform: translate3d(-1px, 0, 0);

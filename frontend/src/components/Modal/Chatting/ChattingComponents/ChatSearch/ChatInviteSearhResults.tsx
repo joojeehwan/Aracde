@@ -65,6 +65,7 @@ function ChatInviteSearhResults({ name, isInvite, userSeq, onClose, handleFlag, 
         display: 'flex',
         justifyContent: 'space-evenly',
         alignItems: 'center',
+        marginBottom: "10px"
       }}>
       <div>
         {isOnline ? (
