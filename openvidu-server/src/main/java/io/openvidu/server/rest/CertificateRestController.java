@@ -29,7 +29,6 @@ public class CertificateRestController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String acceptCert() throws Exception {
-		System.out.println("Navigating to accept certificate");
 		return "accept-cert";
 	}
 

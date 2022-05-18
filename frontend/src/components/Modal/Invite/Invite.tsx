@@ -28,7 +28,6 @@ function Invite({ open, onClose }: MyProps) {
     }
   };
 
-  console.log(friend)
 
   return (
     <div

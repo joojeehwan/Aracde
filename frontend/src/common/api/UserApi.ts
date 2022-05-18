@@ -7,7 +7,6 @@ const BASE_URL = process.env.REACT_APP_API_ROOT + '/users';
 const getKakaoLoginResult = async (code: string) => {
   const state = Math.random().toString(36).substring(2, 11);
   const result = await axios.get(`${BASE_URL}/login?code=${code}&&provider=KAKAO&&state=${state}`);
-  console.log(result);
   return result;
 };
 
@@ -15,7 +14,6 @@ const getKakaoLoginResult = async (code: string) => {
 const getNaverLoginResult = async (code: string, state: String) => {
   // const state = Math.random().toString(36).substring(2, 11);
   const result = await axios.get(`${BASE_URL}/login?code=${code}&&provider=NAVER&&state=${state}`);
-  console.log(result);
   return result;
 };
 
@@ -23,7 +21,6 @@ const getNaverLoginResult = async (code: string, state: String) => {
 const getGoogleLoginResult = async (code: string) => {
   const state = Math.random().toString(36).substring(2, 11);
   const result = await axios.get(`${BASE_URL}/login?code=${code}&&provider=GOOGLE&&state=${state}`);
-  console.log(result);
   return result;
 };
 
@@ -32,7 +29,6 @@ const getUserSearchResult = async (name: string) => {
   const token = getToken();
   if (token !== null) {
     const result = await axios.get(`${BASE_URL}/search/norelate?name=${name}`, { headers: { Authorization: token } });
-    console.log(result);
     return result;
   }
   return null;
@@ -42,7 +38,6 @@ const getUserSearchResult = async (name: string) => {
 const getSearchUserResultForGame = async (name: any) => {
   const token = getToken();
   if (token !== null) {
-    console.log('친구 검색 게임 초대 요청 name : ', name);
     const result = await axios
       .get(`${BASE_URL}/friend/search?name=${name}`, { headers: { Authorization: token } })
       .then((res) => {
@@ -64,9 +59,7 @@ const getAddFriendRequestResult = async (userSeq: string) => {
     userSeq,
   };
   if (token !== null) {
-    console.log(userSeq);
     const result = await axios.post(`${BASE_URL}/friend`, body, { headers: { Authorization: token } });
-    console.log(result);
     return result;
   }
   return null;
@@ -79,12 +72,9 @@ const patchAcceptFriendRequest = async (userSeq: number) => {
     userSeq,
   };
   if (token !== null) {
-    console.log(token);
-    console.log(userSeq);
     const result = await axios
       .patch(`${BASE_URL}/friend`, body, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res);
         return res;
       })
       .catch((err) => {
@@ -124,7 +114,6 @@ const deleteFriend = async (userSeq: number) => {
         userSeq: userSeq,
       },
     });
-    console.log(result);
     return result;
   }
   return null;
@@ -136,15 +125,12 @@ const getProfile = async () => {
     return await axios
       .get(`${BASE_URL}/profile`, { headers: { Authorization: token } })
       .then((response) => {
-        console.log(response);
         return response;
       })
       .catch((error) => {
-        console.log(error);
         return error;
       });
   } else {
-    console.log('AccessToken이 존재하지 않습니다.');
   }
 };
 const UserApi = {

@@ -32,7 +32,6 @@ function ChatInvite({ open, onClose, handleFlag }: any) {
     }
   };
 
-  console.log(friend)
 
   return (
     <div

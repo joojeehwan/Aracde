@@ -16,7 +16,6 @@ const useInput = <T>(initialData: T): ReturnTypes<T> => {
   const [value, setValue] = useState(initialData);
   const handler = useCallback(
     (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
-      // console.log(e.target.value);
       setValue(e.target.value as unknown as T);
     },
     []

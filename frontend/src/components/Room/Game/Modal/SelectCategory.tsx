@@ -15,7 +15,6 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
         e.stopPropagation();
     };
     const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.currentTarget.value);
         setCategory(e.currentTarget.value);
     };
 

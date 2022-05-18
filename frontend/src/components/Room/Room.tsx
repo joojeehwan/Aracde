@@ -61,7 +61,6 @@ const Room = () => {
   }, [chattingIsOpen]);
 
   useEffect(() => {
-    console.log('???왜 사라짐??');
     if (myName === null) {
       navigate('/');
     }
@@ -77,7 +76,6 @@ const Room = () => {
     client.current = new StompJs.Client({
       brokerURL: 'wss://k6a203.p.ssafy.io/socket', // 웹소켓 서버로 직접 접속
       debug: function (str) {
-        console.log(str);
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
@@ -116,10 +114,8 @@ const Room = () => {
     e.preventDefault();
     setOffline();
     e.returnValue = '나가실껀가요?';
-    console.log('나가기 전에 실행');
     setTimeout(() => {
       setTimeout(() => {
-        console.log('취소 누르면 실행');
         setOnline();
       });
     });
