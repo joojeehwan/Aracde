@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import style from '../../../styles/Invite.module.scss';
 import { toast } from 'react-toastify';
 
@@ -24,6 +24,8 @@ function ChatInvite({ open, onClose, handleFlag }: any) {
     e.stopPropagation();
   };
 
+
+
   const handleSearchPeople = async (name: string) => {
     setFriend([]);
     const result = await getChatSearchResult(name);
@@ -31,6 +33,11 @@ function ChatInvite({ open, onClose, handleFlag }: any) {
       setFriend([...result.data]);
     }
   };
+
+  useEffect(()=>{
+    // console.log("???왜 안됨??")
+    handleSearchPeople("");
+  },[open]);
 
   return (
     <div

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import style from '../styles/Invite.module.scss';
 import { toast } from 'react-toastify';
 import UserApi from '../../../common/api/UserApi';
@@ -29,6 +29,12 @@ function Invite({ open, onClose }: MyProps) {
       setFriend([...result.data]);
     }
   };
+
+  useEffect(()=>{
+    // console.log("???왜 안됨??")
+    handleSearchPeople("");
+  },[open]);
+
   return (
     <div
       className={open ? `${style.openModal} ${style.modal}` : style.modal}
