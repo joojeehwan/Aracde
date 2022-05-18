@@ -36,6 +36,7 @@ function Friends({ open, onClose }: MyProps) {
   }, []);
 
   const handleSearchPeople = async (name: string) => {
+    setPeople([]);
     const result = await getUserSearchResult(name);
     if (result?.status === 200) {
       setPeople([...result.data]);
@@ -78,6 +79,7 @@ function Friends({ open, onClose }: MyProps) {
               <div className={styles.friendAddContainer}>
                 {people.map((value, i) => {
                   const idx = i;
+                  console.log(value, "ㅋㅋㅋㅋ");
                   return (
                     <FriendsSearchResults
                       seq={value.userSeq}

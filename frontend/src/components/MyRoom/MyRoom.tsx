@@ -66,35 +66,25 @@ const MyRoom = () => {
       <Navbar />
       <div className={styles.wrapper}>
         <div className={styles.tab}>
-          <Button
-            variant="contained"
-            color="secondary"
-            sx={{
-              width: 150,
-            }}
+          <button
+            className={activeTab===0 ? styles.buttonOn : styles.button}
             onClick={() => {
               clickHandler(0);
             }}
           >
-            History
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            sx={{
-              width: 150,
-            }}
+            게임 내역
+          </button>
+          <button
+            className={activeTab===1 ? styles.buttonOn : styles.button}
             onClick={() => {
               clickHandler(1);
             }}
-          >
-            My Picture
-          </Button>
+          >저장한 그림</button>
         </div>
         <div className={styles.content}>
           <div className={styles.profileContent}>
             <div className={styles.profileImg}>
-              <Avatar src={image} alt="profile img" sx={{ width: 150, height: 150 }} />
+              <Avatar src={image} alt="profile img" sx={{ width: 100, height: 100 }} />
             </div>
             <div className={styles.profile}>
               <table className={styles.table}>
@@ -105,7 +95,7 @@ const MyRoom = () => {
                   </tr>
                   <tr>
                     <th>이 름: </th>
-                    <td>{name}</td>
+                    <td className={styles.gradientText}>{name}</td>
                   </tr>
                 </tbody>
               </table>

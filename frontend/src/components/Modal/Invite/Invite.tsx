@@ -28,7 +28,6 @@ function Invite({ open, onClose }: MyProps) {
     }
   };
 
-
   console.log(friend)
 
   return (
@@ -54,11 +53,6 @@ function Invite({ open, onClose }: MyProps) {
               return <InviteSearhResults key={idx} name={value.name} isInvite={value.canInvite} targetUserSeq={value.userSeq} login={value.login} image={value.image} email={value.email} />;
             })}
           </div>
-          {/* <div className={style.CancelContainer}>
-            <button onClick={onClose} className={style.cancel}>
-              취소
-            </button>
-          </div> */}
         </section>
       ) : null}
     </div>
