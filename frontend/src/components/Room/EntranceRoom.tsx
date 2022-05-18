@@ -23,7 +23,6 @@ const CreateRoom = () => {
   const {setMyMic, setMyVideo} = useStore();
   const [nickname, setNickname] = useState<any>(""); // 닉네임
   const [code, setCode] = useState<any>(invitecode); // 초대 코드
-  console.log(invitecode)
   const { enterRoom } = RoomApi;
 
   const handleMic = () => {
@@ -43,7 +42,6 @@ const CreateRoom = () => {
   const handleEnter = () => {
     // const response = await enterRoom(code as string);
     // if (response.status === 200) {
-      // console.log('??????');
     setMyMic(isMic);
     setMyVideo(isVideo);
     window.localStorage.setItem('nickname', nickname);

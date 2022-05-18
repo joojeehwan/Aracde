@@ -20,133 +20,15 @@ const Chat = (props: any) => {
   };
   const reset = useRef(messageList);
   reset.current = messageList;
-  console.log('chat render', props.mode);
-  console.log(props.user, '실행');
-  // if(props.mode === "game3" && mode !== "game3"){
-  //   // const data2 = {
-  //   //   gameStatus : 1,
-  //   //   gameId : 3,
-  //   //   index : 1
-  //   // }
-  //   // props.user.getStreamManager().stream.session.signal({
-  //   //   data : JSON.stringify(data2),
-  //   //   type : "game"
-  //   // });
-  //   setMode("game3");
-  // }
-  // else if(props.mode !== mode){
-  //   // console.log("실행 입니다 초기화 제발 되라고 제발", messageList);
 
-  //   setMode(props.mode);
-  // }
 
   useEffect(() => {
-    console.log(props.sub, '실행');
     setSub([...sub, props.sub]);
   }, [props.sub]);
   useEffect(() => {
-    console.log('실행 here');
-    // console.log("chat render", initGame, continueGame);
-
-    //   console.log("chat render", initGame, continueGame);
-    // props.user.getStreamManager().stream.session.on("signal:game", (event : any) => {
-    //   const data = event.data;
-
-    //   let messageListData = answerList;
-
-    //   console.log("실행되고 있니?", data.streamId, props.user.getStreamManager(), data, props.sub, messageListData);
-    //   if(data.gameStatus === 3 && data.updown === undefined){
-    //     console.log("여기가 실행 되니?");
-    //     props.exitgame();
-    //   }
-
-    //   if(data.updown){
-    //     console.log("???????????????????????????????????실행");
-    //     // messageListData.length = 0;
-    //     messageListData.push({
-    //       connectionId: data.curStreamId,
-    //       nickname : data.nickname,
-    //       message : data.number
-    //     })
-    //     messageListData.push({
-    //       connectionId : "SYSTEM",
-    //       nickname : "SYSTEM",
-    //       message : data.updown === "same" ? `${data.nickname}님 정답입니다!`
-    //                                           : data.updown === "up" ? "틀렸습니다! UP!"
-    //                                               : "틀렸습니다! DOWN!",
-    //     })
-    //     if(data.updown === "same"){
-    //       console.log("실행되니 여기는?");
-    //       messageListData.push({
-    //         connectionId : "SYSTEM",
-    //         nickname : "SYSTEM",
-    //         message : "이어서 하시겠습니까 ? (Y/N)"
-    //       })
-    //       setContinueGame(true);
-    //       setAnswerList([...messageListData])
-    //       scrollToBottom();
-    //       return;
-    //     }
-    //     if(props.user.getStreamManager().stream.streamId === data.nextStreamId){
-    //       console.log("실ㅇ행실행")
-    //       messageListData.push({
-    //         connectionId: "SYSTEM",
-    //         nickname : "SYSTEM",
-    //         message : `${props.user.getNickname()}님 입력 차례입니다.`
-    //       })
-    //     }
-    //     else{
-    //       messageListData.push({
-    //         connectionId: "SYSTEM",
-    //         nickname : "SYSTEM",
-    //         message : `다른 유저가 입력 중 입니다. 기다려주세요`
-    //       })
-    //     }
-
-    //     scrollToBottom();
-    //       setAnswerList([...messageListData])
-    //       setCurrentInput(data.nextStreamId);
-    //       setIdx(data.index);
-    //   }
-    //   else{
-    //     console.log("??????????????????????????????????????????????여기ㄷ가 실행이라고?");
-    //     messageListData.length = 0;
-    //     messageListData.push({
-    //       connectionId: "SYSTEM",
-    //       nickname : "SYSTEM",
-    //       message : "UP DOWN 게임 시작!!"
-    //     })
-    //     if(props.user.getStreamManager().stream.streamId === data.streamId){
-    //       messageListData.push({
-    //         connectionId: "SYSTEM",
-    //         nickname : "SYSTEM",
-    //         message : `${props.user.getNickname()}님 입력 차례입니다.`
-    //       })
-    //     }
-    //     else{
-    //       for(let i = 0; i < props.sub.length; i++){
-    //         if(props.sub[i].getStreamManager().stream.streamId === data.streamId){
-    //           messageListData.push({
-    //             connectionId: "SYSTEM",
-    //             nickname : "SYSTEM",
-    //             message : `${props.sub[i].getNickname()}님 입력 차례입니다.`
-    //           })
-    //           break;
-    //         }
-    //       }
-    //     }
-    //     console.log(messageListData);
-    //     setAnswerList([...messageListData]);
-    //     setCurrentInput(data.streamId);
-    //     setIdx(data.index);
-    //     setContinueGame(false);
-    //   }
-
-    // });
-
+    
     props.user.getStreamManager().stream.session.on('signal:chat', (event: any) => {
       const data = JSON.parse(event.data);
-      //console.log(event);
       let messageListData = messageList;
 
       messageListData.push({
@@ -155,7 +37,6 @@ const Chat = (props: any) => {
         message: data.message,
       });
       setMessageList([...messageListData]);
-      //console.log(messageList);
       scrollToBottom();
     });
   }, []);
@@ -196,7 +77,6 @@ const Chat = (props: any) => {
     setMessage('');
     if (document.getElementById('chatInput') !== null) {
       let value = (document.getElementById('chatInput') as HTMLTextAreaElement).value;
-      console.log(value);
       value = value.replace(/\r\n$/g, '');
       (document.getElementById('chatInput') as HTMLTextAreaElement).value = value;
     }
@@ -205,9 +85,7 @@ const Chat = (props: any) => {
     if (props.user && message) {
       let messageData = message.replace(/ +(?= )/g, '');
       messageData = messageData.toUpperCase();
-      console.log('number' === typeof (messageData * 1), messageData * 1, messageData);
       if (continueGame) {
-        console.log('????????실행?');
         if (
           messageData === 'Y' ||
           messageData === 'O' ||
@@ -246,7 +124,6 @@ const Chat = (props: any) => {
           scrollToBottom();
         }
       } else {
-        console.log('????????실행?');
         if (messageData !== '' && messageData !== ' ' && !isNaN(messageData * 1)) {
           const data = {
             gameStatus: 2,
@@ -261,7 +138,6 @@ const Chat = (props: any) => {
             type: 'game',
           });
         } else {
-          console.log('????????실행?');
           let messageListData = answerList;
           messageListData.push({
             connectionId: 'SYSTEM',

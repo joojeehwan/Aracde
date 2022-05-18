@@ -16,11 +16,9 @@ function SelectGame({ open, onClose, onSelect }: MyProps) {
         e.stopPropagation();
     };
     const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.currentTarget.value);
         setGame(e.currentTarget.value);
     };
     const handleChangeCategory = (e : React.ChangeEvent<HTMLSelectElement>) => {
-        console.log(e.currentTarget.value);
         setCategory(e.currentTarget.value);
     }
     const sendData = (e : React.MouseEvent) => {

@@ -124,7 +124,6 @@ function Catchmind({initData, user} : MyProps) {
             canvas.width = image.width;
             canvas.height = image.height;
             ctx?.drawImage(image, 0, 0);
-            console.log(canvas.toDataURL("image/jpeg"));
             let link = document.createElement("a");
             document.body.appendChild(link);
             link.href = canvas.toDataURL("image/jpeg");
@@ -138,7 +137,6 @@ function Catchmind({initData, user} : MyProps) {
                 pictureUrl : img.src
             }
             const result = await getSaveMyFavoriteImageResult(data);
-            console.log(result);
         }
     }
     const handleResize = debounce(() => {
@@ -153,12 +151,10 @@ function Catchmind({initData, user} : MyProps) {
         canvas.style.height = "100%";
         canvas.width = p.offsetWidth;
         canvas.height = p.offsetHeight;
-        console.log(temp);
         ctx?.putImageData(temp, 0, 0);
     }, 500);
 
     const handleChangeColor = (e : React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.currentTarget.value);
         setColor(e.currentTarget.value);
     }
     const handleClickPen = () => {
@@ -186,7 +182,6 @@ function Catchmind({initData, user} : MyProps) {
         ctx?.beginPath();
         
         if(undoArrRef.current.length >= 1){
-            console.log(undoArrRef.current);
             let undo = undoArr;
             undo.pop();
             if(undo[undo.length-1] instanceof ImageData) ctx?.putImageData(undo[undo.length-1],0,0);
@@ -194,13 +189,11 @@ function Catchmind({initData, user} : MyProps) {
         }     
     }
     const handleCtrlZ = (e : KeyboardEvent) => {
-        console.log("???", e.code);
         if(e.ctrlKey && (e.code === 'KeyZ')){
             handleClickUndo();
         }
     }
     const handleClickLineWidth = (e : React.MouseEvent<HTMLButtonElement>) => {
-        console.log(e.currentTarget.value);
         const target = +e.currentTarget.value;
         setLineWidth(lineWidth.map((v : {num : number, flag : boolean}, i : number) => v.num === target ? {...v, flag : true} : {...v, flag : false}));
     }
@@ -211,7 +204,6 @@ function Catchmind({initData, user} : MyProps) {
             return;
         }
         const canvas : HTMLCanvasElement = canvasRef.current;
-        console.log(e.pageX, e.pageY, canvas.offsetLeft, canvas.offsetTop);
         return {
             x : e?.pageX - canvas.offsetLeft,
             y : e?.pageY - canvas.offsetTop
@@ -226,7 +218,6 @@ function Catchmind({initData, user} : MyProps) {
         const ctx = canvas.getContext('2d');
 
         if(ctx){
-            console.log("?여긴 되누??");
             if(!drawMode) ctx.strokeStyle = color;
             else ctx.strokeStyle = "#ffffff";
             ctx.lineJoin = 'round';
@@ -249,7 +240,6 @@ function Catchmind({initData, user} : MyProps) {
     }
     const startDraw = useCallback((e : MouseEvent) => {
         const position = getPosition(e);
-        console.log("?여긴 start");
         if(position){
             setIsActive(true);
             setMousePos(position);
@@ -266,7 +256,6 @@ function Catchmind({initData, user} : MyProps) {
                 setMousePos(newMousePos);
             }
             else{
-                console.log("하하하하하하하하하하하ㅏ하하하");
             }
         }
         else{
@@ -319,10 +308,8 @@ function Catchmind({initData, user} : MyProps) {
         
         const formData = new FormData();
         formData.append("image", newFile);
-        console.log(newFile);
 
         const result = await getUploadImageResult(formData);
-        console.log(result.data);
         if(result.data !== null){
             const data = {
                 streamId : user.getStreamManager().stream.streamId,
@@ -355,7 +342,6 @@ function Catchmind({initData, user} : MyProps) {
         setLast(false);
     }
     const sendExit = async () => {
-        console.log("???여기 임 ???");
         if(imStart){
             const data = {
                 gameStatus : 3,
@@ -445,7 +431,6 @@ function Catchmind({initData, user} : MyProps) {
             return () => clearInterval(countDown);
         }
         else{
-            console.log("?????");
             clearInterval(countDown);
         }
     }, [timeFlag,time]);
@@ -453,7 +438,6 @@ function Catchmind({initData, user} : MyProps) {
         let countTime : any;
         if(imgStatus){
             countTime = setInterval(()=>{
-                console.log("왜 안될까용??", imgTimeRef.current);
                 if(imgTimeRef.current === 0){
                     clearInterval(countTime);
                 }
@@ -482,7 +466,6 @@ function Catchmind({initData, user} : MyProps) {
             canvas.style.height = "100%";
             canvas.width = p.offsetWidth;
             canvas.height = p.offsetHeight;
-            console.log("????왜 안됨요??");    
         }
         
         window.addEventListener('resize', handleResize);
@@ -492,7 +475,6 @@ function Catchmind({initData, user} : MyProps) {
     }, [myTurn, imgStatus]);
     useEffect(() => {
         if(!canvasRef.current) return;
-        console.log("??SA?DAS?D?ASD?GSDBVISDHNVKLJSDHFUISDFH");
         const canvas : HTMLCanvasElement = canvasRef.current;
         const p : HTMLDivElement = document.getElementById("parent") as HTMLDivElement;
         canvas.addEventListener('mousedown', startDraw);
@@ -520,7 +502,6 @@ function Catchmind({initData, user} : MyProps) {
             setFirst(true);
         }
         let countTime = setInterval(()=>{
-            console.log("왜 안될까용??", startTimeRef.current);
             if(startTimeRef.current === 0){
                 clearInterval(countTime);
             }
@@ -540,12 +521,9 @@ function Catchmind({initData, user} : MyProps) {
             }
         }, 10000);
         user.getStreamManager().stream.session.on("signal:game", async (response : any) => {
-            console.log(response.data, "여긴 게임 안이에요");
-            //console.log(user.getStreamManager().stream.streamId, user.getStreamManager().stream.streamId === response.data.curStreamId);
             if(response.data.gameStatus === 3) return;
             if(response.data.answerYn){
                 const imagesrc = response.data.allImages.split('|');
-                console.log(imagesrc);
                 if(response.data.startStreamId === user.getStreamManager().stream.streamId){
                     setImStart(true);
                 }
@@ -576,9 +554,7 @@ function Catchmind({initData, user} : MyProps) {
             else{
                 if(response.data.orderStatus === 0 || response.data.orderStatus === 1){
                     if(user.getStreamManager().stream.streamId === response.data.curStreamId){
-                        console.log(nextRef.current, "씨발");
                         if(nextRef.current){
-                            console.log("???왜 안됨 제발 제발");
                             setMyturn(true);
                             // setTimeFlag(true);
                             setSrc(response.data.imageUrl);

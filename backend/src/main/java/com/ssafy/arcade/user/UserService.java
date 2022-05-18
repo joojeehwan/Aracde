@@ -286,7 +286,6 @@ public class UserService {
         User reqUser = userRepository.findByUserSeq(userSeq).orElseThrow(() ->
                 new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        System.out.println("reqUser: " + reqUser + "targetUser: " + targetUser);
         if (targetUser == reqUser) {
             throw new CustomException(ErrorCode.CANNOT_FOLLOW_MYSELF);
         }

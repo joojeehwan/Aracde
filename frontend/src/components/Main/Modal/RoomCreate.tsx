@@ -43,7 +43,6 @@ function RoomCreate({ open, onClose }: MyProps) {
       }
 
       // 
-      // console.log(nick);
     } else {
       toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>닉네임을 입력해주세요.</div>, {
         position: toast.POSITION.TOP_CENTER,

@@ -124,7 +124,6 @@ function ChattingLists({
       if (privateChats.get(payloadData.chatRoomSeq)) {
         privateChats.get(payloadData.chatRoomSeq).push(payloadData);
         savePrivateChats(new Map(privateChats));
-        console.log(payloadData);
         if (scrollbarRef.current) {
           scrollbarRef.current.scrollToBottom();
         }

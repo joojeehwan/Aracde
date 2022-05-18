@@ -67,7 +67,6 @@ public class GameService {
     // 초대코드 일치여부 확인
     public void enterGameRoom(String inviteCode) {
         // 해당 inviteCode를 갖는 gameRoom이 존재하지 않는경우
-        System.out.println("inviteCode: " + inviteCode);
         GameRoom gameRoom = gameRoomRepository.findByInviteCode(inviteCode).orElseThrow(() ->
                 new CustomException(ErrorCode.UNMATHCED_CODE));
 
@@ -143,7 +142,6 @@ public class GameService {
                 break;
             }
         }
-        System.out.println("flag: " + flag);
         // 유효하지 않은 code를 보낼 경우
         if (!flag) {
             throw new CustomException(ErrorCode.WRONG_DATA);

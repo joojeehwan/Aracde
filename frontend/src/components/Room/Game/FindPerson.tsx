@@ -132,7 +132,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
             }
         });
         setTimeout(()=>{
-            console.log("???여긴", imSpeak);
             setInit(false);
             setStep(true);
             setIdx(1);
@@ -149,7 +148,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
         my.getStreamManager().stream.session.on("signal:game", async (response : any) => {
             setIdx(response.data.index);
             if(response.data.answerYN !== undefined){
-                console.log("여긴 들어오는 거니?? in answer");
                 if(response.data.answerYN === 2){
                     setChance(1);
                     setLastCheck(true);
@@ -194,9 +192,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 return;
             }
             else if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
-                console.log("여긴 됨?? in finish");
                 if(my.getStreamManager().stream.streamId === response.data.curStreamId){
-                    console.log("여긴 됨?? in if");
                     setImNext(true);
                 }
                 setCurSpeak(response.data.curStreamId);
@@ -204,18 +200,14 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 setStep(true);
             }
             else if(response.data.finishPR && response.data.finishPR === 'Y'){
-                console.log("??? 여긴 실행 되니?? 마지막 체크")
                 setMeeting(true);
             }
         });
     },[]);
 
     useEffect(()=>{
-        console.log("??? 왜 실행이 안될까용");
         users.map((v) => {
-            console.log("???? 여긴 되는거니??", v.getStreamManager().stream.streamId, 0, suspect);
             if(v.getStreamManager().stream.streamId === suspect){
-                console.log("hi");
                 setFindNick(v.getNickname());
             }
         })
@@ -224,7 +216,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     useEffect(()=>{
         if(step){
             setTimeout(()=>{
-                console.log("여긴", curSpeakRef.current, my.getStreamManager().stream.streamId);
                 if(curSpeakRef.current === my.getStreamManager().stream.streamId){
                     setNow(true);
                     setImNext(false);
@@ -271,14 +262,11 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
             }, 1000);
 
             setTimeout(()=>{
-                console.log("????????? 되는거야??");
                 setSpeak(false);
-                console.log(nowRef.current);
                 if(nowRef.current){
                     setNow(false);  
                     
                     if(idx !== undefined){
-                        console.log("여긴 길이 검사야");
                         const data = {
                             gameStatus : 2,
                             gameId : 3,
@@ -331,7 +319,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
             }
             else{
                 countDown = setInterval(()=>{
-                    console.log("여긴 라스트임",lastTimeRef.current);
                     if(lastTimeRef.current === 0 || endRef.current){
                         clearInterval(countDown);
                     }
@@ -363,7 +350,6 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     }, [lastCheck])
 
     useEffect(()=>{
-        console.log("여긴", speakTimeRef.current);
         if(nowRef.current){
             micChange(nowRef.current);
         }

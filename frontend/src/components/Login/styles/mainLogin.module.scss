@@ -18,7 +18,7 @@
 }
 
 .squareContainer {
-  margin-top: 5%;
+  margin-top: 10%;
   vertical-align: middle;
   display: flex;
   justify-content: center;
@@ -29,7 +29,7 @@
 
 .square {
   padding: 30px;
-  height: 500px;
+  height: 400px;
   width: 30%;
   position: relative;
   max-width: 100%;
@@ -38,7 +38,7 @@
   background-color: rgba(255, 255, 255, 0.205);
   @media (width < 500px) {
     width: 50%;
-    height: 400px;
+    height: 300px;
   }
 }
 
