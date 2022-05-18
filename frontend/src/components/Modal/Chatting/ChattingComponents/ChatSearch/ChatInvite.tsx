@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import style from '../../../styles/Invite.module.scss';
 import { toast } from 'react-toastify';
 
-
 //components
 import ChatInviteSearhBar from '../../ChattingComponents/ChatSearch/ChatInviteSearhBar';
 import ChatInviteSearhResults from '../../ChattingComponents/ChatSearch/ChatInviteSearhResults';
@@ -10,15 +9,15 @@ import ChatInviteSearhResults from '../../ChattingComponents/ChatSearch/ChatInvi
 //api
 import ChatApi from '../../../../../common/api/ChatAPI';
 
-
-
 type MyProps = {
   open: boolean;
   onClose: (e: any) => void;
 };
 
 function ChatInvite({ open, onClose, handleFlag }: any) {
-  const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string; login: boolean; email: string }[]>([]);
+  const [friend, setFriend] = useState<
+    { userSeq: number; name: string; canInvite: boolean; image: string; login: boolean; email: string }[]
+  >([]);
   const { getChatSearchResult } = ChatApi;
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
@@ -26,12 +25,12 @@ function ChatInvite({ open, onClose, handleFlag }: any) {
   };
 
   const handleSearchPeople = async (name: string) => {
+    setFriend([]);
     const result = await getChatSearchResult(name);
     if (result?.status === 200) {
       setFriend([...result.data]);
     }
   };
-
 
   return (
     <div
@@ -52,7 +51,7 @@ function ChatInvite({ open, onClose, handleFlag }: any) {
           <ChatInviteSearhBar searchPeople={handleSearchPeople} />
           <div className={style.chatAddContainer}>
             {friend.map((value, i) => {
-              const idx = i
+              const idx = i;
               return (
                 <ChatInviteSearhResults
                   key={idx}
