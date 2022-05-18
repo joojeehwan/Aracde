@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import style from '../styles/Invite.module.scss';
 import { toast } from 'react-toastify';
-import UserApi from "../../../common/api/UserApi"
+import UserApi from '../../../common/api/UserApi';
 //components
 import InviteSearchBar from '../Invite/InviteSearch/InviteSearhBar';
 import InviteSearhResults from '../Invite/InviteSearch/InviteSearhResults';
@@ -12,8 +12,9 @@ type MyProps = {
 };
 
 function Invite({ open, onClose }: MyProps) {
-
-  const [friend, setFriend] = useState<{ userSeq: number; name: string; canInvite: boolean; image: string, login: boolean; email: string }[]>([]);
+  const [friend, setFriend] = useState<
+    { userSeq: number; name: string; canInvite: boolean; image: string; login: boolean; email: string }[]
+  >([]);
 
   const handleStopEvent = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -22,13 +23,14 @@ function Invite({ open, onClose }: MyProps) {
   const { getSearchUserResultForGame } = UserApi;
 
   const handleSearchPeople = async (name: string) => {
+    setFriend([]);
     const result = await getSearchUserResultForGame(name);
     if (result?.status === 200) {
       setFriend([...result.data]);
     }
   };
 
-  console.log(friend)
+  console.log(friend);
 
   return (
     <div
@@ -49,8 +51,18 @@ function Invite({ open, onClose }: MyProps) {
           <InviteSearchBar searchPeople={handleSearchPeople} />
           <div className={style.InviteAddContainer}>
             {friend.map((value, i) => {
-              const idx = i
-              return <InviteSearhResults key={idx} name={value.name} isInvite={value.canInvite} targetUserSeq={value.userSeq} login={value.login} image={value.image} email={value.email} />;
+              const idx = i;
+              return (
+                <InviteSearhResults
+                  key={idx}
+                  name={value.name}
+                  isInvite={value.canInvite}
+                  targetUserSeq={value.userSeq}
+                  login={value.login}
+                  image={value.image}
+                  email={value.email}
+                />
+              );
             })}
           </div>
         </section>
