@@ -143,9 +143,12 @@ const Room = () => {
               onClick={handleOpenChatting}
               className={styles.link}
               style={{
-                margin: '20px',
-                position: 'fixed',
-                right: '0px',
+                // margin: '20px',
+                // position: 'absolute',
+                float : "right",
+                // right: '0px',
+                // left : 0,
+                // bottom : 0,
                 backgroundColor: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
@@ -153,8 +156,10 @@ const Room = () => {
             >
               <img
                 style={{
-                  width: 60,
-                  height: 60,
+                  // marginTop : "32px",
+                  marginRight : "1vw",
+                  width: "50px",
+                  height: "50px",
                 }}
                 src={ChatIcon}
                 alt="chatIcon"

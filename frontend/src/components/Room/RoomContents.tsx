@@ -576,6 +576,15 @@ const RoomContents = ({ sessionName, userName }: any) => {
   };
 
   const selectGame = (game: string, ctgy: string) => {
+    if(subscribersRef.current.length < 2) {
+      toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>게임은 참여인원이 3명 이상일 때 진행 할 수 있습니다.</div>, {
+        position: toast.POSITION.TOP_CENTER,
+        role: 'alert',
+      });
+      return;
+    
+    }
+    
     if (game === '3') {
       const data = {
         gameStatus: 1,
