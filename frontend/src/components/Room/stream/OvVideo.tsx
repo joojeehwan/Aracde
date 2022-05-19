@@ -13,24 +13,15 @@ type MyProps = {
 
 function OvVideo({ user, mutedSound, mode, end, isLast, sendAns } : MyProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
-  // console.log("video render");
 
 
     const handleClickDiv = (streamId : string) => {
-        console.log("?? 클릭임");
-        console.log("?? 클릭임 ",isLast, sendAns !== null)
         if(isLast && sendAns !== null){
             sendAns(streamId);
         }
     }
-  // console.log(user);
     useEffect(() => {
-        console.log("PROPS: ", user.streamManager);
-        console.log("PROPS: ", user);
         if (user.streamManager && !!videoRef) {
-            console.log("PROPS: ", user.streamManager);
-            console.log("PROPS: ", user);
-            console.log(videoRef.current);
             user.getStreamManager().addVideoElement(videoRef.current);
         }
 

@@ -16,11 +16,9 @@ function SelectGame({ open, onClose, onSelect }: MyProps) {
         e.stopPropagation();
     };
     const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.currentTarget.value);
         setGame(e.currentTarget.value);
     };
     const handleChangeCategory = (e : React.ChangeEvent<HTMLSelectElement>) => {
-        console.log(e.currentTarget.value);
         setCategory(e.currentTarget.value);
     }
     const sendData = (e : React.MouseEvent) => {
@@ -96,8 +94,8 @@ function SelectGame({ open, onClose, onSelect }: MyProps) {
                     <option value="1">영화</option>
                     <option value="2">게임</option>
                     <option value="3">생물</option>
-                    <option value="4">캐릭터</option>
-                    <option value="5">노래</option>
+                    <option value="4">직업</option>
+                    <option value="5">운동</option>
                     <option value="6">전체</option>
                 </select>
                 ) : null}
@@ -118,8 +116,8 @@ function SelectGame({ open, onClose, onSelect }: MyProps) {
                     <option value="1">영화</option>
                     <option value="2">게임</option>
                     <option value="3">생물</option>
-                    <option value="4">캐릭터</option>
-                    <option value="5">노래</option>
+                    <option value="4">직업</option>
+                    <option value="5">운동</option>
                     <option value="6">전체</option>
                 </select>
                 ) : null}

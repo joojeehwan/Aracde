@@ -22,7 +22,8 @@
 }
 
 .InviteAddContainer {
-  height: 430px;
+  
+  height: 250px;
   margin-top: 10px;
   font-size: 1.2rem;
   text-align: center;
@@ -34,7 +35,6 @@
   }
 }
 
-
 .modal button {
   font-family: 'neodgm';
   cursor: pointer;
@@ -44,7 +44,7 @@
   height: 32px;
   color: #ffffff;
   font-size: 14px;
-  margin: auto 10px;
+  margin: auto 0px auto 5px;
   background-color: #9900f0;
 }
 
@@ -56,7 +56,7 @@
   height: 32px;
   color: #ffffff;
   font-size: 14px;
-  margin: auto 10px;
+  margin: auto 0px auto 5px;
   background-color: #858585;
 }
 
@@ -70,7 +70,10 @@
   overflow: hidden;
 }
 
-.serachBar {
+.searchBar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   margin: 40px auto;
   text-align: center;
@@ -78,7 +81,24 @@
   position: relative;
 }
 
+
+.chatAddContainer {
+
+  height: 250px;
+  margin-top: 10px;
+  font-size: 1.2rem;
+  text-align: center;
+  overflow: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+    width: 0 !important;
+  }
+
+}
+
 .input {
+  padding: 5px;
   font-size: 20px;
   margin-left: 20px;
   font-family: 'neodgm';

@@ -52,7 +52,6 @@ function FriendsList({ name, imgUrl, userSeq, setIsDelete, login, email }: any) 
 
   //api
   const { deleteFriend, getFriendList } = UserApi;
-  console.log(userSeq);
 
   const onClickdeleteFriend = useCallback(async () => {
     setIsDelete(true)

@@ -36,12 +36,10 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const { setSessionId, mode, setMode, myMic, myVideo, myTurn, setMyTurn } = useStore();
   //   const { loginStatus, setLoginStatus } = useContext(LoginStatusContext);
   //   const { myName } = useContext(NameContext);
-  //console.log(loginStatus, myName);
 
   const myTurnRef = useRef(myTurn);
   myTurnRef.current = myTurn;
 
-  console.log('room content render');
   const [mySessionId, setMySessionId] = useState<string>(sessionName);
   const [myUserName, setMyUserName] = useState<string>(userName);
   const [session, setSession] = useState<any>(undefined);
@@ -88,7 +86,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
   const modeRef = useRef(mode);
   modeRef.current = mode;
 
-  // console.log(localUserRef.current, sessionRef.current);
 
   const targetSubscriberRef = useRef(targetSubscriber);
   targetSubscriberRef.current = targetSubscriber;
@@ -134,7 +131,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
   useEffect(() => {
     const preventGoBack = () => {
       window.history.pushState(null, '', window.location.href);
-      console.log('prevent go back!');
     };
 
     window.history.pushState(null, '', window.location.href);
@@ -153,17 +149,12 @@ const RoomContents = ({ sessionName, userName }: any) => {
   }, []);
 
   useEffect(() => {
-    console.log(session, sessionRef.current);
     setSessionId(sessionRef.current);
     if (sessionRef.current) {
-      console.log(sessionRef.current);
       // 상대방이 들어왔을 때 실행
-      console.log('AS?DAS?DASDFKLASDFHNLS:DKFHNBVKLSJ:DVFHBNSHKDJ:FVHBNSAJKDFHBNASDKF');
       sessionRef.current.on('streamCreated', (event: any) => {
-        console.log('?AS?DAS?D?ASD?ASFVSJKDLVHNBSDKJVHBNSDKJVHBSDKLJFCHGBADSKLJFHASKJLFDHKLJADSFHSDIUFHSDUIFHGSDLJKF');
         setParticpantNum(participantNumRef.current + 1);
         let subscriber = sessionRef.current.subscribe(event.stream, undefined);
-        //console.log(event);
         const newUser = new UserModel();
         newUser.setStreamManager(subscriber);
         newUser.setConnectionId(event.stream.connection.connectionId);
@@ -172,18 +163,13 @@ const RoomContents = ({ sessionName, userName }: any) => {
         newUser.setType('remote');
 
         const nickname = event.stream.connection.data.split('%')[0];
-        //console.log(nickname);
         newUser.setNickname(JSON.parse(nickname).clientData);
 
-        console.log(newUser);
-        console.log(subscribersRef.current);
-        console.log(subscribers);
         setSubscribers([...subscribersRef.current, newUser]);
       });
 
       // 상대방이 상태를 변경했을 때 실행 (카메라 / 마이크 등)
       sessionRef.current.on('signal:userChanged', (event: any) => {
-        console.log(sessionRef.current);
         subscribersRef.current.forEach((user) => {
           if (user.getConnectionId() === event.from.connectionId) {
             const data = JSON.parse(event.data);
@@ -203,7 +189,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
         deleteSubscriber(event.stream);
       });
       sessionRef.current.on('publisherStartSpeaking', (event: any) => {
-        console.log('User ' + event.connection.connectionId + ' start speaking');
         subscribersRef.current.map((v) => {
           if (v.getConnectionId() === event.connection.connectionId) {
             v.setSpeaking(true);
@@ -213,7 +198,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
       });
 
       sessionRef.current.on('publisherStopSpeaking', (event: any) => {
-        console.log('User ' + event.connection.connectionId + ' stop speaking');
         subscribersRef.current.map((v) => {
           if (v.getConnectionId() === event.connection.connectionId) {
             v.setSpeaking(false);
@@ -227,7 +211,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
       });
 
       sessionRef.current.on('signal:game', async (response: any) => {
-        console.log(response);
         if (response.data.gameStatus === 0) {
           if (localUserRef.current.getStreamManager().stream.streamId !== response.data.streamId) {
             setWait(response.data.flag);
@@ -246,7 +229,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
           setMode('home');
         }
         if (response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1') {
-          console.log('?실행', modeRef.current);
           setCatchMindData({
             answer: response.data.answer,
             id: response.data.curStreamId,
@@ -277,7 +259,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
           setMode('game1');
         }
         if (response.data.gameId === 2 && response.data.gameStatus === 2 && modeRef.current !== 'game2') {
-          console.log('몸으로 말해요 게임 실행');
           setCharadeData({
             answer: response.data.answer,
             id: localUserRef.current.getStreamManager().stream.streamId,
@@ -294,17 +275,14 @@ const RoomContents = ({ sessionName, userName }: any) => {
           setMode('game2');
         }
         if (response.data.gameId === 3 && response.data.gameStatus === 2 && modeRef.current !== 'game3') {
-          console.log('?실행', response.data);
 
           if (response.data.playYn === 'Y') {
-            console.log(response.data);
             let curUsers = [];
             if (localUserRef.current.getStreamManager().stream.streamId === response.data.detectiveStreamId) {
               localUserRef.current.setImDetect(true);
               setImDetect(response.data.detectiveStreamId);
               setDetectNick(localUserRef.current.getNickname());
             } else {
-              console.log('난 탐정이 아니다. ', localUserRef.current.getStreamManager());
               handleVoiceFilter();
               subscribersRef.current.map((v) => {
                 if (v.getStreamManager().stream.streamId === response.data.detectiveStreamId) {
@@ -328,11 +306,9 @@ const RoomContents = ({ sessionName, userName }: any) => {
       });
 
       getToken().then((token) => {
-        console.log('GETTOKEN', token);
         sessionRef.current
           .connect(token, { clientData: myUserName })
           .then(async () => {
-            console.log('???AS?DA?SD?ASD?ASD?ASD?ASD?ASD??????????????? 여기가 왜 실 행 되는 거냐 ');
             let publisherTemp = OV.initPublisher(undefined, {
               audioSource: undefined,
               videoSource: undefined,
@@ -375,19 +351,16 @@ const RoomContents = ({ sessionName, userName }: any) => {
             }
           })
           .catch((error: any) => {
-            console.log('There was an error connecting to the session:', error.code, error.message);
           });
       });
     }
   }, [session]);
 
   useEffect(() => {
-    console.log(subscribers);
     setTargetSubscriber(subscribers[0]);
   }, [subscribers]);
 
   const leaveSession = () => {
-    console.log('??여기 실행됨?');
     // handleleaveRoom();
     const mySession = sessionRef.current;
     if (mySession) {
@@ -403,24 +376,14 @@ const RoomContents = ({ sessionName, userName }: any) => {
   };
 
   const deleteSubscriber = (stream: any) => {
-    console.log(stream);
-    console.log(subscribersRef.current);
-    console.log(subscribers);
     const userStream = subscribersRef.current.filter((user) => user.getStreamManager().stream === stream)[0];
 
-    console.log(userStream);
 
-    console.log(subscribersRef.current);
-    console.log(subscribers);
     let index = subscribersRef.current.indexOf(userStream, 0);
-    console.log(index);
     if (index > -1) {
       subscribersRef.current.splice(index, 1);
-      console.log(subscribersRef.current);
-      console.log(subscribers);
       setSubscribers([...subscribersRef.current]);
     }
-    console.log(subscribersRef.current);
   };
 
   const onbeforeunload = (e: any) => {
@@ -429,28 +392,23 @@ const RoomContents = ({ sessionName, userName }: any) => {
     e.returnValue = 'message to user';
     setTimeout(() => {
       setTimeout(() => {
-        console.log('여기가 되는건 아니겠죠?!?!?!?!?!?!?!?!?!?!?!??!?!?!?!?!?');
         enterRoom(sessionName);
       }, 500);
     }, 100);
   };
 
   const handleleaveRoom = async () => {
-    console.log('여기 안불리겠지??', sessionName);
     await exitRoom(sessionName);
   };
   const sendSignalUserChanged = (data: any) => {
-    //console.log("시그널 보내 시그널 보내");
     const signalOptions = {
       data: JSON.stringify(data),
       type: 'userChanged',
     };
-    console.log(sessionRef.current);
     sessionRef.current.signal(signalOptions);
   };
 
   const camStatusChanged = () => {
-    //console.log("캠 상태 변경!!!");
     localUserInit.setVideoActive(!localUserInit.isVideoActive());
     localUserInit.getStreamManager().publishVideo(localUserInit.isVideoActive());
 
@@ -459,8 +417,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
   };
 
   const micStatusChanged = (flag: any) => {
-    //console.log("마이크 상태 변경!!!");
-    // console.log(flag, );
     if (flag.type !== 'click') {
       localUserInit.setAudioActive(flag);
       localUserInit.getStreamManager().publishAudio(localUserInit.isAudioActive());
@@ -491,7 +447,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
       .getStreamManager()
       .stream.applyFilter(type, options)
       .then((result: any) => {
-        console.log(result, '난 탐정이 아니다.');
       });
   };
 
@@ -500,10 +455,8 @@ const RoomContents = ({ sessionName, userName }: any) => {
       .getStreamManager()
       .stream.removeFilter()
       .then(() => {
-        console.log('필터 제거');
       })
       .catch(() => {
-        console.log('필터 없어용');
       });
   };
 
@@ -522,7 +475,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
           },
         })
         .then((response) => {
-          console.log('CREATE SESION', response);
           resolve(response.data.id);
         })
         .catch((response) => {
@@ -530,7 +482,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
           if (error.response && error.response.status === 409) {
             resolve(sessionId);
           } else {
-            ////console.log(error);
             console.warn('No connection to OpenVidu Server. This may be a certificate error at ' + OPENVIDU_SERVER_URL);
             if (
               window.confirm(
@@ -568,7 +519,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
           },
         })
         .then((response) => {
-          console.log('TOKEN', response);
           resolve(response.data.token);
         })
         .catch((error) => reject(error));
@@ -576,6 +526,15 @@ const RoomContents = ({ sessionName, userName }: any) => {
   };
 
   const selectGame = (game: string, ctgy: string) => {
+    if(subscribersRef.current.length < 2) {
+      toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>게임은 참여인원이 3명 이상일 때 진행 할 수 있습니다.</div>, {
+        position: toast.POSITION.TOP_CENTER,
+        role: 'alert',
+      });
+      return;
+    
+    }
+    
     if (game === '3') {
       const data = {
         gameStatus: 1,
@@ -597,7 +556,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
         data: JSON.stringify(data),
       });
     } else {
-      console.log('???????여기 아님?');
       const data = {
         gameStatus: 1,
         gameId: +game,
@@ -633,7 +591,6 @@ const RoomContents = ({ sessionName, userName }: any) => {
   }, [inviteIsOpen]);
 
   useEffect(() => {
-    console.log(myTurnRef.current, '진짜ㅋㅋㅋ');
   }, [myTurn]);
 
   return (
@@ -803,38 +760,17 @@ const RoomContents = ({ sessionName, userName }: any) => {
                   </button>
 
                   <div
-                    style={{
-                      // gridColumn: '1 / span 2',
-                      marginBottom: '2%',
-                      display: 'flex',
-                    }}
+                    className={styles.codeBlock}
+                    onClick={handleCopy}
                   >
                     <button
-                      style={{
-                        backgroundColor: '#38C502',
-                        border: 'none',
-                        borderRadius: '5px 0px 0px 5px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                      }}
-                      onClick={handleCopy}
                       className={styles.codePaste}
                     >
-                      <img src={Link} style={{ width: '100%', height: '50%' }}></img>
+                      <img src={Link} style={{ width: '48px'}}></img>
                     </button>
                     <div
                       id="code"
-                      style={{
-                        width: '100%',
-                        backgroundColor: '#C4C4C4',
-                        borderRadius: '0px 5px 5px 0px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        fontSize: 30,
-                      }}
+                      className={styles.codeText}
                     >
                       {window.localStorage.getItem('invitecode')}
                     </div>

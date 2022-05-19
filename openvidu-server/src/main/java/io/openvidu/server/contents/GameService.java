@@ -171,7 +171,6 @@ public class GameService {
         // 순서 매핑
         Map<Integer, String> peopleOrder = new HashMap<>();
 
-        log.info("########## [ARCADE] : peopleOrder = " + peopleOrder);
 
         int idx1, idx2;
         for (int i = 0; i < peopleCnt; i++) {
@@ -194,9 +193,15 @@ public class GameService {
 //        }
 
         log.info("########## [아케이드] : 지금 사람 순서 = " + peopleOrder);
+
+        // 데이터가 존재하는 경우 지우고 새로 넣어야 한다.
+        orderMap.remove(sessionId);
         orderMap.put(sessionId, peopleOrder);
 
         if (gameId == CATCHMIND) {
+            // 혹시 모르니 이전 데이터 삭제
+            imageMap.remove(sessionId);
+            answerMap.remove(sessionId);
             String playYn;
             if (peopleCnt < 2) {
                 playYn = "N";
@@ -234,7 +239,8 @@ public class GameService {
         }
         else if (gameId == CHARADES) {
             log.info("########## [아케이드] : 몸으로 말해요 시작!!");
-
+            // 혹시 모르니 기존 데이터 삭제
+            charadesWordMap.remove(sessionId);
             // 카테고리에 맞는 단어 가져오기
             WordGameUtil wordGameUtil = new WordGameUtil();
             int category = data.get("category").getAsInt();
@@ -257,6 +263,10 @@ public class GameService {
         }
         else if (gameId == GUESS) {
             log.info("########## [아케이드] : 너의 목소리가 들려 시작!!");
+            // 혹시 모르니 기존 데이터 삭제
+            detectMap.remove(sessionId);
+            suspectMap.remove(sessionId);
+            chanceMap.remove(sessionId);
             // 첫번째 : 탐정, 두번째 : 범인. 이 게임 하려면 무조건 2명 이상이어야함
             String playYn;
             if (peopleCnt < 3) {
@@ -364,7 +374,7 @@ public class GameService {
 
                 // 응답 값에도 공백들은 다 지운다.
                 String response = data.get("response").getAsString().replaceAll("\\s", "");
-
+                log.info("########## [아케이드] 캐치마인드 : 정답 = " + answer + ", 시도 = " + response + "일치 여부 = " + answer.equals(response));
                 if (answer.equals(response)) {
                     data.addProperty("answerYn", "Y");
 
@@ -388,7 +398,6 @@ public class GameService {
                 data.addProperty("allImages", allImages);
                 // 마지막 사람 외에는, 이전사람 그림과, gameStatus값을 보내 줌
             } else {
-                data.addProperty("gameStatus", 2);
                 data.addProperty("imageUrl", imageUrl);
             }
             // 다음 차례
@@ -430,10 +439,10 @@ public class GameService {
                 // 시간 내에 정답을 맞추려고 시도했다.
                 // 뭐라고 시도했는지 저장. 공백은 다 제거한다.
                 String keyword = data.get("keyword").getAsString().replaceAll("\\s", "");
-                log.info("########## [아케이드] 몸으로 말해요에서 시도한 정답은?? = " + keyword);
 
                 String nowAnswer = charadesAnswers.get(index).replaceAll("\\s", "");
-                log.info("########## [아케이드] 몸으로 말해요의 인덱스 = " + index + " & 정답 = " + nowAnswer);
+                log.info("########## [아케이드] 몸으로 말해요의 인덱스 = " + index );
+                log.info("########## [아케이드] 몸으로 말해요: 정답 = " +nowAnswer+ ", 시도 = " + keyword +", 일치여부 = " + nowAnswer.equals(keyword));
                 if (nowAnswer.equals(keyword)) {
                     // 정답이다.
                     data.addProperty("answerYN", "Y");
@@ -444,6 +453,7 @@ public class GameService {
                     // 마지막 사람인 경우
                     if (index == peopleCnt) {
                         // 게임 끝낸다.
+                        data.addProperty("startSteamId", starterMap.get(sessionId));
                         data.addProperty("gameStatus", 2);
                         data.addProperty("finishYN", "Y");
                     } else {
@@ -465,6 +475,7 @@ public class GameService {
                 // 마지막 사람인 경우
                 if (index == peopleCnt) {
                     // 게임을 끝낸다.
+                    data.addProperty("startSteamId", starterMap.get(sessionId));
                     data.addProperty("finishYN", "Y");
                 } else {
                     // 다음 출제자와 답변을 보낸다.
@@ -553,6 +564,7 @@ public class GameService {
             if (answer == tryNumber) {
                 // 맞췄으니 게임 종료
                 log.info("########## [아케이드] 업다운 : " + peopleOrder.get(index) + "가 정답을 맞췄다 !!");
+                data.addProperty("startSteamId", starterMap.get(sessionId));
                 data.addProperty("answer", answer);
                 data.addProperty("answerYN", 0);
                 data.addProperty("answerStreamId", peopleOrder.get(index));

@@ -229,7 +229,6 @@ public class RecordingManager {
 				boolean keep = true;
 				log.info("Downloading ");
 				while (keep) {
-					System.out.print(".");
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {

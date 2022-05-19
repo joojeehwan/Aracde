@@ -103,7 +103,6 @@ public class NaverLoginService {
             e.printStackTrace();
         }
 
-        System.out.println("naverProfile: " + naverProfile);
         return naverProfile;
     }
 

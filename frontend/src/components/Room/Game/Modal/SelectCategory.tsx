@@ -15,7 +15,6 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
         e.stopPropagation();
     };
     const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.currentTarget.value);
         setCategory(e.currentTarget.value);
     };
 
@@ -92,7 +91,7 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
                     />
                 </div>
                 <div className={style.game}>
-                    생물
+                    동물
                     <input
                         value="3"
                         name="platform"
@@ -102,7 +101,7 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
                     />
                 </div>
                 <div className={style.game}>
-                    캐릭터
+                    직업
                     <input
                         value="4"
                         name="platform"
@@ -112,7 +111,7 @@ function SelectCategory({ open, onClose, onSelect }: MyProps) {
                     />
                 </div>
                 <div className={style.game}>
-                    노래
+                    운동
                     <input
                         value="5"
                         name="platform"

@@ -36,6 +36,7 @@ function Friends({ open, onClose }: MyProps) {
   }, []);
 
   const handleSearchPeople = async (name: string) => {
+    setPeople([]);
     const result = await getUserSearchResult(name);
     if (result?.status === 200) {
       setPeople([...result.data]);
@@ -45,7 +46,6 @@ function Friends({ open, onClose }: MyProps) {
 
   const getAndgetFriendList = async () => {
     const result = await getFriendList()
-    console.log(result)
     if (result?.status === 200) {
       setFriend([...result.data])
     }
@@ -59,7 +59,6 @@ function Friends({ open, onClose }: MyProps) {
     setPeople([])
   }, [tab, isDelete])
 
-  console.log(friend)
 
   const rendertab = (value: any) => {
     if (value >= 0 && value < 5) {
