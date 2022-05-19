@@ -2,6 +2,7 @@ import axios from 'axios';
 import { getToken } from './jWT-Token';
 
 const BASE_URL = process.env.REACT_APP_API_ROOT + '/users';
+// const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/users';
 
 // 카카오 로그인
 const getKakaoLoginResult = async (code: string) => {
@@ -121,17 +122,25 @@ const deleteFriend = async (userSeq: number) => {
 
 const getProfile = async () => {
   const token = getToken();
-  if (token !== null) {
-    return await axios
-      .get(`${BASE_URL}/profile`, { headers: { Authorization: token } })
-      .then((response) => {
-        return response;
-      })
-      .catch((error) => {
-        return error;
-      });
-  } else {
-  }
+  // if (token !== null) {
+  const result = await axios
+    .get(`${BASE_URL}/profile`, { headers: { Authorization: token !== null ? token : "" } })
+    .then((response) => {
+      const value = {
+        status : 200,
+        data : response.data
+      }
+      // console.log(response);
+      return value;
+    })
+    .catch((error) => {
+      const value = {
+        status : 401,
+        data : null
+      }
+      return value;
+    });
+  return result;
 };
 const UserApi = {
   getKakaoLoginResult,
