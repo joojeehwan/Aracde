@@ -172,25 +172,19 @@ public class GameService {
         Map<Integer, String> peopleOrder = new HashMap<>();
 
 
-//        int idx1, idx2;
-//        for (int i = 0; i < peopleCnt; i++) {
-//            idx1 = (int) (Math.random()*peopleCnt);
-//            idx2 = (int) (Math.random()*peopleCnt);
-//            swap(idxArr, idx1, idx2);
-//        }
-//        // 순서 섞였는지 체크
-//        int idx = 0;
-//        for (Participant p : participants) {
-//            peopleOrder.put(idxArr[idx], p.getPublisherStreamId());
-//            idx++;
-//        }
-
-         // 순서 안섞는용
-        int idx = 1;
+        int idx1, idx2;
+        for (int i = 0; i < peopleCnt; i++) {
+            idx1 = (int) (Math.random()*peopleCnt);
+            idx2 = (int) (Math.random()*peopleCnt);
+            swap(idxArr, idx1, idx2);
+        }
+        // 순서 섞였는지 체크
+        int idx = 0;
         for (Participant p : participants) {
-            peopleOrder.put(idx, p.getPublisherStreamId());
+            peopleOrder.put(idxArr[idx], p.getPublisherStreamId());
             idx++;
         }
+
 
         log.info("########## [아케이드] : 지금 사람 순서 = " + peopleOrder);
 
@@ -286,10 +280,26 @@ public class GameService {
                 // 섞인 인덱스 리스트에서 각각 첫번째, 두번째를 뽑으면 랜덤을 두번 돌린 셈이 된다.
 //                String detectiveStreamId = peopleOrder.get(randomIndexList.get(0));
 //                String suspectStreamId = peopleOrder.get(randomIndexList.get(1));
+//
+//                // 순서 안섞는용
+////                String detectiveStreamId = peopleOrder.get(1);
+////                String suspectStreamId = peopleOrder.get(2);
+//
 
-                // 순서 안섞는용
-                String detectiveStreamId = peopleOrder.get(1);
-                String suspectStreamId = peopleOrder.get(2);
+                // 시연용
+                String detectiveStreamId = starterMap.get(sessionId);
+                String suspectStreamId;
+                for (Participant p : participants) {
+                    // 본인은 제외
+                    if (detectiveStreamId == p.getPublisherStreamId()) {
+                        continue;
+                    }
+                    suspectStreamId = p.getPublisherStreamId();
+                    suspectMap.put(sessionId, suspectStreamId);
+                    data.addProperty("suspectStreamId", suspectStreamId);
+                    break;
+                }
+                detectMap.put(sessionId, detectiveStreamId);
 
                 String speakStreamId = "";
                 // 그냥 참가자 순서대로 하는데 이게 맞추는 사람이면 다음 사람으로 넘어간다.
@@ -303,9 +313,6 @@ public class GameService {
                 }
 
 
-                detectMap.put(sessionId, detectiveStreamId);
-                suspectMap.put(sessionId, suspectStreamId);
-
                 // 기회는 4명까지는 1번, 5명 부터는 2번
                 int chance = 1;
                 if (peopleCnt > 4) {
@@ -315,7 +322,6 @@ public class GameService {
 
                 // 탐정과 범인 지정
                 data.addProperty("detectiveStreamId", detectiveStreamId);
-                data.addProperty("suspectStreamId", suspectStreamId);
                 // 첫번째 발언권
                 data.addProperty("curStreamId", speakStreamId);
             }
