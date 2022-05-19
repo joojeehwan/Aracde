@@ -36,7 +36,7 @@
 
 ​	방만들기를 통해 방을 생성한 후에,  같이 플레이 할 친구들에게 생성된 초대코드를 공유하면 됩니다!
 
-![createRoom](README.assets/createRoom.gif)
+![cRoom](README.assets/cRoom.gif)
 
 
 
