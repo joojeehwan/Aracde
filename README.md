@@ -44,11 +44,11 @@
 
 **몸으로 말해요**
 
-
+![charade](README.assets/charade.gif)
 
 **너의 목소리가 들려**
 
-
+![너목들](README.assets/너목들.gif)
 
 **친구 추가 / 채팅**
 
@@ -226,8 +226,4 @@ Docs     -  문서 관련
     </tr>
 </table>
 
-
-## 🕶 UCC 보러가기
-
-[여기에 UCC 링크]
 
