@@ -14,7 +14,7 @@ type profileProps = {
   totalVic : number;
 }
 function DoughnutChart({vicCnt, totalVic} : profileProps) {
-    const [label, setLabel] = useState<String[]>(['캐치마인드', '몸으로 말해요', '범인을 찾아라'])
+    const [label, setLabel] = useState<String[]>(['캐치마인드', '몸으로 말해요', '너의 목소리가 들려'])
     const data = {
       labels: label,
       datasets: [
