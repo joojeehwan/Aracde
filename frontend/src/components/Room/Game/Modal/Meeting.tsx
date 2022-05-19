@@ -35,7 +35,7 @@ function Meeting({ open }: MyProps) {
                   flexDirection : "column",
                 }}>
                   <div>지금부터 자유토론 시간입니다!</div>
-                  <div>1분간 자유롭게 토론하세요!</div>
+                  <div>20초간 자유롭게 토론하세요!</div>
                   
                 </div>
               

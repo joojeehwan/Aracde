@@ -36,7 +36,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
     const [imNext, setImNext] = useState<boolean>(false);
     const [speakTime, setSpeakTime] = useState<number>(10);
     const [speak, setSpeak] = useState<boolean>(false);
-    const [time, setTime] = useState<number>(60);
+    const [time, setTime] = useState<number>(20);
     const [timeCheck, setTimeCheck] = useState<boolean>(false);
     const [meeting, setMeeting] = useState<boolean>(false);
     const [lastTime, setLastTime] = useState<number>(10);
@@ -123,6 +123,65 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
         }
     }
 
+    const signalAction = async (response : any) => {
+        setIdx(response.data.index);
+        if(response.data.answerYN !== undefined){
+            if(response.data.answerYN === 2){
+                setChance(1);
+                setLastCheck(true);
+                setLastTime(10);
+                setAns(false);
+                setEndDiv(true);
+            }
+            else if(response.data.answerYN === 1){
+                if(my.getStreamManager().stream.streamId === response.data.startStreamId){
+                    setExit(true);
+                }
+                if(my.getStreamManager().stream.streamId !== detect){
+                    if(window.localStorage.getItem('userSeq')){
+                        await winGame(window.localStorage.getItem('userSeq'), 2);
+                    }
+                }
+                setLastCheck(false);
+                setChance(0);
+                setEnd(true);
+                setAns(false);
+                setNow(true);
+                setEndDiv(true);
+            }
+            else if(response.data.answerYN === 0){
+                if(my.getStreamManager().stream.streamId === response.data.startStreamId){
+                    setExit(true);
+                }
+                
+                if(my.getStreamManager().stream.streamId === detect){
+                    if(window.localStorage.getItem('userSeq')){
+                        await winGame(window.localStorage.getItem('userSeq'), 2);
+                    }
+                }
+                setLastCheck(false);
+                setChance(0);
+                setEnd(true);
+                setAns(false);
+                setIsAns(true);
+                setNow(true);
+                setEndDiv(true);
+            }
+            return;
+        }
+        else if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
+            if(my.getStreamManager().stream.streamId === response.data.curStreamId){
+                setImNext(true);
+            }
+            setCurSpeak(response.data.curStreamId);
+            setIdx(response.data.index);
+            setStep(true);
+        }
+        else if(response.data.finishPR && response.data.finishPR === 'Y'){
+            setMeeting(true);
+        }
+    };
+
     useEffect(()=>{
         
         setCurSpeak(imSpeak);
@@ -145,64 +204,12 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 setChance(2);
             }
         }, 10000);
-        my.getStreamManager().stream.session.on("signal:game", async (response : any) => {
-            setIdx(response.data.index);
-            if(response.data.answerYN !== undefined){
-                if(response.data.answerYN === 2){
-                    setChance(1);
-                    setLastCheck(true);
-                    setLastTime(10);
-                    setAns(false);
-                    setEndDiv(true);
-                }
-                else if(response.data.answerYN === 1){
-                    if(my.getStreamManager().stream.streamId === response.data.startStreamId){
-                        setExit(true);
-                    }
-                    if(my.getStreamManager().stream.streamId !== detect){
-                        if(window.localStorage.getItem('userSeq')){
-                            await winGame(window.localStorage.getItem('userSeq'), 2);
-                        }
-                    }
-                    setLastCheck(false);
-                    setChance(0);
-                    setEnd(true);
-                    setAns(false);
-                    setNow(true);
-                    setEndDiv(true);
-                }
-                else if(response.data.answerYN === 0){
-                    if(my.getStreamManager().stream.streamId === response.data.startStreamId){
-                        setExit(true);
-                    }
-                    
-                    if(my.getStreamManager().stream.streamId === detect){
-                        if(window.localStorage.getItem('userSeq')){
-                            await winGame(window.localStorage.getItem('userSeq'), 2);
-                        }
-                    }
-                    setLastCheck(false);
-                    setChance(0);
-                    setEnd(true);
-                    setAns(false);
-                    setIsAns(true);
-                    setNow(true);
-                    setEndDiv(true);
-                }
-                return;
-            }
-            else if(!response.data.finishPR && response.data.gameStatus === 2 && response.data.gameId === 3){
-                if(my.getStreamManager().stream.streamId === response.data.curStreamId){
-                    setImNext(true);
-                }
-                setCurSpeak(response.data.curStreamId);
-                setIdx(response.data.index);
-                setStep(true);
-            }
-            else if(response.data.finishPR && response.data.finishPR === 'Y'){
-                setMeeting(true);
-            }
-        });
+        my.getStreamManager().stream.session.on("signal:game", signalAction);
+
+        return () => {
+            my.getStreamManager().stream.session.off("signal:game", signalAction);
+        }
+
     },[]);
 
     useEffect(()=>{
@@ -231,7 +238,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
         if(meeting){
             setTimeout(()=>{
                 setMeeting(false);               
-                setTime(60);
+                setTime(20);
                 setTimeCheck(true);
                 setNow(true);
             }, 5000)
@@ -302,7 +309,7 @@ function FindPerson({my, users , detect, suspect, mySession, imSpeak, detectNick
                 setTimeCheck(false);
                 setNow(false);
                 setLast(true);
-            }, 60000);
+            }, 20000);
         }
 
         else{

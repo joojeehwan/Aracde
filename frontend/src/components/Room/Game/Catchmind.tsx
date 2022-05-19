@@ -394,6 +394,70 @@ function Catchmind({initData, user} : MyProps) {
             });
         }
     }
+
+    const signalAction = async (response : any) => {
+        if(response.data.gameStatus === 3) return;
+        if(response.data.answerYn){
+            const imagesrc = response.data.allImages.split('|');
+            if(response.data.startStreamId === user.getStreamManager().stream.streamId){
+                setImStart(true);
+            }
+            if(response.data.answerYn === 'Y') {
+                if(window.localStorage.getItem('userSeq')){
+                    await winGame(window.localStorage.getItem('userSeq'), 0);
+                }
+                setAnsFlag(true);
+                setEnd(true);
+                setAllimage([...imagesrc]);
+                setAnsNick(response.data.nickname);
+                setAnswer(response.data.answer);
+                setInputAns(response.data.response);
+                setOpen(true);
+                setLastOther(false);
+            }
+            else{
+                setEnd(true);
+                setAllimage([...imagesrc]);
+                setAnsNick(response.data.nickname);
+                setAnswer(response.data.answer);
+                setInputAns(response.data.response);
+                setOpen(true);
+                setLastOther(false);
+            }
+            
+        }
+        else{
+            if(response.data.orderStatus === 0 || response.data.orderStatus === 1){
+                if(user.getStreamManager().stream.streamId === response.data.curStreamId){
+                    if(nextRef.current){
+                        setMyturn(true);
+                        // setTimeFlag(true);
+                        setSrc(response.data.imageUrl);
+                        setNext(false);
+                        setIdx(response.data.index);
+                    }
+                }
+                if(user.getStreamManager().stream.streamId === response.data.nextStreamId){
+                    if(response.data.orderStatus === 1) setImLast(true);
+                    else setNext(true);
+                }
+                setTimeFlag(false);
+                setImgStatus(true);
+                setImgTime(5);
+                setTime(response.data.time);
+            }
+            else if(response.data.orderStatus === 2){
+                if(user.getStreamManager().stream.streamId === response.data.curStreamId){
+                    setImLast(false);
+                    setLast(true);
+                    setIdx(response.data.index);
+                    setSrc(response.data.imageUrl);
+                }
+                setLastOther(true);
+            }
+        }
+    };
+
     useEffect(()=>{
         let countDown : any;
         if(lastOther){
@@ -434,6 +498,7 @@ function Catchmind({initData, user} : MyProps) {
             clearInterval(countDown);
         }
     }, [timeFlag,time]);
+
     useEffect(()=>{
         let countTime : any;
         if(imgStatus){
@@ -473,6 +538,7 @@ function Catchmind({initData, user} : MyProps) {
             window.removeEventListener('resize', handleResize);
         };
     }, [myTurn, imgStatus]);
+
     useEffect(() => {
         if(!canvasRef.current) return;
         const canvas : HTMLCanvasElement = canvasRef.current;
@@ -520,68 +586,11 @@ function Catchmind({initData, user} : MyProps) {
                 setNext(true);
             }
         }, 10000);
-        user.getStreamManager().stream.session.on("signal:game", async (response : any) => {
-            if(response.data.gameStatus === 3) return;
-            if(response.data.answerYn){
-                const imagesrc = response.data.allImages.split('|');
-                if(response.data.startStreamId === user.getStreamManager().stream.streamId){
-                    setImStart(true);
-                }
-                if(response.data.answerYn === 'Y') {
-                    if(window.localStorage.getItem('userSeq')){
-                        await winGame(window.localStorage.getItem('userSeq'), 0);
-                    }
-                    setAnsFlag(true);
-                    setEnd(true);
-                    setAllimage([...imagesrc]);
-                    setAnsNick(response.data.nickname);
-                    setAnswer(response.data.answer);
-                    setInputAns(response.data.response);
-                    setOpen(true);
-                    setLastOther(false);
-                }
-                else{
-                    setEnd(true);
-                    setAllimage([...imagesrc]);
-                    setAnsNick(response.data.nickname);
-                    setAnswer(response.data.answer);
-                    setInputAns(response.data.response);
-                    setOpen(true);
-                    setLastOther(false);
-                }
-                
-            }
-            else{
-                if(response.data.orderStatus === 0 || response.data.orderStatus === 1){
-                    if(user.getStreamManager().stream.streamId === response.data.curStreamId){
-                        if(nextRef.current){
-                            setMyturn(true);
-                            // setTimeFlag(true);
-                            setSrc(response.data.imageUrl);
-                            setNext(false);
-                            setIdx(response.data.index);
-                        }
-                    }
-                    if(user.getStreamManager().stream.streamId === response.data.nextStreamId){
-                        if(response.data.orderStatus === 1) setImLast(true);
-                        else setNext(true);
-                    }
-                    setTimeFlag(false);
-                    setImgStatus(true);
-                    setImgTime(5);
-                    setTime(response.data.time);
-                }
-                else if(response.data.orderStatus === 2){
-                    if(user.getStreamManager().stream.streamId === response.data.curStreamId){
-                        setImLast(false);
-                        setLast(true);
-                        setIdx(response.data.index);
-                        setSrc(response.data.imageUrl);
-                    }
-                    setLastOther(true);
-                }
-            }
-        });
+        user.getStreamManager().stream.session.on("signal:game", signalAction);
+
+        return () => {
+            user.getStreamManager().stream.session.off("signal:game", signalAction);
+        }
     },[]);
 
 

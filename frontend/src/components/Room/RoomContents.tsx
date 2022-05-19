@@ -148,6 +148,15 @@ const RoomContents = ({ sessionName, userName }: any) => {
     };
   }, []);
 
+  // useEffect(()=>{
+  //   if(sessionRef.current && mode === 'home'){
+  //     sessionRef.current.on('signal:game', ()=>{
+
+  //     });
+  //   }
+  // },[mode]);
+
+
   useEffect(() => {
     setSessionId(sessionRef.current);
     if (sessionRef.current) {
@@ -226,6 +235,7 @@ const RoomContents = ({ sessionName, userName }: any) => {
             if (localUserRef.current.isImDetect()) localUserRef.current.setImDetect(false);
             else removeVoiceFilter();
           }
+          // sessionRef.current.off('signal:game');
           setMode('home');
         }
         if (response.data.gameId === 1 && response.data.gameStatus === 2 && modeRef.current !== 'game1') {

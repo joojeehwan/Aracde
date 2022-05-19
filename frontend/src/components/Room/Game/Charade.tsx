@@ -36,6 +36,8 @@ const Charade = (props: any) => {
   const [endFlag, setEndFlag] = useState<any>(false);
   const [answerFlag, setAnswerFlag] = useState<any>(false);
 
+  const [checkFlag, setCheckFlag] = useState<boolean>(false);
+
   const streamIdRef = useRef(streamId);
   streamIdRef.current = streamId;
 
@@ -170,7 +172,114 @@ const Charade = (props: any) => {
       );
     }
   };
+  const signalAction = (response: any) => {
+    if (response.data.gameId === 2) {
+      // 게임 종료
+      if (response.data.gameStatus === 3) {
+        setMyTurn(false);
+        return;
+      }
+      // 게임 도중
+      else if (response.data.gameStatus === 2) {
+        // 시간이 지나갔을 때
+        if (response.data.timeout === 'Y') {
+          if (response.data.finishYN === 'N') {
+            if (myTurnRef.current) {
+              setMyTurn(false);
+            }
+            if (props.user.getStreamManager().stream.streamId !== response.data.curStreamId) {
+              props.sub.map((v: any, i: number) => {
+                const nexidx = i;
+                if (v.getStreamManager().stream.streamId === response.data.curStreamId) {
+                  setIdx(nexidx);
+                  setPresenter('');
+                  //  setPresenter("undefined");
+                  //  setPreId(v.getStreamManager().stream.streamId);
+                }
+              });
+            } else {
+              setMyTurn(true);
+              setPresenter(response.data.curStreamId);
+            }
+            setIndex(response.data.index);
+            setAnswer(response.data.answer);
+            setAnswerFlag(true);
+            setTimeFlag(false);
+            return;
+          }
+          // 모든 게임이 끝났을 때
+          else if (response.data.finishYN === 'Y') {
+            setTime(60);
+            setTimeFlag(false);
+            setEndFlag(true);
+            setHost(response.data.startSteamId);
+            return;
+          }
+        }
+        // 시간이 지나가지 않았을 때
+        else if (response.data.timeout === 'N') {
+          // 문제를 맞췄을 때
+          if (response.data.answerYN === 'Y' && response.data.finishYN === 'N') {
+            if (streamIdRef.current === response.data.answerStreamId && !checkFlag) {
+              setCheckFlag(true);
+              sendMessage(
+                `${props.user.getNickname()}님 ${response.data.keyword} 정답입니다`,
+                props.user.getNickname(),
+              );
+            }
+            if(streamIdRef.current === response.data.answerStreamId && checkFlag){
+              setCheckFlag(false);
+              return;
+            }
 
+            setIndex(response.data.index);
+            if (myTurnRef.current) {
+              setMyTurn(false);
+            }
+            if (props.user.getStreamManager().stream.streamId !== response.data.curStreamId) {
+              props.sub.map((v: any, i: number) => {
+                const nexidx = i;
+                if (v.getStreamManager().stream.streamId === response.data.curStreamId) {
+                  setIdx(nexidx);
+                  setPresenter('');
+                  //  setPreId(v.getStreamManager().stream.streamId);
+                }
+              });
+            } else {
+              setMyTurn(true);
+              setPresenter(response.data.curStreamId);
+            }
+            //setPresenter(response.data.curStreamId);
+            setAnswer(response.data.answer);
+            setAnswerStreamId(response.data.answerStreamId);
+            setAnswerFlag(true);
+            setTimeFlag(false);
+            setTime(60);
+            return;
+          }
+          // 문제를 맞췄는데 모든 게임이 끝났을 때
+          else if (response.data.answerYN === 'Y' && response.data.finishYN === 'Y') {
+            if (streamIdRef.current === response.data.answerStreamId) {
+              sendMessage(
+                `${props.user.getNickname()}님 ${response.data.keyword} 정답입니다`,
+                props.user.getNickname(),
+              );
+              sendMessage('게임이 끝났습니다.', props.user.getNickname());
+            }
+            setAnswerStreamId(response.data.answerStreamId);
+            setTimeFlag(false);
+            setEndFlag(true);
+            setHost(response.data.startSteamId);
+            return;
+          }
+          // 문제를 틀렸을 때
+          else if (response.data.answerYN === 'N') {
+            return;
+          }
+        }
+      }
+    }
+  }
   const sendCountdown = () => {
     const data = {
       gameStatus: 2,
@@ -231,6 +340,7 @@ const Charade = (props: any) => {
   }, [time, timeFlag]);
 
   useEffect(() => {
+
     setStreamId(props.charadeData.id);
     setAnswer(props.charadeData.answer);
     setCategory(props.charadeData.category);
@@ -256,6 +366,12 @@ const Charade = (props: any) => {
     }
 
     setUserData(array);
+    props.user.getStreamManager().stream.session.on('signal:game', signalAction);
+    return () => {
+      props.user.getStreamManager().stream.session.off("signal:game", signalAction);
+    }
+
+
   }, []);
   useEffect(() => {
     if (presenterRef.current === 'undefined') {
@@ -267,117 +383,20 @@ const Charade = (props: any) => {
     }
   }, [presenter]);
 
-  useEffect(() => {
-    props.user.getStreamManager().stream.session.on('signal:game', (response: any) => {
-      if (response.data.gameId === 2) {
-        // 게임 종료
-        if (response.data.gameStatus === 3) {
-          console.log('몸으로 말해요 게임 종료');
-          return;
-        }
-        // 게임 도중
-        else if (response.data.gameStatus === 2) {
-          // 시간이 지나갔을 때
-          if (response.data.timeout === 'Y') {
-            if (response.data.finishYN === 'N') {
-              if (myTurnRef.current) {
-                setMyTurn(false);
-              }
-              if (props.user.getStreamManager().stream.streamId !== response.data.curStreamId) {
-                props.sub.map((v: any, i: number) => {
-                  const nexidx = i;
-                  if (v.getStreamManager().stream.streamId === response.data.curStreamId) {
-                    setIdx(nexidx);
-                    setPresenter('');
-                    //  setPresenter("undefined");
-                    //  setPreId(v.getStreamManager().stream.streamId);
-                  }
-                });
-              } else {
-                setMyTurn(true);
-                setPresenter(response.data.curStreamId);
-              }
-              setIndex(response.data.index);
-              setAnswer(response.data.answer);
-              setAnswerFlag(true);
-              setTimeFlag(false);
-              return;
-            }
-            // 모든 게임이 끝났을 때
-            else if (response.data.finishYN === 'Y') {
-              setTime(60);
-              setTimeFlag(false);
-              setEndFlag(true);
-              setHost(response.data.startSteamId);
-              return;
-            }
-          }
-          // 시간이 지나가지 않았을 때
-          else if (response.data.timeout === 'N') {
-            // 문제를 맞췄을 때
-            if (response.data.answerYN === 'Y' && response.data.finishYN === 'N') {
-              if (streamIdRef.current === response.data.answerStreamId) {
-                sendMessage(
-                  `${props.user.getNickname()}님 ${response.data.keyword} 정답입니다`,
-                  props.user.getNickname(),
-                );
-              }
-
-              setIndex(response.data.index);
-              if (myTurnRef.current) {
-                setMyTurn(false);
-              }
-              if (props.user.getStreamManager().stream.streamId !== response.data.curStreamId) {
-                props.sub.map((v: any, i: number) => {
-                  const nexidx = i;
-                  if (v.getStreamManager().stream.streamId === response.data.curStreamId) {
-                    setIdx(nexidx);
-                    setPresenter('');
-                    //  setPreId(v.getStreamManager().stream.streamId);
-                  }
-                });
-              } else {
-                setMyTurn(true);
-                setPresenter(response.data.curStreamId);
-              }
-              //setPresenter(response.data.curStreamId);
-              setAnswer(response.data.answer);
-              setAnswerStreamId(response.data.answerStreamId);
-              setAnswerFlag(true);
-              setTimeFlag(false);
-              setTime(60);
-              return;
-            }
-            // 문제를 맞췄는데 모든 게임이 끝났을 때
-            else if (response.data.answerYN === 'Y' && response.data.finishYN === 'Y') {
-              if (streamIdRef.current === response.data.answerStreamId) {
-                sendMessage(
-                  `${props.user.getNickname()}님 ${response.data.keyword} 정답입니다`,
-                  props.user.getNickname(),
-                );
-                sendMessage('게임이 끝났습니다.', props.user.getNickname());
-              }
-              setAnswerStreamId(response.data.answerStreamId);
-              setTimeFlag(false);
-              setEndFlag(true);
-              setHost(response.data.startSteamId);
-              return;
-            }
-            // 문제를 틀렸을 때
-            else if (response.data.answerYN === 'N') {
-              return;
-            }
-          }
-        }
-      }
-    });
-  }, []);
-
-  useEffect(() => {}, [myTurn]);
 
   useEffect(() => {
+    if(myTurn){
+      props.micChange(false);
+    }
+    else{
+      props.micChange(true);
+    }
+  }, [myTurn]);
+
+  useEffect(()=>{
     setScore();
   });
+
   return (
     <>
       <div
@@ -517,6 +536,7 @@ const Charade = (props: any) => {
                   onChange={handleChange}
                   placeholder="정답을 입력해 주세요 !"
                   onKeyPress={onKeyPress}
+                  disabled={!timeFlag}    
                 />
               )}
             </div>
