@@ -298,6 +298,10 @@ public class GameService {
                     }
                 }
 
+                // 순서 안섞는용
+//                String detectiveStreamId = peopleOrder.get(1);
+//                String suspectStreamId = peopleOrder.get(2);
+
                 detectMap.put(sessionId, detectiveStreamId);
                 suspectMap.put(sessionId, suspectStreamId);
 
