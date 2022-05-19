@@ -5,9 +5,12 @@ import AlarmIcon from '@mui/icons-material/Alarm';
 import { useStore } from '../store';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { QrCodeScannerOutlined } from '@mui/icons-material';
+import { QrCodeScannerOutlined, SettingsCellOutlined } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { listStyleType } from 'html2canvas/dist/types/css/property-descriptors/list-style-type';
 
 const Charade = (props: any) => {
+  const navigate = useNavigate();
   const { myTurn, setMyTurn } = useStore();
   const [answer, setAnswer] = useState<any>('');
   const [streamId, setStreamId] = useState<any>('');
@@ -26,11 +29,12 @@ const Charade = (props: any) => {
   const [idx, setIdx] = useState<any>(0);
   const [answerStreamId, setAnswerStreamId] = useState<any>('');
 
-  const [gameFlag, setGameFlag] = useState<any>(false);
+  const [gameFlag, setGameFlag] = useState<any>(true);
 
   const [host, setHost] = useState<any>('');
 
   const [endFlag, setEndFlag] = useState<any>(false);
+  const [answerFlag, setAnswerFlag] = useState<any>(false);
 
   const streamIdRef = useRef(streamId);
   streamIdRef.current = streamId;
@@ -186,13 +190,30 @@ const Charade = (props: any) => {
       role: 'alert',
     });
     setTimeout(() => {
-      setGameFlag(true);
+      setGameFlag(false);
       setTimeFlag(true);
-    }, 10000);
+    }, 5000);
     return () => {
       clearTimeout();
     };
   }, []);
+
+  useEffect(() => {
+    if (answerFlag) {
+      toast('3초 후 다음 제시어가 출제됩니다.', {
+        position: toast.POSITION.TOP_CENTER,
+        role: 'alert',
+      });
+      setTimeout(() => {
+        setAnswerFlag(false);
+        setTimeFlag(true);
+        setTime(60);
+      }, 5000);
+    }
+    return () => {
+      clearTimeout();
+    };
+  }, [answerFlag]);
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -251,7 +272,7 @@ const Charade = (props: any) => {
       if (response.data.gameId === 2) {
         // 게임 종료
         if (response.data.gameStatus === 3) {
-          exitGame();
+          console.log('몸으로 말해요 게임 종료');
           return;
         }
         // 게임 도중
@@ -278,13 +299,13 @@ const Charade = (props: any) => {
               }
               setIndex(response.data.index);
               setAnswer(response.data.answer);
-              setTime(60);
+              setAnswerFlag(true);
+              setTimeFlag(false);
               return;
             }
             // 모든 게임이 끝났을 때
             else if (response.data.finishYN === 'Y') {
               setTime(60);
-              setGameFlag(false);
               setTimeFlag(false);
               setEndFlag(true);
               setHost(response.data.startSteamId);
@@ -295,13 +316,13 @@ const Charade = (props: any) => {
           else if (response.data.timeout === 'N') {
             // 문제를 맞췄을 때
             if (response.data.answerYN === 'Y' && response.data.finishYN === 'N') {
-
               if (streamIdRef.current === response.data.answerStreamId) {
                 sendMessage(
                   `${props.user.getNickname()}님 ${response.data.keyword} 정답입니다`,
                   props.user.getNickname(),
                 );
               }
+
               setIndex(response.data.index);
               if (myTurnRef.current) {
                 setMyTurn(false);
@@ -322,6 +343,8 @@ const Charade = (props: any) => {
               //setPresenter(response.data.curStreamId);
               setAnswer(response.data.answer);
               setAnswerStreamId(response.data.answerStreamId);
+              setAnswerFlag(true);
+              setTimeFlag(false);
               setTime(60);
               return;
             }
@@ -335,8 +358,6 @@ const Charade = (props: any) => {
                 sendMessage('게임이 끝났습니다.', props.user.getNickname());
               }
               setAnswerStreamId(response.data.answerStreamId);
-              setTime(60);
-              setGameFlag(false);
               setTimeFlag(false);
               setEndFlag(true);
               setHost(response.data.startSteamId);
@@ -352,8 +373,7 @@ const Charade = (props: any) => {
     });
   }, []);
 
-  useEffect(() => {
-  }, [myTurn]);
+  useEffect(() => {}, [myTurn]);
 
   useEffect(() => {
     setScore();
@@ -412,75 +432,87 @@ const Charade = (props: any) => {
             )}
           </div>
         </div>
-        <div className={styles.body}>
-          <div className={styles.wrapper}>
-            <div className={styles.hintWrapper}>{getHint(`${answer}`)}</div>
-            <input
-              style={{
-                height: 40,
-              }}
-              type="text"
-              value={`카테고리 : ${categoryAll[category]} `}
-              className={styles.category}
-              disabled
-            ></input>
-            <div className={styles.video}>
-              <span className={styles.round}>
-                Round {index} / {userData.length}
-              </span>
-              <span className={styles.alarm}>
-                <AlarmIcon fontSize="large" /> {time}
-              </span>
+        {gameFlag ? (
+          <div className={styles.description}>
+            <h1 style={{ color: 'white', margin: '4vh auto' }}>몸으로 말해요 🤔</h1>
+            <ol className={styles.desc}>
+              <li>첫 번째 사람은 제시어를 보고 제한시간안에 몸으로 묘사 해주세요</li>
+              <li>다른 사람들은 몸으로 묘사한 제시어를 유추하여 정답을 맞춰주세요</li>
+              <li>정답을 맞추거나 제한시간이 끝나면 다음 사람으로 넘어갑니다</li>
+              <li>게임 진행 순서는 모두 랜덤입니다! 긴장 풀지 마세요!</li>
+            </ol>
+          </div>
+        ) : (
+          <div className={styles.body}>
+            <div className={styles.wrapper}>
+              <div className={styles.hintWrapper}>{getHint(`${answer}`)}</div>
+              <input
+                style={{
+                  height: 40,
+                }}
+                type="text"
+                value={`카테고리 : ${categoryAll[category]} `}
+                className={styles.category}
+                disabled
+              ></input>
+              <div className={styles.video}>
+                <span className={styles.round}>
+                  Round {index} / {userData.length}
+                </span>
+                <span className={styles.alarm}>
+                  <AlarmIcon fontSize="large" /> {time}
+                </span>
 
-              {endFlagRef.current ? (
-                <div className={styles.exit}>
-                  <button onClick={exitGame} className={styles.button}>
-                    대기실로
-                  </button>
-                </div>
-              ) : null}
+                {endFlagRef.current ? (
+                  <div className={styles.exit}>
+                    <button onClick={exitGame} className={styles.button}>
+                      대기실로
+                    </button>
+                  </div>
+                ) : null}
 
-              {streamIdRef.current === presenterRef.current ? (
-                <StreamComponent
-                  sessionId={props.sessionId}
-                  user={props.user}
-                  subscribers={props.subscribers}
-                  camStatusChanged={props.camChange}
-                  micMuted={props.micMuted}
-                />
+                {streamIdRef.current === presenterRef.current ? (
+                  <StreamComponent
+                    sessionId={props.sessionId}
+                    user={props.user}
+                    subscribers={props.subscribers}
+                    camStatusChanged={props.camChange}
+                    micMuted={props.micMuted}
+                  />
+                ) : (
+                  <StreamComponent
+                    // sessionId={props.sessionId}
+                    user={props.sub[idxRef.current]}
+                    subscribers={props.subscribers}
+                    camStatusChanged={props.camChange}
+                    micMuted={props.micMuted}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className={styles.inputWrapper}>
+              {streamId === presenter ? (
+                <input type="text" value={`제시어 : ` + answer} className={styles.answer} disabled />
               ) : (
-                <StreamComponent
-                  // sessionId={props.sessionId}
-                  user={props.sub[idxRef.current]}
-                  subscribers={props.subscribers}
-                  camStatusChanged={props.camChange}
-                  micMuted={props.micMuted}
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={message}
+                  onChange={handleChange}
+                  placeholder="정답을 입력해 주세요 !"
+                  onKeyPress={onKeyPress}
                 />
               )}
             </div>
-          </div>
 
-          <div className={styles.inputWrapper}>
-            {streamId === presenter ? (
-              <input type="text" value={`제시어 : ` + answer} className={styles.answer} disabled />
-            ) : (
-              <input
-                type="text"
-                className={styles.input}
-                value={message}
-                onChange={handleChange}
-                placeholder="정답을 입력해 주세요 !"
-                onKeyPress={onKeyPress}
-              />
-            )}
-          </div>
-
-          <div className={styles.scoreWrapper}>
-            <div className={styles.score}>
-              <h3>{getScore()}</h3>
+            <div className={styles.scoreWrapper}>
+              <div className={styles.score}>
+                <h3>{getScore()}</h3>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
