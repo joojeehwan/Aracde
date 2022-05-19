@@ -54,12 +54,10 @@ function Alarms({ open, onClose, client }: any) {
 
   const onClickAcceptRequest = async (notiSeq: any, userSeq: any, type: any, inviteCode: any) => {
     setFlag(true)
-    console.log(type, typeof type)
     if (type === "Friend") {
       await deleteAlarm(notiSeq)
       await patchAcceptFriendRequest(userSeq)
     } else {
-      console.log(inviteCode)
       setInviteCode(inviteCode)
       await deleteAlarm(notiSeq)
       navigate("/entrance")

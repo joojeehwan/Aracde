@@ -48,10 +48,8 @@ const sendGameNoti = async (userSeq: any, inviteCode: any, targetUserSeq: any) =
     targetSeq: targetUserSeq
   };
   if (token !== null) {
-    console.log(body)
     const result = await axios.post(`${BASE_URL}/sendGame`, body, { headers: { Authorization: token } })
       .then((res) => {
-        console.log(res)
         return res;
       })
       .catch((err) => {
@@ -76,7 +74,6 @@ const postReadAlarm = async () => {
       })
       .catch((err) => {
         console.dir(err);
-        // console.log(token)
         return err;
       });
     return result;

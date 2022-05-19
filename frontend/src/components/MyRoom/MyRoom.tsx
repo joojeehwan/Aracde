@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import Navbar from '../../common/navbar/Navbar';
 import styles from './style/MyRoom.module.scss';
 import Avatar from '@mui/material/Avatar';
@@ -54,7 +55,13 @@ const MyRoom = () => {
         const picture = x.pictureUrl
         setPictures((current) => [picture, ...current]);
       });
+      return;
     }
+    toast.error(<div style={{ width: 'inherit', fontSize: '14px' }}>로그인 후 사용 가능합니다.</div>, {
+      position: toast.POSITION.TOP_CENTER,
+      role: 'alert',
+    });
+    navigate('/')
   };
 
   useEffect(() => {

@@ -49,7 +49,6 @@ public class S3Service {
 
     public String uploadImg(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
-        System.out.println(fileName+" "+file.getInputStream().toString());
         //s3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), null).withCannedAcl(CannedAccessControlList.PublicRead));
         java.util.Date expiration = new java.util.Date();
         long expTime = expiration.getTime();
@@ -68,7 +67,6 @@ public class S3Service {
         connection.setRequestMethod("PUT");
         connection.getOutputStream().write(pic);
         connection.getResponseCode();
-        System.out.println("HTTP response code is " + connection.getResponseCode());
         if(connection.getResponseCode() != 200){
             return null;
         }

@@ -41,8 +41,8 @@ function InviteSearhBar({ searchPeople }: MyProps) {
         />
         <p className={style.title}>친구 초대</p>
       </div>
-      <div className={style.serachBar}>
-        <img src={magnifyingGlass} style={{ height: '43px', marginTop: '-30px', marginBottom: '-10px' }} />
+      <div className={style.searchBar}>
+        <img src={magnifyingGlass} />
         <input className={style.input} id="nick" type="text" onChange={handleInput} onKeyDown={handleSearchPeople}></input>
       </div>
     </header>

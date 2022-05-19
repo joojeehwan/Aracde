@@ -6,7 +6,6 @@ const BASE_URL = process.env.REACT_APP_API_ROOT + '/game';
 
 const createRoom = async () => {
   const response = await axios.post(`${BASE_URL}/room`);
-  console.log(response);
   return response;
 };
 
@@ -25,14 +24,12 @@ const enterRoom = async (code: string) => {
       };
       return value;
     });
-  console.log(response);
   return response;
 };
 
 const exitRoom = async (code: string | null) => {
   if (code === null) return null;
   const response = await axios.patch(`${BASE_URL}/exit`, { inviteCode: code });
-  console.log(response);
   return response;
 };
 
@@ -57,7 +54,6 @@ const intoGame = async (userSeq: string | null, code: number) => {
       codeIdx: code,
     };
     const result = await axios.patch(`${BASE_URL}/init`, body, { headers: { Authorization: token } });
-    console.log(result, "게임 시작");
     return result;
   }
 };
@@ -71,7 +67,6 @@ const winGame = async (userSeq : string | null, code : number) => {
       codeIdx : code
     };
     const result = await axios.patch(`${BASE_URL}/win`, body, {headers: {Authorization : token}});
-    console.log(result, "게임 이김");
     return result;
   }
 }

@@ -165,7 +165,6 @@ public class ChatService {
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
                         .lastTime(chatRoom.getLastTime()).build());
-                System.out.println("로그인 했냐? "+ flag);
             } else if (chatRoom.getUser2().getUserSeq() == user.getUserSeq()) {
                 User target = chatRoom.getUser1();
                 ChannelTopic topic = onlineService.getOnlineTopic(target.getUserSeq());
@@ -175,7 +174,6 @@ public class ChatService {
                         .image(target.getImage()).name(target.getName())
                         .lastMessage(chatRoom.getLastContent())
                         .lastTime(chatRoom.getLastTime()).build());
-                System.out.println("로그인 했냐? "+ flag);
             }
         }
         // topic 발행

@@ -27,7 +27,6 @@ function StreamComponent({
   isLast,
   end
 } : any) {
-  console.log(user);
   const [mutedSound, setMuted] = useState(false);
   const [controlBox, setControl] = useState(false);
   const [bgcolor, setBgcolor] = useState("");
@@ -78,7 +77,6 @@ function StreamComponent({
     "#f288e9",
   ];
 
-  console.log("stream render");
   const handleChangeControlBox = (e : any) => {
     setControl(!controlBox);
     e.preventDefault();
@@ -87,7 +85,6 @@ function StreamComponent({
   useEffect(() => {
     if (nickname !== "" && nickname !== undefined) {
       for (let i = 0; i < nickname.length; i++) {
-        console.log(nickname);
         if (
           user.getStreamManager().stream.streamId === nickname[i].connectionId
         ) {
@@ -102,7 +99,6 @@ function StreamComponent({
 
   useEffect(() => {
     if (correctNickname !== "" && correctNickname !== undefined) {
-      console.log(correctNickname, "correctNickname");
       for (let i = 0; i < correctNickname.length; i++) {
         if (
           user.getStreamManager().stream.streamId ===
