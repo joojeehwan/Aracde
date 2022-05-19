@@ -1,8 +1,7 @@
 import axios from 'axios';
 import { getToken } from './jWT-Token';
 
-// const BASE_URL = process.env.REACT_APP_API_ROOT + '/game';
-const BASE_URL = 'https://k6a203.p.ssafy.io/apiv1/game';
+const BASE_URL = process.env.REACT_APP_API_ROOT + '/game';
 
 const createRoom = async () => {
   const response = await axios.post(`${BASE_URL}/room`);
