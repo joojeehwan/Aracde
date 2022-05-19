@@ -185,6 +185,13 @@ public class GameService {
             idx++;
         }
 
+        // 순서 안섞는용
+//        int idx = 1;
+//        for (Participant p : participants) {
+//            peopleOrder.put(idx, p.getPublisherStreamId());
+//            idx++;
+//        }
+
         log.info("########## [아케이드] : 지금 사람 순서 = " + peopleOrder);
 
         // 데이터가 존재하는 경우 지우고 새로 넣어야 한다.
@@ -290,6 +297,10 @@ public class GameService {
                         break;
                     }
                 }
+
+                // 순서 안섞는용
+//                String detectiveStreamId = peopleOrder.get(1);
+//                String suspectStreamId = peopleOrder.get(2);
 
                 detectMap.put(sessionId, detectiveStreamId);
                 suspectMap.put(sessionId, suspectStreamId);
