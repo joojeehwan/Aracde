@@ -186,6 +186,13 @@ public class GameService {
             idx++;
         }
 
+        // 순서 안섞는용
+//        int idx = 1;
+//        for (Participant p : participants) {
+//            peopleOrder.put(idx, p.getPublisherStreamId());
+//            idx++;
+//        }
+
         log.info("########## [아케이드] : 지금 사람 순서 = " + peopleOrder);
         orderMap.put(sessionId, peopleOrder);
 
