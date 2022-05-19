@@ -382,7 +382,13 @@ const Charade = (props: any) => {
     <>
       <div
         style={{
-          display: 'flex',
+          width: "80vw",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "row",
+          // justify-content: flex-start;
+          // align-content: none;
+          marginTop: 0
         }}
       >
         <div className={`${styles['user-videos-container']} ${styles.charade}`}>
@@ -448,6 +454,7 @@ const Charade = (props: any) => {
               <div className={styles.hintWrapper}>{getHint(`${answer}`)}</div>
               <input
                 style={{
+                  width : "45vw",
                   height: 40,
                 }}
                 type="text"
@@ -472,26 +479,34 @@ const Charade = (props: any) => {
                 ) : null}
 
                 {streamIdRef.current === presenterRef.current ? (
+                  <div style={{
+                    width : "45vw",
+                  }}>
                   <StreamComponent
                     sessionId={props.sessionId}
                     user={props.user}
                     subscribers={props.subscribers}
                     camStatusChanged={props.camChange}
                     micMuted={props.micMuted}
+                    mode="game2"
                   />
+                  </div>
                 ) : (
+                  <div style={{
+                    width : "45vw",
+                  }}>
                   <StreamComponent
                     // sessionId={props.sessionId}
                     user={props.sub[idxRef.current]}
                     subscribers={props.subscribers}
                     camStatusChanged={props.camChange}
                     micMuted={props.micMuted}
+                    mode="game2"
                   />
+                  </div>
                 )}
               </div>
-            </div>
-
-            <div className={styles.inputWrapper}>
+              <div className={styles.inputWrapper}>
               {streamId === presenter ? (
                 <input type="text" value={`제시어 : ` + answer} className={styles.answer} disabled />
               ) : (
@@ -512,6 +527,7 @@ const Charade = (props: any) => {
               </div>
             </div>
           </div>
+            </div>
         )}
       </div>
     </>
