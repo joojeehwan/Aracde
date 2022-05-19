@@ -82,73 +82,73 @@ const Chat = (props: any) => {
     }
   };
   const sendAnswer = () => {
-    if (props.user && message) {
-      let messageData = message.replace(/ +(?= )/g, '');
-      messageData = messageData.toUpperCase();
-      if (continueGame) {
-        if (
-          messageData === 'Y' ||
-          messageData === 'O' ||
-          messageData === '0' ||
-          messageData === 'OK' ||
-          messageData === 'YES'
-        ) {
-          const data = {
-            gameStatus: 1,
-            gameId: 3,
-            index: 1,
-          };
-          props.user.getStreamManager().stream.session.signal({
-            type: 'game',
-            data: JSON.stringify(data),
-          });
-          setContinueGame(false);
-        } else if (messageData === 'N' || messageData === 'X' || messageData === 'NO') {
-          const data = {
-            gameStatus: 3,
-            gameId: 3,
-          };
-          props.user.getStreamManager().stream.session.signal({
-            type: 'game',
-            data: JSON.stringify(data),
-          });
-          setContinueGame(false);
-        } else {
-          let messageListData = answerList;
-          messageListData.push({
-            connectionId: 'SYSTEM',
-            nickname: 'SYSTEM',
-            message: '형식에 맞게 다시 입력해주세요 (Y/N)',
-          });
-          setMessageList([...messageListData]);
-          scrollToBottom();
-        }
-      } else {
-        if (messageData !== '' && messageData !== ' ' && !isNaN(messageData * 1)) {
-          const data = {
-            gameStatus: 2,
-            number: messageData * 1,
-            nickname: props.user.getNickname(),
-            gameId: 3,
-            index: idx,
-            streamId: props.user.getStreamManager().stream.streamId,
-          };
-          props.user.getStreamManager().stream.session.signal({
-            data: JSON.stringify(data),
-            type: 'game',
-          });
-        } else {
-          let messageListData = answerList;
-          messageListData.push({
-            connectionId: 'SYSTEM',
-            nickname: 'SYSTEM',
-            message: '숫자만 입력해 주세요!!!',
-          });
-          setMessageList([...messageListData]);
-          scrollToBottom();
-        }
-      }
-    }
+    // if (props.user && message) {
+    //   let messageData = message.replace(/ +(?= )/g, '');
+    //   messageData = messageData.toUpperCase();
+    //   if (continueGame) {
+    //     if (
+    //       messageData === 'Y' ||
+    //       messageData === 'O' ||
+    //       messageData === '0' ||
+    //       messageData === 'OK' ||
+    //       messageData === 'YES'
+    //     ) {
+    //       const data = {
+    //         gameStatus: 1,
+    //         gameId: 3,
+    //         index: 1,
+    //       };
+    //       props.user.getStreamManager().stream.session.signal({
+    //         type: 'game',
+    //         data: JSON.stringify(data),
+    //       });
+    //       setContinueGame(false);
+    //     } else if (messageData === 'N' || messageData === 'X' || messageData === 'NO') {
+    //       const data = {
+    //         gameStatus: 3,
+    //         gameId: 3,
+    //       };
+    //       props.user.getStreamManager().stream.session.signal({
+    //         type: 'game',
+    //         data: JSON.stringify(data),
+    //       });
+    //       setContinueGame(false);
+    //     } else {
+    //       let messageListData = answerList;
+    //       messageListData.push({
+    //         connectionId: 'SYSTEM',
+    //         nickname: 'SYSTEM',
+    //         message: '형식에 맞게 다시 입력해주세요 (Y/N)',
+    //       });
+    //       setMessageList([...messageListData]);
+    //       scrollToBottom();
+    //     }
+    //   } else {
+    //     if (messageData !== '' && messageData !== ' ' && !isNaN(messageData * 1)) {
+    //       const data = {
+    //         gameStatus: 2,
+    //         number: messageData * 1,
+    //         nickname: props.user.getNickname(),
+    //         gameId: 3,
+    //         index: idx,
+    //         streamId: props.user.getStreamManager().stream.streamId,
+    //       };
+    //       props.user.getStreamManager().stream.session.signal({
+    //         data: JSON.stringify(data),
+    //         type: 'game',
+    //       });
+    //     } else {
+    //       let messageListData = answerList;
+    //       messageListData.push({
+    //         connectionId: 'SYSTEM',
+    //         nickname: 'SYSTEM',
+    //         message: '숫자만 입력해 주세요!!!',
+    //       });
+    //       setMessageList([...messageListData]);
+    //       scrollToBottom();
+    //     }
+    //   }
+    // }
     setMessage('');
   };
 
