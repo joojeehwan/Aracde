@@ -1,0 +1,292 @@
+.scroll {
+  width: 100vw;
+  height: 220vh;
+  background-image: url('../../../assets/background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  // overflow-y: hidden;
+  overflow: hidden;
+}
+
+.main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  // overflow-y: auto;
+}
+
+.link {
+  z-index: 1;
+  position: relative;
+  float: right;
+  margin-top: 32px;
+  margin-right: 5%;
+  font-weight: bold;
+  letter-spacing: 2.5px;
+  border: none;
+  width: 80px;
+  background-color: rgba(0, 0, 0, 0);
+  color: #eaeaea;
+  font-size: 20px;
+  text-decoration: none;
+  text-shadow: 0rem 1rem 0.5rem rgba(234, 234, 234, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.link:hover {
+  text-shadow: 0rem 1.5rem 2rem rgba(234, 234, 234, 0.5);
+  color: #eaeaea;
+  transform: translateY(-7px);
+}
+
+.dockbar {
+  height: 100px;
+  width: inherit;
+  display: flex;
+  justify-content: center;
+}
+
+.dock {
+  position: relative;
+  bottom: 4vh;
+  transition: all ease 0.5s 0s;
+}
+
+.dock:hover {
+  transition: all ease 0.5s 0s;
+  bottom: 80px;
+}
+
+.btn {
+  background-color: #f3c522;
+  margin: 0px auto 25px;
+  border: none;
+  border-radius: 99999px;
+}
+
+.contentbox {
+  width: 100%;
+  height: 120vh;
+  // background-color: #111111;
+}
+
+.desc {
+  // position: relative;
+  margin: -10px auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 35px;
+  color: white;
+  width: 500px;
+}
+
+.desc p {
+  margin: 0px 0px;
+}
+
+.nav {
+  z-index: 1;
+  position: absolute;
+  width: 100%;
+  color: white;
+  z-index: 1;
+}
+
+.nav button {
+  font-size: 28px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  float: right;
+  margin-top: 2%;
+  margin-right: 2%;
+}
+
+.nav .shake {
+  animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.buttone {
+  font-size: 28px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  float: right;
+  margin-top: 2%;
+  margin-right: 2%;
+}
+
+.shakee {
+  animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@keyframes shake {
+
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+View Compiled Resources .nav .redCircle {
+  position: absolute;
+  background-color: red;
+  width: 10px;
+  height: 10px;
+  border-radius: 75px;
+  text-align: center;
+  margin: 0 auto;
+  font-size: 12px;
+  vertical-align: middle;
+  line-height: 150px;
+  z-index: 1;
+}
+
+.glass {
+  width: 100vw;
+  height: 220vh;
+  // position: relative;
+  background-color: rgba(0, 0, 0, 0.56);
+  background-attachment: fixed;
+}
+
+@media (max-width: 800px) {
+  .glass {
+    height: 320vh;
+  }
+
+  .scroll {
+    height: 320vh;
+  }
+
+  .contentbox {
+    height: 220vh;
+  }
+}
+
+.button {
+  width: 200px;
+  height: 34px;
+  box-shadow: 0rem 1.5rem 2rem rgba($color: #f3c522, $alpha: 0.2);
+  border: none;
+  border-radius: 15px;
+  margin-bottom: 35px;
+  font-family: 'neodgm';
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+
+  &:hover {
+    box-shadow: 0rem 1.5rem 2rem rgba($color: #f3c522, $alpha: 0.4);
+    transform: translateY(-4px);
+  }
+}
+
+.transButton {
+  background-color: transparent;
+  border: none;
+  margin-bottom: 35px;
+  cursor: pointer;
+  transition: all 0.3s ease 0s;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.glitch {
+  position: relative;
+  color: white;
+  font-size: 5rem;
+  margin-bottom: 30px;
+  margin-top: 0px;
+  cursor: default;
+}
+
+@keyframes noise-anim {
+  $steps: 20;
+
+  @for $i from 0 through $steps {
+    #{percentage($i*(calc(1/$steps)))} {
+      clip: rect(random(100) + px, 9999px, random(100) + px, 0);
+    }
+  }
+}
+
+.glitch:after {
+  content: attr(data-text);
+  position: absolute;
+  left: 2px;
+  text-shadow: -2px 0 red;
+  top: 0;
+  color: white;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: noise-anim 2s infinite linear alternate-reverse;
+}
+
+@keyframes noise-anim-2 {
+  $steps: 20;
+
+  @for $i from 0 through $steps {
+    #{percentage($i*(calc(1/$steps)))} {
+      clip: rect(random(100) + px, 9999px, random(100) + px, 0);
+    }
+  }
+}
+
+.glitch:before {
+  content: attr(data-text);
+  position: absolute;
+  left: -2px;
+  text-shadow: 2px 0 blue;
+  top: 0;
+  color: #d7d7d7;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: noise-anim-2 3s infinite linear alternate-reverse;
+}
+
+.glitch:before {
+  content: attr(data-text);
+  position: absolute;
+  left: -2px;
+  text-shadow: 2px 0 blue;
+  top: 0;
+  color: #d7d7d7;
+  overflow: hidden;
+  clip: rect(0, 900px, 0, 0);
+  animation: noise-anim-2 3s infinite linear alternate-reverse;
+}

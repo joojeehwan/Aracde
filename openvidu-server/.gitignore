@@ -1,0 +1,8 @@
+/target/
+*.factorypath
+
+/src/main/resources/static/dashboard/
+.idea
+.vscode
+localhost.p12
+application.properties

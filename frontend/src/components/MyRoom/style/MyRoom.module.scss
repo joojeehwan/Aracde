@@ -1,0 +1,181 @@
+.body{
+  background-image: url('../../../assets/myBackground.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+}
+.wrapper {
+  width: 100%;
+  height: 85%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // justify-content: center;
+  margin-top: 47px;
+  padding: 0px;
+  
+}
+
+.content {
+  backdrop-filter: blur(5px);
+  background-color: #ffffff52;
+  width: 80%;
+  height: 100%;
+  border-radius: 0px 0px 10px 10px;
+  font-family: 'neodgm';
+  display: flex;
+  flex-direction: column;
+}
+
+.profileContent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.profileImg {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.profile{
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.tab {
+  display: flex;
+  width: 80%;
+}
+
+.button {
+  color: grey;
+  padding: 10px;
+  background-color: #ffffff1a;
+  width: 100%;
+  font-size: 1.5rem;
+  border-radius: 4px 4px 0 0;
+  border: none;
+  cursor: pointer;
+}
+
+.buttonOn {
+  color: white;
+  padding: 10px;
+  background-color: #ffffff52;
+  width: 100%;
+  font-size: 1.5rem;
+  border-radius: 4px 4px 0 0;
+  border: none;
+  cursor: pointer;
+}
+
+
+.table{
+  border-spacing: 30px;
+}
+
+.profileGameInfo{
+  margin: 5px 30px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.count{
+  text-align: center;
+}
+
+.answer{
+  text-align: center;
+}
+
+.mvp{
+  padding: 20px;
+  clear: both;
+}
+
+.container {
+  height: 25vw;
+}
+.picture {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.picture img {
+  margin-top: 20px;
+  height: 200px;
+  width: 280px;
+  border-radius: 10px;
+  border-style: solid;
+  border-width: 1px;
+  border-color:#2c2c2c;
+}
+
+.gradientText {
+  text-shadow: 0 0 5px #ffa500, 0 0 15px #ffa500, 0 0 20px #ffa500, 0 0 40px #ffa500, 0 0 60px #ff0000, 0 0 10px #ff8d00, 0 0 98px #ff0000;
+  color: #fff6a9;
+  text-align: center;
+  animation: blink 12s infinite;
+  -webkit-animation: blink 12s infinite;
+}
+
+@media (max-width : 800px) {
+  .profileGameInfo {
+    flex-direction: column;
+  }
+  .profileGameInfo h2 {
+    font-size: 1rem;
+  }
+  .profileContent{
+    flex-direction: column;
+  }
+  .profile{
+    font-size: 1rem;
+  }
+}
+
+@-webkit-keyframes blink {
+  20%,
+  24%,
+  55% {
+    color: #111;
+    text-shadow: none;
+  }
+
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+  text-shadow: 0 0 5px #ffa500, 0 0 15px #ffa500, 0 0 20px #ffa500, 0 0 40px #ffa500, 0 0 60px #ff0000, 0 0 10px #ff8d00, 0 0 98px #ff0000;
+    color: #fff6a9;
+  }
+}
+
+@keyframes blink {
+  20%,
+  24%,
+  55% {
+    color: #111;
+    text-shadow: none;
+  }
+
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+  text-shadow: 0 0 5px #ffa500, 0 0 15px #ffa500, 0 0 20px #ffa500, 0 0 40px #ffa500, 0 0 60px #ff0000, 0 0 10px #ff8d00, 0 0 98px #ff0000;
+    color: #fff6a9;
+  }
+}

@@ -1,0 +1,192 @@
+.body{
+  background-image: url('../../../assets/roomBackground.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: white;
+  font-family: 'neodgm';
+  margin: 0px;
+  padding: 0px;
+}
+
+.wrapper{
+  // margin-top: -20px;
+  width: 100%;
+  height: 95vh; // 왜이러지 이거
+}
+.header{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4rem;
+  margin-top: 30px;
+  margin-bottom: 0px;
+}
+
+.characterImg {
+  width: 50px;
+}
+
+.content{
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+}
+
+.preferences{
+  width: 45vw;
+  // padding-right: 70px;
+}
+
+.camera{
+  // background-color: gray;
+  border-radius: 30px;
+  // width: 55vw;
+  // height: 60vh;
+  display: flex;
+  justify-content: center;
+}
+
+.camera video {
+  width: 80%;
+  height: 60%;
+  border-radius: 10px;
+  margin: auto;
+}
+.cameraBtn{
+  text-align: center;
+}
+
+.controlPanel {
+  width: 40vw;
+  margin: auto 0;
+}
+
+.form{
+  padding: 70px 0px 70px 70px;
+  font-size: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.nickname{
+  margin-bottom: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+}
+.code{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.inputArea{
+  width: 60%;
+  height: 60px;
+  background-color: rgba(19, 19, 19, 0.514);
+  border-radius: 10px;
+  float: right;
+  font-size: 2rem;
+  color: white;
+  border-style: none;
+}
+
+.buttonSet{
+  padding: 0 0 0 70px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.buttonEnter{
+  background-color: transparent;
+  color: #FF7936;
+  border-color: #FF7936;
+  border-style: solid;
+  border-width: 1px;
+  width: 200px;
+  height: 50px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.25s;
+  &:hover {
+    color: white;
+    border-style: none;
+    background-color: #FF7936;
+    box-shadow: inset 0 0 0 #ff79367e, 0 0 1.5em #ff79367e;
+  }
+}
+
+.buttonCancle{
+  background-color: transparent;
+  color: rgb(129, 129, 129);
+  border-color: rgb(129, 129, 129);
+  border-width: 1px;
+  border-style: solid;
+  width: 200px;
+  height: 50px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.25s;
+  &:hover {
+    color: white;
+    border-style: none;
+    background-color: rgb(129, 129, 129);
+    box-shadow: inset 0 0 0 rgba(129, 129, 129, 0.5), 0 0 1.5em rgba(129, 129, 129, 0.5);
+  }
+}
+
+
+
+@media (max-width : 1100px) {
+  .wrapper {
+    height: 130vh;
+  }
+  .content {
+    flex-direction: column;
+  }
+  .preferences {
+    width: 100%;
+  }
+  .controlPanel {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+  .camera video {
+    width: 80vw;
+  }
+  .header{
+    font-size: 3rem;
+  }
+  .form{
+    width: 80vw;
+    padding: 30px;
+    font-size: 1.5rem;
+  }
+  .buttonSet {
+    width: 80vw;
+    padding: 0 30px;
+    justify-content: space-between;
+  }
+  .buttonEnter {
+    width: 40%;
+  }
+  .buttonCancle {
+    width: 40%;
+  }
+}
+
+@media (max-width : 900px) {
+  .wrapper {
+    height: 120vh;
+  }
+}
+
+// @media (max-width : 800px) {
+//   .wrapper {
+//     margin-top: 30px;
+//     height: 100vh;
+//   }
+// }
