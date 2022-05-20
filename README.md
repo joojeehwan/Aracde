@@ -271,3 +271,9 @@ Docs     -  문서 관련
 </table>
 
 
+## 🎞 Arcade UCC
+
+아래 url로 접속하시면 저희 Arcade 소개영상을 보실 수 있습니다. 😎
+
+`https://www.youtube.com/watch?v=SYf1MB6fok0`
+
